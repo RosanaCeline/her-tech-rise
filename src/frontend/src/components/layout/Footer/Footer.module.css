@@ -1,0 +1,18 @@
+.footerHtr {
+    background-color: var(--purple-secundary);
+    display: flex;
+    align-items: center;
+    flex-direction: row;
+    justify-content: space-between;
+    padding: 1rem 3rem;
+}
+
+.footerHtr img {
+    max-width: 30%;
+    width: auto;
+}
+
+.footerHtr span {
+    font-size: 1.2em;
+    color: var(--light);
+}

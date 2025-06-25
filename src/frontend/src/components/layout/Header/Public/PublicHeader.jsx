@@ -1,8 +1,9 @@
 import React, { useState } from 'react';
-import { Link } from 'react-router-dom';
 
-import styles from "./PublicHeader.module.css"
-import logo from "../../../../assets/logo/LogoSimbol.png"
+import "../../../../index.css";
+import styles from "./PublicHeader.module.css";
+import logo from "../../../../assets/logo/LogoSimbol.png";
+import BtnCallToAction from '../../../btn/BtnCallToAction/BtnCallToAction';
 
 export default function PublicHeader () {
     const [menuVisible, setMenuVisible] = useState(false);
@@ -24,8 +25,8 @@ export default function PublicHeader () {
                 </g>
             </svg>
             <nav className={`${styles.navegation} ${menuVisible ? styles.active : ''}`}>
-                <button className={styles.btnLogin} onClick={() => window.location.href = '/login'}>Entrar</button>
-                <button className={styles.btnCadastro} onClick={() => window.location.href = '/cadastro'}>Cadastre-se</button>
+                <BtnCallToAction variant="border" onClick={() => window.location.href = '/login'}>ENTRAR</BtnCallToAction>
+                <BtnCallToAction variant="white" onClick={() => window.location.href = '/cadastro'}>CADASTRE-SE</BtnCallToAction>
             </nav>
         </header>
     );
