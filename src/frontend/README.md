@@ -1,46 +1,92 @@
-# Her Tech Rise
+# Her Tech Rise — Frontend
 
-Her Tech Rise é um sistema web desenvolvido no contexto da disciplina de **Engenharia de Software**, seguindo rigorosamente as etapas metodológicas para construção de um software real e profissional.
+Este repositório contém o frontend do sistema **Her Tech Rise**, desenvolvido em **React**, utilizando arquitetura de componentes funcionais e foco em responsividade, seguindo os protótipos definidos no [Figma](https://www.figma.com/design/irB4b6jVhhuOIBOMXyxxrX/ES-HerTechRise-Prototipa%C3%A7%C3%A3o?node-id=0-1&t=VMC4tWx2S8mlTJhS-1).
+O backend do sistema é desenvolvido separadamente em **Spring Boot**.
 
-## Visão Geral
+---
 
-O projeto visa criar uma rede social profissional voltada para mulheres na área de tecnologia, promovendo acolhimento, conexão, compartilhamento de experiências, oportunidades de carreira e desenvolvimento de comunidade.
+## 🛠️ Tecnologias Utilizadas
 
-## Metodologia Aplicada
+* [React](https://react.dev/)
+* [React Router DOM](https://reactrouter.com/)
+* [Tailwind CSS](https://tailwindcss.com/)
 
-Este projeto está sendo construído com base nas melhores práticas de Engenharia de Software:
+---
 
-* Levantamento de requisitos, histórias de usuário, critérios de aceite;
-* Modelagem UML (casos de uso, diagramas de atividades, classes, sequência);
-* Protótipo navegável (Figma);
-* Planejamento incremental/em Sprints de 1 semana de ciclo;
-* Desenvolvimento iterativo;
-* Testes automatizados completos;
+## ⚙️ Pré-requisitos
 
-## Protótipo (Figma)
+Antes de iniciar o projeto, certifique-se de ter instalado em sua máquina:
 
-O protótipo interativo foi desenvolvido no [Figma](https://www.figma.com/design/irB4b6jVhhuOIBOMXyxxrX/ES-HerTechRise-Prototipa%C3%A7%C3%A3o?node-id=0-1&t=VMC4tWx2S8mlTJhS-1) e representa a interface e os fluxos de navegação do sistema:
+* **Node.js** (recomendado versão 18+)
+* **npm** (gerenciado junto com o Node.js)
 
-## Tecnologias Utilizadas
+---
 
-### Frontend
+## 🚀 Como Rodar o Projeto Localmente
 
-* **React.js** (biblioteca principal de interface)
-* **Tailwind CSS** (estilização moderna e responsiva)
+1️⃣ Clone o repositório:
 
-## Estrutura do Sistema
+```bash
+git clone https://github.com/RosanaCeline/her-tech-rise.git
+```
 
-* Cadastro e autenticação de usuárias
-* Perfis profissionais com informações detalhadas
-* Publicações e compartilhamento de conteúdo
-* Busca e conexão entre usuárias
-* Vagas e oportunidades profissionais
-* Espaços de discussão e suporte
+2️⃣ Acesse o diretório do projeto:
 
-## Público-Alvo
+```bash
+cd her-tech-rise/src/frontend
+```
 
-O sistema é destinado a estudantes, profissionais e empresas do ecossistema de tecnologia, com foco em promover diversidade, inclusão e formação de redes de apoio.
+3️⃣ Instale as dependências necessárias:
 
-## Equipe
+```bash
+npm install
+```
 
-Projeto desenvolvido por estudantes de **Ciências da Computação** como aplicação prática de conceitos de Engenharia de Software.
+Obs.: As principais dependências já estão definidas no `package.json`, incluindo:
+
+* `react-router-dom`
+* `tailwindcss`
+
+4️⃣ Rode o projeto em ambiente de desenvolvimento:
+
+```bash
+npm run dev
+```
+
+A aplicação estará disponível em:
+👉 [http://localhost:3000](http://localhost:3000)
+
+---
+
+## 📦 Build para Produção
+
+Para gerar o build otimizado:
+
+```bash
+npm run build
+```
+
+Os arquivos serão gerados na pasta `/build`.
+
+---
+
+## 🧩 Estrutura do Projeto
+
+* `src/components/` — Componentes reutilizáveis.
+* `src/pages/` — Páginas da aplicação (ex.: Landing Page, Login, Cadastro, etc).
+* `src/routes/` — Configuração de rotas com `react-router-dom`.
+* `src/assets/` — Imagens, ícones e recursos estáticos.
+
+---
+
+## 📐 Design e Protótipo
+
+O desenvolvimento do frontend segue rigorosamente o protótipo validado no Figma.
+🔗 [Acessar protótipo no Figma](https://www.figma.com/design/irB4b6jVhhuOIBOMXyxxrX/ES-HerTechRise-Prototipa%C3%A7%C3%A3o?node-id=0-1&t=VMC4tWx2S8mlTJhS-1)
+
+---
+
+## 🧑‍💻 Observação
+
+Este repositório contém **apenas o frontend** da aplicação.
+O backend REST API desenvolvido em Spring Boot está disponível em repositório separado.
