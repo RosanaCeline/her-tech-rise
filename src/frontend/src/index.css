@@ -1,1 +1,11 @@
 @import "tailwindcss";
+
+:root {
+  font-family: system-ui, Montserrat;
+  --font-gray: #5C5C5C;
+  --purple-primary: #3F2E75;
+  --purple-secundary: #1B263B;
+  --purple-action: #55618C;
+  --text-primary: #1C1C1C;
+  --background: #F7F7F7;
+}
