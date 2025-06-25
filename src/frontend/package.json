@@ -10,10 +10,11 @@
     "preview": "vite preview"
   },
   "dependencies": {
-    "@tailwindcss/vite": "^4.1.10",
+    "@heroicons/react": "^2.2.0",
     "react": "^19.1.0",
     "react-dom": "^19.1.0",
     "react-router-dom": "^7.6.2",
+    "react-toastify": "^11.0.5",
     "vite": "^6.3.5"
   },
   "devDependencies": {
