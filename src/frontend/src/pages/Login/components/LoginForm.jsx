@@ -10,11 +10,11 @@ function LoginForm(){
             Voltar
         </button>
         <div className='flex flex-col text-center'>
-            <p className='text-4xl font-medium'>Faça seu login!</p>
+            <p className='text-5xl font-bold'>Faça seu login!</p>
             <p className='text-lg'>Bem-vinda de volta. Sua jornada continua aqui.</p>
             <div className='flex flex-col gap-y-3 mt-10 mb-5'>
-                <LabelInput label="E-mail"></LabelInput>
-                <LabelInput label="Senha"></LabelInput>
+                <LabelInput label="E-mail" theme='white'></LabelInput>
+                <LabelInput label="Senha" theme='white'></LabelInput>
             </div>
             <div className='flex flex-col gap-y-1 justify-end'>
                 <button className='w-fit ml-auto transition duration-300 hover:-translate-y-0.75'>Esqueci a senha</button>

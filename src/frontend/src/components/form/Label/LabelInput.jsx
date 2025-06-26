@@ -9,6 +9,9 @@ export default function LabelInput ({    name,
                                         required = false,
                                         placeholder = '',
                                         options = [], 
+                                        theme = '[#303F3C]',
+                                        validation = '',
+                                        maxLength = ''
                                     }) {
 
      // Vai aparecer um erro de validação 
@@ -16,14 +19,13 @@ export default function LabelInput ({    name,
 
     // Vai validar o campo quando o usuário sair do campo
     const handleBlur = () => {
-        const validationError = validateField(type, value, required)
+        const validationError = validateField(validation, value, required)
         setError(validationError)
     }
 
     // Definir as classes de tailwind para os inputs
     const baseInputClasses = `
-        w-full
-        min-w-full
+        w-full min-w-full
         rounded-lg
         px-4
         py-3
@@ -43,7 +45,7 @@ export default function LabelInput ({    name,
     const baseLabelClasses = `
         block
         mb-1
-        text-[#00000]
+        text-${theme}
         text-base
         text-left
     `
@@ -52,7 +54,7 @@ export default function LabelInput ({    name,
         <div className="w-full">
         {label && (
             <label htmlFor={name} className={baseLabelClasses}>
-            {label} {required && <span className="text-red-500">*</span>}
+            {label} {required && <span className="text-$[theme]">*</span>}
             </label>
         )}
 
@@ -95,11 +97,12 @@ export default function LabelInput ({    name,
             onBlur={handleBlur}
             placeholder={placeholder}
             className={baseInputClasses}
+            maxLength={maxLength}
             style={{ height: '48px' }}
             />
         )}
 
-        {error && <p className="mt-2 text-sm text-red-500">{error}</p>}
+        {error && <p className={`mt-2 text-sm text-${theme}`}>{error}</p>}
         </div>
     )
 }
