@@ -23,7 +23,7 @@ export default function LabelInput ({    name,
     // Definir as classes de tailwind para os inputs
     const baseInputClasses = `
         w-full
-        max-w-full
+        min-w-full
         rounded-lg
         px-4
         py-3
@@ -42,14 +42,14 @@ export default function LabelInput ({    name,
 
     const baseLabelClasses = `
         block
-        mb-2
-        font-semibold
-        text-[#303F3C]
+        mb-1
+        text-[#00000]
         text-base
+        text-left
     `
 
     return (
-        <div className="mb-6 w-full max-w-xl">
+        <div className="w-full">
         {label && (
             <label htmlFor={name} className={baseLabelClasses}>
             {label} {required && <span className="text-red-500">*</span>}

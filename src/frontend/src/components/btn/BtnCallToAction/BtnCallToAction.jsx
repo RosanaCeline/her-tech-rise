@@ -1,7 +1,7 @@
 import React from "react";
 import style from "./BtnCallToAction.module.css";
 
-export default function BtnCallToAction({ children, variant = "purple" }) {
+export default function BtnCallToAction({ children, variant = "purple", onClick }) {
 
   const btnClass = `${style.btnCallToAction} ${
     variant === "white" ? style.white :
@@ -10,7 +10,7 @@ export default function BtnCallToAction({ children, variant = "purple" }) {
   }`;
 
   return (
-    <button className={btnClass}>
+    <button className={btnClass} onClick={onClick}>
       {children}
     </button>
   );

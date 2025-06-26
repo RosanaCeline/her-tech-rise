@@ -3,6 +3,7 @@
     color: var(--light);
     width: 100%;
     display: flex;
+    justify-content: space-between;
     box-shadow: 0 0.2em 1em var(--font-gray)
 }
 
@@ -15,12 +16,6 @@
 .logoHtr img {
     max-width: 30%;
     width: auto;
-}
-.logoHtr span {
-    font-size: 2.5em;
-    font-weight: 600;
-    color: var(--light);
-    margin-left: 0.5rem;
 }
 
 .navegation {

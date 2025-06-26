@@ -15,7 +15,7 @@ export default function PublicHeader () {
         <header className={styles.header}>
             <div className={styles.logoHtr}>
                 <img src={logo} alt="Logo Her Tech Rise" />
-                <span>Her Tech Rise</span>
+                <span className='text-4xl font-semibold'>Her Tech Rise</span>
             </div>
             <svg className={styles.buttonNav} viewBox="0 0 60 40" onClick={toggleMenu}>
                 <g stroke="#fff" strokeWidth="4" strokeLinecap="round" strokeLinejoin="round">
@@ -24,8 +24,8 @@ export default function PublicHeader () {
                     <path className={`${styles.line} ${menuVisible ? styles.bottomActive : ''}`} d="M10,30 L50,30 Z" />
                 </g>
             </svg>
-            <nav className={`${styles.navegation} ${menuVisible ? styles.active : ''}`}>
-                <BtnCallToAction variant="border" onClick={() => window.location.href = '/login'}>ENTRAR</BtnCallToAction>
+            <nav className={`${styles.navegation} ${menuVisible ? styles.active : ''} gap-x-6 me-6`}>
+                <BtnCallToAction variant="border" onClick={() => window.location.href = '/login'}>LOGIN</BtnCallToAction>
                 <BtnCallToAction variant="white" onClick={() => window.location.href = '/cadastro'}>CADASTRE-SE</BtnCallToAction>
             </nav>
         </header>
