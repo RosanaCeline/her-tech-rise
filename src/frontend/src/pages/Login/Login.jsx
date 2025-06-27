@@ -3,11 +3,12 @@ import LoginForm from './components/LoginForm'
 import logo from "../../assets/logo/LogoNamePurple.png";
 import login from "../../assets/auth/login.png";
 
-export default function Login ( { resetPass, registerPath }) {
+export default function Login ({ resetPass, registerPath, enter }) {
   return (
     <main className='flex bg-[#F7F7F7]'>
       <LoginForm  resetPass = {resetPass}
-                  regiterPath = {registerPath} />
+                  registerPath = {registerPath}
+                  enter = {enter} />
       <div    className='w-1/2 flex flex-col justify-center p-4'>
         <img  src={logo} 
               alt="Logo Her Tech Rise" 

@@ -1,13 +1,16 @@
+import { useNavigate } from "react-router-dom";
 import { Undo2 } from 'lucide-react';
 import BtnCallToAction from '../../../components/btn/BtnCallToAction/BtnCallToAction';
 import LabelInput from '../../../components/form/Label/LabelInput';
 
-export default function LoginForm( { resetPass, regiterPath}){
+export default function LoginForm( { resetPass, registerPath, enter }){
+    const navigate = useNavigate();
+    
     return(
     <div className="text-white w-1/2 h-screen flex flex-col justify-between bg-(--purple-primary) p-9 rounded-r-[130px]">
 
         <button className='flex gap-x-3 cursor-pointer transition duration-300  hover:-translate-x-1 will-change-transform' 
-                onClick={() => window.location.href = '/'}>
+                onClick={() => navigate('/')}>
             <Undo2/>
             Voltar
         </button>
@@ -33,18 +36,19 @@ export default function LoginForm( { resetPass, regiterPath}){
 
             <div className='flex flex-col gap-y-1 justify-end'>
                 <button className='w-fit ml-auto transition duration-300 hover:-translate-y-0.75'
-                    onClick={() => window.location.href = resetPass}>
+                    onClick={() => navigate(resetPass)}>
                     Esqueci a senha
                 </button>
                 <button className='w-fit ml-auto transition duration-300 hover:-translate-y-0.75'
-                    onClick={() => window.location.href = regiterPath}>
+                    onClick={() => navigate(registerPath)}>
                     Não tenho conta ainda
                 </button>
             </div>
         </div>
 
         <div className='flex justify-center'>
-            <BtnCallToAction variant="white">
+            <BtnCallToAction variant="white"
+                onClick={() => navigate(enter)}>
                 ENTRAR
             </BtnCallToAction>
         </div>

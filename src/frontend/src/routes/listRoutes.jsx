@@ -19,7 +19,7 @@ export const publicRoutes = [
 ];
 
 export const authRoutes = [
-    { path: '/login', element: <Login resetPass="/redefinirsenha" regiterPath="/cadastro" /> },
+    { path: '/login', element: <Login resetPass="/redefinirsenha" registerPath="/cadastro" enter="/timeline"/> },
     { path: '/cadastro', element: <Register /> },
     { path: '/redefinirsenha', element: <ResetPassword /> },
 ];
