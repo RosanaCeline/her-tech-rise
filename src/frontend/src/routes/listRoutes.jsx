@@ -5,7 +5,7 @@ import Register from '../pages/Register/Register';
 import ResetPassword from "../pages/ResetPassword/ResetPassword"
 
 export const publicRoutes = [
-    { path: '/', element: <LandingPage />}
+    { path: '/', element: <LandingPage registerPath="/cadastro" />}
 ];
 
 export const authRoutes = [

@@ -1,7 +1,7 @@
 import React from 'react';
 import RegisterForm from './components/RegisterForm';
 import logo from "../../assets/logo/LogoNamePurpleAction.png";
-import register from "../../assets/homepage/register.png";
+import register from "../../assets/auth/register.png";
 
 export default function Register () {
   return (
