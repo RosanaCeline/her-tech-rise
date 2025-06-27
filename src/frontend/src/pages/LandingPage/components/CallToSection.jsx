@@ -32,12 +32,12 @@ export default function CallToSection({ type }) {
       };
 
   return (
-    <section className="w-full py-16 px-6 md:px-16 bg-[var(--light)]">
+    <section className="w-full pt-16 px-6 md:px-16 bg-[var(--light)]">
       <div className="max-w-7xl mx-auto">
         <h2 className="text-4xl font-bold text-[var(--purple-secundary)] mb-4">
           {content.title}
         </h2>
-        <p className="text-gray-600 mb-10 text-lg max-w-3xl">
+        <p className="text-gray-600 text-lg max-w-3xl">
           {content.subtitle}
         </p>
 
@@ -49,7 +49,7 @@ export default function CallToSection({ type }) {
             <ul className="flex flex-col items-center pt-1 relative">
               {content.items.map((_, index) => (
                 <div key={index} className="flex flex-col items-center">
-                  <span className="w-3 h-3 bg-[var(--purple-secundary)] rounded-full z-10"></span>
+                  <span className="w-3 h-3 my-1 bg-[var(--purple-secundary)] rounded-full z-10"></span>
                   {index < content.items.length - 1 && (
                     <div className="w-px h-8 bg-purple-300"></div>
                   )}
@@ -60,7 +60,7 @@ export default function CallToSection({ type }) {
             {/* Textos da lista */}
             <ul className="flex flex-col gap-6">
               {content.items.map((item, index) => (
-                <li key={index} className="text-gray-800 text-base md:text-lg">
+                <li key={index} className="text-gray-800 text-base md:text-lg font-semibold">
                   {item}
                 </li>
               ))}

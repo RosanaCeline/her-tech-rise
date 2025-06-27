@@ -11,7 +11,7 @@ export default function RegisterStep1({formData, handleChange }){
                 <p className='text-center text-lg'>
                     Precisamos de algumas informações para criar sua conta.
                 </p>
-                <div className='flex flex-col gap-y-2'>
+                <div className='flex flex-col gap-y-2 mt-4'>
                     <LabelInput label="Nome:" 
                                 theme='white' 
                                 placeholder='Digite seu nome' 

@@ -12,18 +12,18 @@ export default function RegisterStep1({formData, handleChange, }){
             <div className='flex flex-col gap-y-6 w-fit mx-auto mt-8'>
                 <button 
                     onClick={() => handleChange('tipo_usuario', 'profissional')} 
-                    className={`w-full mx-auto cursor-pointer py-4 px-9 rounded-3xl
+                    className={`w-full mx-auto cursor-pointer py-4 px-9 rounded-3xl transition-all duration-300 transform
                         ${(formData.tipo_usuario == 'profissional'
-                            ? 'bg-(--purple-primary) text-(--light)'
+                            ? 'bg-(--purple-primary) text-(--light) scale-105'
                             : 'bg-white text-(--purple-primary)'
                         )}`}>
                     SOU PROFISSIONAL
                 </button>
                 <button 
                     onClick={() => handleChange('tipo_usuario', 'empresa')} 
-                    className={`w-full mx-auto cursor-pointer px-9 py-4 rounded-3xl
+                    className={`w-full mx-auto cursor-pointer px-9 py-4 rounded-3xl transition-all duration-300 transform
                         ${(formData.tipo_usuario == 'empresa' 
-                            ? 'bg-(--purple-primary) text-(--light)'
+                            ? 'bg-(--purple-primary) text-(--light) scale-105'
                             : 'bg-white text-(--purple-primary) '
                         )}`}>
                     SOU EMPRESA

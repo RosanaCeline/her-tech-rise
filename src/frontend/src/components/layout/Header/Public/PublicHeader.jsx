@@ -7,7 +7,7 @@ export default function PublicHeader() {
   const toggleMenu = () => setMenuVisible(!menuVisible);
 
   return (
-    <header className="fixed top-0 left-0 w-full h-25 bg-(--purple-primary) text-white z-0 shadow-md px-15 flex items-center justify-between">
+    <header className="fixed top-0 left-0 w-full h-25 bg-(--purple-primary) text-white z-50 shadow-md px-15 flex items-center justify-between">
        
       <div className="flex items-center gap-4">
         <img src={logo} alt="Logo Her Tech Rise" className="w-auto max-w-30" />

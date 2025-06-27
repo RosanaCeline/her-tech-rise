@@ -17,8 +17,8 @@ export default function LandingPage( {registerPath }) {
         <SectionHero registerPath={registerPath} />
       </main>
 
-      <section className="w-full py-12 bg-[var(--purple-primary)] text-center">
-        <h2 className="text-3xl italic text-[var(--light)] max-w-4xl mx-auto px-4">
+      <section className="w-full mb-8 py-12 bg-[var(--purple-primary)] text-center shadow-xl/40">
+        <h2 className="text-3xl text-[var(--light)] max-w-4xl mx-auto px-">
           “Não tenha medo de ser ambicioso em relação aos seus objetivos. O trabalho duro nunca para. Seus sonhos também não deveriam parar.” —Mae Jemison.
         </h2>
       </section>

@@ -6,7 +6,7 @@ export default function SectionHero( {registerPath}) {
   return (
     <>
       <section className="flex flex-col md:flex-row h-screen w-full">
-        <article className="w-full md:w-1/2 flex flex-col justify-center relative px-8 md:px-2">
+        <article className="w-full pt-12 md:w-1/2 flex flex-col justify-center relative px-8 md:px-2">
           <div className="max-w-3xl">
             <h1 className="
               text-5xl       
@@ -20,7 +20,7 @@ export default function SectionHero( {registerPath}) {
 
             <p className="
               text-xl        
-              xl:text-2xl  
+              xl:text-3xl  
               text-[var(--text-gray)]
               mb-12
             ">
@@ -29,14 +29,14 @@ export default function SectionHero( {registerPath}) {
 
             <span className="
               text-lg        
-              xl:text-xl   
-              text-[var(--text-primary)]
+              xl:text-2xl   
+              text-[#1B263B]
               leading-relaxed
             ">
-              Mulheres na tecnologia transformam o futuro. Nós impulsionamos essas trajetórias.
+              <strong>Mulheres</strong> na tecnologia transformam o <strong>futuro</strong>. Nós <strong>impulsionamos</strong> essas <strong>trajetórias</strong>.
             </span>
           </div>
-          <div className="mt-10 justify-center items-center">
+          <div className="mt-10 mx-auto justify-center items-center">
             <BtnCallToAction
               variant="purple"
               onClick={() => window.location.href = registerPath }

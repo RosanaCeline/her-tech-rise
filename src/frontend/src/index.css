@@ -1,7 +1,15 @@
 @import "tailwindcss";
 
+@font-face {
+  font-family: 'Montserrat';
+  src: url('./assets/fonts/Montserrat-VariableFont_wght.ttf') format('woff2');
+}
+
+body {
+  font-family: 'Montserrat', sans-serif;
+}
+
 :root {
-  font-family: Montserrat;
   --font-gray: #5C5C5C;
   --purple-primary: #3F2E75;
   --purple-secundary: #1B263B;

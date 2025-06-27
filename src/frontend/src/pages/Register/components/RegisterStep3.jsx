@@ -12,7 +12,7 @@ export default function RegisterStep1({formData, handleChange }){
                 <p className='text-center text-lg'>
                     Informe os dados de localização para completar seu perfil.
                 </p>
-                <div className='flex flex-col gap-y-2'>
+                <div className='flex flex-col gap-y-2 mt-4'>
                     <div className='flex columns-2 gap-x-5'>
                         <LabelInput label="CEP:" 
                                     theme='white' 

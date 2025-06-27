@@ -19,7 +19,7 @@ export default function LoginForm( { resetPass, registerPath, enter }){
             <p className='text-5xl font-bold'>
                 Faça seu login!
             </p>
-            <p className='text-lg'>
+            <p className='text-lg mt-4'>
                 Bem-vinda de volta. Sua jornada continua aqui.
             </p>
 
