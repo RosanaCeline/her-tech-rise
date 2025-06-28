@@ -1,6 +1,6 @@
 import { Undo2 } from 'lucide-react';
-import LabelInput from '../../../components/form/Label/LabelInput';
-import { maskField } from '../../../components/form/Label/maskField';
+import LabelInput from '../../../../components/form/Label/LabelInput';
+import { maskField } from '../../../../components/form/Label/maskField';
 
 export default function RegisterStep1({formData, handleChange }){
 

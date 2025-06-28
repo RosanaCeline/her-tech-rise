@@ -1,14 +1,13 @@
 import React from 'react';
+import { Outlet } from "react-router-dom";
 
 import PrivateHeader from "../Header/Private/PrivateHeader";
 import Footer from "../Footer/Footer";
 
-import { Outlet } from "react-router-dom";
-
-export default function PrivateLayout() {
+export default function PrivateLayout({ routes }) {
   return (
     <>
-      <PrivateHeader />
+      <PrivateHeader routes={routes}/>
       <main>
         <Outlet />
       </main>

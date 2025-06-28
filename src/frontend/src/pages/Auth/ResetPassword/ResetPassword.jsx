@@ -1,14 +1,12 @@
 import React from 'react';
-import LoginForm from './components/LoginForm'
-import logo from "../../assets/logo/LogoNamePurple.png";
-import login from "../../assets/auth/login.png";
+import ResetForm from './components/ResetForm'
+import logo from "../../../assets/logo/LogoNamePurple.png";
+import login from "../../../assets/auth/login.png";
 
-export default function Login ({ resetPass, registerPath, enter }) {
-  return (
+export default function ResetPassword () {
+    return (
     <main className='flex bg-[#F7F7F7]'>
-      <LoginForm  resetPass = {resetPass}
-                  registerPath = {registerPath}
-                  enter = {enter} />
+      <ResetForm  />
       <div    className='hidden md:w-1/2 md:flex md:flex-col justify-center p-4'>
         <img  src={logo} 
               alt="Logo Her Tech Rise" 
@@ -19,4 +17,5 @@ export default function Login ({ resetPass, registerPath, enter }) {
       </div>
     </main>
   )
-}
+} 
+

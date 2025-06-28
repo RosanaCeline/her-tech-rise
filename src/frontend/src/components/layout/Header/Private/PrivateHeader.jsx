@@ -1,10 +1,10 @@
 import React, { useState } from 'react';
+
 import logo from '../../../../assets/logo/LogoSimbol.png';
 import SearchBar from '../../../SearchBar/SearchBar';
 import NavMenuHeader from './components/NavMenu';
-import { privateRoutes } from '../../../../routes/listRoutes'
 
-export default function PrivateHeader() {
+export default function PrivateHeader({ routes }) {
   const [menuVisible, setMenuVisible] = useState(false);
   const toggleMenu = () => setMenuVisible(!menuVisible);
 
@@ -48,7 +48,7 @@ export default function PrivateHeader() {
             : 'hidden'
         } lg:flex lg:items-center lg:gap-6 lg:relative`}
       >
-        <NavMenuHeader routes={privateRoutes} isHovered={true} />
+        <NavMenuHeader routes={routes} isHovered={true} />
 
       </nav>
     </header>

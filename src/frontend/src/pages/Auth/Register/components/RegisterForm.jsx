@@ -1,19 +1,21 @@
 import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { Undo2 } from 'lucide-react'
+import { register } from '../../../../services/authService';
 
-import RegisterStep1 from '../components/RegisterStep1'
-import RegisterStep2 from '../components/RegisterStep2'
-import RegisterStep3 from '../components/RegisterStep3'
-import RegisterStep4 from '../components/RegisterStep4'
-import { validateField } from '../../../components/form/Label/validationField'
-import BtnCallToAction from '../../../components/btn/BtnCallToAction/BtnCallToAction'
+import RegisterStep1 from './RegisterStep1'
+import RegisterStep2 from './RegisterStep2'
+import RegisterStep3 from './RegisterStep3'
+import RegisterStep4 from './RegisterStep4'
+import { validateField } from '../../../../components/form/Label/validationField'
+import BtnCallToAction from '../../../../components/btn/BtnCallToAction/BtnCallToAction'
 
 
 export default function RegisterForm(){
     const navigate = useNavigate()
     const [step, setStep] = useState(1)
     const [errorMessage, setErrorMessage] = useState('')
+    const [loading, setLoading] = useState(false);
 
     const [formData, setFormData] = useState({
         tipo_usuario: '',
@@ -36,17 +38,15 @@ export default function RegisterForm(){
         setFormData(prev => ({...prev, [field]: value}))
     }
 
-    const validateFields= (fields, message = 'Preencha os campos obrigatórios e corrija os erros antes de continuar') => {
-        const hasError = fields.some(field => validateField(field, formData[field], true))
-        if(hasError) 
-            setErrorMessage(message)
-        else {
-            setErrorMessage('')
-            if (step < 4) {
-                setStep(step + 1);
-            } else {
-                navigate('/login');
-            }
+    const handleSubmit = async () => {
+        setLoading(true);
+        try {
+            await register(formData); 
+            navigate('/login');
+        } catch (err) {
+            setErrorMessage(err.response?.data?.message || 'Erro ao registrar');
+        } finally {
+            setLoading(false);
         }
     }
 
@@ -56,6 +56,20 @@ export default function RegisterForm(){
         } else {
             // navigate('/');
             window.location.href = '/'
+        }
+    }
+
+    const validateFields = (fields, message = 'Preencha os campos obrigatórios e corrija os erros antes de continuar') => {
+        const hasError = fields.some(field => validateField(field, formData[field], true))
+        if(hasError) 
+            setErrorMessage(message)
+        else {
+            setErrorMessage('')
+            if (step < 4) {
+                setStep(step + 1);
+            } else {
+                handleSubmit(); // envia dados backend e redireciona 
+            }
         }
     }
 

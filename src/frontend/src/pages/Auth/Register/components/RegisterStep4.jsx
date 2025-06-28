@@ -1,4 +1,4 @@
-import LabelInput from '../../../components/form/Label/LabelInput';
+import LabelInput from '../../../../components/form/Label/LabelInput';
 import { useState } from 'react';
 
 export default function RegisterStep1({formData, handleChange }){
