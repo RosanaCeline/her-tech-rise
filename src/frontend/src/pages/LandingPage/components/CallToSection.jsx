@@ -49,7 +49,7 @@ export default function CallToSection({ type }) {
             <ul className="flex flex-col items-center pt-1 relative">
               {content.items.map((_, index) => (
                 <div key={index} className="flex flex-col items-center">
-                  <span className="w-3 h-3 my-1 bg-[var(--purple-secundary)] rounded-full z-10"></span>
+                  <span className="w-3 h-3 my-0.5 bg-[var(--purple-secundary)] rounded-full z-10"></span>
                   {index < content.items.length - 1 && (
                     <div className="w-px h-8 bg-purple-300"></div>
                   )}

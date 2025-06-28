@@ -142,7 +142,7 @@ function StepWrapper({ children, goBackTo, validateFields, errorMessage }) {
     const navigate = useNavigate();
 
     return (
-        <div className="text-white w-1/2 h-screen flex flex-col justify-between bg-(--purple-action) p-12 pl-25 rounded-l-[130px]">
+        <div className="text-white w-full md:w-1/2 h-screen flex flex-col justify-between bg-(--purple-action) p-12 md:pl-25 mx-6 md:mx-0 md:rounded-l-[130px]">
             <div className='flex justify-around'>
                 <button className='flex gap-x-3 cursor-pointer transition duration-300  hover:-translate-x-1 will-change-transform' 
                         onClick={goBackTo}>

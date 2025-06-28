@@ -5,7 +5,7 @@ import image from '../../../assets/homepage/sectionhero.png';
 export default function SectionHero( {registerPath}) {
   return (
     <>
-      <section className="flex flex-col md:flex-row h-screen w-full">
+      <section className="md:flex md:flex-row h-screen w-fit md:w-full">
         <article className="w-full pt-12 md:w-1/2 flex flex-col justify-center relative px-8 md:px-2">
           <div className="max-w-3xl">
             <h1 className="
@@ -22,7 +22,7 @@ export default function SectionHero( {registerPath}) {
               text-xl        
               xl:text-3xl  
               text-[var(--text-gray)]
-              mb-12
+              md:mb-12 mb-6
             ">
               Conecte. Inspire. Transforme a tecnologia.
             </p>
@@ -46,11 +46,11 @@ export default function SectionHero( {registerPath}) {
           </div>
         </article>
 
-        <article className="w-full md:w-1/2 h-[50vh] md:h-full mt-10 ">
+        <article className="w-full md:w-1/2 md:h-full mt-10 ">
           <img
             src={image}
             alt="Logo Her Tech Rise"
-            className="w-full h-full object-cover "
+            className="w-full h-full object-contain"
           />
         </article>
       </section>     
