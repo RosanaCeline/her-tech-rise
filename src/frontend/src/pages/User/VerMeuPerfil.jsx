@@ -3,6 +3,9 @@ import React from 'react';
 import { useAuth } from '../../context/AuthContext'
 import CardDescriptionsProfile from '../../components/Cards/Profile/CardDescriptionsProfile';
 import CardProfile from '../../components/Cards/Profile/CardProfile';
+import CardPublicationsProfile from '../../components/Cards/Profile/CardPublicationsProfile'
+import CardExperienceProfile from '../../components/Cards/Profile/CardExperienceProfile'
+import SeeStatistics from './statistics/SeeStatistics'
 
 export default function VerMeuPerfil() {
     const { user } = useAuth();
@@ -21,6 +24,8 @@ export default function VerMeuPerfil() {
     const isProfissional = tipoUsuario === 'professional';
     const isEnterprise = tipoUsuario === 'enterprise';
 
+    console.log('user completo:', user);
+
     return (
         <main className="flex flex-col items-center px-6 lg:px-30 pt-40 pb-10 gap-10 max-w-8xl mx-auto">
         {isProfissional && (
@@ -35,6 +40,13 @@ export default function VerMeuPerfil() {
                 link={user.link}
                 city={user.endereco?.cidade}
                 state={user.endereco?.estado}
+                statisticsComponent={<SeeStatistics 
+                                        profilevisits={user.statistics?.profilevisits} 
+                                        followers={user.statistics?.followers} 
+                                        following={user.statistics?.following} 
+                                        posts={user.statistics?.posts} 
+                                        likes={user.statistics?.likes} 
+                                        />}
             />
             <CardDescriptionsProfile
                 title="Tecnologias"
@@ -43,6 +55,14 @@ export default function VerMeuPerfil() {
             <CardDescriptionsProfile
                 title="Biografia"
                 content={user.biografia}
+            />
+            <CardPublicationsProfile
+                title="Publicações"
+                content="inserir publicações"
+            />
+            <CardExperienceProfile
+                title="Experiência"
+                experiencias={user.experiencias}
             />
             </>
         )}
@@ -60,7 +80,6 @@ export default function VerMeuPerfil() {
                 city={user.endereco?.cidade}
                 state={user.endereco?.estado}
             />
-
             <CardDescriptionsProfile
                 title="Descrição"
                 content={user.descricao}

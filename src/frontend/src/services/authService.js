@@ -14,8 +14,15 @@ export const login = async (email, senha) => {
   const user = users.find(u => u.email === email && u.senha === senha);
   if (!user) throw new Error('Email ou senha inválidos');
   const token = 'fake.jwt.token';
-  localStorage.setItem('mockUser', JSON.stringify(user.dados));
-  return { token, user: user.dados };
+  const fullUser = {
+    ...(user.dados || {}),
+    ...(user.perfil || {}),
+    email: user.email,
+    tipo_usuario: user.dados?.tipo_usuario || user.tipo_usuario
+  }
+  console.log('👤 Usuário completo após login:', fullUser); 
+  localStorage.setItem('mockUser', JSON.stringify(fullUser));
+  return { token, user: fullUser };
 }
 
 export const register = async (formData) => {

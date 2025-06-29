@@ -1,12 +1,20 @@
 import React, { useState, useRef } from 'react';
 import axios from 'axios';
 
-import { FaCamera, FaPaperclip, FaCheck } from 'react-icons/fa'; 
+import { FaCamera, FaPaperclip, FaCheck, FaPaperPlane, FaSlidersH  } from 'react-icons/fa'; 
+
 import defaultProfessional from '../../../assets/profile/FotoPadraoProfissional.png';
 import defaultEnterprise from '../../../assets/profile/FotoPadraoEnterprise.png';
 
+import BtnCallToAction from '../../btn/BtnCallToAction/BtnCallToAction';
+import PopUpBlurProfile from './PopUpBlurProfile'
+import EditMyProfile from '../../../pages/User/edit/EditMyProfile'
 
-export default function CardProfile({ photo, tipo_usuario, name, nameuser, link, email, number, city, state }) {
+
+export default function CardProfile({ photo, tipo_usuario, name, nameuser, link, email, number, city, state, statisticsComponent }) {
+    const [showOptions, setShowOptions] = useState(false);
+    const [modalContent, setModalContent] = useState(null);
+    const [showModal, setShowModal] = useState(false);
     const [copied, setCopied] = useState(false);
     const [previewPhoto, setPreviewPhoto] = useState(photo);
     const fileInputRef = useRef();
@@ -14,6 +22,10 @@ export default function CardProfile({ photo, tipo_usuario, name, nameuser, link,
     const defaultPhoto = tipo_usuario === 'enterprise' ? defaultEnterprise : defaultProfessional;
     const userPhoto = previewPhoto || defaultPhoto;
 
+    const handleOpenModal = (content) => {
+        setModalContent(content);
+        setShowModal(true);
+    }
     const handlePhotoChange = async (e) => {
         const file = e.target.files[0];
         if (!file) return;
@@ -41,10 +53,10 @@ export default function CardProfile({ photo, tipo_usuario, name, nameuser, link,
     };
 
     return (
-        <article className="bg-[var(--gray)] drop-shadow-md rounded-xl p-8 flex flex-row w-full max-w-8xl lg:flex-row items-start gap-10 z-0">
-            {/* Container da foto com botão upload */}
-            <div className="relative w-full max-w-[250px] h-[250px]">
-            {/* Container da foto com overflow-hidden e borda arredondada */}
+        <>
+        <article className="relative bg-[var(--gray)] drop-shadow-md rounded-xl p-8 flex flex-row flex-wrap w-full max-w-8xl items-start gap-10 z-0">
+            {/* Foto com botão */}
+            <div className="relative w-full max-w-[250px] h-[250px] flex-shrink-0">
                 <div className="w-full h-full rounded-full border border-[var(--purple-secundary)] overflow-hidden">
                     <img
                     src={userPhoto}
@@ -52,17 +64,14 @@ export default function CardProfile({ photo, tipo_usuario, name, nameuser, link,
                     className="object-cover w-full h-full rounded-full"
                     />
                 </div>
-
-                {/* Botão fora do container arredondado */}
                 <button
                     type="button"
                     onClick={() => fileInputRef.current.click()}
-                    className="absolute bottom-0 right-0 translate-x-1/2 translate-y-1/2 bg-[var(--purple-primary)] hover:bg-[var(--purple-secundary)] text-white p-3 rounded-full shadow-lg flex items-center justify-center focus:outline-none"
+                    className="absolute bottom-5 right-12 translate-x-1/2 translate-y-1/2 bg-[var(--purple-primary)] hover:bg-[var(--purple-secundary)] text-white p-3 rounded-full shadow-lg flex items-center justify-center focus:outline-none"
                     aria-label="Alterar foto do perfil"
                 >
                     <FaCamera size={20} />
                 </button>
-
                 <input
                     type="file"
                     accept="image/*"
@@ -72,45 +81,96 @@ export default function CardProfile({ photo, tipo_usuario, name, nameuser, link,
                 />
             </div>
 
+            {/* Informações */}
+            <div className="flex flex-col gap-4 flex-1 min-w-[250px]">
+                <h2 className="text-4xl font-bold text-[var(--purple-primary)]">{name}</h2>
 
-        {/* Informações */}
-        <div className="flex flex-col gap-3 flex-1">
-            <h2 className="text-4xl font-bold text-[var(--purple-primary)]">{name}</h2>
+                {nameuser && (
+                <p className="text-lg font-semibold text-[var(--purple-secundary)]">@{nameuser}</p>
+                )}
+                {link && (
+                <div className="flex items-center gap-2 text-[var(--font-gray)] text-sm">
+                    <button
+                    onClick={copyToClipboard}
+                    aria-label="Copiar link"
+                    className="text-[var(--font-gray)] hover:text-[var(--purple-primary)] transition-colors"
+                    type="button"
+                    >
+                    {copied ? <FaCheck /> : <FaPaperclip />}
+                    </button>
+                    <a
+                    href={link}
+                    target="_blank"
+                    rel="noreferrer"
+                    className="text-[var(--font-gray)] text-s break-all"
+                    >
+                    {link}
+                    </a>                
+                </div>
+                )}
+                {email && (
+                <p className="text-[var(--font-gray)] text-s break-all">{email}</p>
+                )}
+                {number && (
+                <p className="text-[var(--font-gray)] text-s break-all">{number}</p>
+                )}
 
-            {nameuser && (
-            <p className="text-lg font-semibold text-black">@{nameuser}</p>
-            )}
-            {link && (
-            <div className="flex items-center gap-2 text-gray-500 text-sm">
-                <a
-                href={link}
-                target="_blank"
-                rel="noreferrer"
-                className="underline break-all"
-                >
-                {link}
-                </a>
-                <button
-                onClick={copyToClipboard}
-                aria-label="Copiar link"
-                className="text-gray-500 hover:text-[var(--purple-primary)] transition-colors"
-                type="button"
-                >
-                {copied ? <FaCheck /> : <FaPaperclip />}
-                </button>
+                {city && state && (
+                <p className="text-[var(--font-gray)] text-s break-all">{city}, {state}</p>
+                )}
             </div>
-            )}
-            {email && (
-            <p className="text-[var(--text-secondary)] text-s break-all">{email}</p>
-            )}
-            {number && (
-            <p className="text-[var(--text-secondary)] text-s break-all">{number}</p>
-            )}
 
-            {city && state && (
-            <p className="text-[var(--text-secondary)] text-s break-all">{city}, {state}</p>
-            )}
-        </div>
+            {/* Botões de ações */}
+            <div className="flex flex-col gap-6 w-full max-w-[250px] mt-6 lg:mt-0 order-last lg:order-none">
+                <button
+                    type="button"
+                    className="flex items-center gap-3 text-[var(--font-gray)] hover:text-[var(--purple-primary)] transition w-full justify-center lg:justify-start"
+                >
+                    <FaPaperPlane size={24} className="text-[var(--font-gray)]" />
+                    <span className="text-xl font-medium">
+                        Compartilhar
+                    </span>
+                </button>
+
+                <button
+                    type="button"
+                    onClick={() => setShowOptions(!showOptions)}
+                    className="flex items-center gap-3 text-[var(--font-gray)] hover:text-[var(--purple-primary)] transition w-full justify-center lg:justify-start"
+                >
+                    <FaSlidersH size={24} className="text-[var(--font-gray)] " />
+                    <span className="text-xl font-medium">
+                        Configurações
+                    </span>
+                </button>
+                {showOptions && (
+                    <div 
+                    className={`
+                        absolute
+                        flex flex-col gap-2
+                        transition-all duration-300
+                        max-w-[200px]  
+                        p-3               
+                        right-80 top-20 
+                    `}
+                    >
+                            <BtnCallToAction variant="white">Excluir Perfil</BtnCallToAction>
+                            <BtnCallToAction variant="purple"  onClick={() => handleOpenModal(<EditMyProfile />)}>Editar Perfil</BtnCallToAction>
+                    </div>
+                )}
+
+                <BtnCallToAction
+                    variant="purple"
+                    onClick={() => handleOpenModal(statisticsComponent)} 
+                >
+                    VER ESTATÍSTICAS
+                </BtnCallToAction>
+            </div>
         </article>
+        <PopUpBlurProfile
+            isOpen={showModal}
+            onClose={() => setShowModal(false)}
+            content={modalContent}
+        />
+        </>
     )
 }
