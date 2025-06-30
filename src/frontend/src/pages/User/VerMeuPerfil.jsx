@@ -24,30 +24,30 @@ export default function VerMeuPerfil() {
     const isProfissional = tipoUsuario === 'professional';
     const isEnterprise = tipoUsuario === 'enterprise';
 
-    console.log('user completo:', user);
-
     return (
+        <>        
         <main className="flex flex-col items-center px-6 lg:px-30 pt-40 pb-10 gap-10 max-w-8xl mx-auto">
+        <CardProfile
+            tipo_usuario={user.tipo_usuario}
+            photo={user.photo}
+            name={user.nome}
+            nameuser={user.nameuser}
+            email={user.email}
+            number={user.telefone}
+            link={user.link}
+            city={user.endereco?.cidade}
+            state={user.endereco?.estado}
+            visibility={user.visibilidade || {}}
+            statisticsComponent={<SeeStatistics 
+                                    profilevisits={user.statistics?.profilevisits} 
+                                    followers={user.statistics?.followers} 
+                                    following={user.statistics?.following} 
+                                    posts={user.statistics?.posts} 
+                                    likes={user.statistics?.likes} 
+                                    />}
+        />
         {isProfissional && (
             <>
-            <CardProfile
-                tipo_usuario={user.tipo_usuario}
-                photo={user.photo}
-                name={user.nome}
-                nameuser={user.nameuser}
-                email={user.email}
-                number={user.telefone}
-                link={user.link}
-                city={user.endereco?.cidade}
-                state={user.endereco?.estado}
-                statisticsComponent={<SeeStatistics 
-                                        profilevisits={user.statistics?.profilevisits} 
-                                        followers={user.statistics?.followers} 
-                                        following={user.statistics?.following} 
-                                        posts={user.statistics?.posts} 
-                                        likes={user.statistics?.likes} 
-                                        />}
-            />
             <CardDescriptionsProfile
                 title="Tecnologias"
                 content={user.tecnologias}
@@ -69,17 +69,6 @@ export default function VerMeuPerfil() {
 
         {isEnterprise && (
             <>
-            <CardProfile
-                tipo_usuario={user.tipo_usuario}
-                photo={user.photo}
-                name={user.nome}
-                nameuser={user.nameuser}
-                email={user.email}
-                number={user.telefone}
-                link={user.link}
-                city={user.endereco?.cidade}
-                state={user.endereco?.estado}
-            />
             <CardDescriptionsProfile
                 title="Descrição"
                 content={user.descricao}
@@ -91,5 +80,6 @@ export default function VerMeuPerfil() {
             </>
         )}
         </main>
+        </>
     )
 }

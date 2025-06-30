@@ -11,7 +11,7 @@ import PopUpBlurProfile from './PopUpBlurProfile'
 import EditMyProfile from '../../../pages/User/edit/EditMyProfile'
 
 
-export default function CardProfile({ photo, tipo_usuario, name, nameuser, link, email, number, city, state, statisticsComponent }) {
+export default function CardProfile({ photo, tipo_usuario, name, nameuser, link, email, number, city, state, visibility = {}, statisticsComponent }) {
     const [showOptions, setShowOptions] = useState(false);
     const [modalContent, setModalContent] = useState(null);
     const [showModal, setShowModal] = useState(false);
@@ -86,7 +86,7 @@ export default function CardProfile({ photo, tipo_usuario, name, nameuser, link,
                 <h2 className="text-4xl font-bold text-[var(--purple-primary)]">{name}</h2>
 
                 {nameuser && (
-                <p className="text-lg font-semibold text-[var(--purple-secundary)]">@{nameuser}</p>
+                    <p className="text-lg font-semibold text-[var(--purple-secundary)]">@{nameuser}</p>
                 )}
                 {link && (
                 <div className="flex items-center gap-2 text-[var(--font-gray)] text-sm">
@@ -96,7 +96,7 @@ export default function CardProfile({ photo, tipo_usuario, name, nameuser, link,
                     className="text-[var(--font-gray)] hover:text-[var(--purple-primary)] transition-colors"
                     type="button"
                     >
-                    {copied ? <FaCheck /> : <FaPaperclip />}
+                        {copied ? <FaCheck /> : <FaPaperclip />}
                     </button>
                     <a
                     href={link}
@@ -104,19 +104,24 @@ export default function CardProfile({ photo, tipo_usuario, name, nameuser, link,
                     rel="noreferrer"
                     className="text-[var(--font-gray)] text-s break-all"
                     >
-                    {link}
+                        {link}
                     </a>                
                 </div>
                 )}
-                {email && (
+                {visibility.email && email && (
                 <p className="text-[var(--font-gray)] text-s break-all">{email}</p>
                 )}
-                {number && (
+
+                {visibility.telefone && number && (
                 <p className="text-[var(--font-gray)] text-s break-all">{number}</p>
                 )}
 
-                {city && state && (
-                <p className="text-[var(--font-gray)] text-s break-all">{city}, {state}</p>
+                {(visibility.cidade || visibility.estado) && (city || state) && (
+                <p className="text-[var(--font-gray)] text-s break-all">
+                    {visibility.cidade ? city : ''}
+                    {visibility.cidade && visibility.estado ? ', ' : ''}
+                    {visibility.estado ? state : ''}
+                </p>
                 )}
             </div>
 

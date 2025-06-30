@@ -40,6 +40,7 @@ export const privateRoutesEnterprise = [
     { path: '/meuperfil',     element: <VerMeuPerfil />, title: 'Perfil',        visible: true,  icon: <User size={iconSize} /> },
     // { path: '/minhasvagas', element: <VagasEmpresa /> },
     // { path: '/meuscursos', element: <CursosEmpresa /> },
+    { title: 'Sair',              visible: true,              icon: <LogOut size={iconSize} />,       action: () => { window.location.href = '/login'; } }
 ]
 
 export function getRoutesByRole(tipoUsuario) {

@@ -13,17 +13,14 @@ export default function LabelInput ({    name,
                                         validation = '',
                                         maxLength = ''
                                     }) {
-
-     // Vai aparecer um erro de validação 
+ 
     const [error, setError] = useState(null)
-
-    // Vai validar o campo quando o usuário sair do campo
+ 
     const handleBlur = () => {
         const validationError = validateField(validation, value, required)
         setError(validationError)
     }
-
-    // Definir as classes de tailwind para os inputs
+ 
     const baseInputClasses = `
         w-full min-w-full
         rounded-lg

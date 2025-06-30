@@ -63,3 +63,16 @@ export const resetPassword = async (email) => {
   if (!found) throw new Error("Usuário não encontrado");
   return { success: true, message: "Email de recuperação enviado (mock)" };
 }
+
+export const updateProfile = async (updatedData) => {
+  // const response = await axios.put(`${API_URL}/usuario/perfil`, updatedData);
+  // return response.data;
+
+  // Mocked response for testing
+  const saved = localStorage.getItem('mockUser');
+  if (!saved) throw new Error('Usuário não autenticado');
+  let user = JSON.parse(saved);
+  user = { ...user, ...updatedData };
+  localStorage.setItem('mockUser', JSON.stringify(user));
+  return user; 
+}
