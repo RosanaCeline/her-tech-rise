@@ -2,7 +2,7 @@ import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { Undo2 } from 'lucide-react'
 import { register } from '../../../../services/authService';
-
+import { useAuth } from '../../../../context/AuthContext';
 import RegisterStep1 from './RegisterStep1'
 import RegisterStep2 from './RegisterStep2'
 import RegisterStep3 from './RegisterStep3'
@@ -34,6 +34,7 @@ export default function RegisterForm(){
         senha_confirmada: ''
     })
 
+    const { setUser } = useAuth()
     const handleChange = (field, value) => {
         setFormData(prev => ({...prev, [field]: value}))
     }
@@ -42,7 +43,9 @@ export default function RegisterForm(){
         setLoading(true);
         try {
             await register(formData); 
-            navigate('/login');
+            const loggedUser = JSON.parse(localStorage.getItem('user'));
+            setUser(loggedUser);
+            navigate('/timeline');
         } catch (err) {
             setErrorMessage(err.response?.data?.message || 'Erro ao registrar');
         } finally {

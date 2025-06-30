@@ -26,7 +26,7 @@ export default function RegisterStep1({formData, handleChange }){
                                                     value={formData.cpf}    onChange={(e) => handleChange('cpf', maskField('cpf', e.target.value))}/>
                                     : <LabelInput   label="CNPJ:"           theme='white' 
                                                     required={true}         validation='cnpj' 
-                                                    maxLength='14'          placeholder='Digite seu CNPJ'
+                                                    maxLength='18'          placeholder='Digite seu CNPJ'
                                                     value={formData.cnpj}   onChange={(e) => handleChange('cnpj', maskField('cnpj', e.target.value))}/>
                                 }
                     <div className='flex columns-2 gap-x-5'>
@@ -37,7 +37,7 @@ export default function RegisterStep1({formData, handleChange }){
                                             value={formData.data_nascimento}    onChange={(e) => handleChange('data_nascimento', maskField('data', e.target.value))}/>
                             : <LabelInput   label="Tipo de Empresa:"            theme='white' 
                                             required={true}                     type='select' 
-                                            options={[{value: 'nacional', label: 'Nacional'}, {value: 'internacional', label: 'Internacional'}]}
+                                            options={[{value: 'NACIONAL', label: 'Nacional'}, {value: 'INTERNACIONAL', label: 'Internacional'}]}
                                             value={formData.tipo_empresa}          onChange={(e) => handleChange('tipo_empresa', e.target.value)}/>
                         }
                         <LabelInput         label="Telefone:"               theme='white' 

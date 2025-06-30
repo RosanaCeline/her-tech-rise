@@ -26,8 +26,8 @@ export default function NavMenuHeader({ routes, isHovered = true, isMobile = fal
               key={route.path}
               to={route.path}
               className={({ isActive }) =>
-                `flex flex-col items-center text-white hover:text-[var(--purple-primary)] transition ${
-                  isActive ? 'font-semibold text-[var(--purple-primary)]' : ''
+                `flex flex-col items-center text-white transition duration-300 hover:scale-105 ${
+                  isActive ? '!text-violet-200 scale-105 my-2' : ''
                 }`
               }
             >
@@ -41,7 +41,7 @@ export default function NavMenuHeader({ routes, isHovered = true, isMobile = fal
             <button
               key={`action-${idx}`}
               onClick={route.action}
-              className="flex flex-col items-center text-white hover:text-[var(--purple-primary)] transition"
+              className="flex flex-col items-center text-white transition duration-300 hover:scale-105"
               type="button"
             >
               {content}

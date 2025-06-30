@@ -15,8 +15,7 @@ export function useAuthProvider() {
   // guarda token e atualiza user
   const login = async (email, senha) => {
     try {
-      const data = await loginService(email, senha);
-      localStorage.setItem('token', data.token);
+      await loginService(email, senha);
       setUser(getCurrentUser());
     } catch (err) {
       throw new Error(err.response?.data?.message || 'Erro ao fazer login');
@@ -43,7 +42,7 @@ export function useAuthProvider() {
     }
   }
 
-  return { user, login, logout, updateProfile };
+  return { user, login, logout, updateProfile, setUser };
 }
 
 export const AuthProvider = ({ children }) => {

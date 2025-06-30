@@ -2,8 +2,15 @@ import React from 'react';
 import ResetForm from './components/ResetForm'
 import logo from "../../../assets/logo/LogoNamePurple.png";
 import login from "../../../assets/auth/login.png";
+import { useAuth } from "../../../context/AuthContext"; // hook que fornece o user logado
+import { Navigate } from "react-router-dom";
 
 export default function ResetPassword () {
+    const { user } = useAuth();
+        
+    if (user) 
+      return <Navigate to="/timeline" replace />;
+    
     return (
     <main className='flex bg-[#F7F7F7]'>
       <ResetForm  />

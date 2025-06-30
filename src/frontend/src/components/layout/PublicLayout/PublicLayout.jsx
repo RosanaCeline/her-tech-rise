@@ -2,10 +2,16 @@ import React from 'react';
 
 import PublicHeader from "../Header/Public/PublicHeader";
 import Footer from "../Footer/Footer";
+import { useAuth } from "../../../context/AuthContext"; // hook que fornece o user logado
 
-import { Outlet } from "react-router-dom";
+import { Outlet, Navigate } from "react-router-dom";
 
 export default function PublicLayout() {
+  const { user } = useAuth();
+  
+    if (user) 
+      return <Navigate to="/timeline" replace />;
+
   return (
     <>
       <PublicHeader />

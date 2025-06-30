@@ -10,6 +10,7 @@ let users = [...mockUsers];
 
 export const login = async (email, senha) => {
   const response = await axios.post(`${API_URL}/login`, { email, password: senha });
+  localStorage.setItem('user', JSON.stringify(response.data));
   return response.data;
 
   // Mocked response for testing
@@ -30,21 +31,39 @@ export const login = async (email, senha) => {
 }
 
 export const register = async (formData) => {
-  // -- Usar a forma como o front armazena se eh empresa ou funcionario que ta preenchendo.
-  // Lembra que os campos tem que ter o mesmo exato nome do back (em ingles) quando for enviar (ver os DTOs na documentacao do swagger)
-  // if(user_type === "Profissional") {
-    // const response = await axios.post(`${API_URL}/register/professional`, formData); // so os dados que o profissional preenche eh que sao enviados (ver na documentacao)
-  // } else if(user_type === "Empresa") {  // so os dados que a empresa preenche eh que sao enviados (ver na documentacao)
-    // const response = await axios.post(`${API_URL}/register/company`, formData);
-  // }
-  // return response.data;
-
-  // Mocked response for testing
-  console.log('Dados do cadastro:', formData);
-  const { email } = formData;
-  const exists = users.some(u => u.email === email);
-  if (exists) throw new Error('Usuário já cadastrado (mock)');
-  return { success: true, message: 'Usuário cadastrado com sucesso (mock)' };
+  if(formData.tipo_usuario == 'profissional'){
+    const professional = {
+      name:         formData.nome,
+      cpf:          formData.cpf,
+      birthDate:    formData.data_nascimento,
+      phoneNumber:  formData.telefone,
+      cep:          formData.cep,
+      city:         formData.cidade,
+      street:       formData.rua,
+      neighborhood: formData.bairro,
+      email:        formData.email,
+      password:     formData.senha
+    }
+    const response = await axios.post(`${API_URL}/register/professional`, professional)
+    if(response.status === 201)
+      localStorage.setItem('user', JSON.stringify(response.data));
+  }else{
+    const company = {
+      name:         formData.nome,
+      cnpj:         formData.cnpj,
+      companyType:  formData.tipo_empresa,
+      phoneNumber:  formData.telefone,
+      cep:          formData.cep,
+      city:         formData.cidade,
+      street:       formData.rua,
+      neighborhood: formData.bairro,
+      email:        formData.email,
+      password:     formData.senha
+    }
+    const response = await axios.post(`${API_URL}/register/company`, company)
+     if(response.status === 201)
+      localStorage.setItem('user', JSON.stringify(response.data));
+  }
 }
 
 export const getCurrentUser = () => {
@@ -53,7 +72,7 @@ export const getCurrentUser = () => {
   // return JSON.parse(atob(token.split('.')[1])); // JWT
 
   // Mocked response for testing
-  const saved = localStorage.getItem('mockUser');
+  const saved = localStorage.getItem('user');
   return saved ? JSON.parse(saved) : null;
 }
 
@@ -61,7 +80,7 @@ export const logout = () => {
   // localStorage.removeItem('token');
 
   // Mocked response for testing
-  localStorage.removeItem('mockUser');
+  localStorage.removeItem('user');
 }
 
 export const resetPassword = async (email) => {
@@ -79,10 +98,10 @@ export const updateProfile = async (updatedData) => {
   // return response.data;
 
   // Mocked response for testing
-  const saved = localStorage.getItem('mockUser');
+  const saved = localStorage.getItem('user');
   if (!saved) throw new Error('Usuário não autenticado');
   let user = JSON.parse(saved);
   user = { ...user, ...updatedData };
-  localStorage.setItem('mockUser', JSON.stringify(user));
+  localStorage.setItem('user', JSON.stringify(user));
   return user; 
 }

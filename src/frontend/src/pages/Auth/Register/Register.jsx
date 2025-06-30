@@ -3,7 +3,15 @@ import RegisterForm from './components/RegisterForm';
 import logo from "../../../assets/logo/LogoNamePurpleAction.png";
 import register from "../../../assets/auth/register.png";
 
+import { useAuth } from "../../../context/AuthContext"; // hook que fornece o user logado
+import { Navigate } from "react-router-dom";
+
 export default function Register () {
+  const { user } = useAuth();
+      
+  if (user) 
+    return <Navigate to="/timeline" replace />;
+  
   return (
     <main className='flex bg-[#F7F7F7]'>
       <div className='hidden md:w-1/2 md:flex md:flex-col justify-center p-4'> 
