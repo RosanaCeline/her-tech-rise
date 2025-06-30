@@ -1,13 +1,13 @@
 package com.hertechrise.platform.repository;
 
-import com.hertechrise.platform.model.Company;
+import com.hertechrise.platform.model.Role;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
 import java.util.Optional;
 
 @Repository
-public interface CompanyRepository extends JpaRepository<Company, Long> {
+public interface RoleRepository extends JpaRepository<Role, Long> {
 
-    Optional<Company> findByCnpj(String cnpj);
+    Optional<Role> findByName(String name);
 }

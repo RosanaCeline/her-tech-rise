@@ -1,0 +1,2 @@
+INSERT INTO role (name) VALUES ('PROFESSIONAL');
+INSERT INTO role (name) VALUES ('COMPANY');

@@ -1,16 +1,19 @@
 import axios from 'axios';
 
-const API_URL = 'http://localhost:8080/api/auth'; 
+const API_URL = 'http://localhost:8080/auth'; 
+
+// Verifique a documentacao do back em http://localhost:8080/swagger-ui/index.html
 
 // Dados mockados (teste)
 import mockUsers from '../mocks/mockUsers';
 let users = [...mockUsers];
 
 export const login = async (email, senha) => {
-  // const response = await axios.post(`${API_URL}/login`, { email, senha });
-  // return response.data;
+  const response = await axios.post(`${API_URL}/login`, { email, password: senha });
+  return response.data;
 
   // Mocked response for testing
+  /*
   const user = users.find(u => u.email === email && u.senha === senha);
   if (!user) throw new Error('Email ou senha inválidos');
   const token = 'fake.jwt.token';
@@ -23,10 +26,17 @@ export const login = async (email, senha) => {
   console.log('👤 Usuário completo após login:', fullUser); 
   localStorage.setItem('mockUser', JSON.stringify(fullUser));
   return { token, user: fullUser };
+  */
 }
 
 export const register = async (formData) => {
-  // const response = await axios.post(`${API_URL}/register`, formData);
+  // -- Usar a forma como o front armazena se eh empresa ou funcionario que ta preenchendo.
+  // Lembra que os campos tem que ter o mesmo exato nome do back (em ingles) quando for enviar (ver os DTOs na documentacao do swagger)
+  // if(user_type === "Profissional") {
+    // const response = await axios.post(`${API_URL}/register/professional`, formData); // so os dados que o profissional preenche eh que sao enviados (ver na documentacao)
+  // } else if(user_type === "Empresa") {  // so os dados que a empresa preenche eh que sao enviados (ver na documentacao)
+    // const response = await axios.post(`${API_URL}/register/company`, formData);
+  // }
   // return response.data;
 
   // Mocked response for testing

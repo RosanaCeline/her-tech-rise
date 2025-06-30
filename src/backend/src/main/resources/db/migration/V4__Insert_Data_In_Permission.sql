@@ -1,0 +1,17 @@
+INSERT INTO permission (description) VALUES ('EDIT_PROFILE');
+INSERT INTO permission (description) VALUES ('VIEW_STATISTICS');
+INSERT INTO permission (description) VALUES ('FOLLOW_USER');
+INSERT INTO permission (description) VALUES ('CREATE_POST');
+INSERT INTO permission (description) VALUES ('LIKE_POST');
+INSERT INTO permission (description) VALUES ('COMMENT');
+INSERT INTO permission (description) VALUES ('SHARE_POST');
+INSERT INTO permission (description) VALUES ('CREATE_COMMUNITY');
+INSERT INTO permission (description) VALUES ('JOIN_COMMUNITY');
+INSERT INTO permission (description) VALUES ('PARTICIPATE_COMMUNITY');
+INSERT INTO permission (description) VALUES ('POST_JOB');
+INSERT INTO permission (description) VALUES ('APPLY_TO_JOB');
+INSERT INTO permission (description) VALUES ('VIEW_APPLICATIONS_RECEIVED');
+INSERT INTO permission (description) VALUES ('VIEW_MY_APPLICATIONS');
+INSERT INTO permission (description) VALUES ('CREATE_COURSE');
+INSERT INTO permission (description) VALUES ('EDIT_COURSE');
+INSERT INTO permission (description) VALUES ('BUY_COURSE');
