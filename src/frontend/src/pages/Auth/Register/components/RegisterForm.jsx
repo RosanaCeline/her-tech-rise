@@ -12,9 +12,10 @@ import BtnCallToAction from '../../../../components/btn/BtnCallToAction/BtnCallT
 
 
 export default function RegisterForm(){
-    const navigate = useNavigate()
     const [step, setStep] = useState(1)
     const [errorMessage, setErrorMessage] = useState('')
+    const [registerErrorMessage, setRegisterErrorMessage] = useState('')
+    const [successModalOpen, setSuccessModalOpen] = useState(false);
     const [loading, setLoading] = useState(false);
 
     const [formData, setFormData] = useState({
@@ -34,7 +35,6 @@ export default function RegisterForm(){
         senha_confirmada: ''
     })
 
-    const { setUser } = useAuth()
     const handleChange = (field, value) => {
         setFormData(prev => ({...prev, [field]: value}))
     }
@@ -43,11 +43,10 @@ export default function RegisterForm(){
         setLoading(true);
         try {
             await register(formData); 
-            const loggedUser = JSON.parse(localStorage.getItem('user'));
-            setUser(loggedUser);
-            navigate('/timeline');
+            setSuccessModalOpen(true)
         } catch (err) {
-            setErrorMessage(err.response?.data?.message || 'Erro ao registrar');
+            setRegisterErrorMessage(err.response?.data?.message || 'Erro ao registrar');
+            setTimeout(() => setRegisterErrorMessage(null), 4000)
         } finally {
             setLoading(false);
         }
@@ -104,7 +103,7 @@ export default function RegisterForm(){
                         else
                             validateFields(['nome', 'cpf', 'data_nascimento', 'telefone'])
                     }}
-                    errorMessage={errorMessage}
+                    errorMessage={errorMessage} 
                 >
                     <RegisterStep2
                         formData={formData}
@@ -138,12 +137,13 @@ export default function RegisterForm(){
                     validateFields={() =>
                         validateFields(['email', 'senha', 'senha_confirmada'])
                     }
-                    errorMessage={errorMessage}
+                    successModalOpen={successModalOpen} errorMessage={errorMessage} 
+                    registerErrorMessage={registerErrorMessage} loading={loading}
                 >
                     <RegisterStep4
                         formData={formData}
                         setFormData={setFormData}
-                        handleChange={handleChange}
+                        handleChange={handleChange} 
                     />
                 </StepWrapper>
             )
@@ -155,11 +155,19 @@ export default function RegisterForm(){
 }
 
 
-function StepWrapper({ children, goBackTo, validateFields, errorMessage }) {
+function StepWrapper({ children, goBackTo, validateFields, errorMessage, registerErrorMessage, loading, successModalOpen }) {
+    const { setUser } = useAuth()
     const navigate = useNavigate();
 
     return (
         <div className="text-white w-full md:w-1/2 h-screen flex flex-col justify-between bg-(--purple-action) p-12 md:pl-25 mx-6 md:mx-0 md:rounded-l-[130px]">
+            {registerErrorMessage && (
+            <div className="fixed top-1/12 left-1/2 transform -translate-x-1/2 -translate-y-1/2 
+                            z-50 bg-red-600 text-white px-6 py-3 rounded-lg shadow-lg 
+                           transition-opacity duration-300">
+                {registerErrorMessage}
+            </div>
+            )}
             <div className='flex justify-around'>
                 <button className='flex gap-x-3 cursor-pointer transition duration-300  hover:-translate-x-1 will-change-transform' 
                         onClick={goBackTo}>
@@ -178,12 +186,31 @@ function StepWrapper({ children, goBackTo, validateFields, errorMessage }) {
                 <p className='text-center mb-3'>Preencha <strong>todas</strong> as fases para concluir seu cadastro. *</p>
                 <div className='flex justify-center'>
                     <BtnCallToAction    variant="white" 
-                                        onClick={validateFields}>
-                                            CONTINUAR
+                                        onClick={validateFields}
+                                        disabled={loading}>
+                    {loading ? 'Carregando...' : 'CONTINUAR'}
+                                        
                     </BtnCallToAction>
                 </div>
                 {errorMessage && <p className='text-center mt-2'>{errorMessage}</p>}
             </div>
+            {successModalOpen && (
+            <div className="fixed inset-0 z-50 bg-black/40 backdrop-blur-sm flex items-center justify-center">
+                <div className="bg-white p-8 rounded-2xl shadow-lg text-center max-w-sm">
+                <h2 className="text-2xl font-bold mb-4 text-(--purple-primary)">Cadastro concluído!</h2>
+                <p className="mb-6 text-gray-700">Sua conta foi criada com sucesso.</p>
+                <button 
+                    onClick={() => {
+                        const loggedUser = JSON.parse(localStorage.getItem('user'));
+                        setUser(loggedUser);
+                        navigate('/timeline')
+                    }} 
+                    className="bg-purple-600 text-white px-6 py-2 rounded-xl hover:bg-purple-700 transition">
+                    Continuar
+                </button>
+                </div>
+            </div>
+            )}
         </div>
     )
 }

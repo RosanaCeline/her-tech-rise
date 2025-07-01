@@ -84,13 +84,8 @@ export const logout = () => {
 }
 
 export const resetPassword = async (email) => {
-  // const response = await axios.post(`${API_URL}/resetpassword`, { email });
-  // return response.data;
-
-  // Mocked response for testing
-  const found = users.find(u => u.email === email);
-  if (!found) throw new Error("Usuário não encontrado");
-  return { success: true, message: "Email de recuperação enviado (mock)" };
+  const response = await axios.post(`${API_URL}/resetPassword`, { email });
+  return response.data;
 }
 
 export const updateProfile = async (updatedData) => {
