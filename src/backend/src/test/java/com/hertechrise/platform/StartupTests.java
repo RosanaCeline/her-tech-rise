@@ -1,5 +1,6 @@
 package com.hertechrise.platform;
 
+import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
 
@@ -9,5 +10,11 @@ class StartupTests {
 	@Test
 	void contextLoads() {
 	}
+	
+	@Test
+	public void verfJunit(){
+		Assertions.assertTrue(true);
+	}
+
 
 }
