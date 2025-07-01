@@ -24,6 +24,7 @@ export default function LoginForm( { resetPass, registerPath, enter }){
             navigate(enter); 
         } catch (err) {
             setErrorMsg(err.message);
+            setTimeout(() => setErrorMsg(null), 4000);
         } finally {
             setLoading(false);
         }
@@ -62,7 +63,11 @@ export default function LoginForm( { resetPass, registerPath, enter }){
                 />
             </div>
 
-            {errorMsg && <p className="text-red-500 mb-2">{errorMsg}</p>}
+            {errorMsg && <div className="fixed top-1/12 left-1/2 transform -translate-x-1/2 -translate-y-1/2 
+                  z-50 bg-red-600 text-white px-6 py-3 rounded-lg shadow-lg 
+                  transition-opacity duration-300">
+                {errorMsg}
+            </div>}
 
             <div className='flex flex-col gap-y-1 justify-end'>
                 <button className='w-fit ml-auto transition duration-300 hover:-translate-y-0.75'
