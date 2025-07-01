@@ -63,8 +63,6 @@ export default function RegisterForm(){
 
     const validateFields = (fields, message = 'Preencha os campos obrigatórios e corrija os erros antes de continuar') => {
         const hasError = fields.some(field => validateField(field, formData[field], true))
-        if(validateField('email', formData.email, true)) console.log("Erro no email")
-        if(validateField('senha', formData.senha, true)) console.log("Erro na senha")
         if(hasError) 
             setErrorMessage(message)
         else {
