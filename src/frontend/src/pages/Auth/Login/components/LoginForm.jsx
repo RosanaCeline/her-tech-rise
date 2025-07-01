@@ -6,6 +6,7 @@ import { Undo2 } from 'lucide-react';
 
 import BtnCallToAction from '../../../../components/btn/BtnCallToAction/BtnCallToAction';
 import LabelInput from '../../../../components/form/Label/LabelInput';
+import { validateField } from '../../../../components/form/Label/validationField';
 
 export default function LoginForm( { resetPass, registerPath, enter }){
     const navigate = useNavigate();
@@ -17,6 +18,7 @@ export default function LoginForm( { resetPass, registerPath, enter }){
     const [errorMsg, setErrorMsg] = useState('');
 
     const handleLogin = async () => {
+        if(!validateFields) return
         setErrorMsg('');
         setLoading(true);
         try {
@@ -24,11 +26,20 @@ export default function LoginForm( { resetPass, registerPath, enter }){
             navigate(enter); 
         } catch (err) {
             setErrorMsg(err.message);
+            setTimeout(() => setErrorMsg(null), 4000)
         } finally {
             setLoading(false);
         }
     };
-    
+    const validateFields = () => {
+        const hasError = validateField('email', email, true) || validateField('senha', senha, true)
+        if(hasError){
+            setErrorMsg('Preencha os campos obrigatórios e corrija os erros antes de continuar')
+            setTimeout(() => setErrorMsg(null), 4000)
+        }
+        return !hasError
+    }
+
     return(
     <div className="text-white w-full md:w-1/2 h-screen flex flex-col justify-between bg-(--purple-primary) mx-6 md:mx-0 p-9 md:rounded-r-[130px]">
 
@@ -46,23 +57,35 @@ export default function LoginForm( { resetPass, registerPath, enter }){
                 Bem-vinda de volta. Sua jornada continua aqui.
             </p>
 
-            <div className='flex flex-col gap-y-3 mt-10 mb-5'>
+            <div className='text-left flex flex-col gap-y-3 mt-10 mb-5'>
                 <LabelInput 
                     label="E-mail" 
                     theme='white' 
                     value={email}
+                    required={true}
+                    placeholder='Digite seu email'
+                    validation='email'
                     onChange={(e) => setEmail(e.target.value)}
                 />
                 <LabelInput 
                     label="Senha" 
                     type="senha"
                     theme='white' 
+                    required={true} 
+                    placeholder='Digite sua senha'
+                    validation='senha'
                     value={senha}
                     onChange={(e) => setSenha(e.target.value)}
                 />
             </div>
 
-            {errorMsg && <p className="text-red-500 mb-2">{errorMsg}</p>}
+            {errorMsg && (
+            <div className="fixed top-1/12 left-1/2 transform -translate-x-1/2 -translate-y-1/2 
+                            z-50 bg-red-600 text-white px-6 py-3 rounded-lg shadow-lg 
+                            transition-opacity duration-300">
+                {errorMsg}
+            </div>
+            )}
 
             <div className='flex flex-col gap-y-1 justify-end'>
                 <button className='w-fit ml-auto transition duration-300 hover:-translate-y-0.75'
