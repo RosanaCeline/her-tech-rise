@@ -59,7 +59,7 @@ public interface AuthControllerDocs {
                                             {
                                               "name": "Tech Corp",
                                               "cnpj": "12.345.678/0001-95",
-                                              "companyType": "TECH",
+                                              "companyType": "NACIONAL",
                                               "phoneNumber": "(11) 91234-5678",
                                               "cep": "12345-678",
                                               "city": "São Paulo",
