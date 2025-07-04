@@ -10,7 +10,7 @@ public record RegisterCompanyRequestDTO(
 
         @Schema(description = "Nome da empresa", example = "Tech Solutions Ltda")
         @NotBlank(message = "Nome é obrigatório.")
-        @Size(min = 1, max = 100, message = "Nome deve ter no mínimo 1 e no máximo 150 caracteres.")
+        @Size(min = 1, max = 150, message = "Nome deve ter no mínimo 1 e no máximo 150 caracteres.")
         String name,
 
         @Schema(description = "CNPJ válido da empresa", example = "12.345.678/0001-95")

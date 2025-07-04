@@ -12,7 +12,7 @@ public record RegisterProfessionalRequestDTO(
 
         @Schema(description = "Nome completo do profissional", example = "Ana Clara Silva")
         @NotBlank(message = "Nome é obrigatório.")
-        @Size(min = 1, max = 100, message = "Nome deve ter no mínimo 1 e no máximo 150 caracteres.")
+        @Size(min = 1, max = 150, message = "Nome deve ter no mínimo 1 e no máximo 150 caracteres.")
         String name,
 
         @Schema(description = "CPF do profissional (formato válido)", example = "123.456.789-09")

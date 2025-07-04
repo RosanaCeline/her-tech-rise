@@ -1,8 +1,5 @@
 server:
-  port: 8080
-email:
-  subject: "Default Subject"
-  message: "Default Message"
+  port: 0
 security:
   jwt:
     token:
@@ -18,9 +15,6 @@ spring:
     name: Her Tech Rise API
   datasource:
     driver-class-name: com.mysql.cj.jdbc.Driver
-    url: jdbc:mysql://localhost:3306/hertech_database?useTimezone=true&serverTimezone=UTC
-    username: herTechAdmin
-    password: herTechPassword
   jpa:
     hibernate:
       ddl-auto: none
@@ -28,15 +22,6 @@ spring:
       hibernate:
     show-sql: false
     open-in-view: false
-  mail:
-    host: smtp.gmail.com
-    port: 587
-    username: ${HER_TECH_EMAIL_USERNAME}
-    password: ${HER_TECH_EMAIL_PASSWORD}
-    properties:
-      mail.smtp.auth: true
-      mail.smtp.starttls.enabled: true
-      mail.smtp.starttls.required: true
   flyway:
     baseline-on-migrate: true
 logging:
