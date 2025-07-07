@@ -83,19 +83,18 @@ public class EmailService {
                 .send(emailConfigs);
     }
 
-    // Ainda n modifiquei
     public void sendResetPasswordEmail(String to, String token) {
         String baseUrl = "http://localhost:3000/redefinirnovasenha";
         String resetLink = baseUrl + "?token=" + URLEncoder.encode(token, StandardCharsets.UTF_8);
-        String subject = "Pedido de Redefinição de Senha - Boamente";
+        String subject = "Pedido de Redefinição de Senha - Her Tech Rise";
 
         String emailContent = String.format("""
         Olá,<br><br>
-        Recebemos uma solicitação para redefinir a senha da sua conta no Boamente.<br>
+        Recebemos uma solicitação para redefinir a senha da sua conta no Her Tech Rise.<br>
         Para continuar, clique no botão abaixo:<br><br>
         <table role="presentation" border="0" cellpadding="0" cellspacing="0" align="center" style="margin: 0 auto;">
             <tr>
-                <td align="center" bgcolor="#007BFF" style="border-radius: 6px;">
+                <td align="center" bgcolor="#6c2cbf" style="border-radius: 6px;">
                 <a href="%s" target="_blank" style="display: inline-block; padding: 14px 28px; font-size: 16px; color: #ffffff; text-decoration: none; font-weight: bold; border-radius: 6px;">
                 Redefinir Senha
                 </a>
@@ -106,8 +105,8 @@ public class EmailService {
         <strong>Se você não solicitou a redefinição de senha, pode ignorar este e-mail com segurança — sua senha permanecerá a mesma.</strong><br><br>
         Este link de redefinição é válido por <strong>30 minutos</strong>.<br>
         Depois disso, será necessário solicitar uma nova redefinição.<br><br>
-        Obrigado por usar o Boamente! 💙<br>
-        — Equipe Boamente
+        Obrigado por usar a Her Tech Rise! 💜<br>
+        — Equipe Her Tech Rise
         """, resetLink);
         String body = EmailTemplateUtil.loadTemplate(filePath, emailContent);
 

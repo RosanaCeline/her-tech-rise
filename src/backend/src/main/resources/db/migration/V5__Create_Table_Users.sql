@@ -7,11 +7,13 @@ CREATE TABLE IF NOT EXISTS `users` (
 	`street` varchar(100) NOT NULL,
 	`neighborhood` varchar(100) NOT NULL,
 	`city` varchar(100) NOT NULL,
+	`uf` varchar(50) NOT NULL,
 	`cep` varchar(9) NOT NULL,
 	`type` enum('PROFESSIONAL', 'COMPANY') NOT NULL,
 	`user_handle` varchar(15) UNIQUE NOT NULL,
 	`profile_pic` varchar(255) NOT NULL,
 	`role_id` bigint NOT NULL,
+	`external_link` VARCHAR(100),
      FOREIGN KEY (`role_id`) REFERENCES `role`(`id`),
 
 	`account_non_expired` bit(1) NOT NULL DEFAULT 1, -- 1 = TRUE

@@ -10,6 +10,7 @@ import java.io.Serializable;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 @Entity
 @Table(name = "professional")
@@ -44,7 +45,14 @@ public class Professional implements Serializable {
     @OneToMany(mappedBy = "professional", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Experience> experiences = new ArrayList<>();
 
-    @Column(name = "external_link", length = 100)
-    private String externalLink;
+    @Override
+    public boolean equals(Object o) {
+        if (!(o instanceof Professional that)) return false;
+        return Objects.equals(getUserId(), that.getUserId()) && Objects.equals(getUser(), that.getUser()) && Objects.equals(getCpf(), that.getCpf()) && Objects.equals(getBirthDate(), that.getBirthDate()) && Objects.equals(getTechnology(), that.getTechnology()) && Objects.equals(getBiography(), that.getBiography()) && Objects.equals(getExperiences(), that.getExperiences());
+    }
 
+    @Override
+    public int hashCode() {
+        return Objects.hash(getUserId(), getUser(), getCpf(), getBirthDate(), getTechnology(), getBiography(), getExperiences());
+    }
 }
