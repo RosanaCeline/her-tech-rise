@@ -1,9 +1,6 @@
 package com.hertechrise.platform.services;
 
-import com.hertechrise.platform.data.dto.request.ConfirmedResetPasswordRequestDTO;
-import com.hertechrise.platform.data.dto.request.LoginRequestDTO;
-import com.hertechrise.platform.data.dto.request.RegisterCompanyRequestDTO;
-import com.hertechrise.platform.data.dto.request.RegisterProfessionalRequestDTO;
+import com.hertechrise.platform.data.dto.request.*;
 import com.hertechrise.platform.data.dto.response.TokenResponseDTO;
 import com.hertechrise.platform.exception.*;
 import com.hertechrise.platform.model.*;
@@ -15,7 +12,7 @@ import com.hertechrise.platform.security.jwt.ResetPasswordTokenService;
 import com.hertechrise.platform.security.jwt.TokenService;
 import com.hertechrise.platform.services.event.UserCreatedEvent;
 import com.hertechrise.platform.services.event.UserPasswordResetEvent;
-import jakarta.transaction.Transactional;
+import org.springframework.transaction.annotation.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -59,6 +56,8 @@ public class AuthService {
         newUser.setNeighborhood(request.neighborhood());
         newUser.setCity(request.city());
         newUser.setCep(request.cep());
+        newUser.setUf(request.uf());
+        newUser.setExternalLink("");
         newUser.setType(UserType.PROFESSIONAL);
 
         String generatedUsername = userService.generateUniqueUserHandle(request.name());
@@ -77,19 +76,19 @@ public class AuthService {
         professional.setBirthDate(request.birthDate());
         professional.setTechnology("");
         professional.setBiography("");
-        professional.setExternalLink("");
 
         professionalRepository.save(professional);
         eventPublisher.publishEvent(new UserCreatedEvent(this, newUser));
 
         String token = tokenService.generateToken(
                 newUser.getUsername(),
+                newUser.getId(),
                 newUser.getName().split(" ")[0],
                 "login-auth-api",
                 2
         );
 
-        return new TokenResponseDTO(newUser.getName(), token, role.getName());
+        return new TokenResponseDTO(newUser.getName(), newUser.getId(), token, role.getName());
     }
 
     @Transactional
@@ -111,6 +110,8 @@ public class AuthService {
         newUser.setNeighborhood(request.neighborhood());
         newUser.setCity(request.city());
         newUser.setCep(request.cep());
+        newUser.setUf(request.uf());
+        newUser.setExternalLink("");
         newUser.setType(UserType.COMPANY);
 
         String generatedUsername = userService.generateUniqueUserHandle(request.name());
@@ -129,19 +130,19 @@ public class AuthService {
         company.setCompanyType(request.companyType());
         company.setDescription("");
         company.setAboutUs("");
-        company.setExternalLink("");
 
         companyRepository.save(company);
         eventPublisher.publishEvent(new UserCreatedEvent(this, newUser));
 
         String token = tokenService.generateToken(
                 newUser.getUsername(),
+                newUser.getId(),
                 newUser.getName().split(" ")[0],
                 "login-auth-api",
                 2
         );
 
-        return new TokenResponseDTO(newUser.getName(), token, role.getName());
+        return new TokenResponseDTO(newUser.getName(), newUser.getId(), token, role.getName());
     }
 
     public TokenResponseDTO login(LoginRequestDTO request) {
@@ -155,20 +156,22 @@ public class AuthService {
 
             String token = tokenService.generateToken(
                     user.getEmail(),
+                    user.getId(),
                     user.getName().split(" ")[0],
                     "login-auth-api",
                     2
             );
 
-            return new TokenResponseDTO(user.getName(), token, user.getRole().getName());
+            return new TokenResponseDTO(user.getName(), user.getId(), token, user.getRole().getName());
 
         } catch (BadCredentialsException e) {
             throw new InvalidPasswordException();
         }
     }
 
-    public void resetPassword(String email) {
-        User user = userRepository.findByEmail(email)
+    @Transactional
+    public void resetPassword(ResetPasswordRequestDTO body) {
+        User user = userRepository.findByEmail(body.email())
                 .orElseThrow(UserNotFoundException::new);
 
         String token = resetTokenService.generateResetToken(user.getEmail());

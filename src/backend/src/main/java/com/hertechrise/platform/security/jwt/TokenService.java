@@ -18,7 +18,7 @@ public class TokenService {
     @Value("${security.jwt.token.secret-key}")
     private String secretKey;
 
-    public String generateToken(String subject, String name, String issuer, long expirationInHours) {
+    public String generateToken(String subject, Long id, String name, String issuer, long expirationInHours) {
         try {
             Algorithm algorithm = Algorithm.HMAC256(secretKey);
 
@@ -29,6 +29,7 @@ public class TokenService {
             return JWT.create()
                     .withIssuer(issuer)
                     .withSubject(subject)
+                    .withClaim("id", id)
                     .withClaim("name", name)
                     .withExpiresAt(expirationTime)
                     .sign(algorithm);
@@ -48,8 +49,9 @@ public class TokenService {
 
             String email = decodedJWT.getSubject();
             String name = decodedJWT.getClaim("name").asString();
+            Long id = Long.valueOf(decodedJWT.getId());
 
-            return new TokenData(email, name);
+            return new TokenData(email, id, name);
         } catch (JWTVerificationException exception) {
             System.out.println("Erro ao verificar o token: " + exception.getMessage());
             return null;

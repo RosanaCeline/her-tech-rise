@@ -32,6 +32,11 @@ public record RegisterCompanyRequestDTO(
         @Pattern(regexp = "\\d{5}-\\d{3}", message = "CEP inválido. Exemplo: 00000-000")
         String cep,
 
+        @Schema(description = "Estado (UF) onde a empresa está localizada", example = "Ceará")
+        @NotBlank(message = "Estado (UF) é obrigatório.")
+        @Size(min = 2, max = 50, message = "Estado (UF) deve ter no mínimo 2 e no máximo 50 caracteres." )
+        String uf,
+
         @Schema(description = "Cidade onde a empresa está localizada", example = "São Paulo")
         @NotBlank(message = "Cidade é obrigatória.")
         @Size(max = 100, message = "Cidade deve ter no máximo 100 caracteres.")

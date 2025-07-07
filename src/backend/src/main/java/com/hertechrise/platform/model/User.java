@@ -36,6 +36,9 @@ public class User implements UserDetails, Serializable {
     @Column(length = 9, nullable = false)
     private String cep;
 
+    @Column(length = 50, nullable = false)
+    private String uf;
+
     @Column(length = 100, nullable = false)
     private String city;
 
@@ -60,6 +63,9 @@ public class User implements UserDetails, Serializable {
 
     @Column(name = "profile_pic", nullable = false, length = 255)
     private String profilePic; // url da imagem
+
+    @Column(name = "external_link", length = 100)
+    private String externalLink;
 
     // Campos do Spring Security
     @Column(name = "account_non_expired", nullable = false)

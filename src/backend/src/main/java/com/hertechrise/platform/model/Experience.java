@@ -4,6 +4,7 @@ import jakarta.persistence.*;
 import lombok.*;
 
 import java.time.LocalDate;
+import java.util.Objects;
 
 @Entity
 @Table(name = "experience")
@@ -11,7 +12,6 @@ import java.time.LocalDate;
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
-@Builder
 public class Experience {
 
     @Id
@@ -42,4 +42,15 @@ public class Experience {
     @ManyToOne
     @JoinColumn(name = "professional_id")
     private Professional professional;
+
+    @Override
+    public boolean equals(Object o) {
+        if (!(o instanceof Experience that)) return false;
+        return isCurrent() == that.isCurrent() && Objects.equals(getId(), that.getId()) && Objects.equals(getTitle(), that.getTitle()) && Objects.equals(getCompany(), that.getCompany()) && Objects.equals(getModality(), that.getModality()) && Objects.equals(getStartDate(), that.getStartDate()) && Objects.equals(getEndDate(), that.getEndDate()) && Objects.equals(getDescription(), that.getDescription()) && Objects.equals(getProfessional(), that.getProfessional());
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(getId(), getTitle(), getCompany(), getModality(), getStartDate(), getEndDate(), isCurrent(), getDescription(), getProfessional());
+    }
 }
