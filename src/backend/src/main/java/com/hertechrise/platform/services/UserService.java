@@ -4,6 +4,7 @@ import com.cloudinary.Cloudinary;
 import com.hertechrise.platform.data.dto.response.UserPictureResponseDTO;
 import com.hertechrise.platform.exception.CloudinaryUploadException;
 import com.hertechrise.platform.exception.FileReadException;
+import com.hertechrise.platform.exception.UserNotFoundException;
 import com.hertechrise.platform.model.User;
 import com.hertechrise.platform.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
@@ -83,5 +84,19 @@ public class UserService {
         } catch (Exception e) {
             throw new CloudinaryUploadException();
         }
+    }
+
+    @Transactional
+    public void deactivateMyProfile() {
+        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+        User loggedUser = (User) auth.getPrincipal();
+
+        User user = userRepository.findById(loggedUser.getId())
+                .orElseThrow(UserNotFoundException::new);
+
+        user.setEnabled(false);
+        user.setAccountNonLocked(false);
+
+        userRepository.save(user);
     }
 }

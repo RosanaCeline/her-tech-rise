@@ -149,6 +149,10 @@ public class AuthService {
         User user = this.userRepository.findByEmail(request.email())
                 .orElseThrow(UserNotFoundException::new);
 
+        if (!user.isEnabled()) {
+            throw new AccountDisabledException();
+        }
+
         try {
             authenticationManager.authenticate(
                     new UsernamePasswordAuthenticationToken(request.email(), request.password())

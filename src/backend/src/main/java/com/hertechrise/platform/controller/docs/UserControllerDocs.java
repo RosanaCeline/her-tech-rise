@@ -1,5 +1,6 @@
 package com.hertechrise.platform.controller.docs;
 
+import com.hertechrise.platform.data.dto.response.MessageResponseDTO;
 import com.hertechrise.platform.data.dto.response.UserPictureResponseDTO;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
@@ -38,4 +39,14 @@ public interface UserControllerDocs {
             }
     )
     ResponseEntity<UserPictureResponseDTO> updateProfilePicture(MultipartFile file);
+
+    @Operation(
+            summary = "Desativar (soft‑delete) minha conta",
+            description = "Marca a conta do(a) profissional como desativada. Após isso, o login deixa de funcionar.",
+            responses = {
+                    @ApiResponse(responseCode = "204", description = "Conta desativada com sucesso"),
+                    @ApiResponse(responseCode = "401", description = "Usuário não autenticado")
+            }
+    )
+    ResponseEntity<MessageResponseDTO> deactivateMyProfile();
 }
