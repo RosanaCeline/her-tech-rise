@@ -2,10 +2,7 @@ package com.hertechrise.platform.services;
 
 import com.hertechrise.platform.data.dto.request.ExperienceRequestDTO;
 import com.hertechrise.platform.data.dto.request.ProfessionalProfileRequestDTO;
-import com.hertechrise.platform.data.dto.response.ExperienceResponseDTO;
-import com.hertechrise.platform.data.dto.response.MediaResponseDTO;
-import com.hertechrise.platform.data.dto.response.PostResponseDTO;
-import com.hertechrise.platform.data.dto.response.ProfessionalProfileResponseDTO;
+import com.hertechrise.platform.data.dto.response.*;
 import com.hertechrise.platform.exception.ProfessionalNotFoundException;
 import com.hertechrise.platform.exception.UserNotFoundException;
 import com.hertechrise.platform.model.Experience;
@@ -145,6 +142,36 @@ public class ProfessionalProfileService {
         professionalRepository.save(professional);
 
         return getProfile(user.getId()); // retorna o perfil atualizado
+    }
+
+    public MyProfessionalProfileResponseDTO getMyProfile() {
+        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+        User loggedUser = (User) auth.getPrincipal();
+
+        Professional loggedProfessional = professionalRepository.findById(loggedUser.getId())
+                .orElseThrow(ProfessionalNotFoundException::new);
+
+        List<ExperienceTitleResponseDTO> experiences = loggedProfessional.getExperiences().stream()
+                .sorted(Comparator.comparing(Experience::getStartDate).reversed())
+                .map(e -> new ExperienceTitleResponseDTO(e.getId(), e.getTitle()))
+                .toList();
+
+        return new MyProfessionalProfileResponseDTO(
+                loggedUser.getId(),
+                loggedUser.getName(),
+                loggedProfessional.getCpf(),
+                loggedProfessional.getBirthDate(),
+                loggedUser.getPhoneNumber(),
+                loggedUser.getEmail(),
+                loggedUser.getCep(),
+                loggedUser.getNeighborhood(),
+                loggedUser.getCity(),
+                loggedUser.getStreet(),
+                loggedProfessional.getTechnology(),
+                loggedProfessional.getBiography(),
+                experiences,
+                loggedUser.getExternalLink()
+        );
     }
 
     private static String getLink(ProfessionalProfileRequestDTO request) {
