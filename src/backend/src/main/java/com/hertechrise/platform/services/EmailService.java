@@ -84,7 +84,7 @@ public class EmailService {
     }
 
     public void sendResetPasswordEmail(String to, String token) {
-        String baseUrl = "http://localhost:3000/redefinirnovasenha";
+        String baseUrl = "http://localhost:5173/redefinirnovasenha";
         String resetLink = baseUrl + "?token=" + URLEncoder.encode(token, StandardCharsets.UTF_8);
         String subject = "Pedido de Redefinição de Senha - Her Tech Rise";
 
