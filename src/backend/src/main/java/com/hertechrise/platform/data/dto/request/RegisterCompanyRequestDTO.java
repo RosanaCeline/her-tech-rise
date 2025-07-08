@@ -10,7 +10,7 @@ public record RegisterCompanyRequestDTO(
 
         @Schema(description = "Nome da empresa", example = "Tech Solutions Ltda")
         @NotBlank(message = "Nome é obrigatório.")
-        @Size(min = 1, max = 100, message = "Nome deve ter no mínimo 1 e no máximo 150 caracteres.")
+        @Size(min = 1, max = 150, message = "Nome deve ter no mínimo 1 e no máximo 150 caracteres.")
         String name,
 
         @Schema(description = "CNPJ válido da empresa", example = "12.345.678/0001-95")
@@ -31,6 +31,11 @@ public record RegisterCompanyRequestDTO(
         @NotBlank(message = "CEP é obrigatório.")
         @Pattern(regexp = "\\d{5}-\\d{3}", message = "CEP inválido. Exemplo: 00000-000")
         String cep,
+
+        @Schema(description = "Estado (UF) onde a empresa está localizada", example = "Ceará")
+        @NotBlank(message = "Estado (UF) é obrigatório.")
+        @Size(min = 2, max = 50, message = "Estado (UF) deve ter no mínimo 2 e no máximo 50 caracteres." )
+        String uf,
 
         @Schema(description = "Cidade onde a empresa está localizada", example = "São Paulo")
         @NotBlank(message = "Cidade é obrigatória.")

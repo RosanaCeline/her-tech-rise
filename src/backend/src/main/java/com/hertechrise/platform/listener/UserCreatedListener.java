@@ -3,7 +3,6 @@ package com.hertechrise.platform.listener;
 import com.hertechrise.platform.services.EmailService;
 import com.hertechrise.platform.services.event.UserCreatedEvent;
 import lombok.RequiredArgsConstructor;
-import org.springframework.context.event.EventListener;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.event.TransactionPhase;

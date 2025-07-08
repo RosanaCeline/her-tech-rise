@@ -16,7 +16,6 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-@Tag(name = "Autenticação", description = "Endpoints para autenticação de usuários")
 @RestController
 @RequestMapping("/auth")
 @RequiredArgsConstructor
@@ -46,8 +45,8 @@ public class AuthController implements AuthControllerDocs {
     }
 
     @PostMapping("/resetPassword")
-    public ResponseEntity<?> resetPassword(@RequestBody @Valid ResetPasswordRequestDTO body) {
-        authService.resetPassword(body.email());
+    public ResponseEntity<?> resetPassword(@RequestBody @Valid ResetPasswordRequestDTO request) {
+        authService.resetPassword(request);
         return ResponseEntity.ok(new MessageResponseDTO("Pedido de redefinição de senha enviado com sucesso."));
     }
 

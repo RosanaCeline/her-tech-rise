@@ -1,16 +1,29 @@
 package com.hertechrise.platform.services;
 
+import com.cloudinary.Cloudinary;
+import com.hertechrise.platform.data.dto.response.UserPictureResponseDTO;
+import com.hertechrise.platform.exception.CloudinaryUploadException;
+import com.hertechrise.platform.exception.FileReadException;
+import com.hertechrise.platform.exception.UserNotFoundException;
+import com.hertechrise.platform.model.User;
 import com.hertechrise.platform.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.multipart.MultipartFile;
 
+import java.io.IOException;
 import java.text.Normalizer;
+import java.util.Map;
 
 @Service
 @RequiredArgsConstructor
 public class UserService {
 
     private final UserRepository userRepository;
+    private final Cloudinary cloudinary;
 
     public String generateUniqueUserHandle(String fullName) {
         // Normaliza (remove acentos), põe tudo minúsculo e remove caracteres inválidos
@@ -37,5 +50,53 @@ public class UserService {
         }
 
         return username;
+    }
+
+    @Transactional
+    public UserPictureResponseDTO updateProfilePicture(MultipartFile file) {
+        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+        User loggedUser = (User) auth.getPrincipal();
+
+        try {
+            Map<?, ?> upload = cloudinary.uploader().upload(
+                    file.getBytes(),
+                    Map.of(
+                            "folder",     "profile_pics",
+                            "public_id",   "user_" + loggedUser.getId(),
+                            "overwrite",   true,
+                            "resource_type", "image"
+                    )
+            );
+
+            String secureUrl = (String) upload.get("secure_url");
+
+            loggedUser.setProfilePic(secureUrl);
+            userRepository.save(loggedUser);
+
+            return new UserPictureResponseDTO(
+                    loggedUser.getId(),
+                    loggedUser.getName(),
+                    loggedUser.getProfilePic()
+            );
+
+        } catch (IOException e) {
+            throw new FileReadException();
+        } catch (Exception e) {
+            throw new CloudinaryUploadException();
+        }
+    }
+
+    @Transactional
+    public void deactivateMyProfile() {
+        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+        User loggedUser = (User) auth.getPrincipal();
+
+        User user = userRepository.findById(loggedUser.getId())
+                .orElseThrow(UserNotFoundException::new);
+
+        user.setEnabled(false);
+        user.setAccountNonLocked(false);
+
+        userRepository.save(user);
     }
 }

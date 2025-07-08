@@ -12,7 +12,7 @@ public record RegisterProfessionalRequestDTO(
 
         @Schema(description = "Nome completo do profissional", example = "Ana Clara Silva")
         @NotBlank(message = "Nome é obrigatório.")
-        @Size(min = 1, max = 100, message = "Nome deve ter no mínimo 1 e no máximo 150 caracteres.")
+        @Size(min = 1, max = 150, message = "Nome deve ter no mínimo 1 e no máximo 150 caracteres.")
         String name,
 
         @Schema(description = "CPF do profissional (formato válido)", example = "123.456.789-09")
@@ -34,6 +34,11 @@ public record RegisterProfessionalRequestDTO(
         @NotBlank(message = "CEP é obrigatório.")
         @Pattern(regexp = "\\d{5}-\\d{3}", message = "CEP inválido. Exemplo: 00000-000")
         String cep,
+
+        @Schema(description = "Estado (UF) onde o profissional reside", example = "Ceará")
+        @NotBlank(message = "Estado (UF) é obrigatório.")
+        @Size(min = 2, max = 50, message = "Estado (UF) deve ter no mínimo 2 e no máximo 50 caracteres." )
+        String uf,
 
         @Schema(description = "Cidade onde o profissional reside", example = "Campinas")
         @NotBlank(message = "Cidade é obrigatória.")

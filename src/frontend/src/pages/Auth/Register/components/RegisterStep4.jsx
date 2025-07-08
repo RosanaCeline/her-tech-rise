@@ -33,6 +33,7 @@ export default function RegisterStep1({formData, handleChange }){
                                 placeholder='Digite sua senha' 
                                 maxLength='25' 
                                 type='senha'
+                                validation='senha'
                                 value={formData.senha} 
                                 onChange={(e) => {
                                     handleChange('senha', e.target.value)
