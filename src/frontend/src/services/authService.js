@@ -39,6 +39,7 @@ export const register = async (formData) => {
       phoneNumber:  formData.telefone,
       cep:          formData.cep,
       city:         formData.cidade,
+      uf:           formData.estado,
       street:       formData.rua,
       neighborhood: formData.bairro,
       email:        formData.email,
@@ -55,6 +56,7 @@ export const register = async (formData) => {
       phoneNumber:  formData.telefone,
       cep:          formData.cep,
       city:         formData.cidade,
+      uf:           formData.estado,
       street:       formData.rua,
       neighborhood: formData.bairro,
       email:        formData.email,
@@ -86,6 +88,11 @@ export const logout = () => {
 export const resetPassword = async (email) => {
   const response = await axios.post(`${API_URL}/resetPassword`, { email });
   return response.data;
+}
+
+export const newPassword = async (token, newPassword) => {
+  const response = await axios.post(`${API_URL}/confirmedResetPassword`, {token, newPassword})
+  return response.data
 }
 
 export const updateProfile = async (updatedData) => {

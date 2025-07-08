@@ -30,6 +30,7 @@ export default function RegisterForm(){
         rua: '',
         bairro: '',
         cidade: '',
+        estado: '',
         email: '',
         senha: '',
         senha_confirmada: ''
@@ -149,7 +150,6 @@ export default function RegisterForm(){
             )
 
         case 5:
-            console.log(formData)
             return null
     }
 }
