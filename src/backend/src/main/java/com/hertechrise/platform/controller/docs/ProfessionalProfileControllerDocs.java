@@ -1,6 +1,7 @@
 package com.hertechrise.platform.controller.docs;
 
 import com.hertechrise.platform.data.dto.request.ProfessionalProfileRequestDTO;
+import com.hertechrise.platform.data.dto.response.MyProfessionalProfileResponseDTO;
 import com.hertechrise.platform.data.dto.response.ProfessionalProfileResponseDTO;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
@@ -190,4 +191,13 @@ public interface ProfessionalProfileControllerDocs {
     )
     ResponseEntity<ProfessionalProfileResponseDTO> updateMyProfile(@RequestBody ProfessionalProfileRequestDTO request);
 
+    @Operation(
+            summary = "Obter perfil do profissional autenticado",
+            description = "Retorna os dados do profissional logado para preenchimento do formulário de edição.",
+            responses = {
+                    @ApiResponse(responseCode = "200", description = "Perfil retornado com sucesso",
+                            content = @Content(schema = @Schema(implementation = MyProfessionalProfileResponseDTO.class)))
+            }
+    )
+    ResponseEntity<MyProfessionalProfileResponseDTO> getMyProfile();
 }

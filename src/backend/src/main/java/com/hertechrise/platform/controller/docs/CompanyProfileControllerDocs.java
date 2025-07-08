@@ -2,6 +2,7 @@ package com.hertechrise.platform.controller.docs;
 
 import com.hertechrise.platform.data.dto.request.CompanyProfileRequestDTO;
 import com.hertechrise.platform.data.dto.response.CompanyProfileResponseDTO;
+import com.hertechrise.platform.data.dto.response.MyCompanyProfileResponseDTO;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.ExampleObject;
@@ -104,4 +105,14 @@ public interface CompanyProfileControllerDocs {
             }
     )
     ResponseEntity<CompanyProfileResponseDTO> updateMyProfile(@RequestBody CompanyProfileRequestDTO request);
+
+    @Operation(
+            summary = "Obter perfil da empresa autenticada",
+            description = "Retorna os dados da empresa logada para preenchimento do formulário de edição.",
+            responses = {
+                    @ApiResponse(responseCode = "200", description = "Perfil retornado com sucesso",
+                            content = @Content(schema = @Schema(implementation = MyCompanyProfileResponseDTO.class)))
+            }
+    )
+    ResponseEntity<MyCompanyProfileResponseDTO> getMyProfile();
 }

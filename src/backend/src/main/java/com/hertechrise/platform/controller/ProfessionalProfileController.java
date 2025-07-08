@@ -2,6 +2,7 @@ package com.hertechrise.platform.controller;
 
 import com.hertechrise.platform.controller.docs.ProfessionalProfileControllerDocs;
 import com.hertechrise.platform.data.dto.request.ProfessionalProfileRequestDTO;
+import com.hertechrise.platform.data.dto.response.MyProfessionalProfileResponseDTO;
 import com.hertechrise.platform.data.dto.response.ProfessionalProfileResponseDTO;
 import com.hertechrise.platform.services.ProfessionalProfileService;
 import lombok.RequiredArgsConstructor;
@@ -23,5 +24,10 @@ public class ProfessionalProfileController implements ProfessionalProfileControl
     @PutMapping("/update")
     public ResponseEntity<ProfessionalProfileResponseDTO> updateMyProfile(@RequestBody ProfessionalProfileRequestDTO request) {
         return ResponseEntity.ok(profileService.updateMyProfile(request));
+    }
+
+    @GetMapping("/me")
+    public ResponseEntity<MyProfessionalProfileResponseDTO> getMyProfile() {
+        return ResponseEntity.ok(profileService.getMyProfile());
     }
 }

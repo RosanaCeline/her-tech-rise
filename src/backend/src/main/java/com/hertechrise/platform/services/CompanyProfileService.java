@@ -1,14 +1,10 @@
 package com.hertechrise.platform.services;
 
 import com.hertechrise.platform.data.dto.request.CompanyProfileRequestDTO;
-import com.hertechrise.platform.data.dto.response.CompanyProfileResponseDTO;
-import com.hertechrise.platform.data.dto.response.MediaResponseDTO;
-import com.hertechrise.platform.data.dto.response.PostResponseDTO;
+import com.hertechrise.platform.data.dto.response.*;
 import com.hertechrise.platform.exception.CompanyNotFoundException;
 import com.hertechrise.platform.exception.UserNotFoundException;
-import com.hertechrise.platform.model.Company;
-import com.hertechrise.platform.model.Post;
-import com.hertechrise.platform.model.User;
+import com.hertechrise.platform.model.*;
 import com.hertechrise.platform.repository.CompanyRepository;
 import com.hertechrise.platform.repository.FollowRelationshipRepository;
 import com.hertechrise.platform.repository.PostRepository;
@@ -118,6 +114,30 @@ public class CompanyProfileService {
         companyRepository.save(company);
 
         return getProfile(user.getId()); // retorna o perfil atualizado
+    }
+
+    public MyCompanyProfileResponseDTO getMyProfile() {
+        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+        User loggedUser = (User) auth.getPrincipal();
+
+        Company loggedCompany = companyRepository.findById(loggedUser.getId())
+                .orElseThrow(CompanyNotFoundException::new);
+
+        return new MyCompanyProfileResponseDTO(
+                loggedUser.getId(),
+                loggedUser.getName(),
+                loggedCompany.getCnpj(),
+                loggedCompany.getCompanyType(),
+                loggedUser.getPhoneNumber(),
+                loggedUser.getEmail(),
+                loggedUser.getCep(),
+                loggedUser.getNeighborhood(),
+                loggedUser.getCity(),
+                loggedUser.getStreet(),
+                loggedCompany.getDescription(),
+                loggedCompany.getAboutUs(),
+                loggedUser.getExternalLink()
+        );
     }
 
     private static String getLink(CompanyProfileRequestDTO request) {
