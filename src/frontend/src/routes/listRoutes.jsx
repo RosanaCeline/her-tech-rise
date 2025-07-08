@@ -4,6 +4,7 @@ import LandingPage from "../pages/LandingPage/LandingPage";
 import Login from '../pages/Auth/Login/Login';
 import Register from '../pages/Auth/Register/Register';
 import ResetPassword from "../pages/Auth/ResetPassword/ResetPassword"
+import NewPassword from "../pages/Auth/ResetPassword/NewPassword"
 
 import Timeline from '../pages/Timeline/Timeline';
 import VerMeuPerfil from '../pages/User/VerMeuPerfil';
@@ -30,6 +31,7 @@ export const authRoutes = [
     { path: '/login', element: <Login resetPass="/redefinirsenha" registerPath="/cadastro" enter="/timeline"/> },
     { path: '/cadastro', element: <Register /> },
     { path: '/redefinirsenha', element: <ResetPassword /> },
+    { path: '/redefinirnovasenha', element: <NewPassword/>},
 ];
 
 export const privateRoutes = [
