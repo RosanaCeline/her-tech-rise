@@ -11,7 +11,8 @@ export default function LabelInput ({    name,
                                         options = [], 
                                         theme = '[#303F3C]',
                                         validation = '',
-                                        maxLength = ''
+                                        maxLength = '',
+                                        ref = null
                                     }) {
  
     const [error, setError] = useState(null)
@@ -37,6 +38,7 @@ export default function LabelInput ({    name,
         focus:ring-[#55618C]
         transition
         placeholder:text-[#55618C]/60
+        disabled:bg-gray-300
     `
 
     const baseLabelClasses = `
@@ -56,23 +58,31 @@ export default function LabelInput ({    name,
         )}
 
         {type === 'select' ? (
-            <select
-            id={name}
-            name={name}
-            value={value}
-            onChange={onChange}
-            onBlur={handleBlur}
-            className={`${baseInputClasses} appearance-none pr-10`}
-            >
-            <option value="" disabled>
-                Selecione...
-            </option>
-            {options.map((opt) => (
-                <option key={opt.value} value={opt.value}>
-                {opt.label}
-                </option>
-            ))}
-            </select>
+            <div className='relative'>
+                <select
+                id={name}
+                name={name}
+                value={value}
+                onChange={onChange}
+                onBlur={handleBlur}
+                ref={ref}
+                className={`${baseInputClasses} appearance-none pr-10`}
+                >
+                    <option value="" disabled>
+                        Selecione...
+                    </option>
+                    {options.map((opt) => (
+                        <option key={opt.value} value={opt.value}>
+                        {opt.label}
+                        </option>
+                    ))}
+                </select>
+                <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-4 text-gray-500">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                    <path d="M19 9l-7 7-7-7" stroke-linecap="round" stroke-linejoin="round" />
+                    </svg>
+                </div>
+            </div>
         ) : type === 'mensagem' ? (
             <textarea
             id={name}
@@ -95,6 +105,7 @@ export default function LabelInput ({    name,
             placeholder={placeholder}
             className={baseInputClasses}
             maxLength={maxLength}
+            ref={ref}
             style={{ height: '48px' }}
             />
         )}
