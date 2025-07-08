@@ -1,5 +1,6 @@
 package com.hertechrise.platform.services;
 
+import com.hertechrise.platform.data.dto.request.CompanyProfileRequestDTO;
 import com.hertechrise.platform.data.dto.response.CompanyProfileResponseDTO;
 import com.hertechrise.platform.data.dto.response.MediaResponseDTO;
 import com.hertechrise.platform.data.dto.response.PostResponseDTO;
@@ -12,11 +13,17 @@ import com.hertechrise.platform.repository.CompanyRepository;
 import com.hertechrise.platform.repository.FollowRelationshipRepository;
 import com.hertechrise.platform.repository.PostRepository;
 import com.hertechrise.platform.repository.UserRepository;
+import jakarta.validation.ValidationException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
+import java.net.MalformedURLException;
+import java.net.URI;
+import java.net.URISyntaxException;
+import java.net.URL;
 import java.util.List;
 
 @Service
@@ -62,6 +69,73 @@ public class CompanyProfileService {
                 company.getAboutUs(),
                 posts
         );
+    }
+
+    @Transactional
+    public CompanyProfileResponseDTO updateMyProfile(CompanyProfileRequestDTO request) {
+        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+        User loggedUser = (User) auth.getPrincipal();
+
+        User user = userRepository.findById(loggedUser.getId())
+                .orElseThrow(UserNotFoundException::new);
+
+        Company company = companyRepository.findById(user.getId())
+                .orElseThrow(CompanyNotFoundException::new);
+
+        user.setName(request.name());
+        user.setPhoneNumber(request.phoneNumber());
+        user.setEmail(request.email());
+        user.setCep(request.cep());
+        user.setNeighborhood(request.neighborhood());
+        user.setStreet(request.street());
+
+        company.setCnpj(request.cnpj());
+        company.setCompanyType(request.companyType());
+
+        // description (até 400 caracteres)
+        if (request.description() != null) {
+            if (request.description().length() > 400) {
+                throw new ValidationException("description deve ter no máximo 400 caracteres.");
+            }
+            company.setDescription(request.description());
+        }
+
+        // aboutUs (até 1000 caracteres)
+        if (request.aboutUs() != null) {
+            if (request.aboutUs().length() > 1000) {
+                throw new ValidationException("aboutUs deve ter no máximo 1000 caracteres.");
+            }
+            company.setAboutUs(request.aboutUs());
+        }
+
+        // externalLink (até 100 caracteres e deve ser URL válida)
+        if (request.externalLink() != null) {
+            String link = getLink(request);
+            user.setExternalLink(link);
+        }
+
+        userRepository.save(user);
+        companyRepository.save(company);
+
+        return getProfile(user.getId()); // retorna o perfil atualizado
+    }
+
+    private static String getLink(CompanyProfileRequestDTO request) {
+        String link = request.externalLink();
+        if (link.length() > 100) {
+            throw new ValidationException("externalLink deve ter no máximo 100 caracteres.");
+        }
+        try {
+            URI uri = new URI(link);
+            if (uri.getScheme() == null ||
+                    !(uri.getScheme().equalsIgnoreCase("http") || uri.getScheme().equalsIgnoreCase("https"))) {
+                throw new ValidationException("externalLink deve começar com http ou https.");
+            }
+            URL _tmp = uri.toURL();
+        } catch (URISyntaxException | MalformedURLException e) {
+            throw new ValidationException("externalLink não é uma URL válida.");
+        }
+        return link;
     }
 
     private PostResponseDTO toPostDto(Post p) {
