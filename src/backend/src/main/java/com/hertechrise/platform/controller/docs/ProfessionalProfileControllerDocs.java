@@ -11,7 +11,6 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PutMapping;
 
 @Tag(name = "Perfil de Profissional", description = "Endpoints de perfil do(a) profissional")
 public interface ProfessionalProfileControllerDocs {
@@ -101,6 +100,13 @@ public interface ProfessionalProfileControllerDocs {
     @Operation(
             summary = "Atualizar perfil profissional",
             description = "Atualiza os dados do perfil do profissional autenticado e retorna o perfil atualizado.",
+            requestBody = @RequestBody(
+                    required = true,
+                    content = @Content(
+                            mediaType = "application/json",
+                            schema = @Schema(implementation = ProfessionalProfileRequestDTO.class)
+                    )
+            ),
             responses = {
                     @ApiResponse(
                             responseCode = "200",
@@ -171,10 +177,17 @@ public interface ProfessionalProfileControllerDocs {
                     }
                     """)
                             )
+                    ),
+                    @ApiResponse(
+                            responseCode = "400",
+                            description = "Dados inválidos (validação falhou)."
+                    ),
+                    @ApiResponse(
+                            responseCode = "401",
+                            description = "Usuário não autenticado."
                     )
             }
     )
-    @PutMapping("/update")
     ResponseEntity<ProfessionalProfileResponseDTO> updateMyProfile(@RequestBody ProfessionalProfileRequestDTO request);
 
 }
