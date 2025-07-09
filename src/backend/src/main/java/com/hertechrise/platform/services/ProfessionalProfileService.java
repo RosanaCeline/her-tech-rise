@@ -1,8 +1,25 @@
 package com.hertechrise.platform.services;
 
+import java.net.MalformedURLException;
+import java.net.URI;
+import java.net.URISyntaxException;
+import java.net.URL;
+import java.util.Comparator;
+import java.util.List;
+
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
 import com.hertechrise.platform.data.dto.request.ExperienceRequestDTO;
 import com.hertechrise.platform.data.dto.request.ProfessionalProfileRequestDTO;
-import com.hertechrise.platform.data.dto.response.*;
+import com.hertechrise.platform.data.dto.response.ExperienceResponseDTO;
+import com.hertechrise.platform.data.dto.response.ExperienceTitleResponseDTO;
+import com.hertechrise.platform.data.dto.response.MediaResponseDTO;
+import com.hertechrise.platform.data.dto.response.MyProfessionalProfileResponseDTO;
+import com.hertechrise.platform.data.dto.response.PostResponseDTO;
+import com.hertechrise.platform.data.dto.response.ProfessionalProfileResponseDTO;
 import com.hertechrise.platform.exception.ProfessionalNotFoundException;
 import com.hertechrise.platform.exception.UserNotFoundException;
 import com.hertechrise.platform.model.Experience;
@@ -13,19 +30,9 @@ import com.hertechrise.platform.repository.FollowRelationshipRepository;
 import com.hertechrise.platform.repository.PostRepository;
 import com.hertechrise.platform.repository.ProfessionalRepository;
 import com.hertechrise.platform.repository.UserRepository;
+
 import jakarta.validation.ValidationException;
 import lombok.RequiredArgsConstructor;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
-
-import java.net.MalformedURLException;
-import java.net.URI;
-import java.net.URISyntaxException;
-import java.net.URL;
-import java.util.Comparator;
-import java.util.List;
 
 @Service
 @RequiredArgsConstructor
@@ -38,6 +45,7 @@ public class ProfessionalProfileService {
 
     private final ExperienceService experienceService;
 
+    @Transactional
     public ProfessionalProfileResponseDTO getProfile(Long id) {
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
         User loggedUser = (User) auth.getPrincipal();
