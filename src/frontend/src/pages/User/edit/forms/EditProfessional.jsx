@@ -1,6 +1,11 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
+import { Plus } from 'lucide-react';
 
+import CardExperienceItem from '../../../../components/Cards/Profile/CardExperienceItem';
+import FormAddExperience from "../../../../components/Cards/Profile/FormAddExperience";
+import FormEditExperience from "../../../../components/Cards/Profile/FormEditExperience";
+import PopUpBlurProfile from "../../../../components/Cards/Profile/PopUpBlurProfile";
 import LabelInput from "../../../../components/form/Label/LabelInput";
 import BtnCallToAction from "../../../../components/btn/BtnCallToAction/BtnCallToAction";
 import { validateField } from "../../../../components/form/Label/validationField";
@@ -31,6 +36,10 @@ export default function EditProfessional() {
   const [errors, setErrors] = useState({});
   const [loading, setLoading] = useState(true);
   const [originalUser, setOriginalUser] = useState(null);
+
+  const [addExperienceOpen, setAddExperienceOpen] = useState(false);
+  const [editingExperience, setEditingExperience] = useState(null);
+
   const [cancelModalOpen, setCancelModalOpen] = useState(false);
   const [successModalOpen, setSuccessModalOpen] = useState(false);
   const [errorModalOpen, setErrorModalOpen] = useState(false);
@@ -65,6 +74,7 @@ export default function EditProfessional() {
         };
         setFormData(mappedForm);
         setOriginalUser(mappedForm);
+        console.log(mappedForm)
       } catch (err) {
         console.error("Erro ao carregar dados do profissional:", err);
       } finally {
@@ -123,7 +133,7 @@ export default function EditProfessional() {
 
     try {
       const finalData = {
-        id: originalUser.id,
+        id: formData.id,
         name: formData.nome?.trim() || null,
         handle: formData.handle?.trim() || null,
         cpf: formData.cpf?.trim() || null,
@@ -131,19 +141,20 @@ export default function EditProfessional() {
         phoneNumber: formData.telefone?.trim() || null,
         city: formData.cidade?.trim() || null,
         uf: formData.estado?.trim() || null,
-        followersCount: originalUser.followersCount ?? 0,
-        profilePic: originalUser.photo || null,
+        followersCount: formData.followersCount ?? 0,
+        profilePic: formData.photo || null,
         email: formData.email?.trim() || null,
         cep: formData.cep?.trim() || null,
         neighborhood: formData.bairro?.trim() || null,
         street: formData.rua?.trim() || null,
         technology: formData.tecnologias?.trim() || null,
         biography: formData.biografia?.trim() || null,
-        experiences: originalUser.experiences ?? [],
+        experiences: formData.experiences ?? [],
         externalLink: formData.link?.trim() || null,
-        posts: originalUser.posts ?? [],
+        posts: formData.posts ?? [],
       };
 
+      console.log("Dados enviados para o backend:", finalData);
       const updatedUser = await updateProfile(finalData);
       setUser(updatedUser);
       setSuccessModalOpen(true);
@@ -295,6 +306,43 @@ export default function EditProfessional() {
             placeholder="Conte um pouco sobre sua trajetória"
           />
 
+          <label className="block text-[#303F3C] font-sm text-base text-left">
+            Experiencias:
+          </label>
+          <div className="flex flex-col gap-4">
+            {formData.experiences.length > 0 ? (
+              formData.experiences.map((exp, idx) => (
+                <CardExperienceItem
+                  key={idx}
+                  experience={exp}
+                  onEdit={() => {
+                    setEditingExperience(exp);
+                    setAddExperienceOpen(true);
+                  }}
+                  onDelete={() => {
+                    setFormData((prev) => ({
+                      ...prev,
+                      experiences: prev.experiences.filter((e) => e !== exp),
+                    }));
+                  }}
+                />
+              ))
+            ) : (
+              <p className="text-sm text-[#55618C]/60">Nenhuma experiência adicionada.</p>
+            )}
+          </div>
+
+          <button type="button"
+                  onClick={() => {
+                    setEditingExperience(null);
+                    setAddExperienceOpen(true);
+                  }}
+                  className="flex items-center justify-end w-10 h-10 rounded-full text-[#55618C] transition"
+                  title="Adicionar experiência"
+            >
+              <Plus size={20} />
+            </button>
+
           <LabelInput
             label="Link externo:"
             name="link"
@@ -374,6 +422,40 @@ export default function EditProfessional() {
             </div>
           </div>
         </div>
+      )}
+      {addExperienceOpen && (
+        <PopUpBlurProfile
+          isOpen={addExperienceOpen}
+          onClose={() => setAddExperienceOpen(false)}
+          content={
+            editingExperience ? (
+              <FormEditExperience
+                experience={editingExperience}
+                onUpdate={(updatedExp) => {
+                  setFormData((prev) => ({
+                    ...prev,
+                    experiences: prev.experiences.map((e) =>
+                      e === editingExperience ? updatedExp : e
+                    ),
+                  }));
+                  setEditingExperience(null);
+                }}
+                onClose={() => setAddExperienceOpen(false)}
+              />
+            ) : (
+              <FormAddExperience
+                onSave={(newExp) => {
+                  setFormData((prev) => ({
+                    ...prev,
+                    experiences: [...prev.experiences, newExp],
+                  }));
+                  setAddExperienceOpen(false);
+                }}
+                onClose={() => setAddExperienceOpen(false)}
+              />
+            )
+          }
+        />
       )}
     </>
   );
