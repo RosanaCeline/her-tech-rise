@@ -1,10 +1,12 @@
 import React, { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 
 import LabelInput from "../../../../components/form/Label/LabelInput";
 import BtnCallToAction from "../../../../components/btn/BtnCallToAction/BtnCallToAction";
 import { validateField } from "../../../../components/form/Label/validationField";
 import { maskField } from "../../../../components/form/Label/maskField";
 
+import { useAuth } from "../../../../context/AuthContext";
 import { getAllProfile, updateProfile } from "../../../../services/userService";
 
 export default function EditProfessional() {
@@ -24,15 +26,20 @@ export default function EditProfessional() {
     link: '',
   });
 
+  const navigate = useNavigate();
+  const { setUser } = useAuth();
   const [errors, setErrors] = useState({});
   const [loading, setLoading] = useState(true);
   const [originalUser, setOriginalUser] = useState(null);
+  const [cancelModalOpen, setCancelModalOpen] = useState(false);
+  const [successModalOpen, setSuccessModalOpen] = useState(false);
+  const [errorModalOpen, setErrorModalOpen] = useState(false);
+  const [errorMessage, setErrorMessage] = useState('');
 
   useEffect(() => {
     async function fetchProfile() {
       try {
         const user = await getAllProfile();
-        console.log('editar', user)
 
         const mappedForm = {
           nome: user.name || '',
@@ -81,6 +88,11 @@ export default function EditProfessional() {
     setErrors((prev) => ({ ...prev, [name]: '' }));
   };
 
+  const handleCancelClick = (e) => {
+    e.preventDefault(); 
+    setCancelModalOpen(true);
+  };
+
   const validateAllFields = () => {
     const camposObrigatorios = {
       nome: 'texto',
@@ -113,14 +125,14 @@ export default function EditProfessional() {
       const finalData = {
         id: originalUser.id,
         name: formData.nome?.trim() || null,
-        handle: formData.handle?.trim() || null,   
+        handle: formData.handle?.trim() || null,
         cpf: formData.cpf?.trim() || null,
         birthDate: formData.data_nascimento.trim() || null,
         phoneNumber: formData.telefone?.trim() || null,
         city: formData.cidade?.trim() || null,
-        uf: formData.estado?.trim() || null,  
+        uf: formData.estado?.trim() || null,
         followersCount: originalUser.followersCount ?? 0,
-        profilePic: originalUser.photo || null,    
+        profilePic: originalUser.photo || null,
         email: formData.email?.trim() || null,
         cep: formData.cep?.trim() || null,
         neighborhood: formData.bairro?.trim() || null,
@@ -128,16 +140,17 @@ export default function EditProfessional() {
         technology: formData.tecnologias?.trim() || null,
         biography: formData.biografia?.trim() || null,
         experiences: originalUser.experiences ?? [],
-        externalLink: formData.link?.trim() || null, 
-        posts: originalUser.posts ?? [],        
+        externalLink: formData.link?.trim() || null,
+        posts: originalUser.posts ?? [],
       };
 
-      console.log('Payload enviado:', finalData);
-      await updateProfile(finalData);
-      alert("Perfil atualizado com sucesso!");
+      const updatedUser = await updateProfile(finalData);
+      setUser(updatedUser);
+      setSuccessModalOpen(true);
     } catch (err) {
       console.error(err);
-      alert("Erro ao atualizar perfil: " + err.message);
+      setErrorMessage(err.message || "Não foi possível atualizar o perfil.");
+      setErrorModalOpen(true);
     }
   };
 
@@ -146,6 +159,7 @@ export default function EditProfessional() {
   }
 
   return (
+    <>
     <form onSubmit={handleSubmit} className="flex flex-col gap-8">
       {/* Informações Pessoais */}
       <article className="bg-[var(--gray)] p-6 mb-8 w-full max-w-screen-md mx-auto rounded-2xl">
@@ -292,12 +306,75 @@ export default function EditProfessional() {
         </div>
       </article>
 
-      {/* Botão de envio */}
-      <div className="mx-auto mt-6">
+      <div className="mx-auto mt-6 flex gap-4 justify-center">
+        <BtnCallToAction type="button" variant="white" onClick={handleCancelClick}>
+          CANCELAR
+        </BtnCallToAction>
         <BtnCallToAction type="submit" variant="purple">
           SALVAR
         </BtnCallToAction>
       </div>
     </form>
+    {successModalOpen && (
+        <div className="fixed inset-0 z-50 bg-black/40 backdrop-blur-sm flex items-center justify-center">
+          <div className="bg-white p-8 rounded-2xl shadow-lg text-center max-w-sm">
+            <h2 className="text-2xl font-bold mb-4 text-[var(--purple-primary)]">
+              Cadastro concluído!
+            </h2>
+            <p className="mb-6 text-gray-700">Sua conta foi atualizada com sucesso.</p>
+            <button
+              onClick={() => {
+                setSuccessModalOpen(false);
+                navigate("/timeline"); 
+              }}
+              className="bg-purple-600 text-white px-6 py-2 rounded-xl hover:bg-purple-700 transition"
+            >
+              Continuar
+            </button>
+          </div>
+        </div>
+      )}
+      {errorModalOpen && (
+        <div className="fixed inset-0 z-50 bg-black/40 backdrop-blur-sm flex items-center justify-center">
+          <div className="bg-white p-8 rounded-2xl shadow-lg text-center max-w-sm">
+            <h2 className="text-2xl font-bold mb-4 text-red-600">Erro ao atualizar perfil</h2>
+            <p className="mb-6 text-gray-700">{errorMessage}</p>
+            <button
+              onClick={() => setErrorModalOpen(false)}
+              className="bg-red-600 text-white px-6 py-2 rounded-xl hover:bg-red-700 transition"
+            >
+              Fechar
+            </button>
+          </div>
+        </div>
+      )}
+      {cancelModalOpen && (
+        <div className="fixed inset-0 z-50 bg-black/40 backdrop-blur-sm flex items-center justify-center">
+          <div className="bg-white p-8 rounded-2xl shadow-lg text-center max-w-sm">
+            <h2 className="text-2xl font-bold mb-4 text-[var(--purple-primary)]">
+              Confirmar Cancelamento
+            </h2>
+            <p className="mb-6 text-gray-700">Tem certeza que deseja cancelar? As alterações não serão salvas.</p>
+            <div className="flex justify-center gap-6">
+              <button
+                  onClick={() => setCancelModalOpen(false)}
+                  className="bg-gray-300 text-gray-800 px-6 py-2 rounded-xl hover:bg-gray-400 transition"
+              >
+                Não
+              </button>
+              <button
+                onClick={() => {
+                  setSuccessModalOpen(false);
+                  navigate("/timeline"); 
+                }}
+                className="bg-purple-600 text-white px-6 py-2 rounded-xl hover:bg-purple-700 transition"
+              >
+                Sim
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+    </>
   );
 }

@@ -1,10 +1,12 @@
 import React, { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 
 import LabelInput from "../../../../components/form/Label/LabelInput";
 import BtnCallToAction from "../../../../components/btn/BtnCallToAction/BtnCallToAction";
 import { validateField } from "../../../../components/form/Label/validationField";
 import { maskField } from "../../../../components/form/Label/maskField";
 
+import { useAuth } from "../../../../context/AuthContext";
 import { getAllProfile, updateProfile } from "../../../../services/userService";
 
 export default function EditEnterprise() {
@@ -24,9 +26,15 @@ export default function EditEnterprise() {
     tipoEmpresa: '',
   });
 
+  const navigate = useNavigate();
+  const { setUser } = useAuth();
   const [errors, setErrors] = useState({});
   const [loading, setLoading] = useState(true);
   const [originalData, setOriginalData] = useState({});
+  const [cancelModalOpen, setCancelModalOpen] = useState(false);
+  const [successModalOpen, setSuccessModalOpen] = useState(false);
+  const [errorModalOpen, setErrorModalOpen] = useState(false);
+  const [errorMessage, setErrorMessage] = useState('');
 
   const companyTypeOptions = [
     { value: '', label: 'Selecione o tipo de empresa' },
@@ -38,7 +46,6 @@ export default function EditEnterprise() {
       async function fetchProfile() {
         try {
           const user = await getAllProfile();
-          console.log('editar', user)
   
           const mappedForm = {
             nome: user.name || '',
@@ -83,6 +90,11 @@ export default function EditEnterprise() {
 
     setFormData(prev => ({ ...prev, [name]: maskedValue }));
     setErrors(prev => ({ ...prev, [name]: '' }));
+  };
+
+  const handleCancelClick = (e) => {
+    e.preventDefault(); 
+    setCancelModalOpen(true);
   };
 
   const validateAllFields = () => {
@@ -135,11 +147,13 @@ export default function EditEnterprise() {
         posts: formData.posts ?? [],        
       };
 
-      console.log('Payload enviado:', payload);
-      await updateProfile(payload);
-      alert("Perfil da empresa atualizado com sucesso!");
+      const updatedUser = await updateProfile(payload);
+      setUser(updatedUser);
+      setSuccessModalOpen(true);
     } catch (err) {
-      alert("Erro ao atualizar perfil: " + err.message);
+      console.error(err);
+      setErrorMessage(err.message || "Não foi possível atualizar o perfil.");
+      setErrorModalOpen(true);
     }
   };
 
@@ -148,6 +162,7 @@ export default function EditEnterprise() {
   }
 
   return (
+    <>
     <form onSubmit={handleSubmit} className="flex flex-col gap-8">
 
       <article className="bg-[var(--gray)] p-6 mb-8 w-full max-w-screen-md mx-auto rounded-2xl">
@@ -313,11 +328,75 @@ export default function EditEnterprise() {
         </div>
       </article>
 
-      <div className="mx-auto mt-4">
+      <div className="mx-auto mt-4 flex gap-4 justify-center">
+        <BtnCallToAction type="button" variant="white" onClick={handleCancelClick}>
+          CANCELAR
+        </BtnCallToAction>
         <BtnCallToAction type="submit" variant="purple">
           SALVAR
         </BtnCallToAction>
       </div>
     </form>
+    {successModalOpen && (
+        <div className="fixed inset-0 z-50 bg-black/40 backdrop-blur-sm flex items-center justify-center">
+          <div className="bg-white p-8 rounded-2xl shadow-lg text-center max-w-sm">
+            <h2 className="text-2xl font-bold mb-4 text-[var(--purple-primary)]">
+              Cadastro concluído!
+            </h2>
+            <p className="mb-6 text-gray-700">Sua conta foi atualizada com sucesso.</p>
+            <button
+              onClick={() => {
+                setSuccessModalOpen(false);
+                navigate("/timeline"); 
+              }}
+              className="bg-purple-600 text-white px-6 py-2 rounded-xl hover:bg-purple-700 transition"
+            >
+              Continuar
+            </button>
+          </div>
+        </div>
+      )}
+      {errorModalOpen && (
+        <div className="fixed inset-0 z-50 bg-black/40 backdrop-blur-sm flex items-center justify-center">
+          <div className="bg-white p-8 rounded-2xl shadow-lg text-center max-w-sm">
+            <h2 className="text-2xl font-bold mb-4 text-red-600">Erro ao atualizar perfil</h2>
+            <p className="mb-6 text-gray-700">{errorMessage}</p>
+            <button
+              onClick={() => setErrorModalOpen(false)}
+              className="bg-red-600 text-white px-6 py-2 rounded-xl hover:bg-red-700 transition"
+            >
+              Fechar
+            </button>
+          </div>
+        </div>
+      )}
+      {cancelModalOpen && (
+        <div className="fixed inset-0 z-50 bg-black/40 backdrop-blur-sm flex items-center justify-center">
+          <div className="bg-white p-8 rounded-2xl shadow-lg text-center max-w-sm">
+            <h2 className="text-2xl font-bold mb-4 text-[var(--purple-primary)]">
+              Confirmar Cancelamento
+            </h2>
+            <p className="mb-6 text-gray-700">Tem certeza que deseja cancelar? As alterações não serão salvas.</p>
+            <div className="flex justify-center gap-6">
+              <button
+                  onClick={() => setCancelModalOpen(false)}
+                  className="bg-gray-300 text-gray-800 px-6 py-2 rounded-xl hover:bg-gray-400 transition"
+              >
+                Não
+              </button>
+              <button
+                onClick={() => {
+                  setSuccessModalOpen(false);
+                  navigate("/timeline"); 
+                }}
+                className="bg-purple-600 text-white px-6 py-2 rounded-xl hover:bg-purple-700 transition"
+              >
+                Sim
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+    </>
   );
 }

@@ -13,7 +13,6 @@ export default function EditMyProfile() {
         if (currentUser) {
             setUser(currentUser);
             setTipoUsuario(currentUser.role);
-            console.log('user', currentUser.role)
         }
     }, []);
 
