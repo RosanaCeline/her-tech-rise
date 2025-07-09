@@ -6,6 +6,7 @@ import java.net.URISyntaxException;
 import java.net.URL;
 import java.util.Comparator;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -214,7 +215,8 @@ public class ProfessionalProfileService {
                 p.getAuthor().getId(),
                 p.getContent(),
                 p.getCreatedAt(),
-                p.getCommunity().getId(),
+//                p.getCommunity().getId(),
+                p.getCommunity() != null ? p.getCommunity().getId() : null,
                 medias
         );
     }

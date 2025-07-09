@@ -35,6 +35,7 @@ export default function VerMeuPerfil() {
                 cidade: response.city,
                 estado: response.uf,
             },
+            posts: response.posts ?? [], 
             ...(isProfessional && {
                 tecnologias: response.technology,
                 biografia: response.biography,
@@ -103,7 +104,7 @@ export default function VerMeuPerfil() {
             <>
             <CardDescriptionsProfile title="Tecnologias" content={user.tecnologias} />
             <CardDescriptionsProfile title="Biografia" content={user.biografia} />
-            <CardPublicationsProfile title="Publicações" content="inserir publicações" />
+            <CardPublicationsProfile title="Publicações" posts={user.posts} />
             <CardExperienceProfile title="Experiência" experiencias={user.experiencias} />
             </>
         )}
@@ -112,7 +113,7 @@ export default function VerMeuPerfil() {
             <>
             <CardDescriptionsProfile title="Descrição" content={user.description} />
             <CardDescriptionsProfile title="Sobre nós" content={user.aboutUs} />
-            <CardPublicationsProfile title="Publicações" content="inserir publicações" />
+            <CardPublicationsProfile title="Publicações" posts={user.posts} />
             </>
         )}
     </main>
