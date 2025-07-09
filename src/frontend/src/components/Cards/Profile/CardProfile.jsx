@@ -65,7 +65,7 @@ export default function CardProfile({
 
   return (
     <>
-      <article className="relative bg-[var(--gray)] drop-shadow-md rounded-xl p-8 flex flex-row flex-wrap w-full max-w-8xl items-start gap-10 z-0">
+      <article className="relative bg-[var(--gray)] drop-shadow-md rounded-xl p-8 flex flex-col md:flex-row items-center md:items-start w-full max-w-8xl gap-10 z-0">
         {/* Foto com botão */}
         <div className="relative w-full max-w-[250px] h-[250px] flex-shrink-0">
           <div className="w-full h-full rounded-full border border-[var(--purple-secundary)] overflow-hidden">
@@ -136,7 +136,7 @@ export default function CardProfile({
         </div>
 
         {/* Botões de ações */}
-        <div className="flex flex-col gap-6 w-full max-w-[250px] mt-6 lg:mt-0 order-last lg:order-none">
+        <div className="flex flex-col gap-6 w-full max-w-[250px] mt-10 md:mt-0 order-last md:order-none items-center md:items-start">
           <button
             type="button"
             className="flex items-center gap-3 text-[var(--font-gray)] hover:text-[var(--purple-primary)] transition w-full justify-center lg:justify-start"
@@ -145,10 +145,11 @@ export default function CardProfile({
             <span className="text-xl font-medium">Compartilhar</span>
           </button>
 
+        <div className="relative w-full flex justify-center md:justify-start">
           <button
             type="button"
             onClick={() => setShowOptions(!showOptions)}
-            className="flex items-center gap-3 text-[var(--font-gray)] hover:text-[var(--purple-primary)] transition w-full justify-center lg:justify-start"
+            className="flex items-center gap-3 text-[var(--font-gray)] hover:text-[var(--purple-primary)] transition"
           >
             <FaSlidersH size={24} className="text-[var(--font-gray)]" />
             <span className="text-xl font-medium">Configurações</span>
@@ -157,12 +158,12 @@ export default function CardProfile({
           {showOptions && (
             <div
               className={`
-                absolute
-                flex flex-col gap-2
-                transition-all duration-300
-                max-w-[200px]
-                p-3
-                right-80 top-20
+                absolute top-full mt-2 z-50
+                bg-white rounded-xl shadow-lg
+                flex-col gap-2 p-3
+                w-[90vw] max-w-[200px]
+                right-0
+                flex md:hidden
               `}
             >
               <BtnCallToAction variant="white">Excluir Perfil</BtnCallToAction>
@@ -174,7 +175,27 @@ export default function CardProfile({
               </BtnCallToAction>
             </div>
           )}
+        </div>
 
+        {showOptions && (
+          <div
+            className={`
+              absolute flex-col gap-2 p-3 max-w-[200px]
+              bg-white rounded-xl shadow-lg
+              transition-all duration-300
+              right-80 top-20 z-40
+              hidden md:flex
+            `}
+          >
+            <BtnCallToAction variant="white">Excluir Perfil</BtnCallToAction>
+            <BtnCallToAction
+              variant="purple"
+              onClick={() => handleOpenModal(<EditMyProfile />)}
+            >
+              Editar Perfil
+            </BtnCallToAction>
+          </div>
+        )}
           <BtnCallToAction
             variant="purple"
             onClick={() => handleOpenModal(statisticsComponent)}
