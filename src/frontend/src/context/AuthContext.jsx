@@ -1,7 +1,7 @@
 import { createContext, useContext } from 'react';
 import { useState, useEffect } from 'react';
 import { login as loginService, logout as logoutService, getCurrentUser } from '../services/authService';
-import { updateProfessionalProfile } from '../services/userService';
+import { updateProfile as updateProfileService } from '../services/userService';
 
 const AuthContext = createContext();
 
@@ -32,7 +32,7 @@ export function useAuthProvider() {
   const updateProfile = async (updatedData) => {
     try {
       console.log('Dados enviados para atualização:', updatedData); 
-      const userUpdated = await updateProfessionalProfile(updatedData);
+      const userUpdated = await updateProfileService(updatedData);
       console.log('Dados após atualização:', userUpdated); 
       setUser(userUpdated);
       return userUpdated;

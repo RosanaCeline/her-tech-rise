@@ -152,6 +152,7 @@ public class ProfessionalProfileService {
         return getProfile(user.getId()); // retorna o perfil atualizado
     }
 
+    @Transactional
     public MyProfessionalProfileResponseDTO getMyProfile() {
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
         User loggedUser = (User) auth.getPrincipal();
