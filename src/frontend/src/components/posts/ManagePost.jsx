@@ -12,7 +12,9 @@ export default function ManagePost({user, setActivePopUp, formData, setFormData}
     }
 
     const handleSubmit = () => {
-        console.log(formData)
+        if(formData.content !== ''){
+            console.log(formData)
+        }
     }
     
     return(
@@ -43,8 +45,9 @@ export default function ManagePost({user, setActivePopUp, formData, setFormData}
             <X className="cursor-pointer" onClick={() => setActivePopUp(null)}/>
         </div>
 
-        <LabelInput placeholder="Digite sua nova publicação" type="mensagem" value={formData.content}
-            onChange={(e) => setFormData(prev => ({ ...prev, content: e.target.value }))}/>
+        <div className='flex flex-col'>
+        <LabelInput placeholder="Digite sua nova publicação" type="mensagem" value={formData.content} required={true}
+            onChange={(e) => setFormData(prev => ({ ...prev, content: e.target.value }))}/></div>
 
         {formData.media.some(file => file.type.startsWith('image/') || file.type === 'video/mp4') && (
         <div className="mt-4 flex gap-4 overflow-x-auto max-w-full h-32">

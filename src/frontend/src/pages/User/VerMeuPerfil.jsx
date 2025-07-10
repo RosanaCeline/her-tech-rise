@@ -9,6 +9,10 @@ import CardPublicationsProfile from '../../components/Cards/Profile/CardPublicat
 import CardExperienceProfile from '../../components/Cards/Profile/CardExperienceProfile'
 import SeeStatistics from './statistics/SeeStatistics'
 
+import PopUp from '../../components/PopUp';
+import AttachFile from '../../components/posts/AttachFile';
+import ManagePost from '../../components/posts/ManagePost';
+
 export default function VerMeuPerfil() {
     const [user, setUser] = useState(null);
     const [loading, setLoading] = useState(true);
@@ -18,6 +22,12 @@ export default function VerMeuPerfil() {
     const isProfessional = tipoUsuario === 'PROFESSIONAL';
     const isCompany = tipoUsuario === 'COMPANY';
 
+    const [activePopUp, setActivePopUp] = useState(null)
+    const [formData, setFormData] = useState({
+        content: '',
+        media: [],
+        visibility: 'public'
+    })
     useEffect(() => {
         async function fetchProfile() {
         try {
@@ -104,7 +114,6 @@ export default function VerMeuPerfil() {
             <>
             <CardDescriptionsProfile title="Tecnologias" content={user.tecnologias} />
             <CardDescriptionsProfile title="Biografia" content={user.biografia} />
-            <CardPublicationsProfile title="Publicações" posts={user.posts} />
             <CardExperienceProfile title="Experiência" experiencias={user.experiencias} />
             </>
         )}
@@ -113,9 +122,18 @@ export default function VerMeuPerfil() {
             <>
             <CardDescriptionsProfile title="Descrição" content={user.description} />
             <CardDescriptionsProfile title="Sobre nós" content={user.aboutUs} />
-            <CardPublicationsProfile title="Publicações" posts={user.posts} />
             </>
         )}
+        <CardPublicationsProfile title="Publicações" posts={user.posts} setActivePopUp={setActivePopUp}/>
+        {activePopUp && (
+          <PopUp>
+              {activePopUp === 'post' && <ManagePost user={{profileURL: user.profilePic, userName: user.name}} setActivePopUp={setActivePopUp} 
+              formData={formData} setFormData={setFormData}/>}
+              {activePopUp === 'image' && <AttachFile type='image' setFormData={setFormData} setActivePopUp={setActivePopUp}/>}
+              {activePopUp === 'video' && <AttachFile type='video' setFormData={setFormData} setActivePopUp={setActivePopUp}/>}
+              {activePopUp === 'docs' && <AttachFile type='docs' setFormData={setFormData} setActivePopUp={setActivePopUp}/>}
+          </PopUp>
+      )}
     </main>
   );
 }
