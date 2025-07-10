@@ -12,7 +12,7 @@ export default function ManagePost({user, setActivePopUp, formData, setFormData}
     }
 
     const handleSubmit = () => {
-        if(formData.content !== ''){
+        if(formData.content !== '' || formData.media.length > 0){
             console.log(formData)
         }
     }
@@ -46,11 +46,11 @@ export default function ManagePost({user, setActivePopUp, formData, setFormData}
         </div>
 
         <div className='flex flex-col'>
-        <LabelInput placeholder="Digite sua nova publicação" type="mensagem" value={formData.content} required={true}
+        <LabelInput placeholder="Digite sua nova publicação" type="mensagem" value={formData.content} required={!formData.media.length}
             onChange={(e) => setFormData(prev => ({ ...prev, content: e.target.value }))}/></div>
 
         {formData.media.some(file => file.type.startsWith('image/') || file.type === 'video/mp4') && (
-        <div className="mt-4 flex gap-4 overflow-x-auto max-w-full h-32">
+        <div className="mt-4 flex gap-4 overflow-x-auto overflow-y-hidden max-w-full h-37">
             {formData.media.map((file, index) => {
                 const url = URL.createObjectURL(file);
 
@@ -59,9 +59,9 @@ export default function ManagePost({user, setActivePopUp, formData, setFormData}
                 }
 
                 return(
-                    <div key={index} className='relative inline-block mr-4'>
-                        {file.type.startsWith('image/') && <img src={url} alt="Preview" className="w-fit h-32 object-cover rounded shadow"/>}
-                        {file.type === 'video/mp4' && <video key={index} src={url} controls className="w-fit h-32 rounded shadow object-cover"/>}
+                    <div key={index} className='relative inline-block mr-4 min-w-[8rem]'>
+                        {file.type.startsWith('image/') && <img src={url} alt="Preview" className="w-full h-32 object-cover rounded shadow"/>}
+                        {file.type === 'video/mp4' && <video key={index} src={url} controls className="w-full h-32 rounded shadow object-cover"/>}
                         <button onClick={handleRemove} 
                         className='absolute top-1 right-1 bg-(--purple-primary) text-white rounded-full w-9 h-9 flex items-center justify-center hover:bg-(--purple-action)'>
                             <Trash2 />
@@ -88,7 +88,7 @@ export default function ManagePost({user, setActivePopUp, formData, setFormData}
 
         <div className="flex justify-between">
             <div className="border border-(--font-gray) p-3 rounded-2xl flex gap-x-4 items-center">
-                Adicionar à publicação
+                <p className='hidden md:flex'>Adicionar à publicação</p>
                 <Video className="transition duration-300 hover:scale-110 cursor-pointer text-(--purple-primary) h-8 w-8"
                 onClick={() => setActivePopUp('video')}/>
                 <Image className="transition duration-300 hover:scale-110 cursor-pointer text-(--purple-primary) h-8 w-8"
