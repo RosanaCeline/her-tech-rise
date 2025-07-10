@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import LabelInput from "../../../components/form/Label/LabelInput";
-import { getProfessionalProfile } from "../../../services/profileService";
-import { Video, Image, Files, X, Earth, Lock} from 'lucide-react'
+import { Video, Image, Files} from 'lucide-react'
+import { getProfileById } from "../../../services/userService";
 import { getCurrentUser } from "../../../services/authService";
 import PopUp from "../../../components/PopUp";
 import ManagePost from "../../../components/posts/ManagePost";
@@ -21,7 +21,7 @@ export default function NewPost(){
     // solução temporária para conseguir a foto
     useEffect(() => {
         async function getProfileURL() {
-            const data = await getProfessionalProfile(1)
+            const data = await getProfileById()
             setUser({...user, profileURL: data.profilePic})
         }
         getProfileURL()

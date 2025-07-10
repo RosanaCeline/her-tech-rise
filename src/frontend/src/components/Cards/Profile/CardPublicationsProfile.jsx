@@ -1,7 +1,6 @@
-import React from 'react';
+import BtnCallToAction from '../../btn/BtnCallToAction/BtnCallToAction';
 
-export default function CardPublicationsProfile ({ title, posts }) {
-
+export default function CardPublicationsProfile ({ title, posts, setActivePopUp }) {
     return (
         <article
         className="
@@ -16,9 +15,12 @@ export default function CardPublicationsProfile ({ title, posts }) {
             z-0
         "
         >
-        <h2 className="text-4xl font-semibold text-[var(--purple-secundary)] mb-4">
-            {title}
-        </h2>
+        <div className='flex justify-between'>
+          <h2 className="text-4xl font-semibold text-[var(--purple-secundary)] mb-4">
+              {title}
+          </h2>
+          <BtnCallToAction onClick={() => setActivePopUp('post')}>CRIAR PUBLICAÇÃO</BtnCallToAction>
+        </div>
         {posts && posts.length > 0 ? (
         posts.map(post => (
           <article key={post.id}>
