@@ -1,6 +1,5 @@
 package com.hertechrise.platform.repository;
 import org.junit.jupiter.api.Test;
-
 import com.hertechrise.platform.integrationtests.testcontainers.AbstractIntegrationTest;
 import com.hertechrise.platform.model.User;
 import com.hertechrise.platform.model.UserType;
