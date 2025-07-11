@@ -165,13 +165,13 @@ export default function EditEnterprise() {
     <>
     <form onSubmit={handleSubmit} className="flex flex-col gap-8">
 
-      <article className="bg-[var(--gray)] p-6 mb-8 w-full max-w-screen-md mx-auto rounded-2xl">
+      <article className="bg-[var(--gray)] p-6 mb-8 w-full max-w-4xl mx-auto rounded-2xl">
         <h2 className="text-2xl font-bold text-[var(--purple-secundary)] mb-4">INFORMAÇÕES EMPRESARIAIS</h2>
         <p className="mt-2 text-lg max-w-xl text-[var(--font-gray)]">
           Mantenha os dados da sua empresa atualizados e fortaleça sua presença na plataforma.
         </p>
 
-        <div className="w-full mt-4 grid gap-4 max-w-2xl">
+        <div className="w-full mt-4 grid gap-4 max-w-2xl mx-auto">
           <LabelInput
             name="nome"
             label="Nome da Empresa:"
@@ -289,13 +289,13 @@ export default function EditEnterprise() {
         </div>
       </article>
 
-      <article className="bg-[var(--gray)] p-6 w-full max-w-screen-md mx-auto rounded-2xl">
+      <article className="bg-[var(--gray)] p-6 w-full max-w-4xl mx-auto rounded-2xl">
         <h2 className="text-2xl font-bold text-[var(--purple-secundary)] mb-4">PERFIL CORPORATIVO</h2>
         <p className="mt-2 text-lg max-w-xl text-[var(--font-gray)]">
           Compartilhe a missão da sua empresa e mostre sua cultura organizacional.
         </p>
 
-        <div className="w-full mt-4 grid gap-4 max-w-2xl">
+        <div className="w-full mt-4 grid gap-4 max-w-2xl mx-auto">
           <LabelInput
             name="descricao"
             label="Descrição:"

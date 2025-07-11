@@ -13,7 +13,8 @@ export default function LabelInput ({    name,
                                         validation = '',
                                         maxLength = '',
                                         ref = null,
-                                        onClick
+                                        onClick,
+                                        disabled = false
                                     }) {
  
     const [error, setError] = useState(null)
@@ -108,6 +109,7 @@ export default function LabelInput ({    name,
             className={baseInputClasses}
             maxLength={maxLength}
             ref={ref}
+            disabled={disabled}
             style={{ height: '48px' }}
             />
         )}

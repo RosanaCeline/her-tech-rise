@@ -4,7 +4,7 @@ export default function CardPublicationsProfile ({ title, posts, setActivePopUp 
     return (
         <article
         className="
-            bg-[var(--gray)]
+            bg-white
             text-[var(--purple-secundary)]
             drop-shadow-md
             rounded-xl
