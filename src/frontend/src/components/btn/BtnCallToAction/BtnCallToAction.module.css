@@ -6,6 +6,7 @@
     white-space: nowrap;
     transition: all 0.3s ease-in-out;
     border: 2px solid transparent;
+    margin: 0 auto;
 }
 .purple {
   background-color: var(--purple-action);
@@ -21,7 +22,7 @@
   color: var(--purple-primary);
 }
 .white:hover {
-    background-color: transparent;
+    background-color: var(--purple-primary);
     border: 0.2em solid var(--light);
     border-color: var(--light);
     color: var(--light);

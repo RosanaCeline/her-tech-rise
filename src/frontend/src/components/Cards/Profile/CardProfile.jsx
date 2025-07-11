@@ -65,7 +65,7 @@ export default function CardProfile({
 
   return (
     <>
-      <article className="relative bg-[var(--gray)] drop-shadow-md rounded-xl p-8 flex flex-col md:flex-row items-center md:items-start w-full max-w-8xl gap-10 z-0">
+      <article className="relative bg-white drop-shadow-md rounded-xl p-8 flex flex-col md:flex-row items-center md:items-start w-full max-w-8xl gap-10 z-0">
         {/* Foto com botão */}
         <div className="relative w-full max-w-[250px] h-[250px] flex-shrink-0">
           <div className="w-full h-full rounded-full border border-[var(--purple-secundary)] overflow-hidden">
@@ -161,7 +161,6 @@ export default function CardProfile({
                 absolute top-full mt-2 z-50
                 bg-white rounded-xl shadow-lg
                 flex-col gap-2 p-3
-                w-[90vw] max-w-[200px]
                 right-0
                 flex md:hidden
               `}
@@ -180,10 +179,10 @@ export default function CardProfile({
         {showOptions && (
           <div
             className={`
-              absolute flex-col gap-2 p-3 max-w-[200px]
+              absolute flex-col gap-2 p-3
               bg-white rounded-xl shadow-lg
               transition-all duration-300
-              right-80 top-20 z-40
+              right-1/2 md:right-80 top-20 z-40
               hidden md:flex
             `}
           >

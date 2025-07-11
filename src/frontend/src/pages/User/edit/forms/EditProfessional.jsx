@@ -173,10 +173,10 @@ export default function EditProfessional() {
     <>
     <form onSubmit={handleSubmit} className="flex flex-col gap-8">
       {/* Informações Pessoais */}
-      <article className="bg-[var(--gray)] p-6 mb-8 w-full max-w-screen-md mx-auto rounded-2xl">
+      <article className="bg-[var(--gray)] p-8 mb-8 w-full max-w-4xl mx-auto rounded-2xl">
         <h2 className="text-2xl font-bold text-[var(--purple-secundary)] mb-4">INFORMAÇÕES PESSOAIS</h2>
 
-        <div className="w-full mt-4 grid gap-4 max-w-2xl">
+        <div className="w-full mt-4 grid gap-4 max-w-2xl mx-auto">
           <LabelInput
             label="Nome:"
             name="nome"
@@ -282,10 +282,10 @@ export default function EditProfessional() {
       </article>
 
       {/* Tecnologias e Biografia */}
-      <article className="bg-[var(--gray)] p-6 w-full max-w-screen-md mx-auto rounded-2xl">
+      <article className="bg-[var(--gray)] p-8 w-full max-w-4xl mx-auto rounded-2xl">
         <h2 className="text-2xl font-bold text-[var(--purple-secundary)] mb-4">TRAJETÓRIA E HABILIDADES</h2>
 
-        <div className="w-full mt-4 grid gap-4 max-w-2xl">
+        <div className="w-full mt-4 grid gap-4 max-w-2xl mx-auto">
           <LabelInput
             label="Tecnologias:"
             name="tecnologias"
@@ -315,7 +315,7 @@ export default function EditProfessional() {
                 <CardExperienceItem
                   key={idx}
                   experience={exp}
-                  onEdit={() => {
+                  onEdit={(exp) => {
                     setEditingExperience(exp);
                     setAddExperienceOpen(true);
                   }}

@@ -88,7 +88,7 @@ export default function VerMeuPerfil() {
     if (!user) return <main className="...">Nenhum perfil encontrado.</main>;
 
     return (
-    <main className="flex flex-col items-center px-6 lg:px-30 pt-40 pb-10 gap-10 max-w-8xl mx-auto">
+    <main className="flex flex-col items-center px-6 lg:px-30 pt-40 pb-10 gap-10 max-w-8xl mx-auto bg-(--gray)">
         <CardProfile
             tipo_usuario={tipoUsuario}
             photo={user.photo}
