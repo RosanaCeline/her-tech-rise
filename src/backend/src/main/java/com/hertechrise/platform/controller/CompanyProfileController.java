@@ -1,7 +1,9 @@
 package com.hertechrise.platform.controller;
 
 import com.hertechrise.platform.controller.docs.CompanyProfileControllerDocs;
+import com.hertechrise.platform.data.dto.request.CompanyProfileRequestDTO;
 import com.hertechrise.platform.data.dto.response.CompanyProfileResponseDTO;
+import com.hertechrise.platform.data.dto.response.MyCompanyProfileResponseDTO;
 import com.hertechrise.platform.services.CompanyProfileService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -17,5 +19,15 @@ public class CompanyProfileController implements CompanyProfileControllerDocs {
     @GetMapping("/{id}")
     public ResponseEntity<CompanyProfileResponseDTO> getProfile(@PathVariable Long id) {
         return ResponseEntity.ok(profileService.getProfile(id));
+    }
+
+    @PutMapping("/update")
+    public ResponseEntity<CompanyProfileResponseDTO> updateMyProfile(@RequestBody CompanyProfileRequestDTO request) {
+        return ResponseEntity.ok(profileService.updateMyProfile(request));
+    }
+
+    @GetMapping("/me")
+    public ResponseEntity<MyCompanyProfileResponseDTO> getMyProfile() {
+        return ResponseEntity.ok(profileService.getMyProfile());
     }
 }

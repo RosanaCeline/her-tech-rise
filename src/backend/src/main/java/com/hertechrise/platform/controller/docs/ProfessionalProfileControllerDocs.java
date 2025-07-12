@@ -1,6 +1,7 @@
 package com.hertechrise.platform.controller.docs;
 
 import com.hertechrise.platform.data.dto.request.ProfessionalProfileRequestDTO;
+import com.hertechrise.platform.data.dto.response.MyProfessionalProfileResponseDTO;
 import com.hertechrise.platform.data.dto.response.ProfessionalProfileResponseDTO;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
@@ -11,7 +12,6 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PutMapping;
 
 @Tag(name = "Perfil de Profissional", description = "Endpoints de perfil do(a) profissional")
 public interface ProfessionalProfileControllerDocs {
@@ -101,6 +101,13 @@ public interface ProfessionalProfileControllerDocs {
     @Operation(
             summary = "Atualizar perfil profissional",
             description = "Atualiza os dados do perfil do profissional autenticado e retorna o perfil atualizado.",
+            requestBody = @RequestBody(
+                    required = true,
+                    content = @Content(
+                            mediaType = "application/json",
+                            schema = @Schema(implementation = ProfessionalProfileRequestDTO.class)
+                    )
+            ),
             responses = {
                     @ApiResponse(
                             responseCode = "200",
@@ -171,10 +178,26 @@ public interface ProfessionalProfileControllerDocs {
                     }
                     """)
                             )
+                    ),
+                    @ApiResponse(
+                            responseCode = "400",
+                            description = "Dados inválidos (validação falhou)."
+                    ),
+                    @ApiResponse(
+                            responseCode = "401",
+                            description = "Usuário não autenticado."
                     )
             }
     )
-    @PutMapping("/update")
     ResponseEntity<ProfessionalProfileResponseDTO> updateMyProfile(@RequestBody ProfessionalProfileRequestDTO request);
 
+    @Operation(
+            summary = "Obter perfil do profissional autenticado",
+            description = "Retorna os dados do profissional logado para preenchimento do formulário de edição.",
+            responses = {
+                    @ApiResponse(responseCode = "200", description = "Perfil retornado com sucesso",
+                            content = @Content(schema = @Schema(implementation = MyProfessionalProfileResponseDTO.class)))
+            }
+    )
+    ResponseEntity<MyProfessionalProfileResponseDTO> getMyProfile();
 }
