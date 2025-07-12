@@ -62,7 +62,7 @@ class CustomUserDetailsServiceTest extends AbstractIntegrationTest {
 
     }
 
-    @DisplayName("User Not Found Exception para quando usuário não for encontardo")
+    @DisplayName("User Not Found Exception para quando usuário não for encontrado")
     @Test
     void loadUserByUsername_ThrowException() {
 
