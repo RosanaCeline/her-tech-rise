@@ -23,7 +23,7 @@ export default function VerMeuPerfil() {
     const isCompany = tipoUsuario === 'COMPANY';
 
     const [activePopUp, setActivePopUp] = useState(null)
-    const [formData, setFormData] = useState({
+    const [postFormData, setPostFormData] = useState({
         content: '',
         media: [],
         visibility: 'public'
@@ -128,10 +128,10 @@ export default function VerMeuPerfil() {
         {activePopUp && (
           <PopUp>
               {activePopUp === 'post' && <ManagePost user={{profileURL: user.profilePic, userName: user.name}} setActivePopUp={setActivePopUp} 
-              formData={formData} setFormData={setFormData}/>}
-              {activePopUp === 'image' && <AttachFile type='image' setFormData={setFormData} setActivePopUp={setActivePopUp}/>}
-              {activePopUp === 'video' && <AttachFile type='video' setFormData={setFormData} setActivePopUp={setActivePopUp}/>}
-              {activePopUp === 'docs' && <AttachFile type='docs' setFormData={setFormData} setActivePopUp={setActivePopUp}/>}
+              formData={postFormData} setFormData={setPostFormData}/>}
+              {activePopUp === 'image' && <AttachFile type='image' setFormData={setPostFormData} setActivePopUp={setActivePopUp}/>}
+              {activePopUp === 'video' && <AttachFile type='video' setFormData={setPostFormData} setActivePopUp={setActivePopUp}/>}
+              {activePopUp === 'docs' && <AttachFile type='docs' setFormData={setPostFormData} setActivePopUp={setActivePopUp}/>}
           </PopUp>
       )}
     </main>
