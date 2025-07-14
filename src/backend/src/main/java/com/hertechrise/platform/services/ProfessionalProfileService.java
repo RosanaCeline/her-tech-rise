@@ -6,7 +6,6 @@ import java.net.URISyntaxException;
 import java.net.URL;
 import java.util.Comparator;
 import java.util.List;
-import java.util.stream.Collectors;
 
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -16,7 +15,6 @@ import org.springframework.transaction.annotation.Transactional;
 import com.hertechrise.platform.data.dto.request.ExperienceRequestDTO;
 import com.hertechrise.platform.data.dto.request.ProfessionalProfileRequestDTO;
 import com.hertechrise.platform.data.dto.response.ExperienceResponseDTO;
-import com.hertechrise.platform.data.dto.response.ExperienceTitleResponseDTO;
 import com.hertechrise.platform.data.dto.response.MediaResponseDTO;
 import com.hertechrise.platform.data.dto.response.MyProfessionalProfileResponseDTO;
 import com.hertechrise.platform.data.dto.response.PostResponseDTO;
