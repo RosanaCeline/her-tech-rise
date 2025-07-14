@@ -6,7 +6,6 @@
     white-space: nowrap;
     transition: all 0.3s ease-in-out;
     border: 2px solid transparent;
-    margin: 0 auto;
 }
 .purple {
   background-color: var(--purple-action);
