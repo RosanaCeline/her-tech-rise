@@ -1,5 +1,6 @@
 package com.hertechrise.platform.data.dto.response;
 
+import com.hertechrise.platform.model.PostVisibility;
 import io.swagger.v3.oas.annotations.media.ArraySchema;
 import io.swagger.v3.oas.annotations.media.Schema;
 
@@ -28,5 +29,14 @@ public record PostResponseDTO(
                 schema = @Schema(implementation = MediaResponseDTO.class)
         )
         @Schema(description = "Lista de mídias anexadas ao post")
-        List<MediaResponseDTO> media
+        List<MediaResponseDTO> media,
+
+        @Schema(description = "Visibilidade da postagem (PUBLICO ou PRIVADO)", example = "PUBLICO")
+        PostVisibility visibility,
+
+        @Schema(description = "Indica se a postagem foi editada", example = "true")
+        boolean edited,
+
+        @Schema(description = "Data e hora da última edição (ISO‑8601), ou null se nunca editado", example = "2025-07-08T10:15:30", type = "string", format = "date-time", nullable = true)
+        LocalDateTime editedAt
 ) {}

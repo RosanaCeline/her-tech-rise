@@ -214,9 +214,11 @@ public class ProfessionalProfileService {
                 p.getAuthor().getId(),
                 p.getContent(),
                 p.getCreatedAt(),
-//                p.getCommunity().getId(),
                 p.getCommunity() != null ? p.getCommunity().getId() : null,
-                medias
+                medias,
+                p.getVisibility(),
+                p.isEdited(),
+                p.getEditedAt()
         );
     }
 

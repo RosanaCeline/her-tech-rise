@@ -1,6 +1,8 @@
 package com.hertechrise.platform.controller.docs;
 
+import com.hertechrise.platform.data.dto.request.PostEditRequestDTO;
 import com.hertechrise.platform.data.dto.response.MessageResponseDTO;
+import com.hertechrise.platform.data.dto.response.PostMessageResponseDTO;
 import com.hertechrise.platform.model.PostVisibility;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
@@ -9,6 +11,7 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.validation.Valid;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -19,21 +22,19 @@ import java.util.List;
 @Tag(name = "Postagem", description = "Endpoints para postagens na plataforma")
 public interface PostControllerDocs {
 
-    @Operation(
-            summary = "Criar uma nova postagem",
+    @Operation(summary = "Criar uma nova postagem",
             description = "Permite ao usuário autenticado criar uma nova postagem com ou sem mídias. " +
-                    "A visibilidade pode ser definida como PUBLICO ou PRIVADO."
-    )
+                    "A visibilidade pode ser definida como PUBLICO ou PRIVADO.")
     @ApiResponses({
             @ApiResponse(
                     responseCode = "201",
                     description = "Postagem criada com sucesso",
-                    content = @Content(mediaType = "application/json", schema = @Schema(implementation = MessageResponseDTO.class))
+                    content = @Content(mediaType = "application/json", schema = @Schema(implementation = PostMessageResponseDTO.class))
             ),
             @ApiResponse(responseCode = "400", description = "Requisição inválida")
     })
     @PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
-    ResponseEntity<MessageResponseDTO> create(
+    ResponseEntity<PostMessageResponseDTO> create(
 
             @Parameter(
                     description = "Conteúdo textual do post (opcional)",
@@ -96,4 +97,29 @@ public interface PostControllerDocs {
             @Parameter(description = "Nova visibilidade (PUBLICO ou PRIVADO)", example = "PRIVADO")
             @RequestParam PostVisibility visibility
     );
+
+    @Operation(
+            summary = "Editar uma postagem existente",
+            description = "Permite ao usuário autenticado editar o conteúdo, visibilidade e anexos de uma postagem. " +
+                    "O usuário deve ser o autor do post para poder editar."
+    )
+    @ApiResponses({
+            @ApiResponse(
+                    responseCode = "200",
+                    description = "Postagem editada com sucesso",
+                    content = @Content(mediaType = "application/json", schema = @Schema(implementation = PostMessageResponseDTO.class))
+            ),
+            @ApiResponse(responseCode = "400", description = "Requisição inválida"),
+            @ApiResponse(responseCode = "403", description = "Usuário não autorizado a editar esta postagem"),
+            @ApiResponse(responseCode = "404", description = "Postagem não encontrada")
+    })
+    @PutMapping(value = "/{postId}", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    ResponseEntity<PostMessageResponseDTO> editPost(
+            @Parameter(description = "ID da postagem", required = true, example = "42")
+            @PathVariable Long postId,
+
+            @Parameter(description = "Dados para edição do post")
+            @Valid @ModelAttribute PostEditRequestDTO request
+    );
+
 }
