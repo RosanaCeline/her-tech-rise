@@ -103,6 +103,7 @@ public class ProfessionalProfileService {
         user.setCep(request.cep());
         user.setNeighborhood(request.neighborhood());
         user.setStreet(request.street());
+        user.setUf(request.uf());
 
         professional.setCpf(request.cpf());
         professional.setBirthDate(request.birthDate());
@@ -176,6 +177,7 @@ public class ProfessionalProfileService {
                 loggedUser.getNeighborhood(),
                 loggedUser.getCity(),
                 loggedUser.getStreet(),
+                loggedUser.getUf(),
                 loggedProfessional.getTechnology(),
                 loggedProfessional.getBiography(),
                 experiences,

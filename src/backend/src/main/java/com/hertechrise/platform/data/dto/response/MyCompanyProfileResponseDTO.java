@@ -38,6 +38,9 @@ public record MyCompanyProfileResponseDTO(
         @Schema(description = "Nome da rua", example = "Rua das Inovações")
         String street,
 
+        @Schema(description = "Estado (UF) onde a empresa está localizada", example = "SP")
+        String uf,
+
         @Schema(description = "Descrição resumida da empresa", example = "Empresa focada em soluções inovadoras de tecnologia.")
         String description,
 

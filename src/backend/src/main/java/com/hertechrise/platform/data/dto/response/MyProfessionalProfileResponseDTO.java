@@ -9,43 +9,46 @@ import java.util.List;
 public record MyProfessionalProfileResponseDTO(
 
         @Schema(description = "ID do profissional", example = "123")
-    Long id,
+        Long id,
 
         @Schema(description = "Nome completo do profissional", example = "Ana Clara Silva")
-    String name,
+        String name,
 
         @Schema(description = "CPF do profissional", example = "123.456.789-09")
-    String cpf,
+        String cpf,
 
         @Schema(description = "Data de nascimento do profissional", example = "01/05/2002")
-    LocalDate birthDate,
+        LocalDate birthDate,
 
         @Schema(description = "Número de telefone", example = "(11) 91234-5678")
-    String phoneNumber,
+        String phoneNumber,
 
         @Schema(description = "Email do profissional", example = "ana.clara@email.com")
-    String email,
+        String email,
 
         @Schema(description = "CEP do profissional", example = "62320-000")
-    String cep,
+        String cep,
 
         @Schema(description = "Bairro onde reside", example = "Jardim das Inovações")
-    String neighborhood,
+        String neighborhood,
 
         @Schema(description = "Cidade de residência", example = "Campinas")
-    String city,
+        String city,
 
         @Schema(description = "Rua de residência", example = "Rua das Desenvolvedoras")
-    String street,
+        String street,
+
+        @Schema(description = "Estado (UF) de residência", example = "SP")
+        String uf,
 
         @Schema(description = "Tecnologias ou stack principal", example = "Java | Spring Boot")
-    String technology,
+        String technology,
 
         @Schema(description = "Biografia do profissional", example = "Desenvolvedora backend com 5 anos de experiência em Java e AWS.")
-    String biography,
+        String biography,
 
         List<ExperienceResponseDTO> experiences,
 
         @Schema(description = "Link externo para portfólio ou rede social", example = "https://github.com/ana-dev")
-    String externalLink
+        String externalLink
 ) {}
