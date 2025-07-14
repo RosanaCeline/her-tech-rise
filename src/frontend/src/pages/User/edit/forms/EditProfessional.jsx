@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import { Plus } from 'lucide-react';
 
@@ -10,6 +10,7 @@ import LabelInput from "../../../../components/form/Label/LabelInput";
 import BtnCallToAction from "../../../../components/btn/BtnCallToAction/BtnCallToAction";
 import { validateField } from "../../../../components/form/Label/validationField";
 import { maskField } from "../../../../components/form/Label/maskField";
+import axios from "axios";
 
 import { useAuth } from "../../../../context/AuthContext";
 import { getAllProfile, updateProfile } from "../../../../services/userService";
@@ -33,7 +34,7 @@ export default function EditProfessional() {
 
   const navigate = useNavigate();
   const { setUser } = useAuth();
-  const [errors, setErrors] = useState({});
+  const [error, setError] = useState('');
   const [loading, setLoading] = useState(true);
   const [originalUser, setOriginalUser] = useState(null);
 
@@ -45,11 +46,58 @@ export default function EditProfessional() {
   const [errorModalOpen, setErrorModalOpen] = useState(false);
   const [errorMessage, setErrorMessage] = useState('');
 
+  
+  const ruaInput = useRef(null)
+  const cidadeInput = useRef(null)
+  const bairroInput = useRef(null)
+  const estadoInput = useRef(null)
+  const [formHasChanged, setFormHasChanged] = useState(false)
+
+  useEffect(() => {
+    async function fetchCEP(){
+        if(formData.cep.length == 9){
+            const response = await axios.get(`https://viacep.com.br/ws/${formData.cep.replace("-", "")}/json/`)
+            const data = response.data
+            if(!data.erro){
+                setFormHasChanged(true)
+                setFormData((prev) => ({ ...prev, rua: data.logradouro }));
+                ruaInput.current.disabled = true
+                setFormData((prev) => ({ ...prev, cidade: data.localidade }));
+                cidadeInput.current.disabled = true
+                setFormData((prev) => ({ ...prev, bairro: data.bairro }));
+                bairroInput.current.disabled = true
+                setFormData((prev) => ({ ...prev, estado: data.estado }));
+                estadoInput.current.disabled = true
+            }
+        }else if(formHasChanged){
+            setFormHasChanged(false)
+            setFormData((prev) => ({ ...prev, rua: '' }));
+            ruaInput.current.disabled = 
+            setFormData((prev) => ({ ...prev, cidade: '' }));
+            cidadeInput.current.disabled = false
+            setFormData((prev) => ({ ...prev, bairro: '' }));
+            bairroInput.current.disabled = false
+            setFormData((prev) => ({ ...prev, estado: '' }));
+            estadoInput.current.disabled = false
+        }
+    }
+    fetchCEP()
+  }, [formData.cep])
+
+  const estados = [
+      'Acre', 'Alagoas', 'Amapá', 'Amazonas', 'Bahia', 'Ceará', 'Distrito Federal',
+      'Espírito Santo', 'Goiás', 'Maranhão', 'Mato Grosso', 'Mato Grosso do Sul',
+      'Minas Gerais', 'Pará', 'Paraíba', 'Paraná', 'Pernambuco', 'Piauí',
+      'Rio de Janeiro', 'Rio Grande do Norte', 'Rio Grande do Sul', 'Rondônia',
+      'Roraima', 'Santa Catarina', 'São Paulo', 'Sergipe', 'Tocantins'
+  ];
+
+  const options = estados.map(estado => ({ value: estado, label: estado }));
+
   useEffect(() => {
     async function fetchProfile() {
       try {
         const user = await getAllProfile();
-
         const mappedForm = {
           nome: user.name || '',
           handle: user.handle || '',
@@ -95,7 +143,6 @@ export default function EditProfessional() {
     if (name === 'data_nascimento') maskedValue = maskField('data', value);
 
     setFormData((prev) => ({ ...prev, [name]: maskedValue }));
-    setErrors((prev) => ({ ...prev, [name]: '' }));
   };
 
   const handleCancelClick = (e) => {
@@ -117,17 +164,26 @@ export default function EditProfessional() {
       email: 'email',
     };
 
-    const newErrors = {};
-    for (let campo in camposObrigatorios) {
+    let hasError = false;
+    for (const campo in camposObrigatorios) {
       const erro = validateField(camposObrigatorios[campo], formData[campo], true);
-      if (erro) newErrors[campo] = erro;
+      if (erro) {
+        hasError = true;
+        break;
+      }
     }
 
-    setErrors(newErrors);
-    return Object.keys(newErrors).length === 0;
-  };
+    if (hasError) 
+      setError('Preencha os campos obrigatórios e corrija os erros antes de continuar.');
+    else
+      setError('');
+
+    return !hasError
+  }
+
 
   const handleSubmit = async (e) => {
+    console.log('passei aqui')
     e.preventDefault();
     if (!validateAllFields()) return;
 
@@ -242,6 +298,7 @@ export default function EditProfessional() {
           <LabelInput
             label="Rua:"
             name="rua"
+            ref={ruaInput}
             value={formData.rua ?? ''}
             onChange={handleChange}
             required
@@ -252,6 +309,7 @@ export default function EditProfessional() {
           <LabelInput
             label="Bairro:"
             name="bairro"
+            ref={bairroInput}
             value={formData.bairro ?? ''}
             onChange={handleChange}
             required
@@ -262,6 +320,7 @@ export default function EditProfessional() {
           <LabelInput
             label="Cidade:"
             name="cidade"
+            ref={cidadeInput}
             value={formData.cidade ?? ''}
             onChange={handleChange}
             required
@@ -272,8 +331,11 @@ export default function EditProfessional() {
           <LabelInput
             label="Estado:"
             name="estado"
+            ref={estadoInput}
             value={formData.estado ?? ''}
             onChange={handleChange}
+            type="select"
+            options={options}
             required
             validation="texto"
             placeholder="Seu estado"
@@ -456,6 +518,13 @@ export default function EditProfessional() {
             )
           }
         />
+      )}
+      {error && (
+        <div className="fixed top-1/12 left-1/2 transform -translate-x-1/2 -translate-y-1/2 
+                        z-50 bg-red-600 text-white px-6 py-3 rounded-lg shadow-lg 
+                        transition-opacity duration-300">
+            {error}
+        </div>
       )}
     </>
   );
