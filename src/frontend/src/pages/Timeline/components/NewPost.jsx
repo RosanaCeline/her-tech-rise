@@ -11,7 +11,7 @@ export default function NewPost(){
     const [formData, setFormData] = useState({
         content: '',
         media: [],
-        visibility: 'public'
+        visibility: 'PUBLICO'
     })
     const [activePopUp, setActivePopUp] = useState(null)
     const [user, setUser] = useState({
@@ -25,7 +25,7 @@ export default function NewPost(){
             setUser({...user, profileURL: data.profilePic})
         }
         getProfileURL()
-    }, )
+    }, [])
 
     return (
         <>
