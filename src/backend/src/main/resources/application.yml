@@ -9,6 +9,10 @@ security:
       secret-key: ${HER_TECH_SECURITY_JWT_KEY}
       expire-lenght: 3600000
 spring:
+  servlet:
+    multipart:
+      max-file-size: 100MB
+      max-request-size: 100MB
   mvc:
     locale: pt_BR
     charset: UTF-8
