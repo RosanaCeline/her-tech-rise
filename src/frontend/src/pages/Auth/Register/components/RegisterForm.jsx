@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, useCallback } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { Undo2 } from 'lucide-react'
 import { register } from '../../../../services/authService';
@@ -30,14 +30,15 @@ export default function RegisterForm(){
         rua: '',
         bairro: '',
         cidade: '',
+        estado: '',
         email: '',
         senha: '',
         senha_confirmada: ''
     })
 
-    const handleChange = (field, value) => {
-        setFormData(prev => ({...prev, [field]: value}))
-    }
+    const handleChange = useCallback((field, value) => {
+        setFormData(prev => ({ ...prev, [field]: value }));
+    }, []);
 
     const handleSubmit = async () => {
         setLoading(true);
@@ -149,7 +150,6 @@ export default function RegisterForm(){
             )
 
         case 5:
-            console.log(formData)
             return null
     }
 }
