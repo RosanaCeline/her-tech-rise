@@ -83,24 +83,24 @@ public class PostService {
             post.setMedia(mediaList);
         }
 
-        Post saved = postRepository.save(post);
+        post = postRepository.save(post);
 
-        List<MediaResponseDTO> mediaDtos = saved.getMedia() == null
-                ? List.of()
-                : saved.getMedia().stream()
+        List<MediaResponseDTO> mediaDtos = post.getMedia() != null
+                ? post.getMedia().stream()
                 .map(m -> new MediaResponseDTO(m.getId(), m.getMediaType(), m.getUrl()))
-                .toList();
+                .toList()
+                : List.of();
 
         return new PostResponseDTO(
-                saved.getId(),
-                saved.getAuthor().getId(),
-                saved.getContent(),
-                saved.getCreatedAt(),
-                saved.getCommunity() != null ? saved.getCommunity().getId() : null,
+                post.getId(),
+                post.getAuthor().getId(),
+                post.getContent(),
+                post.getCreatedAt(),
+                post.getCommunity() != null ? post.getCommunity().getId() : null,
                 mediaDtos,
-                saved.getVisibility(),
-                saved.isEdited(),
-                saved.getEditedAt()
+                post.getVisibility(),
+                post.isEdited(),
+                post.getEditedAt()
         );
     }
 
