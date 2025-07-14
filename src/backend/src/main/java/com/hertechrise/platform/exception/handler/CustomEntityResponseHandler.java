@@ -148,6 +148,15 @@ public class CustomEntityResponseHandler extends ResponseEntityExceptionHandler 
         return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
     }
 
+    @ExceptionHandler(InvalidFileTypeException.class)
+    public ResponseEntity<?> handleInvalidFileType(Exception ex, WebRequest request) {
+        ExceptionResponse response = new ExceptionResponse(
+                new Date(),
+                ex.getMessage(),
+                request.getDescription(false));
+        return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
+    }
+
     @ExceptionHandler(AlreadyFollowingException.class)
     public ResponseEntity<?> handleAlreadyFollowing(Exception ex, WebRequest request) {
         ExceptionResponse response = new ExceptionResponse(
