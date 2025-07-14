@@ -1,5 +1,6 @@
 package com.hertechrise.platform.data.dto.request;
 
+import com.hertechrise.platform.model.PostVisibility;
 import com.hertechrise.platform.validation.annotations.ContentOrMediaRequired;
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.Size;
@@ -20,6 +21,9 @@ public record PostRequestDTO(
                 nullable = true
         )
         Long idCommunity,
+
+        @Schema(description = "Visibilidade da postagem (pode ser PUBLICO ou PRIVADO)", example = "PUBLICO")
+        PostVisibility visibility,
 
         @Schema(description = "Lista de mídias associadas à postagem (máximo 10 itens)")
         @Size(max = 10, message = "Máx. 10 itens de mídia.")
