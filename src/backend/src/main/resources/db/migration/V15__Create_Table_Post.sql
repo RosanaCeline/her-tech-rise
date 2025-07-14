@@ -6,11 +6,10 @@ CREATE TABLE IF NOT EXISTS `post` (
 
   `community_id`  BIGINT,
   `media_url`     VARCHAR(255),
-  `deleted` BOOLEAN NOT NULL DEFAULT FALSE AFTER `media_url`,
-  `visibility` ENUM('PUBLICO', 'PRIVADO') NOT NULL DEFAULT 'PUBLICO' AFTER `deleted`,
-  `edited` BOOLEAN NOT NULL DEFAULT FALSE,
-  `edited_at` DATETIME NULL,
-
+  `deleted`       BOOLEAN NOT NULL DEFAULT FALSE,
+  `visibility`    ENUM('PUBLICO', 'PRIVADO') NOT NULL DEFAULT 'PUBLICO',
+  `edited`        BOOLEAN NOT NULL DEFAULT FALSE,
+  `edited_at`     DATETIME NULL,
 
   CONSTRAINT `chk_post_content_or_media`
     CHECK (LENGTH(`content`) > 0 OR `media_url` IS NOT NULL),
