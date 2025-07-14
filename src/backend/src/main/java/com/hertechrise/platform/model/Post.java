@@ -3,6 +3,7 @@ package com.hertechrise.platform.model;
 import jakarta.persistence.*;
 import lombok.*;
 import org.hibernate.annotations.CreationTimestamp;
+import org.hibernate.annotations.Where;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
@@ -19,6 +20,7 @@ import java.util.List;
 @NoArgsConstructor
 @AllArgsConstructor
 @EqualsAndHashCode(onlyExplicitlyIncluded = true)
+@Where(clause = "deleted = false") // exclui logicamente em queries automáticas
 public class Post {
 
     @EqualsAndHashCode.Include
@@ -49,4 +51,11 @@ public class Post {
             orphanRemoval = true,
             fetch = FetchType.LAZY)
     private List<Media> media = new ArrayList<>();
+
+    @Column(name = "deleted", nullable = false)
+    private boolean deleted = false;
+
+    @Enumerated(EnumType.STRING)
+    @Column(name = "visibility", nullable = false)
+    private PostVisibility visibility = PostVisibility.PUBLICO;
 }
