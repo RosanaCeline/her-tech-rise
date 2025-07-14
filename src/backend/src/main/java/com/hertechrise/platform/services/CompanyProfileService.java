@@ -171,8 +171,11 @@ public class CompanyProfileService {
                 p.getAuthor().getId(),
                 p.getContent(),
                 p.getCreatedAt(),
-                p.getCommunity().getId(),
-                medias
+                p.getCommunity() != null ? p.getCommunity().getId() : null,
+                medias,
+                p.getVisibility(),
+                p.isEdited(),
+                p.getEditedAt()
         );
     }
 }

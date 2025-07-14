@@ -58,4 +58,10 @@ public class Post {
     @Enumerated(EnumType.STRING)
     @Column(name = "visibility", nullable = false)
     private PostVisibility visibility = PostVisibility.PUBLICO;
+
+    @Column(name = "edited", nullable = false)
+    private boolean edited = false;
+
+    @Column(name = "edited_at")
+    private LocalDateTime editedAt;
 }
