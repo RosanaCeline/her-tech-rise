@@ -50,7 +50,6 @@ public record CompanyProfileRequestDTO(
 
         @Schema(description = "UF de onde se localiza", example = "SP")
         @NotBlank(message = "UF é obrigatória.")
-        @Pattern(regexp = "^[A-Z]{2}$", message = "UF deve conter exatamente 2 letras maiúsculas.")
         String uf,
 
         @Schema(
