@@ -1,4 +1,4 @@
-import { useState, useEffect, use } from 'react'
+import { useState, useEffect } from 'react'
 import BtnCallToAction from '../btn/BtnCallToAction/BtnCallToAction'
 import LabelInput from "../form/Label/LabelInput"
 import { Earth, Lock, X, Video, Image, Files, Trash2} from 'lucide-react'
@@ -55,10 +55,12 @@ export default function ManagePost({user, setActivePopUp, formData, setFormData}
     return(
         <>
         <div className="flex justify-between">
-            <div className="flex items-center ">
-                <img src={user.profileURL} className="h-17 min-w-17 aspect-square mr-4"/>
+            <div className="flex items-center">
+                <div className="relative w-full max-w-[70px] h-[70px] flex-shrink-0 mr-4">
+                    <img src={user.profileURL} className="h-full w-full object-cover rounded-full"/>
+                </div>
                 <div className="flex flex-col items-start gap-y-1 justify-start">
-                    {user.userName}
+                    <p className='text-nowrap'>{user.userName}</p>
                     <div className="flex text-(--purple-primary) items-center gap-x-1.5 cursor-pointer" 
                     onClick={() => setChangeVisibilityPopup(!changeVisibilityPopup)}>
                         {formData.visibility === 'PUBLICO' 

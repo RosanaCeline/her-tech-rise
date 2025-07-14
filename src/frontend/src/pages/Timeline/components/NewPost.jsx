@@ -1,7 +1,6 @@
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import LabelInput from "../../../components/form/Label/LabelInput";
 import { Video, Image, Files} from 'lucide-react'
-import { getProfileById } from "../../../services/userService";
 import { getCurrentUser } from "../../../services/authService";
 import PopUp from "../../../components/PopUp";
 import ManagePost from "../../../components/posts/ManagePost";
@@ -14,23 +13,17 @@ export default function NewPost(){
         visibility: 'PUBLICO'
     })
     const [activePopUp, setActivePopUp] = useState(null)
-    const [user, setUser] = useState({
+    const user = {
         userName: getCurrentUser().name,
-        profileURL: ''
-    })
-    // solução temporária para conseguir a foto
-    useEffect(() => {
-        async function getProfileURL() {
-            const data = await getProfileById()
-            setUser({...user, profileURL: data.profilePic})
-        }
-        getProfileURL()
-    }, [])
+        profileURL: getCurrentUser().profilePicture
+    }
 
     return (
         <>
             <div className="flex gap-x-4">
-                <img src={user.profileURL} className="h-17 min-w-17 aspect-square"/>
+                <div className="relative w-full max-w-[70px] h-[70px] flex-shrink-0"> 
+                    <img src={user.profileURL} className="h-full w-full object-cover rounded-full"/>
+                </div>
                 <div className="w-full pt-2">
                     <LabelInput placeholder="Comece uma nova publicação" onClick={() => setActivePopUp('post')}/>
                 </div>

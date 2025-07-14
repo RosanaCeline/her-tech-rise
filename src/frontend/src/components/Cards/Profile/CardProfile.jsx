@@ -1,5 +1,4 @@
-import React, { useState, useRef } from 'react';
-import axios from 'axios';
+import { useState, useRef } from 'react';
 
 import { FaCamera, FaPaperclip, FaCheck, FaPaperPlane, FaSlidersH } from 'react-icons/fa';
 
@@ -9,6 +8,8 @@ import defaultEnterprise from '../../../assets/profile/FotoPadraoEnterprise.png'
 import BtnCallToAction from '../../btn/BtnCallToAction/BtnCallToAction';
 import PopUpBlurProfile from './PopUpBlurProfile';
 import EditMyProfile from '../../../pages/User/edit/EditMyProfile';
+import { changeProfilePicture } from '../../../services/userService';
+import { useAuth } from '../../../context/AuthContext';
 
 export default function CardProfile({
   photo,
@@ -28,6 +29,7 @@ export default function CardProfile({
   const [copied, setCopied] = useState(false);
   const [previewPhoto, setPreviewPhoto] = useState(photo);
   const fileInputRef = useRef();
+  const [updateProfileError, setUpdateProfileError] = useState('')
 
   const defaultPhoto = tipo_usuario === 'enterprise' ? defaultEnterprise : defaultProfessional;
   const userPhoto = previewPhoto || defaultPhoto;
@@ -37,21 +39,18 @@ export default function CardProfile({
     setShowModal(true);
   };
 
+  const { setUser } = useAuth()
   const handlePhotoChange = async (e) => {
     const file = e.target.files[0];
     if (!file) return;
 
-    setPreviewPhoto(URL.createObjectURL(file));
-    const formData = new FormData();
-    formData.append('photo', file);
-
-    try {
-      const response = await axios.post('/api/user/upload-photo', formData, {
-        headers: { 'Content-Type': 'multipart/form-data' },
-      });
-      console.log('Upload sucesso', response.data);
-    } catch (error) {
-      console.error('Erro no upload da foto', error);
+    try{
+      const result = await changeProfilePicture(file)
+      setUser((prev) => ({...prev, profilePicture: result.profilePic}))
+      setPreviewPhoto(result.profilePic)
+    }catch(err){
+      setUpdateProfileError(err.response?.data?.message || 'Erro ao atualizar foto de perfil.')
+      setTimeout(() => setUpdateProfileError(null), 4000)
     }
   };
 
@@ -209,6 +208,13 @@ export default function CardProfile({
         onClose={() => setShowModal(false)}
         content={modalContent}
       />
+      {updateProfileError && (
+        <div className="fixed top-1/12 left-1/2 transform -translate-x-1/2 -translate-y-1/2 
+                        z-50 bg-red-600 text-white px-6 py-3 rounded-lg shadow-lg 
+                        transition-opacity duration-300">
+            {updateProfileError}
+        </div>
+      )}
     </>
   )
 }
