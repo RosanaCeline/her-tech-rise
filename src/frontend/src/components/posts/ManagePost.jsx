@@ -34,24 +34,26 @@ export default function ManagePost({user, setActivePopUp, formData, setFormData}
     const [mediaUrls, setMediaUrls] = useState([]);
 
     useEffect(() => {
-        const urls = formData.media.map(file => ({
-            file,
-            url: URL.createObjectURL(file)
-        }));
+        const urls = formData.media
+            .filter(file => file.type.startsWith('image/') || file.type === 'video/mp4')
+            .map(file => ({
+                file,
+                url: URL.createObjectURL(file)
+            }));
+
         setMediaUrls(urls);
 
         return () => urls.forEach(({ url }) => URL.revokeObjectURL(url));
     }, [formData.media]);
 
-    const handleRemove = (index) => {
-        URL.revokeObjectURL(mediaUrls[index].url); // Limpa URL individualmente
+
+    const handleRemove = (fileToRemove) => {
         setFormData(prev => ({
             ...prev,
-            media: prev.media.filter((_, i) => i !== index)
+            media: prev.media.filter(file => file !== fileToRemove)
         }));
     };
 
-    
     return(
         <>
         <div className="flex justify-between">
@@ -93,7 +95,7 @@ export default function ManagePost({user, setActivePopUp, formData, setFormData}
                     <div key={index} className='relative inline-block mr-4 min-w-[8rem]'>
                         {file.type.startsWith('image/') && <img src={url} alt="Preview" className="w-full h-32 object-cover rounded shadow"/>}
                         {file.type === 'video/mp4' && <video key={index} src={url} controls className="w-full h-32 rounded shadow object-cover"/>}
-                        <button onClick={() => handleRemove(index)} 
+                        <button onClick={() => handleRemove(file)} 
                         className='absolute top-1 right-1 bg-(--purple-primary) text-white rounded-full w-9 h-9 flex items-center justify-center hover:bg-(--purple-action)'>
                             <Trash2 />
                         </button>
@@ -110,10 +112,15 @@ export default function ManagePost({user, setActivePopUp, formData, setFormData}
                 file.type === 'application/vnd.openxmlformats-officedocument.wordprocessingml.document'
             )
             .map((file, index) => (
-                <a key={index} href={URL.createObjectURL(file)} target="_blank" rel="noopener noreferrer"
-                className="block p-4 border rounded shadow bg-gray-100 text-sm text-blue-600 hover:underline">
-                {file.name}
-                </a>
+                <div key={index} className='flex items-center p-4 border border-blue-600 rounded shadow bg-gray-100 mb-2'>
+                    <a href={URL.createObjectURL(file)} target="_blank" rel="noopener noreferrer"
+                    className="flex-grow text-center text-sm text-blue-600 hover:underline truncate">
+                    {file.name}
+                    </a>
+                    <button type='button' onClick={() => handleRemove(file)} className="ml-4">
+                        <X/>
+                    </button>
+                </div>
             ))}
         </div>
 
