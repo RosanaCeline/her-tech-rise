@@ -117,9 +117,9 @@ public class ProfessionalProfileService {
         }
 
         if (request.experiences() != null) {
-            if (request.experiences().size() > 50) {
-                // Exemplo: limite arbitrário de 50 experiências
-                throw new ValidationException("Máximo de 50 experiências permitidas.");
+            if (request.experiences().size() > 20) {
+                // Exemplo: limite arbitrário de 20 experiências
+                throw new ValidationException("Máximo de 20 experiências permitidas.");
             }
             experienceService.syncExperiences(professional, request.experiences());
         }
@@ -151,9 +151,10 @@ public class ProfessionalProfileService {
         Professional loggedProfessional = professionalRepository.findById(loggedUser.getId())
                 .orElseThrow(ProfessionalNotFoundException::new);
 
-        List<ExperienceTitleResponseDTO> experiences = loggedProfessional.getExperiences().stream()
+
+        List<ExperienceResponseDTO> experiences = loggedProfessional.getExperiences().stream()
                 .sorted(Comparator.comparing(Experience::getStartDate).reversed())
-                .map(e -> new ExperienceTitleResponseDTO(e.getId(), e.getTitle()))
+                .map(this::toExperienceDto)
                 .toList();
 
         return new MyProfessionalProfileResponseDTO(
