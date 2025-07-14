@@ -26,10 +26,7 @@ public class PostService {
 
     private final PostRepository postRepository;
     private final CommunityRepository communityRepository;
-
     private final MediaService mediaService;
-
-
     private final CloudinaryService cloudinaryService;
     private final UserRepository userRepository;
 
@@ -61,7 +58,7 @@ public class PostService {
     }
 
     @Transactional
-    public PostResponseDTO create(PostRequestDTO request) {
+    public void create(PostRequestDTO request) {
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
         User author = (User) auth.getPrincipal();
 
@@ -82,21 +79,7 @@ public class PostService {
             post.setMedia(mediaList);
         }
 
-        Post saved = postRepository.save(post);
-
-        List<MediaResponseDTO> mediaDtos = saved.getMedia() == null
-                ? List.of()
-                : saved.getMedia().stream()
-                .map(m -> new MediaResponseDTO(m.getId(), m.getMediaType(), m.getUrl()))
-                .toList();
-
-        return new PostResponseDTO(
-                saved.getId(),
-                saved.getAuthor().getId(),
-                saved.getContent(),
-                saved.getCreatedAt(),
-                saved.getCommunity() != null ? saved.getCommunity().getId() : null,
-                mediaDtos
-        );
+        postRepository.save(post);
     }
 }
+

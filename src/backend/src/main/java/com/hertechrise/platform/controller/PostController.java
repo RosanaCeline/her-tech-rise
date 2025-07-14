@@ -2,7 +2,7 @@ package com.hertechrise.platform.controller;
 
 import com.hertechrise.platform.controller.docs.PostControllerDocs;
 import com.hertechrise.platform.data.dto.request.PostRequestDTO;
-import com.hertechrise.platform.data.dto.response.PostResponseDTO;
+import com.hertechrise.platform.data.dto.response.MessageResponseDTO;
 import com.hertechrise.platform.services.PostService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -21,13 +21,14 @@ public class PostController implements PostControllerDocs {
     private final PostService postService;
 
     @PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
-    public ResponseEntity<PostResponseDTO> create(
+    public ResponseEntity<MessageResponseDTO> create(
             @RequestParam(required = false) String content,
             @RequestParam(required = false) Long idCommunity,
             @RequestPart(required = false) List<MultipartFile> mediaFiles
     ) {
         PostRequestDTO dto = postService.processPostData(content, idCommunity, mediaFiles);
-        PostResponseDTO response = postService.create(dto);
-        return ResponseEntity.status(HttpStatus.CREATED).body(response);
+        postService.create(dto);
+        return ResponseEntity.status(HttpStatus.CREATED)
+                .body(new MessageResponseDTO("Postagem criada com sucesso."));
     }
 }

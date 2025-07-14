@@ -26,11 +26,14 @@ public interface PostControllerDocs {
             @ApiResponse(
                     responseCode = "201",
                     description = "Postagem criada com sucesso",
-                    content = @Content(mediaType = "application/json", schema = @Schema(implementation = MessageResponseDTO.class))
+                    content = @Content(
+                            mediaType = "application/json",
+                            schema = @Schema(implementation = MessageResponseDTO.class)
+                    )
             ),
             @ApiResponse(responseCode = "400", description = "Requisição inválida")
     })
-    ResponseEntity<PostResponseDTO> create(
+    ResponseEntity<MessageResponseDTO> create(
             @Parameter(
                     description = "Conteúdo textual do post",
                     required = false,
