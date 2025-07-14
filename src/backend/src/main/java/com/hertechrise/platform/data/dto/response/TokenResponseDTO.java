@@ -15,5 +15,8 @@ public record TokenResponseDTO(
         String token,
 
         @Schema(description = "Papel/perfil do usuário", example = "PROFESSIONAL")
-        String role
+        String role,
+
+        @Schema(description = "URL da foto de perfil do usuário", example = "https://res.cloudinary.com/xyz/image/upload/v123456/ana_clara.png")
+        String profilePicture
 ) {}
