@@ -1,56 +1,22 @@
-import { Undo2 } from 'lucide-react';
 import LabelInput from '../../../../components/form/Label/LabelInput';
 import { maskField } from '../../../../components/form/Label/maskField';
-import { useEffect, useRef, useState } from 'react';
-import axios from 'axios';
+import { useRef } from 'react';
+import { useCepAutoComplete } from '../../../../services/hooks/useCepAutoComplete';
 
-export default function RegisterStep1({formData, handleChange }){
-    const estados = [
-        'Acre', 'Alagoas', 'Amapá', 'Amazonas', 'Bahia', 'Ceará', 'Distrito Federal',
-        'Espírito Santo', 'Goiás', 'Maranhão', 'Mato Grosso', 'Mato Grosso do Sul',
-        'Minas Gerais', 'Pará', 'Paraíba', 'Paraná', 'Pernambuco', 'Piauí',
-        'Rio de Janeiro', 'Rio Grande do Norte', 'Rio Grande do Sul', 'Rondônia',
-        'Roraima', 'Santa Catarina', 'São Paulo', 'Sergipe', 'Tocantins'
-    ];
-
-    const options = estados.map(estado => ({ value: estado, label: estado }));
-
+export default function RegisterStep1({formData, handleChange }){      
     const ruaInput = useRef(null)
     const cidadeInput = useRef(null)
     const bairroInput = useRef(null)
     const estadoInput = useRef(null)
-    const [formHasChanged, setFormHasChanged] = useState(false)
-
-    useEffect(() => {
-        async function fetchCEP(){
-            if(formData.cep.length == 9){
-                const response = await axios.get(`https://viacep.com.br/ws/${formData.cep.replace("-", "")}/json/`)
-                const data = response.data
-                if(!data.erro){
-                    setFormHasChanged(true)
-                    handleChange('rua', data.logradouro)
-                    ruaInput.current.disabled = true
-                    handleChange('cidade', data.localidade)
-                    cidadeInput.current.disabled = true
-                    handleChange('bairro', data.bairro)
-                    bairroInput.current.disabled = true
-                    handleChange('estado', data.estado)
-                    estadoInput.current.disabled = true
-                }
-            }else if(formHasChanged){
-                setFormHasChanged(false)
-                handleChange('rua', '')
-                ruaInput.current.disabled = false
-                handleChange('cidade', '')
-                cidadeInput.current.disabled = false
-                handleChange('bairro', '')
-                bairroInput.current.disabled = false
-                handleChange('estado', '')
-                estadoInput.current.disabled = false
-            }
-        }
-        fetchCEP()
-    }, [formData.cep])
+    
+    const { estados} = useCepAutoComplete({cep: formData.cep, handleChange, refs: {
+        rua: ruaInput,
+        cidade: cidadeInput,
+        bairro: bairroInput,
+        estado: estadoInput
+    }});
+    
+    const options = estados.map(estado => ({ value: estado, label: estado }));
     
     return(
         <section>
