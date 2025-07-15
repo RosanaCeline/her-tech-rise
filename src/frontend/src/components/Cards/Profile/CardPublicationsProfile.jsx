@@ -1,8 +1,6 @@
 import React from 'react';
 
-export default function CardPublicationsProfile ({ title, content }) {
-
-    const hasContent = typeof content === 'string' && content.trim() !== '';
+export default function CardPublicationsProfile ({ title, posts }) {
 
     return (
         <article
@@ -21,15 +19,15 @@ export default function CardPublicationsProfile ({ title, content }) {
         <h2 className="text-4xl font-semibold text-[var(--purple-secundary)] mb-4">
             {title}
         </h2>
-        {hasContent ? (
-            <p className="text-xl text-[var(--text-secondary)] leading-relaxed">
-            {content}
-            </p>
-        ) : (
-            <p className="italic text-xl text-[var(--text-secondary)] leading-relaxed opacity-70">
-            Nenhuma informação disponível no momento.
-            </p>
-        )}
+        {posts && posts.length > 0 ? (
+        posts.map(post => (
+          <article key={post.id}>
+            <p>{post.content}</p>
+          </article>
+        ))
+      ) : (
+        <p>Sem publicações para mostrar.</p>
+      )}
         </article>
     )
 }
