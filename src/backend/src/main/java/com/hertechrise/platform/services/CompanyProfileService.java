@@ -84,6 +84,7 @@ public class CompanyProfileService {
         user.setCep(request.cep());
         user.setNeighborhood(request.neighborhood());
         user.setStreet(request.street());
+        user.setUf(request.uf());
 
         company.setCnpj(request.cnpj());
         company.setCompanyType(request.companyType());
@@ -134,6 +135,7 @@ public class CompanyProfileService {
                 loggedUser.getNeighborhood(),
                 loggedUser.getCity(),
                 loggedUser.getStreet(),
+                loggedUser.getUf(),
                 loggedCompany.getDescription(),
                 loggedCompany.getAboutUs(),
                 loggedUser.getExternalLink()
@@ -171,8 +173,11 @@ public class CompanyProfileService {
                 p.getAuthor().getId(),
                 p.getContent(),
                 p.getCreatedAt(),
-                p.getCommunity().getId(),
-                medias
+                p.getCommunity() != null ? p.getCommunity().getId() : null,
+                medias,
+                p.getVisibility(),
+                p.isEdited(),
+                p.getEditedAt()
         );
     }
 }

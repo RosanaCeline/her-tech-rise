@@ -86,7 +86,7 @@ public class AuthService {
                 2
         );
 
-        return new TokenResponseDTO(newUser.getName(), newUser.getId(), token, role.getName());
+        return new TokenResponseDTO(newUser.getName(), newUser.getId(), token, role.getName(), newUser.getProfilePic());
     }
 
     @Transactional
@@ -140,7 +140,7 @@ public class AuthService {
                 2
         );
 
-        return new TokenResponseDTO(newUser.getName(), newUser.getId(), token, role.getName());
+        return new TokenResponseDTO(newUser.getName(), newUser.getId(), token, role.getName(), newUser.getProfilePic());
     }
 
     public TokenResponseDTO login(LoginRequestDTO request) {
@@ -164,7 +164,7 @@ public class AuthService {
                     2
             );
 
-            return new TokenResponseDTO(user.getName(), user.getId(), token, user.getRole().getName());
+            return new TokenResponseDTO(user.getName(), user.getId(), token, user.getRole().getName(), user.getProfilePic());
 
         } catch (BadCredentialsException e) {
             throw new InvalidPasswordException();

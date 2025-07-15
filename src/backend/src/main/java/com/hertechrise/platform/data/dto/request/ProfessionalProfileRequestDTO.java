@@ -53,6 +53,10 @@ public record ProfessionalProfileRequestDTO(
         @Size(max = 100, message = "Rua deve ter no máximo 100 caracteres.")
         String street,
 
+        @Schema(description = "UF de onde reside", example = "SP")
+        @NotBlank(message = "UF é obrigatória.")
+        String uf,
+
         @Schema(
                 description = "Tecnologias ou stack principal do profissional (máx. 80 caracteres)",
                 example = "Java, Spring Boot"
