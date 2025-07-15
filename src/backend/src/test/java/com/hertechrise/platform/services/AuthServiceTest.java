@@ -441,6 +441,7 @@ class AuthServiceTest extends AbstractIntegrationTest {
                 .orElseThrow(InvalidUserTypeException::new);
         user.setRole(role);
 
+        
         userRepository.save(user);
         String tokenTest = resetTokenService.generateResetToken(user.getEmail());
         ConfirmedResetPasswordRequestDTO dto = new ConfirmedResetPasswordRequestDTO(tokenTest, "novaSenhadethalyta");
@@ -448,6 +449,7 @@ class AuthServiceTest extends AbstractIntegrationTest {
         User newPass = userRepository.findByEmail(user.getEmail()).orElseThrow();
         assertTrue(passwordEncoder.matches("novaSenhadethalyta",newPass.getPassword()));
     }
+
 }
 
 
