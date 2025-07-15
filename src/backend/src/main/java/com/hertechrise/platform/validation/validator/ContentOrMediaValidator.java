@@ -5,12 +5,11 @@ import com.hertechrise.platform.validation.annotations.ContentOrMediaRequired;
 import jakarta.validation.ConstraintValidator;
 import jakarta.validation.ConstraintValidatorContext;
 
-public class ContentOrMediaValidator
-        implements ConstraintValidator<ContentOrMediaRequired, PostRequestDTO> {
+public class ContentOrMediaValidator implements ConstraintValidator<ContentOrMediaRequired, PostRequestDTO> {
 
     @Override
     public boolean isValid(PostRequestDTO dto, ConstraintValidatorContext ctx) {
-        boolean hasContent = dto.content() != null && !dto.content().isBlank();
+        boolean hasContent = dto.content() != null && !dto.content().trim().isEmpty();
         boolean hasMedia   = dto.media() != null && !dto.media().isEmpty();
         return hasContent || hasMedia;
     }

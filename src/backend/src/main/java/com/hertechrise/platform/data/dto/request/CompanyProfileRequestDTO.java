@@ -48,6 +48,10 @@ public record CompanyProfileRequestDTO(
         @Size(max = 100, message = "Rua deve ter no máximo 100 caracteres.")
         String street,
 
+        @Schema(description = "UF de onde se localiza", example = "SP")
+        @NotBlank(message = "UF é obrigatória.")
+        String uf,
+
         @Schema(
                 description = "Descrição sobre a empresa (máx. 400 caracteres)",
                 example = "Somos uma empresa de tecnologia focada em soluções inclusivas."

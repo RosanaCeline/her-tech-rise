@@ -6,7 +6,6 @@ import java.net.URISyntaxException;
 import java.net.URL;
 import java.util.Comparator;
 import java.util.List;
-import java.util.stream.Collectors;
 
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -16,7 +15,6 @@ import org.springframework.transaction.annotation.Transactional;
 import com.hertechrise.platform.data.dto.request.ExperienceRequestDTO;
 import com.hertechrise.platform.data.dto.request.ProfessionalProfileRequestDTO;
 import com.hertechrise.platform.data.dto.response.ExperienceResponseDTO;
-import com.hertechrise.platform.data.dto.response.ExperienceTitleResponseDTO;
 import com.hertechrise.platform.data.dto.response.MediaResponseDTO;
 import com.hertechrise.platform.data.dto.response.MyProfessionalProfileResponseDTO;
 import com.hertechrise.platform.data.dto.response.PostResponseDTO;
@@ -105,6 +103,7 @@ public class ProfessionalProfileService {
         user.setCep(request.cep());
         user.setNeighborhood(request.neighborhood());
         user.setStreet(request.street());
+        user.setUf(request.uf());
 
         professional.setCpf(request.cpf());
         professional.setBirthDate(request.birthDate());
@@ -126,9 +125,9 @@ public class ProfessionalProfileService {
         }
 
         if (request.experiences() != null) {
-            if (request.experiences().size() > 50) {
-                // Exemplo: limite arbitrário de 50 experiências
-                throw new ValidationException("Máximo de 50 experiências permitidas.");
+            if (request.experiences().size() > 20) {
+                // Exemplo: limite arbitrário de 20 experiências
+                throw new ValidationException("Máximo de 20 experiências permitidas.");
             }
             experienceService.syncExperiences(professional, request.experiences());
         }
@@ -161,9 +160,10 @@ public class ProfessionalProfileService {
         Professional loggedProfessional = professionalRepository.findById(loggedUser.getId())
                 .orElseThrow(ProfessionalNotFoundException::new);
 
-        List<ExperienceTitleResponseDTO> experiences = loggedProfessional.getExperiences().stream()
+
+        List<ExperienceResponseDTO> experiences = loggedProfessional.getExperiences().stream()
                 .sorted(Comparator.comparing(Experience::getStartDate).reversed())
-                .map(e -> new ExperienceTitleResponseDTO(e.getId(), e.getTitle()))
+                .map(this::toExperienceDto)
                 .toList();
 
         return new MyProfessionalProfileResponseDTO(
@@ -177,6 +177,7 @@ public class ProfessionalProfileService {
                 loggedUser.getNeighborhood(),
                 loggedUser.getCity(),
                 loggedUser.getStreet(),
+                loggedUser.getUf(),
                 loggedProfessional.getTechnology(),
                 loggedProfessional.getBiography(),
                 experiences,
@@ -215,9 +216,11 @@ public class ProfessionalProfileService {
                 p.getAuthor().getId(),
                 p.getContent(),
                 p.getCreatedAt(),
-//                p.getCommunity().getId(),
                 p.getCommunity() != null ? p.getCommunity().getId() : null,
-                medias
+                medias,
+                p.getVisibility(),
+                p.isEdited(),
+                p.getEditedAt()
         );
     }
 
