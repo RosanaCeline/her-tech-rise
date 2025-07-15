@@ -1,5 +1,4 @@
 package com.hertechrise.platform.services;
-
 import com.hertechrise.platform.data.dto.request.*;
 import com.hertechrise.platform.data.dto.response.TokenResponseDTO;
 import com.hertechrise.platform.exception.*;
@@ -32,7 +31,6 @@ public class AuthService {
     private final PasswordEncoder passwordEncoder;
     private final ApplicationEventPublisher eventPublisher;
     private final AuthenticationManager authenticationManager;
-
     private final UserService userService;
     private final TokenService tokenService;
     private final ResetPasswordTokenService resetTokenService;
