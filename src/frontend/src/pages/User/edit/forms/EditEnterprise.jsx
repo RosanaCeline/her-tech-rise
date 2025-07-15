@@ -8,7 +8,7 @@ import { maskField } from "../../../../components/form/Label/maskField";
 
 import { useAuth } from "../../../../context/AuthContext";
 import { getAllProfile, updateProfile } from "../../../../services/userService";
-import axios from "axios";
+import { useCepAutoComplete } from '../../../../services/hooks/useCepAutoComplete'
 
 export default function EditEnterprise() {
   const [formData, setFormData] = useState({
@@ -47,46 +47,13 @@ export default function EditEnterprise() {
   const cidadeInput = useRef(null)
   const bairroInput = useRef(null)
   const estadoInput = useRef(null)
-  const [formHasChanged, setFormHasChanged] = useState(false)
 
-  useEffect(() => {
-    async function fetchCEP(){
-        if(formData.cep.length == 9){
-            const response = await axios.get(`https://viacep.com.br/ws/${formData.cep.replace("-", "")}/json/`)
-            const data = response.data
-            if(!data.erro){
-                setFormHasChanged(true)
-                setFormData((prev) => ({ ...prev, rua: data.logradouro }));
-                ruaInput.current.disabled = true
-                setFormData((prev) => ({ ...prev, cidade: data.localidade }));
-                cidadeInput.current.disabled = true
-                setFormData((prev) => ({ ...prev, bairro: data.bairro }));
-                bairroInput.current.disabled = true
-                setFormData((prev) => ({ ...prev, estado: data.estado }));
-                estadoInput.current.disabled = true
-            }
-        }else if(formHasChanged){
-            setFormHasChanged(false)
-            setFormData((prev) => ({ ...prev, rua: '' }));
-            ruaInput.current.disabled = 
-            setFormData((prev) => ({ ...prev, cidade: '' }));
-            cidadeInput.current.disabled = false
-            setFormData((prev) => ({ ...prev, bairro: '' }));
-            bairroInput.current.disabled = false
-            setFormData((prev) => ({ ...prev, estado: '' }));
-            estadoInput.current.disabled = false
-        }
-    }
-    fetchCEP()
-  }, [formData.cep])
-
-  const estados = [
-      'Acre', 'Alagoas', 'Amapá', 'Amazonas', 'Bahia', 'Ceará', 'Distrito Federal',
-      'Espírito Santo', 'Goiás', 'Maranhão', 'Mato Grosso', 'Mato Grosso do Sul',
-      'Minas Gerais', 'Pará', 'Paraíba', 'Paraná', 'Pernambuco', 'Piauí',
-      'Rio de Janeiro', 'Rio Grande do Norte', 'Rio Grande do Sul', 'Rondônia',
-      'Roraima', 'Santa Catarina', 'São Paulo', 'Sergipe', 'Tocantins'
-  ];
+  const {estados} = useCepAutoComplete({cep: formData.cep, setFormData, refs: {
+    rua: ruaInput,
+    cidade: cidadeInput,
+    bairro: bairroInput,
+    estado: estadoInput
+  }})
 
   const options = estados.map(estado => ({ value: estado, label: estado }));
 
