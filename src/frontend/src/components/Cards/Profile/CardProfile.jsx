@@ -39,14 +39,17 @@ export default function CardProfile({
     setShowModal(true);
   };
 
-  const { setUser } = useAuth()
+  const { user, setUser } = useAuth()
   const handlePhotoChange = async (e) => {
     const file = e.target.files[0];
     if (!file) return;
 
     try{
       const result = await changeProfilePicture(file)
-      setUser((prev) => ({...prev, profilePicture: result.profilePic}))
+      const updatedUser = { ...user, profilePicture: result.profilePic };
+      setUser(updatedUser);
+      localStorage.setItem('user', JSON.stringify(updatedUser));
+      
       setPreviewPhoto(result.profilePic)
     }catch(err){
       setUpdateProfileError(err.response?.data?.message || 'Erro ao atualizar foto de perfil.')
