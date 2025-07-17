@@ -7,7 +7,7 @@ export default function CardDescriptionsProfile ({ title, content }) {
     return (
         <article
         className="
-            bg-[var(--gray)]
+            bg-white
             text-[var(--purple-secundary)]
             drop-shadow-md
             rounded-xl
