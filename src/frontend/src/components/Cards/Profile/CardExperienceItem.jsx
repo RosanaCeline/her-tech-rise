@@ -4,7 +4,6 @@ export default function CardExperienceItem({ experience, onEdit, onDelete }) {
   return (
     <div className="w-full flex justify-between items-center bg-[#F7F7F7] text-[#55618C] px-4 py-3 rounded-lg shadow-md">
       <p className="text-sm font-medium">{experience.title}</p>
-
       <div className="flex gap-4">
         <button
           onClick={() => onEdit(experience)}

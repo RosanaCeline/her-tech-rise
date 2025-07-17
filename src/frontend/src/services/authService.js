@@ -18,7 +18,7 @@ export const login = async (email, senha) => {
 }
 
 export const register = async (formData) => {
-  const isProfessional = formData.tipo_usuario === 'PROFESSIONAL';
+  const isProfessional = formData.tipo_usuario === 'profissional';
 
   const payload = isProfessional
     ? {
