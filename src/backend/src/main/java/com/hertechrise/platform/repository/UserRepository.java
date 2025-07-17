@@ -18,26 +18,26 @@ public interface UserRepository extends JpaRepository<User, Long> {
 
     Optional<User> findByEmail(String email);
 
-    boolean existsByHandle(String username);
+    boolean existsByHandle(String handle);
 
     // métodos prontos do Spring Data combinando campos
-    Page<User> findByTypeAndNameContainingIgnoreCaseOrTypeAndUsernameContainingIgnoreCase(
+    Page<User> findByTypeAndNameContainingIgnoreCaseOrTypeAndHandleContainingIgnoreCase(
             UserType type1, String name,
-            UserType type2, String username,
+            UserType type2, String handle,
             Pageable pageable);
 
     // projeção para poupar dados (interface‑based projection)
     interface Summary {
         Long getId();
         String getName();
-        String getUsername();
+        String getHandle();
         String getCity();
         String getProfilePic();
     }
 
-    <T> Page<T> findByTypeAndNameContainingIgnoreCaseOrTypeAndUsernameContainingIgnoreCase(
+    <T> Page<T> findByTypeAndNameContainingIgnoreCaseOrTypeAndHandleContainingIgnoreCase(
             UserType t1, String name,
-            UserType t2, String user_handle,
+            UserType t2, String handle,
             Pageable pageable,
             Class<T> projection);
 }
