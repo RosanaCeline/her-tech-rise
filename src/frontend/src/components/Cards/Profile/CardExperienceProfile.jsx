@@ -4,7 +4,7 @@ export default function CardExperienceProfile({ title, experiencias = [] }) {
   const hasExperiences = experiencias.length > 0;
 
   return (
-    <article className="bg-[var(--gray)] text-[var(--purple-secundary)] drop-shadow-md rounded-xl p-8 flex flex-col w-full max-w-8xl z-0">
+    <article className="bg-white text-[var(--purple-secundary)] drop-shadow-md rounded-xl p-8 flex flex-col w-full max-w-8xl z-0">
       <h2 className="text-4xl font-semibold text-[var(--purple-secundary)] mb-8">{title}</h2>
 
       {hasExperiences ? (

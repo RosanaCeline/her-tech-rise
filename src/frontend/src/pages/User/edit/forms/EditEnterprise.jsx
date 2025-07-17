@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 
 import LabelInput from "../../../../components/form/Label/LabelInput";
@@ -8,6 +8,7 @@ import { maskField } from "../../../../components/form/Label/maskField";
 
 import { useAuth } from "../../../../context/AuthContext";
 import { getAllProfile, updateProfile } from "../../../../services/userService";
+import { useCepAutoComplete } from '../../../../services/hooks/useCepAutoComplete'
 
 export default function EditEnterprise() {
   const [formData, setFormData] = useState({
@@ -28,7 +29,7 @@ export default function EditEnterprise() {
 
   const navigate = useNavigate();
   const { setUser } = useAuth();
-  const [errors, setErrors] = useState({});
+  const [error, setError] = useState('');
   const [loading, setLoading] = useState(true);
   const [originalData, setOriginalData] = useState({});
   const [cancelModalOpen, setCancelModalOpen] = useState(false);
@@ -41,6 +42,20 @@ export default function EditEnterprise() {
     { value: 'NACIONAL', label: 'Nacional' },
     { value: 'INTERNACIONAL', label: 'Internacional' },
   ];
+
+  const ruaInput = useRef(null)
+  const cidadeInput = useRef(null)
+  const bairroInput = useRef(null)
+  const estadoInput = useRef(null)
+
+  const {estados} = useCepAutoComplete({cep: formData.cep, setFormData, refs: {
+    rua: ruaInput,
+    cidade: cidadeInput,
+    bairro: bairroInput,
+    estado: estadoInput
+  }})
+
+  const options = estados.map(estado => ({ value: estado, label: estado }));
 
   useEffect(() => {
       async function fetchProfile() {
@@ -89,7 +104,6 @@ export default function EditEnterprise() {
     if (name === 'cep') maskedValue = maskField('cep', value);
 
     setFormData(prev => ({ ...prev, [name]: maskedValue }));
-    setErrors(prev => ({ ...prev, [name]: '' }));
   };
 
   const handleCancelClick = (e) => {
@@ -111,14 +125,21 @@ export default function EditEnterprise() {
       tipoEmpresa: 'texto',
     };
 
-    const newErrors = {};
-    for (let field in requiredFields) {
-      const error = validateField(requiredFields[field], formData[field], true);
-      if (error) newErrors[field] = error;
+    let hasError = false;
+    for (const campo in requiredFields) {
+      const erro = validateField(requiredFields[campo], formData[campo], true);
+      if (erro) {
+        hasError = true;
+        break;
+      }
     }
 
-    setErrors(newErrors);
-    return Object.keys(newErrors).length === 0;
+    if (hasError) 
+      setError('Preencha os campos obrigatórios e corrija os erros antes de continuar.');
+    else
+      setError('');
+
+    return !hasError
   };
 
   const handleSubmit = async (e) => {
@@ -165,13 +186,13 @@ export default function EditEnterprise() {
     <>
     <form onSubmit={handleSubmit} className="flex flex-col gap-8">
 
-      <article className="bg-[var(--gray)] p-6 mb-8 w-full max-w-screen-md mx-auto rounded-2xl">
+      <article className="bg-[var(--gray)] p-6 mb-8 w-full max-w-4xl mx-auto rounded-2xl">
         <h2 className="text-2xl font-bold text-[var(--purple-secundary)] mb-4">INFORMAÇÕES EMPRESARIAIS</h2>
         <p className="mt-2 text-lg max-w-xl text-[var(--font-gray)]">
           Mantenha os dados da sua empresa atualizados e fortaleça sua presença na plataforma.
         </p>
 
-        <div className="w-full mt-4 grid gap-4 max-w-2xl">
+        <div className="w-full mt-4 grid gap-4 max-w-2xl mx-auto">
           <LabelInput
             name="nome"
             label="Nome da Empresa:"
@@ -181,7 +202,6 @@ export default function EditEnterprise() {
             required
             validation="texto"
           />
-          {errors.nome && <p className="text-red-600 text-sm">{errors.nome}</p>}
 
           <LabelInput
             name="cnpj"
@@ -193,7 +213,6 @@ export default function EditEnterprise() {
             validation="cnpj"
             maxLength="18"
           />
-          {errors.cnpj && <p className="text-red-600 text-sm">{errors.cnpj}</p>}
 
           <LabelInput
             name="tipoEmpresa"
@@ -205,7 +224,6 @@ export default function EditEnterprise() {
             validation="texto"
             options={companyTypeOptions}
           />
-          {errors.tipoEmpresa && <p className="text-red-600 text-sm">{errors.tipoEmpresa}</p>}
 
           <LabelInput
             name="telefone"
@@ -217,7 +235,6 @@ export default function EditEnterprise() {
             validation="telefone"
             maxLength="15"
           />
-          {errors.telefone && <p className="text-red-600 text-sm">{errors.telefone}</p>}
 
           <LabelInput
             name="email"
@@ -228,7 +245,6 @@ export default function EditEnterprise() {
             required
             validation="email"
           />
-          {errors.email && <p className="text-red-600 text-sm">{errors.email}</p>}
 
           <LabelInput
             name="cep"
@@ -240,62 +256,62 @@ export default function EditEnterprise() {
             validation="cep"
             maxLength="9"
           />
-          {errors.cep && <p className="text-red-600 text-sm">{errors.cep}</p>}
 
           <LabelInput
             name="rua"
             label="Rua:"
+            ref={ruaInput}
             value={formData.rua ?? ''}
             placeholder={originalData.rua ? '' : formData.rua ? originalData.rua : 'Digite o nome da sua rua'}
             onChange={handleChange}
             required
             validation="texto"
           />
-          {errors.rua && <p className="text-red-600 text-sm">{errors.rua}</p>}
 
           <LabelInput
             name="bairro"
             label="Bairro:"
+            ref={bairroInput}
             value={formData.bairro  ?? ''}
             placeholder={originalData.bairro ? '' : formData.bairro ? originalData.bairro : 'Digite o nome do seu bairro'}
             onChange={handleChange}
             required
             validation="texto"
           />
-          {errors.bairro && <p className="text-red-600 text-sm">{errors.bairro}</p>}
 
           <LabelInput
             name="cidade"
             label="Cidade:"
+            ref={cidadeInput}
             value={formData.cidade ?? ''}
             placeholder={originalData.cidade ? '' : formData.cidade ? originalData.cidade : 'Digite o nome da sua cidade'}
             onChange={handleChange}
             required
             validation="texto"
           />
-          {errors.cidade && <p className="text-red-600 text-sm">{errors.cidade}</p>}
 
           <LabelInput
             name="estado"
             label="Estado:"
+            ref={estadoInput}
             value={formData.estado ?? ''}
             placeholder={originalData.estado ? '' : formData.estado ? originalData.estado: ''}
             onChange={handleChange}
             required
             validation="texto"
+            type="select"
+            options={options}
           />
-          {errors.estado && <p className="text-red-600 text-sm">{errors.estado}</p>}
-
         </div>
       </article>
 
-      <article className="bg-[var(--gray)] p-6 w-full max-w-screen-md mx-auto rounded-2xl">
+      <article className="bg-[var(--gray)] p-6 w-full max-w-4xl mx-auto rounded-2xl">
         <h2 className="text-2xl font-bold text-[var(--purple-secundary)] mb-4">PERFIL CORPORATIVO</h2>
         <p className="mt-2 text-lg max-w-xl text-[var(--font-gray)]">
           Compartilhe a missão da sua empresa e mostre sua cultura organizacional.
         </p>
 
-        <div className="w-full mt-4 grid gap-4 max-w-2xl">
+        <div className="w-full mt-4 grid gap-4 max-w-2xl mx-auto">
           <LabelInput
             name="descricao"
             label="Descrição:"
@@ -315,7 +331,6 @@ export default function EditEnterprise() {
             required
             validation="texto"
           />
-          {errors.sobrenos && <p className="text-red-600 text-sm">{errors.sobrenos}</p>}
 
           <LabelInput
             name="link"
@@ -395,6 +410,13 @@ export default function EditEnterprise() {
               </button>
             </div>
           </div>
+        </div>
+      )}
+      {error && (
+        <div className="fixed top-1/12 left-1/2 transform -translate-x-1/2 -translate-y-1/2 
+                        z-50 bg-red-600 text-white px-6 py-3 rounded-lg shadow-lg 
+                        transition-opacity duration-300">
+            {error}
         </div>
       )}
     </>
