@@ -46,7 +46,7 @@ export default function FormAddExperience({ onClose, onSave }) {
     };
 
   return (
-    <form onSubmit={handleSubmit} className="flex flex-col gap-6 max-w-2xl mx-auto">
+    <form onSubmit={handleSubmit} className="flex flex-col gap-6 max-w-4xl mx-auto bg-white shadow-md p-6 rounded-md">
       <h2 className="text-2xl font-bold text-[var(--purple-secundary)] mb-4">Adicionar Experiência</h2>
 
       {/* Título e Empresa */}
