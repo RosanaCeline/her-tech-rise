@@ -48,11 +48,11 @@ public record PostFilterRequestDTO(
         return direction == null ? "DESC" : direction.toUpperCase();
     }
 
-    public int page() {
+    public Integer page() {
         return page == null ? 0 : page;
     }
 
-    public int size() {
+    public Integer size() {
         return size == null ? 10 : size;
     }
 }

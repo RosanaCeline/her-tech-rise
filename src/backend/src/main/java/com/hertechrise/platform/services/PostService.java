@@ -224,16 +224,7 @@ public class PostService {
         );
     }
 
-    /* falta terminar aq
-
-     /**
-     * Recupera publicações feitas por um usuário, com suporte a filtros, ordenação e paginação.
-     *
-     * @param userId              ID do usuário cujas postagens serão listadas
-     * @param filter              Objeto com filtros de status, ordenação e paginação
-     * @param authenticatedUserId ID do usuário autenticado (para identificar se o post é próprio)
-     * @return Página com lista de PostResponseDTO
-     */
+     /*
     public Page<PostResponseDTO> getPostsByUser(Long userId, PostFilterRequestDTO filter, Long authenticatedUserId) {
 
         // Configura ordenação (padrão: createdAt DESC)
@@ -293,7 +284,6 @@ public class PostService {
             );
         });
     }
-
-     */
+      */
 }
 
