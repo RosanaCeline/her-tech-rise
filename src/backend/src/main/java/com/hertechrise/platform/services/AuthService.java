@@ -62,7 +62,7 @@ public class AuthService {
 
         String generatedUsername = userService.generateUniqueUserHandle(request.name());
         newUser.setHandle(generatedUsername);
-        newUser.setProfilePic("https://res.cloudinary.com/ddotqrebs/image/upload/v1751250371/default_profile_professional_l49uws.png");
+        newUser.setProfilePic("https://res.cloudinary.com/dl63ih00u/image/upload/v1752625413/default_profile_professional_yij7n0.png");
 
         Role role = roleRepository.findByName("PROFESSIONAL")
                 .orElseThrow(InvalidUserTypeException::new);
@@ -116,7 +116,7 @@ public class AuthService {
 
         String generatedUsername = userService.generateUniqueUserHandle(request.name());
         newUser.setHandle(generatedUsername);
-        newUser.setProfilePic("https://res.cloudinary.com/ddotqrebs/image/upload/v1751250361/default_profile_company_kpqrxc.png");
+        newUser.setProfilePic("https://res.cloudinary.com/dl63ih00u/image/upload/v1752625413/default_profile_company_qizndf.png");
 
         Role role = roleRepository.findByName("COMPANY")
                 .orElseThrow(InvalidUserTypeException::new);
