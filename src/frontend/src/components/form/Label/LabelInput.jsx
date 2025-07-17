@@ -12,7 +12,9 @@ export default function LabelInput ({    name,
                                         theme = '[#303F3C]',
                                         validation = '',
                                         maxLength = '',
-                                        ref = null
+                                        ref = null,
+                                        onClick,
+                                        disabled = false
                                     }) {
  
     const [error, setError] = useState(null)
@@ -101,16 +103,18 @@ export default function LabelInput ({    name,
             type={type === 'senha' ? 'password' : type === 'email' ? 'email' : 'text'}
             value={value}
             onChange={onChange}
+            onClick={onClick}
             onBlur={handleBlur}
             placeholder={placeholder}
             className={baseInputClasses}
             maxLength={maxLength}
             ref={ref}
+            disabled={disabled}
             style={{ height: '48px' }}
             />
         )}
 
-        {error && <p className={`mt-2 text-sm text-${theme}`}>{error}</p>}
+        {error && <p className={`mt-2 text-sm text-left text-${theme}`}>{error}</p>}
         </div>
     )
 }
