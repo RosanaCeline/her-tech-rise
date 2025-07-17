@@ -7,10 +7,12 @@ const AuthContext = createContext();
 
 export function useAuthProvider() {
   const [user, setUser] = useState(null)
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     const current = getCurrentUser();
     if (current) setUser(current);
+    setLoading(false)
   }, [])
 
   // guarda token e atualiza user
@@ -43,7 +45,7 @@ export function useAuthProvider() {
     }
   }
 
-  return { user, login, logout, updateProfile, setUser };
+  return { user, login, logout, updateProfile, setUser, loading };
 }
 
 export const AuthProvider = ({ children }) => {

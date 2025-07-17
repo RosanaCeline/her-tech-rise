@@ -6,10 +6,10 @@ import PrivateHeader from "../Header/Private/PrivateHeader";
 import Footer from "../Footer/Footer";
 
 export default function PrivateLayout({ routes }) {
-  const { user } = useAuth();
+  const { user, loading } = useAuth();
 
-  if (!user) 
-    return <Navigate to="/login" replace />;
+  if (loading) return 
+  if (!user) return <Navigate to="/login" replace />;
 
   return (
     <>
