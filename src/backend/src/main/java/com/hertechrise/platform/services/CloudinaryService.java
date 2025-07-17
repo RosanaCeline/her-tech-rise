@@ -1,6 +1,7 @@
 package com.hertechrise.platform.services;
 
 import com.cloudinary.Cloudinary;
+import com.hertechrise.platform.exception.CloudinaryUploadException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
@@ -24,9 +25,11 @@ public class CloudinaryService {
                             "overwrite", true
                     )
             );
+
             return (String) uploadResult.get("secure_url");
-        } catch (IOException e) {
-            throw new RuntimeException("Erro ao fazer upload para Cloudinary", e);
+        } catch (Exception e) {
+            //add exeption Cloud
+            throw new CloudinaryUploadException("Erro ao enviar arquivo para Cloudinary.",e);
         }
     }
 
@@ -42,8 +45,9 @@ public class CloudinaryService {
                     )
             );
             return (String) uploadResult.get("secure_url");
-        } catch (IOException e) {
-            throw new RuntimeException("Erro ao fazer upload para Cloudinary", e);
+        } catch (Exception e) {
+            //add exeption Cloud
+            throw new CloudinaryUploadException("Erro ao enviar arquivo para Cloudinary.");
         }
 
     }

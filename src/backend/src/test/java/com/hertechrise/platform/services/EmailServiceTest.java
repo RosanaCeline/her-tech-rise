@@ -16,7 +16,7 @@ class EmailServiceTest {
 
     @DisplayName("Valida o envio de e-mail de cadastro para profissional")
     @Test
-    void sendRegisterProfessionalEmailSucess() {
+    void sendRegisterProfessionalEmailSuccess() {
 
         String destinatarioFicticioPro="professional@exemplo.com";
         emailService.sendRegisterProfessionalEmail(destinatarioFicticioPro);
@@ -24,14 +24,14 @@ class EmailServiceTest {
 
     @DisplayName("Valida o envio de e-mail de cadastro para empresa")
     @Test
-    void sendRegisterCompanyEmailSucess(){
+    void sendRegisterCompanyEmailSuccess(){
         String destinatarioFicticioCom="company@exemplo.com";
         emailService.sendRegisterCompanyEmail(destinatarioFicticioCom);
 
     }
     @DisplayName("Valida o envio de e-mail de recuperação de senha")
     @Test
-    void sendResetPasswordEmailSucess(){
+    void sendResetPasswordEmailSuccess(){
         String destinatario_ficticio="usuario@exemplo.com";
         String token="Token-fake";
         emailService.sendResetPasswordEmail(destinatario_ficticio,token);

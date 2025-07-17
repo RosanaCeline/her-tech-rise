@@ -31,7 +31,7 @@ class CustomUserDetailsServiceTest extends AbstractIntegrationTest {
 
     @DisplayName("Procurar por user (email) de usuário")
     @Test
-    void loadUserByUsernameSucess() {
+    void loadUserByUsernameSuccess() {
         //Given / Arrange
         User user = new User();
         user.setName("Thalyta Lima");
