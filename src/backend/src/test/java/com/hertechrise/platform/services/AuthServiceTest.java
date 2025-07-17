@@ -72,7 +72,7 @@ class AuthServiceTest extends AbstractIntegrationTest {
 
     @DisplayName("Registro de Profissional com Sucesso")
     @Test
-    void registerProfessionalSucess() {
+    void registerProfessionalSuccess() {
 
         //Given / Arrange (montar dados)
         RegisterProfessionalRequestDTO request = new RegisterProfessionalRequestDTO("Rosana Celine","07900000000", LocalDate.of(2003,10,15),"88 00000000",
@@ -154,7 +154,7 @@ class AuthServiceTest extends AbstractIntegrationTest {
 
     @DisplayName("Registro de Empresa com Sucesso")
     @Test
-    void registerCompanySucess() {
+    void registerCompanySuccess() {
 
         RegisterCompanyRequestDTO request = new RegisterCompanyRequestDTO("Company", "12345678000100", CompanyType.NACIONAL, "88 99999999", "62320000", "CE", "Ubajara", "Teste", "teste", "company@test.com", "senha123");
         TokenResponseDTO response = authService.registerCompany(request);
@@ -217,7 +217,7 @@ class AuthServiceTest extends AbstractIntegrationTest {
 
     @DisplayName("Login de usuário com sucesso ")
     @Test
-    void loginSucess(){
+    void loginSuccess(){
         //new user
         User user = new User();
         user.setName("Thalyta Lima");
@@ -357,9 +357,9 @@ class AuthServiceTest extends AbstractIntegrationTest {
         assertEquals("Senha incorreta.", exception.getMessage());
 
     }
-    @DisplayName("resetPasswordSucess")
+    @DisplayName("resetPasswordSuccess")
     @Test
-    void resetPasswordSucess(){
+    void resetPasswordSuccess(){
 
         User user = new User();
         user.setName("Thalyta Lima");
@@ -422,7 +422,7 @@ class AuthServiceTest extends AbstractIntegrationTest {
 
     @DisplayName("confirmResetPasswordSucess")
     @Test
-    void confirmResetPasswordSucess(){
+    void confirmResetPasswordSuccess(){
         User user = new User();
         user.setName("Thalyta Lima");
         user.setPhoneNumber("8800000002");
