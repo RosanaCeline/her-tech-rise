@@ -124,6 +124,7 @@ export default function VerMeuPerfil() {
             <CardDescriptionsProfile title="Sobre nós" content={user.aboutUs} />
             </>
         )}
+
         <CardPublicationsProfile title="Publicações" posts={user.posts} setActivePopUp={setActivePopUp}/>
         {activePopUp && (
           <PopUp>
@@ -133,7 +134,7 @@ export default function VerMeuPerfil() {
               {activePopUp === 'video' && <AttachFile type='video' setFormData={setPostFormData} setActivePopUp={setActivePopUp}/>}
               {activePopUp === 'docs' && <AttachFile type='docs' setFormData={setPostFormData} setActivePopUp={setActivePopUp}/>}
           </PopUp>
-      )}
+        )}
     </main>
   );
 }
