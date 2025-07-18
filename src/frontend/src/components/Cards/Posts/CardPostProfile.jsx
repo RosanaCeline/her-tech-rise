@@ -1,6 +1,5 @@
 import { useState } from 'react';
 import { Heart, MessageCircle, Share } from 'lucide-react';
-import PopUpBlurProfile from '../../Cards/Profile/PopUpBlurProfile';
 import HeaderPost from './components/HeaderPost';
 import ContentPost from './components/ContentPost';
 
@@ -8,7 +7,6 @@ export default function CardPostProfile({ post, photo, name, isPopupView = false
   const [showPopup, setShowPopup] = useState(false);
 
   const openPopup = () => setShowPopup(true);
-  const closePopup = () => setShowPopup(false);
 
   const formattedDate = new Date(post.createdAt).toLocaleDateString('pt-BR');
   const hasMedia = post.media?.length > 0;
