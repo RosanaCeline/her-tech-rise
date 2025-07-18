@@ -1,19 +1,18 @@
-import { useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
-import { getCurrentUser } from '../../services/authService'; // Exemplo
+import { useEffect } from 'react'
+import { useNavigate } from 'react-router-dom'
+import { getCurrentUser } from '../../services/authService';
 
 export default function VerMeuPerfil() {
-    const navigate = useNavigate();
+    const navigate = useNavigate()
 
     useEffect(() => {
-        const user = getCurrentUser(); 
+        const user = getCurrentUser();
         if (user) {
-            const user_type = user.role === 'PROFESSIONAL' ? 'professional' : 'company';
-            navigate(`/profile/${user_type}/me`, { replace: true });
+            const user_type = user.role === 'PROFESSIONAL' ? 'professional' : 'company'
+            navigate(`/profile/${user_type}/me`, { replace: true })
         } else {
-            navigate('/login');
+            navigate('/login')
         }
-    }, []);
-
+    }, [])
     return null; 
 }

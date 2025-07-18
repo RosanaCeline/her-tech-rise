@@ -17,7 +17,6 @@ export default function NewPost(){
         userName: getCurrentUser().name,
         profileURL: getCurrentUser().profilePicture
     }
-    console.log(user)
     return (
         <>
             <div className="flex gap-x-4">
