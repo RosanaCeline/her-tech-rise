@@ -3,8 +3,14 @@ import { getCurrentUser } from "./authService";
 export const newPost = async (formData) => {
   const token = getCurrentUser().token;
   const fd = new FormData()
+
+  const PostVisibility = {
+      public: 'PUBLICO',
+      private: 'PRIVADO',
+  }
+
   fd.append('content', formData.content);
-  fd.append('visibility', formData.visibility);
+  fd.append('visibility', PostVisibility[formData.visibility] || "PUBLICO");
 
   formData.media.forEach((file) => {
     fd.append('media', file);
@@ -20,6 +26,10 @@ export const newPost = async (formData) => {
     };
 
   try{
+    console.log("Enviando post com os dados:");
+  for (let pair of fd.entries()) {
+    console.log(`${pair[0]}:`, pair[1]);
+  }
       const response = await fetch(`http://localhost:8080/api/post`, config);
 
       if (!response.ok) {

@@ -85,13 +85,12 @@ export default function EditProfessional() {
           posts: user.posts || [],
           experiences: user.experiences || [],
         };
-        setFormData(mappedForm);
-        setOriginalUser(mappedForm);
-        console.log(mappedForm)
+        setFormData(mappedForm)
+        setOriginalUser(mappedForm)
       } catch (err) {
-        console.error("Erro ao carregar dados do profissional:", err);
+          console.error("Erro ao carregar dados do profissional:", err)
       } finally {
-        setLoading(false);
+          setLoading(false);
       }
     }
     fetchProfile();
@@ -148,7 +147,6 @@ export default function EditProfessional() {
 
 
   const handleSubmit = async (e) => {
-    console.log('passei aqui')
     e.preventDefault();
     if (!validateAllFields()) return;
 
@@ -175,7 +173,6 @@ export default function EditProfessional() {
         posts: formData.posts ?? [],
       };
 
-      console.log("Dados enviados para o backend:", finalData);
       const updatedUser = await updateProfile(finalData);
       setUser(updatedUser);
       setSuccessModalOpen(true);
@@ -328,7 +325,6 @@ export default function EditProfessional() {
             type="mensagem"
             value={formData.biografia ?? ''}
             onChange={handleChange}
-            required
             validation="texto"
             placeholder="Conte um pouco sobre sua trajetória"
           />
