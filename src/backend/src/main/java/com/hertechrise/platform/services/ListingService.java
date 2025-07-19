@@ -65,10 +65,10 @@ public class ListingService {
     private Page<UserSummaryResponseDTO> searchPaged(UserType type, String q, Pageable p) {
         String term = (q == null) ? "" : q.trim();
         return userRepository
-                .findByTypeAndNameContainingIgnoreCaseOrTypeAndUsernameContainingIgnoreCase(
+                .findByTypeAndNameContainingIgnoreCaseOrTypeAndHandleContainingIgnoreCase(
                         type, term, type, term, p, UserRepository.Summary.class)
                 .map(u -> new UserSummaryResponseDTO(
-                        u.getId(), u.getName(), u.getUsername(), u.getCity(), u.getProfilePic()));
+                        u.getId(), u.getName(), u.getHandle(), u.getCity(), u.getProfilePic()));
     }
 
     private <T> PagedResponseDTO<T> toPagedResponse(Page<T> page) {

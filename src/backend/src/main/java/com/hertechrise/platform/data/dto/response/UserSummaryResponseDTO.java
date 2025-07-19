@@ -12,7 +12,7 @@ public record UserSummaryResponseDTO(
         String name,
 
         @Schema(description = "Nome de usuário (handle)", example = "@anadev")
-        String username,
+        String handle,
 
         @Schema(description = "Cidade", example = "São Paulo")
         String city,
