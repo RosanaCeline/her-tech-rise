@@ -1,18 +1,21 @@
 package com.hertechrise.platform.services;
 
-import com.hertechrise.platform.data.dto.request.MediaEditRequestDTO;
-import com.hertechrise.platform.data.dto.request.MediaRequestDTO;
-import com.hertechrise.platform.data.dto.request.PostEditRequestDTO;
-import com.hertechrise.platform.data.dto.request.PostRequestDTO;
+import com.hertechrise.platform.data.dto.request.*;
 import com.hertechrise.platform.data.dto.response.MediaResponseDTO;
 import com.hertechrise.platform.data.dto.response.PostResponseDTO;
 import com.hertechrise.platform.exception.InvalidFileTypeException;
 import com.hertechrise.platform.model.*;
 import com.hertechrise.platform.repository.CommunityRepository;
+import com.hertechrise.platform.repository.MediaRepository;
 import com.hertechrise.platform.repository.PostRepository;
-import com.hertechrise.platform.repository.UserRepository;
 import jakarta.persistence.EntityNotFoundException;
+import jakarta.persistence.criteria.Predicate;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -21,6 +24,7 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 
 @Service
@@ -29,9 +33,10 @@ public class PostService {
 
     private final PostRepository postRepository;
     private final CommunityRepository communityRepository;
+    private final MediaRepository mediaRepository;
+
     private final MediaService mediaService;
     private final CloudinaryService cloudinaryService;
-    private final UserRepository userRepository;
 
     public PostRequestDTO processPostData(String content, Long idCommunity, PostVisibility visibility, List<MultipartFile> mediaFiles) {
         List<MediaRequestDTO> media = mediaFiles != null
@@ -148,6 +153,10 @@ public class PostService {
             throw new AccessDeniedException("Você não tem permissão para editar esta postagem.");
         }
 
+        if (post.getCreatedAt().isBefore(LocalDateTime.now().minusDays(7))) {
+            throw new IllegalStateException("Você só pode editar postagens feitas nos últimos 7 dias.");
+        }
+
         List<MediaEditRequestDTO> medias = request.medias() != null ? request.medias() : List.of();
 
         if (medias.size() > 10) {
@@ -214,5 +223,67 @@ public class PostService {
                 saved.getEditedAt()
         );
     }
+
+     /*
+    public Page<PostResponseDTO> getPostsByUser(Long userId, PostFilterRequestDTO filter, Long authenticatedUserId) {
+
+        // Configura ordenação (padrão: createdAt DESC)
+        Pageable pageable = PageRequest.of(
+                filter.page(),
+                filter.size(),
+                Sort.by(Sort.Direction.fromString(filter.direction()), filter.orderBy())
+        );
+
+        // Define critérios dinâmicos de busca (Specification)
+        Specification<Post> spec = (root, query, cb) -> {
+            List<Predicate> predicates = new ArrayList<>();
+
+            // Apenas posts do autor solicitado
+            predicates.add(cb.equal(root.get("author").get("id"), userId));
+
+            // Ignora posts deletados
+            predicates.add(cb.isFalse(root.get("deleted")));
+
+            // Filtro por status (opcional)
+            if (filter.status() != null) {
+                switch (filter.status().toLowerCase()) {
+                    case "publico" -> predicates.add(cb.equal(root.get("visibility"), PostVisibility.PUBLICO));
+                    case "privado" -> predicates.add(cb.equal(root.get("visibility"), PostVisibility.PRIVADO));
+                }
+            }
+
+            return cb.and(predicates.toArray(new Predicate[0]));
+        };
+
+        // Consulta paginada ao banco
+        Page<Post> page = postRepository.findAll(spec, pageable);
+
+        // Mapeia cada entidade Post para um DTO de resposta
+        return page.map(post -> {
+            // Busca as mídias relacionadas a este post
+            List<MediaResponseDTO> media = mediaRepository.findByPostId(post.getId())
+                    .stream()
+                    .map(mediaEntity -> new MediaResponseDTO(
+                            mediaEntity.getId(),
+                            mediaEntity.getMediaType(),
+                            mediaEntity.getUrl()
+                    ))
+                    .toList();
+
+            // Constrói o DTO de resposta
+            return new PostResponseDTO(
+                    post.getId(),
+                    post.getAuthor().getId(),
+                    post.getContent(),
+                    post.getCreatedAt(),
+                    post.getCommunity() != null ? post.getCommunity().getId() : null,
+                    media,
+                    PostVisibility.valueOf(post.getVisibility().name()),
+                    post.isEdited(),
+                    post.getEditedAt()
+            );
+        });
+    }
+      */
 }
 
