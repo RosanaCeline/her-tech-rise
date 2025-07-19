@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import { Plus } from 'lucide-react';
 
@@ -10,7 +10,7 @@ import LabelInput from "../../../../components/form/Label/LabelInput";
 import BtnCallToAction from "../../../../components/btn/BtnCallToAction/BtnCallToAction";
 import { validateField } from "../../../../components/form/Label/validationField";
 import { maskField } from "../../../../components/form/Label/maskField";
-
+import { useCepAutoComplete } from '../../../../services/hooks/useCepAutoComplete'
 import { useAuth } from "../../../../context/AuthContext";
 import { getAllProfile, updateProfile } from "../../../../services/userService";
 
@@ -33,7 +33,7 @@ export default function EditProfessional() {
 
   const navigate = useNavigate();
   const { setUser } = useAuth();
-  const [errors, setErrors] = useState({});
+  const [error, setError] = useState('');
   const [loading, setLoading] = useState(true);
   const [originalUser, setOriginalUser] = useState(null);
 
@@ -45,11 +45,24 @@ export default function EditProfessional() {
   const [errorModalOpen, setErrorModalOpen] = useState(false);
   const [errorMessage, setErrorMessage] = useState('');
 
+  const ruaInput = useRef(null)
+  const cidadeInput = useRef(null)
+  const bairroInput = useRef(null)
+  const estadoInput = useRef(null)
+
+  const {estados} = useCepAutoComplete({cep: formData.cep, setFormData, refs: {
+    rua: ruaInput,
+    cidade: cidadeInput,
+    bairro: bairroInput,
+    estado: estadoInput
+  }})
+
+  const options = estados.map(estado => ({ value: estado, label: estado }));
+
   useEffect(() => {
     async function fetchProfile() {
       try {
         const user = await getAllProfile();
-
         const mappedForm = {
           nome: user.name || '',
           handle: user.handle || '',
@@ -95,7 +108,6 @@ export default function EditProfessional() {
     if (name === 'data_nascimento') maskedValue = maskField('data', value);
 
     setFormData((prev) => ({ ...prev, [name]: maskedValue }));
-    setErrors((prev) => ({ ...prev, [name]: '' }));
   };
 
   const handleCancelClick = (e) => {
@@ -117,17 +129,26 @@ export default function EditProfessional() {
       email: 'email',
     };
 
-    const newErrors = {};
-    for (let campo in camposObrigatorios) {
+    let hasError = false;
+    for (const campo in camposObrigatorios) {
       const erro = validateField(camposObrigatorios[campo], formData[campo], true);
-      if (erro) newErrors[campo] = erro;
+      if (erro) {
+        hasError = true;
+        break;
+      }
     }
 
-    setErrors(newErrors);
-    return Object.keys(newErrors).length === 0;
-  };
+    if (hasError) 
+      setError('Preencha os campos obrigatórios e corrija os erros antes de continuar.');
+    else
+      setError('');
+
+    return !hasError
+  }
+
 
   const handleSubmit = async (e) => {
+    console.log('passei aqui')
     e.preventDefault();
     if (!validateAllFields()) return;
 
@@ -173,10 +194,10 @@ export default function EditProfessional() {
     <>
     <form onSubmit={handleSubmit} className="flex flex-col gap-8">
       {/* Informações Pessoais */}
-      <article className="bg-[var(--gray)] p-6 mb-8 w-full max-w-screen-md mx-auto rounded-2xl">
+      <article className="bg-[var(--gray)] p-8 mb-8 w-full max-w-4xl mx-auto rounded-2xl">
         <h2 className="text-2xl font-bold text-[var(--purple-secundary)] mb-4">INFORMAÇÕES PESSOAIS</h2>
 
-        <div className="w-full mt-4 grid gap-4 max-w-2xl">
+        <div className="w-full mt-4 grid gap-4 max-w-2xl mx-auto">
           <LabelInput
             label="Nome:"
             name="nome"
@@ -242,6 +263,7 @@ export default function EditProfessional() {
           <LabelInput
             label="Rua:"
             name="rua"
+            ref={ruaInput}
             value={formData.rua ?? ''}
             onChange={handleChange}
             required
@@ -252,6 +274,7 @@ export default function EditProfessional() {
           <LabelInput
             label="Bairro:"
             name="bairro"
+            ref={bairroInput}
             value={formData.bairro ?? ''}
             onChange={handleChange}
             required
@@ -262,6 +285,7 @@ export default function EditProfessional() {
           <LabelInput
             label="Cidade:"
             name="cidade"
+            ref={cidadeInput}
             value={formData.cidade ?? ''}
             onChange={handleChange}
             required
@@ -272,8 +296,11 @@ export default function EditProfessional() {
           <LabelInput
             label="Estado:"
             name="estado"
+            ref={estadoInput}
             value={formData.estado ?? ''}
             onChange={handleChange}
+            type="select"
+            options={options}
             required
             validation="texto"
             placeholder="Seu estado"
@@ -282,10 +309,10 @@ export default function EditProfessional() {
       </article>
 
       {/* Tecnologias e Biografia */}
-      <article className="bg-[var(--gray)] p-6 w-full max-w-screen-md mx-auto rounded-2xl">
+      <article className="bg-[var(--gray)] p-8 w-full max-w-4xl mx-auto rounded-2xl">
         <h2 className="text-2xl font-bold text-[var(--purple-secundary)] mb-4">TRAJETÓRIA E HABILIDADES</h2>
 
-        <div className="w-full mt-4 grid gap-4 max-w-2xl">
+        <div className="w-full mt-4 grid gap-4 max-w-2xl mx-auto">
           <LabelInput
             label="Tecnologias:"
             name="tecnologias"
@@ -315,7 +342,7 @@ export default function EditProfessional() {
                 <CardExperienceItem
                   key={idx}
                   experience={exp}
-                  onEdit={() => {
+                  onEdit={(exp) => {
                     setEditingExperience(exp);
                     setAddExperienceOpen(true);
                   }}
@@ -456,6 +483,13 @@ export default function EditProfessional() {
             )
           }
         />
+      )}
+      {error && (
+        <div className="fixed top-1/12 left-1/2 transform -translate-x-1/2 -translate-y-1/2 
+                        z-50 bg-red-600 text-white px-6 py-3 rounded-lg shadow-lg 
+                        transition-opacity duration-300">
+            {error}
+        </div>
       )}
     </>
   );

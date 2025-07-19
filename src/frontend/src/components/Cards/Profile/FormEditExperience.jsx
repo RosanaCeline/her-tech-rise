@@ -16,13 +16,13 @@ export default function FormEditExperience({ experience, onClose, onUpdate }) {
   useEffect(() => {
     if (experience) {
       setFormData({
-        titulo: '',
-        empresa: '',
-        modalidade: '',
-        dataInicio: '',
-        dataFim: '',
-        atual: experience.isCurrent || false,
-        descricao: '',
+        titulo: experience.title,
+        empresa: experience.company,
+        modalidade: experience.modality,
+        dataInicio: experience.startDate,
+        dataFim: experience.endDate,
+        atual: experience.isCurrent,
+        descricao: experience.description,
       });
     }
   }, [experience]);
@@ -58,7 +58,7 @@ export default function FormEditExperience({ experience, onClose, onUpdate }) {
   };
 
   return (
-    <form onSubmit={handleSubmit} className="flex flex-col gap-6 max-w-2xl mx-auto">
+    <form onSubmit={handleSubmit} className="flex flex-col gap-6 max-w-4xl mx-auto bg-white shadow-md p-6 rounded-md">
       <h2 className="text-2xl font-bold text-[var(--purple-secundary)] mb-4">Editar Experiência</h2>
 
       <div className="grid grid-cols-2 gap-4">

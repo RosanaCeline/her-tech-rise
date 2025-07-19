@@ -30,7 +30,6 @@ import com.hertechrise.platform.security.jwt.TokenService;
 import static org.junit.jupiter.api.Assertions.*;
 
 @SpringBootTest
-@ActiveProfiles("email") //mailtrap servidor de teste SMTP
 class AuthServiceTest extends AbstractIntegrationTest {
 
     @Autowired
