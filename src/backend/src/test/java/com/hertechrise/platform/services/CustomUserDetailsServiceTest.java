@@ -1,5 +1,5 @@
-package com.hertechrise.platform.services;
 
+package com.hertechrise.platform.services;
 import com.hertechrise.platform.exception.InvalidUserTypeException;
 import com.hertechrise.platform.integrationtests.testcontainers.AbstractIntegrationTest;
 import com.hertechrise.platform.model.Role;

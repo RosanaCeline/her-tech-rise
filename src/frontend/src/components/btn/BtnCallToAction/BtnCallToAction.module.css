@@ -21,7 +21,7 @@
   color: var(--purple-primary);
 }
 .white:hover {
-    background-color: transparent;
+    background-color: var(--purple-primary);
     border: 0.2em solid var(--light);
     border-color: var(--light);
     color: var(--light);

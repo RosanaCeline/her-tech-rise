@@ -12,7 +12,7 @@ export default function PopUpBlurProfile({ isOpen, onClose, content }) {
       ></div>
 
       {/* Conteúdo */}
-      <div className="relative bg-[var(--light)] rounded-xl shadow-lg max-w-7xl w-full max-h-[95vh] p-10 overflow-auto z-10">
+      <div className="relative bg-[var(--light)] rounded-xl shadow-lg max-w-7xl w-full max-h-[95vh] p-6 overflow-auto z-10">
         <button
           onClick={onClose}
           className="absolute top-4 right-4 text-[var(--purple-primary)] hover:text-[var(--purple-action)] text-3xl font-bold"
