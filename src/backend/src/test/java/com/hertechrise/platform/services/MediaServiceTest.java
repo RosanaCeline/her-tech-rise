@@ -3,21 +3,12 @@ import com.hertechrise.platform.data.dto.request.MediaRequestDTO;
 import com.hertechrise.platform.model.Media;
 import com.hertechrise.platform.model.MediaType;
 import com.hertechrise.platform.model.Post;
-import com.hertechrise.platform.repository.MediaRepository;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import java.util.List;
-import com.hertechrise.platform.data.dto.request.MediaRequestDTO;
-import com.hertechrise.platform.model.Media;
-import com.hertechrise.platform.model.Post;
-import com.hertechrise.platform.repository.MediaRepository;
-import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Service;
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
-
 import static org.junit.jupiter.api.Assertions.*;
 
 @SpringBootTest
