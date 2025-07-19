@@ -8,6 +8,7 @@ import NewPassword from "../pages/Auth/ResetPassword/NewPassword"
 
 import Timeline from '../pages/Timeline/Timeline';
 import VerMeuPerfil from '../pages/User/VerMeuPerfil';
+import VerPerfil from '../pages/User/VerPerfil';
 import SearchUser from '../pages/Search/SearchUser';
 
 import { logout } from '../services/authService';
@@ -42,7 +43,8 @@ export const privateRoutes = [
 //   { path: '/listarcursos',      element: <UListarCursos />, title: 'Cursos',        visible: true,  icon: <BookOpen size={iconSize} /> },
   { path: '/meuperfil',     element: <VerMeuPerfil />, title: 'Perfil',        visible: true,  icon: <User size={iconSize} /> },
   { title: 'Sair',              visible: true,              icon: <LogOut size={iconSize} />,       action: () => { handleLogout() } },
-  { path: '/search', element: <SearchUser/> }
+  { path: '/search', element: <SearchUser/> },
+  { path: '/profile/:user_type/:user_info', element: <VerPerfil />, title: 'Perfil', visible: false }
 ];
 
 
