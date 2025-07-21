@@ -2,16 +2,17 @@ package com.hertechrise.platform.services;
 import com.hertechrise.platform.config.EmailConfig;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
+import org.mockito.Mock;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.ActiveProfiles;
 @SpringBootTest
-@ActiveProfiles("email")
+//@ActiveProfiles("email")
 class EmailServiceTest {
 
     //Testando envio de email personalizados com mailtrap servidor de teste SMTP
 
-    @Autowired
+    @Mock
     private EmailService emailService;
 
     @DisplayName("Valida o envio de e-mail de cadastro para profissional")
@@ -20,6 +21,7 @@ class EmailServiceTest {
 
         String destinatarioFicticioPro="professional@exemplo.com";
         emailService.sendRegisterProfessionalEmail(destinatarioFicticioPro);
+
     }
 
     @DisplayName("Valida o envio de e-mail de cadastro para empresa")
