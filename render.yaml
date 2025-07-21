@@ -24,3 +24,6 @@ services:
       - type: rewrite
         path: /*
         dest: /index.html
+    envVars:
+      - key: REACT_APP_BACKEND_URL
+        fromSecret: BACKEND_URL
