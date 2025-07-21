@@ -20,10 +20,6 @@ services:
     buildCommand: cd src/frontend && npm install && npm run build
     publishPath: src/frontend/dist
     autoDeploy: true
-    routes:
-      - type: rewrite
-        source: "/*"
-        destination: "/index.html"
     envVars:
       - key: REACT_APP_BACKEND_URL
         fromSecret: BACKEND_URL
