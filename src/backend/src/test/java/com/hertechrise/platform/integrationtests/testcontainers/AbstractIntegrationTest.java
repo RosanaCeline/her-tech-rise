@@ -5,40 +5,33 @@ import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.core.env.ConfigurableEnvironment;
 import org.springframework.core.env.MapPropertySource;
 import org.springframework.test.context.ContextConfiguration;
-import org.testcontainers.containers.MySQLContainer;
+import org.testcontainers.containers.PostgreSQLContainer;
 import org.testcontainers.lifecycle.Startables;
 
 import java.util.Map;
 import java.util.stream.Stream;
 
 @ContextConfiguration(initializers = AbstractIntegrationTest.Initializer.class)
-public class AbstractIntegrationTest {
+public abstract class AbstractIntegrationTest {
 
-    // So tera um container de testes = melhor performance e menos integridade nos testes
+    static PostgreSQLContainer<?> postgres = new PostgreSQLContainer<>("postgres:15.3");
+
+    static {
+        Startables.deepStart(Stream.of(postgres)).join();
+    }
+
     static class Initializer implements ApplicationContextInitializer<ConfigurableApplicationContext> {
 
-        static MySQLContainer<?> mysql = new MySQLContainer<>("mysql:8.4.0");
-
-        private static void startContainers() {
-            Startables.deepStart(Stream.of(mysql)).join();
-        }
-
-        // Criando o banco dinamicamente
-        private static Map<String, String> createConnectionConfiguration() {
-            return Map.of(
-                    "spring.datasource.url", mysql.getJdbcUrl(),
-                    "spring.datasource.username", mysql.getUsername(),
-                    "spring.datasource.password", mysql.getPassword()
-            );
-        }
-
         @Override
-        public void initialize(ConfigurableApplicationContext applicationContext) {
-            startContainers();
-            ConfigurableEnvironment environment = applicationContext.getEnvironment();
-            MapPropertySource testcontainers = new MapPropertySource("testcontainers",
-                    (Map) createConnectionConfiguration());
-            environment.getPropertySources().addFirst(testcontainers);
+        public void initialize(ConfigurableApplicationContext context) {
+            ConfigurableEnvironment environment = context.getEnvironment();
+            Map<String, Object> testProperties = Map.of(
+                    "spring.datasource.url", postgres.getJdbcUrl(),
+                    "spring.datasource.username", postgres.getUsername(),
+                    "spring.datasource.password", postgres.getPassword(),
+                    "spring.datasource.driver-class-name", "org.postgresql.Driver"
+            );
+            environment.getPropertySources().addFirst(new MapPropertySource("testcontainers", testProperties));
         }
     }
 }
