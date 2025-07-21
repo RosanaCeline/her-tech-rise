@@ -22,8 +22,8 @@ services:
     autoDeploy: true
     routes:
       - type: rewrite
-        path: /*
-        dest: /index.html
+        source: "/*"
+        destination: "/index.html"
     envVars:
       - key: REACT_APP_BACKEND_URL
         fromSecret: BACKEND_URL
