@@ -17,6 +17,7 @@ export default function RegisterForm(){
     const [registerErrorMessage, setRegisterErrorMessage] = useState('')
     const [successModalOpen, setSuccessModalOpen] = useState(false);
     const [loading, setLoading] = useState(false);
+    const navigate = useNavigate();
 
     const [formData, setFormData] = useState({
         tipo_usuario: '',
@@ -57,8 +58,7 @@ export default function RegisterForm(){
         if (step > 1) {
             setStep(step - 1);
         } else {
-            // navigate('/');
-            window.location.href = '/'
+            navigate('/');
         }
     }
 
