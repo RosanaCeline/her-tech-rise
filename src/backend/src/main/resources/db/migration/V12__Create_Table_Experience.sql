@@ -1,12 +1,13 @@
-CREATE TABLE IF NOT EXISTS `experience` (
-	`id` bigint PRIMARY KEY AUTO_INCREMENT,
-	`title` varchar(100) NOT NULL,
-	`company` varchar(150) NOT NULL,
-	`modality` varchar(30) NOT NULL,
-	`start_date` date NOT NULL,
-	`end_date` date,
-	`is_current` boolean NOT NULL DEFAULT FALSE,
-	`description` varchar(1000),
-	`professional_id` bigint,
-	CONSTRAINT fk_experience_professional FOREIGN KEY (`professional_id`) REFERENCES `professional`(`user_id`)
-) ENGINE=InnoDB;
+CREATE TABLE IF NOT EXISTS experience (
+    id BIGSERIAL PRIMARY KEY,
+    title VARCHAR(100) NOT NULL,
+    company VARCHAR(150) NOT NULL,
+    modality VARCHAR(30) NOT NULL,
+    start_date DATE NOT NULL,
+    end_date DATE,
+    is_current BOOLEAN NOT NULL DEFAULT FALSE,
+    description VARCHAR(1000),
+    professional_id BIGINT NOT NULL,
+    CONSTRAINT fk_experience_professional FOREIGN KEY (professional_id)
+        REFERENCES professional(user_id) ON DELETE CASCADE
+);

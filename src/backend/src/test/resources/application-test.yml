@@ -3,7 +3,7 @@ server:
 security:
   jwt:
     token:
-      secret-key: ${HER_TECH_SECURITY_JWT_KEY}
+      secret-key: thisIsA32CharacterLongSecretKey!!!
       expire-lenght: 3600000
 spring:
   mvc:
@@ -14,7 +14,7 @@ spring:
   application:
     name: Her Tech Rise API
   datasource:
-    driver-class-name: com.mysql.cj.jdbc.Driver
+    driver-class-name: org.postgresql.Driver
   jpa:
     hibernate:
       ddl-auto: none
