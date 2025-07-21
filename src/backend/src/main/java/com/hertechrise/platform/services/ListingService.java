@@ -70,16 +70,4 @@ public class ListingService {
                 .map(u -> new UserSummaryResponseDTO(
                         u.getId(), u.getName(), u.getHandle(), u.getCity(), u.getProfilePic()));
     }
-
-    private <T> PagedResponseDTO<T> toPagedResponse(Page<T> page) {
-        return new PagedResponseDTO<>(
-                page.getContent(),
-                page.getTotalElements(),
-                page.getTotalPages(),
-                page.getNumber(),
-                page.getSize(),
-                page.isLast(),
-                page.isFirst()
-        );
-    }
 }
