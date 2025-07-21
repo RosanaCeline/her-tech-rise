@@ -6,7 +6,7 @@ email:
 security:
   jwt:
     token:
-      secret-key: ${SPRING_SECURITY_JWT_KEY}
+      secret-key: ${HER_TECH_SECURITY_JWT_KEY}
       expire-length: 3600000
 spring:
   servlet:
@@ -24,9 +24,9 @@ spring:
     name: Her Tech Rise API
   datasource:
     driver-class-name: org.postgresql.Driver
-    url: ${SPRING_DATASOURCE_URL}
-    username: ${SPRING_DATASOURCE_USERNAME}
-    password: ${SPRING_DATASOURCE_PASSWORD}
+    url: ${HER_TECH_DATABASE_URL}
+    username: ${HER_TECH_DATABASE_USERNAME}
+    password: ${HER_TECH_DATABASE_PASSWORD}
   jpa:
     hibernate:
       ddl-auto: none
@@ -37,8 +37,8 @@ spring:
   mail:
     host: smtp.gmail.com
     port: 587
-    username: ${SPRING_EMAIL_USER}
-    password: ${SPRING_EMAIL_PASS}
+    username: ${HER_TECH_EMAIL_USERNAME}
+    password: ${HER_TECH_EMAIL_PASSWORD}
     properties:
       mail.smtp.auth: true
       mail.smtp.starttls.enabled: true
