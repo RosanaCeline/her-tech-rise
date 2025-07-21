@@ -15,12 +15,6 @@ import { logout } from '../services/authService';
 // import ListarComunidades from '../pages/Communities/CommunityList';
 // import UListarVagas from '../pages/Vacancies/User/UserListarVagas';
 // import UListarCursos from '../pages/Courses/User/UserListarCursos';
-const navigate = useNavigate();
-
-const handleLogout = () => {
-  logout()
-  navigate('/login')
-}
 
 import { Home, Users, Briefcase, BookOpen, User, LogOut } from 'lucide-react';
 const iconSize = 20;
@@ -57,4 +51,14 @@ export const privateRoutesEnterprise = [
 export function getRoutesByRole(tipoUsuario) {
     if (tipoUsuario === 'enterprise') return privateRoutesEnterprise;
     return privateRoutes; 
+}
+
+export default function Logout() {
+  const { logout } = useAuth();
+  const navigate = useNavigate();
+
+  const handleLogout = () => {
+    logout();
+    navigate('/login');
+  }
 }
