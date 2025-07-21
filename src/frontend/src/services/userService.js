@@ -1,14 +1,12 @@
 import { requestService } from "./requestService";
 import { getCurrentUser } from './authService';
 
-export const getProfileById = async () => {
-  const user = getCurrentUser();
-  const role = user?.role;
-  if (role === 'COMPANY') {
-    return await requestService.apiRequest(`/profiles/companies/${user.id}`, 'GET');
+export const getProfileById = async (user_id, role) => {
+  if (role === 'company') {
+    return await requestService.apiRequest(`/profiles/companies/${user_id}`, 'GET');
   }
-  else if (role === 'PROFESSIONAL') {
-    return await requestService.apiRequest(`/profiles/professionals/${user.id}`, 'GET');
+  else if (role === 'professional') {
+    return await requestService.apiRequest(`/profiles/professionals/${user_id}`, 'GET');
   }
   return console.log('Sem user no localstorage.')
 };
@@ -71,4 +69,12 @@ export const changeProfilePicture = async (photo) => {
     console.error('API request error:', error);
     throw error;
   }
+}
+
+export const followUser = async(id) => {
+    return await requestService.apiRequest(`/follows`, 'POST', {id: id});
+}
+
+export const unfollowUser = async(id) => {
+    return await requestService.apiRequest(`/follows`, 'DELETE', {id: id});
 }

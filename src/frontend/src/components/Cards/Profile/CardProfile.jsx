@@ -1,6 +1,7 @@
 import { useState, useRef } from 'react';
 
 import { FaCamera, FaPaperclip, FaCheck, FaPaperPlane, FaSlidersH } from 'react-icons/fa';
+import { Check, Plus } from 'lucide-react'
 
 import defaultProfessional from '../../../assets/profile/FotoPadraoProfissional.png';
 import defaultEnterprise from '../../../assets/profile/FotoPadraoEnterprise.png';
@@ -22,6 +23,10 @@ export default function CardProfile({
   city,
   state,
   statisticsComponent,
+  isCurrentUser,
+  followersCount,
+  handleFollow,
+  followedUser
 }) {
   const [showOptions, setShowOptions] = useState(false);
   const [modalContent, setModalContent] = useState(null);
@@ -77,6 +82,8 @@ export default function CardProfile({
               className="object-cover w-full h-full rounded-full"
             />
           </div>
+          {isCurrentUser &&
+          <>
           <button
             type="button"
             onClick={() => fileInputRef.current.click()}
@@ -91,11 +98,11 @@ export default function CardProfile({
             ref={fileInputRef}
             onChange={handlePhotoChange}
             className="hidden"
-          />
+          /></>}
         </div>
 
         {/* Informações */}
-        <div className="flex flex-col gap-4 flex-1 min-w-[250px]">
+        <div className="flex flex-col gap-4 flex-1 min-w-[250px] my-auto">
           <h2 className="text-4xl font-bold text-[var(--purple-primary)]">{name}</h2>
 
           {nameuser && (
@@ -138,20 +145,21 @@ export default function CardProfile({
         </div>
 
         {/* Botões de ações */}
-        <div className="flex flex-col gap-6 w-full max-w-[250px] mt-10 md:mt-0 order-last md:order-none items-center md:items-start">
+        <div className="flex flex-col gap-6 w-full max-w-[250px] my-auto order-last md:order-none items-center md:items-start">
           <button
             type="button"
-            className="flex items-center gap-3 text-[var(--font-gray)] hover:text-[var(--purple-primary)] transition w-full justify-center lg:justify-start"
+            className="flex items-center mx-auto gap-3 text-[var(--font-gray)] hover:text-[var(--purple-primary)] transition w-full justify-center"
           >
             <FaPaperPlane size={24} className="text-[var(--font-gray)]" />
             <span className="text-xl font-medium">Compartilhar</span>
           </button>
-
-        <div className="relative w-full flex justify-center md:justify-start">
+        {isCurrentUser
+        ? <>
+        <div className="relative w-full mx-auto flex justify-center md:justify-start">
           <button
             type="button"
             onClick={() => setShowOptions(!showOptions)}
-            className="flex items-center gap-3 text-[var(--font-gray)] hover:text-[var(--purple-primary)] transition"
+            className="flex items-center mx-auto gap-3 text-[var(--font-gray)] hover:text-[var(--purple-primary)] transition"
           >
             <FaSlidersH size={24} className="text-[var(--font-gray)]" />
             <span className="text-xl font-medium">Configurações</span>
@@ -203,6 +211,16 @@ export default function CardProfile({
           >
             VER ESTATÍSTICAS
           </BtnCallToAction>
+        </>
+        : <div className='flex flex-col mx-auto gap-y-2'>
+          <p className='mx-auto'>{followersCount} seguidor{followersCount > 1 && 'es'}</p>
+          <button onClick={() => handleFollow()}
+            className={`p-4 cursor-pointer mt-3 rounded-2xl ${followedUser ? 'bg-(--purple-primary) text-white' : 'bg-(--gray)' }`}>
+            {followedUser 
+            ? <p className='flex gap-x-4'><Check />Seguindo</p> 
+            : <p className='flex gap-x-4'><Plus/>Seguir</p>}
+          </button>
+        </div>}
         </div>
       </article>
 
