@@ -1,0 +1,25 @@
+services:
+  - type: web
+    name: hertechrise-backend
+    env: java
+    buildCommand: ./mvnw clean package
+    startCommand: java -jar src/backend/target/platform-0.0.1-SNAPSHOT.jar
+    envVars:
+      - key: SPRING_DATASOURCE_URL
+        fromSecret: DATABASE_URL
+      - key: SPRING_DATASOURCE_USERNAME
+        fromSecret: DATABASE_USERNAME
+      - key: SPRING_DATASOURCE_PASSWORD
+        fromSecret: DATABASE_PASSWORD
+    repoRoot: .
+    autoDeploy: true
+
+  - type: static
+    name: hertechrise-frontend
+    env: node
+    buildCommand: cd src/frontend && npm install && npm run build
+    publishPath: src/frontend/dist
+    autoDeploy: true
+    envVars:
+      - key: REACT_APP_BACKEND_URL
+        fromSecret: BACKEND_URL
