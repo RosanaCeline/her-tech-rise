@@ -7,7 +7,6 @@ export default function CardPublicationsProfile({ title, posts, setActivePopUp }
   const [visiblePosts, setVisiblePosts] = useState([]);
   const [limit, setLimit] = useState(3);
   const [isPopupOpen, setIsPopupOpen] = useState(false);
-  console.log(posts)
 
   useEffect(() => {
     const handleResize = () => {
@@ -24,8 +23,13 @@ export default function CardPublicationsProfile({ title, posts, setActivePopUp }
   }, []);
 
   useEffect(() => {
-    setVisiblePosts(posts?.slice(0, limit));
-  }, [posts, limit]);
+    if (!posts || posts.length === 0) return
+    const sorted = [...posts].sort(
+      (a, b) => new Date(b.createdAt) - new Date(a.createdAt)
+    )
+    setVisiblePosts(sorted.slice(0, limit))
+  }, [posts, limit])
+
 
   return (
     <>
@@ -54,17 +58,18 @@ export default function CardPublicationsProfile({ title, posts, setActivePopUp }
         )}
       </article>
 
-      {/* Popup colocado fora do artigo e em nível raiz do componente */}
       {isPopupOpen && (
         <PopUpBlurProfile
           isOpen={isPopupOpen}
           onClose={() => setIsPopupOpen(false)}
           content={
             <div className="flex flex-col gap-6 max-h-[80vh] overflow-y-auto p-2">
-              {posts.map((post) => (
-                <CardPostProfile key={post.id} post={post} isPopupView />
+              <h1 className="text-4xl font-bold text-[var(--purple-secundary)] mb-4">MINHAS POSTAGENS</h1>
+              {[...posts]
+                .sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt))
+                .map((post) => (
+                  <CardPostProfile key={post.id} post={post} isPopupView={true} />
               ))}
-              <BtnCallToAction onClick={() => setIsPopupOpen(false)}>FECHAR</BtnCallToAction>
             </div>
           }
         />
