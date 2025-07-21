@@ -4,6 +4,8 @@
 
 import { getCurrentUser } from "./authService";
 
+const BASE_URL = import.meta.env.VITE_API_URL;
+
 export const requestService = {
   async apiRequest(endpoint, method = "GET", data = null) {
     const token = getCurrentUser().token;
@@ -22,7 +24,7 @@ export const requestService = {
     }
 
     try {
-      const response = await fetch(`http://localhost:8080/api${endpoint}`, config);
+      const response = await fetch(`${BASE_URL}/api${endpoint}`, config);
 
       if (!response.ok) {
         const errorData = await response.json();
