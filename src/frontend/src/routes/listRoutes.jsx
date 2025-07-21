@@ -1,4 +1,5 @@
 import React from 'react';
+import { useNavigate } from 'react-router-dom'
 import LandingPage from "../pages/LandingPage/LandingPage";
 
 import Login from '../pages/Auth/Login/Login';
@@ -14,10 +15,11 @@ import { logout } from '../services/authService';
 // import ListarComunidades from '../pages/Communities/CommunityList';
 // import UListarVagas from '../pages/Vacancies/User/UserListarVagas';
 // import UListarCursos from '../pages/Courses/User/UserListarCursos';
+const navigate = useNavigate();
 
 const handleLogout = () => {
   logout()
-  window.location.href = '/login'
+  navigate('/login')
 }
 
 import { Home, Users, Briefcase, BookOpen, User, LogOut } from 'lucide-react';

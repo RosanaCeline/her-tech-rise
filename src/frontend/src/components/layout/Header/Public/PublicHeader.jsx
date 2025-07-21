@@ -1,10 +1,12 @@
 import React, { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import logo from '../../../../assets/logo/LogoSimbol.png';
 import BtnCallToAction from '../../../btn/BtnCallToAction/BtnCallToAction';
 
 export default function PublicHeader() {
   const [menuVisible, setMenuVisible] = useState(false);
   const toggleMenu = () => setMenuVisible(!menuVisible);
+  const navigate = useNavigate();
 
   return (
     <header className="fixed top-0 left-0 w-full h-25 bg-(--purple-primary) text-white z-50 shadow-md px-15 flex items-center justify-between">
@@ -42,10 +44,10 @@ export default function PublicHeader() {
             : 'hidden'
         } lg:flex lg:items-center lg:gap-6 lg:relative`}
       >
-        <BtnCallToAction variant="border" onClick={() => window.location.href = '/login'}>
+        <BtnCallToAction variant="border" onClick={() => navigate('/login')}>
           LOGIN
         </BtnCallToAction>
-        <BtnCallToAction variant="white" onClick={() => window.location.href = '/cadastro'}>
+        <BtnCallToAction variant="white" onClick={() => navigate('/cadastro')}>
           CADASTRE-SE
         </BtnCallToAction>
       </nav>
