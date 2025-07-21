@@ -1,6 +1,8 @@
 import { requestService } from "./requestService";
 import { getCurrentUser } from './authService';
 
+const baseUrl = import.meta.env.VITE_API_BASE_URL;
+
 export const getProfileById = async (user_id, role) => {
   if (role === 'company') {
     return await requestService.apiRequest(`/profiles/companies/${user_id}`, 'GET');
@@ -51,7 +53,7 @@ export const changeProfilePicture = async (photo) => {
     };
 
   try{
-      const response = await fetch(`http://localhost:8080/api/users/profile-picture`, config);
+      const response = await fetch(`${baseUrl}/api/users/profile-picture`, config);
 
       if (!response.ok) {
         const errorData = await response.json();
