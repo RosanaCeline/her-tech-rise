@@ -1,5 +1,7 @@
 import { getCurrentUser } from "./authService";
 
+const baseUrl = import.meta.env.VITE_API_BASE_URL;
+
 export const newPost = async (formData) => {
   const token = getCurrentUser().token;
   const fd = new FormData()
@@ -20,7 +22,7 @@ export const newPost = async (formData) => {
     };
 
   try{
-      const response = await fetch(`http://localhost:8080/api/post`, config);
+      const response = await fetch(`${baseUrl}/api/post`, config);
 
       if (!response.ok) {
         const errorData = await response.json();
