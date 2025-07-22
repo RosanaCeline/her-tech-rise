@@ -4,7 +4,7 @@ import PopUpBlurProfile from '../../Cards/Profile/PopUpBlurProfile';
 import HeaderPost from './components/HeaderPost';
 import ContentPost from './components/ContentPost';
 
-export default function CardPostProfile({ post, photo, name, isPopupView = false, isOpen = false }) {
+export default function CardPostProfile({ post, photo, name, isPopupView = false, isOpen = false, onPostsUpdated }) {
   const [showPopup, setShowPopup] = useState(false);
 
   const openPopup = () => setShowPopup(true);
@@ -28,8 +28,10 @@ export default function CardPostProfile({ post, photo, name, isPopupView = false
           name={name}
           visibility={post.visibility}
           communityId = {post.communityId}
+          postId={post.id}
           date={formattedDate}
           isOpen={isOpen}
+          onPostsUpdated={onPostsUpdated}
         />
         
         <ContentPost 
@@ -51,22 +53,6 @@ export default function CardPostProfile({ post, photo, name, isPopupView = false
           </div>
         </div>
       </div>
-
-      {showPopup && (
-        <PopUpBlurProfile
-          isOpen={showPopup}
-          onClose={closePopup}
-          content={
-            <CardPostProfile
-              post={post}
-              photo={photo}
-              name={name}
-              isPopupView={true}
-              isOpen={true}
-            />
-          }
-        />
-      )}
     </>
   )
 }
