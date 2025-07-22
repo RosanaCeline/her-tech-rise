@@ -3,6 +3,7 @@ package com.hertechrise.platform.services;
 import com.hertechrise.platform.data.dto.request.FollowRequestDTO;
 import com.hertechrise.platform.data.dto.request.UnfollowRequestDTO;
 import com.hertechrise.platform.data.dto.response.FollowResponseDTO;
+import com.hertechrise.platform.data.dto.response.VerifyFollowResponseDTO;
 import com.hertechrise.platform.exception.*;
 import com.hertechrise.platform.model.FollowRelationship;
 import com.hertechrise.platform.model.User;
@@ -77,6 +78,21 @@ public class FollowService {
         }
 
         followRepository.deleteByFollowerAndFollowing(follower, following);
+    }
+
+    public VerifyFollowResponseDTO verifyFollow(Long id){
+        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+        User loggedUser = (User) auth.getPrincipal();
+
+        if (loggedUser.getId().equals(id)) {
+            throw new VerifySelfFollowException();
+        }
+
+        User targetUser  = userRepository.findById(id)
+                .orElseThrow(UserNotFoundException::new);
+
+        boolean exists = followRepository.existsByFollowerAndFollowing(loggedUser, targetUser);
+        return new VerifyFollowResponseDTO(exists);
     }
 
     @Transactional(readOnly = true)
