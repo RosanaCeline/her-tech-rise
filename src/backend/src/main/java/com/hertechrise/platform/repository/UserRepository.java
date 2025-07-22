@@ -35,9 +35,9 @@ public interface UserRepository extends JpaRepository<User, Long> {
         String getProfilePic();
     }
 
-    <T> Page<T> findByTypeAndNameContainingIgnoreCaseOrTypeAndHandleContainingIgnoreCase(
-            UserType t1, String name,
-            UserType t2, String handle,
+    <T> Page<T> findByTypeAndIdNotAndNameContainingIgnoreCaseOrTypeAndIdNotAndHandleContainingIgnoreCase(
+            UserType t1, Long excludedId1, String name,
+            UserType t2, Long excludedId2, String handle,
             Pageable pageable,
             Class<T> projection);
 }
