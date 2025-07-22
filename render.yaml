@@ -11,6 +11,12 @@ services:
         fromSecret: DATABASE_USERNAME
       - key: SPRING_DATASOURCE_PASSWORD
         fromSecret: DATABASE_PASSWORD
+      - key: SPRING_SECURITY_JWT_KEY
+        fromSecret: SECURITY_JWT_KEY
+      - key: SPRING_EMAIL_USER
+        fromSecret: EMAIL_USERNAME
+      - key: SPRING_EMAIL_PASS
+        fromSecret: EMAIL_PASSWORD
     repoRoot: .
     autoDeploy: true
 

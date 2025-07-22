@@ -1,7 +1,8 @@
 package com.hertechrise.platform;
 
-import org.springframework.boot.SpringApplication;
+import com.hertechrise.platform.config.DotenvInitializer;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.boot.builder.SpringApplicationBuilder;
 import org.springframework.scheduling.annotation.EnableAsync;
 
 @SpringBootApplication
@@ -9,7 +10,8 @@ import org.springframework.scheduling.annotation.EnableAsync;
 public class Startup {
 
 	public static void main(String[] args) {
-		SpringApplication.run(Startup.class, args);
+		new SpringApplicationBuilder(Startup.class)
+				.initializers(new DotenvInitializer())
+				.run(args);
 	}
-
 }

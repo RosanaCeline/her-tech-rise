@@ -7,7 +7,7 @@ security:
   jwt:
     token:
       secret-key: ${HER_TECH_SECURITY_JWT_KEY}
-      expire-lenght: 3600000
+      expire-length: 3600000
 spring:
   servlet:
     multipart:
@@ -23,16 +23,16 @@ spring:
   application:
     name: Her Tech Rise API
   datasource:
-    driver-class-name: com.mysql.cj.jdbc.Driver
-    url: jdbc:mysql://localhost:3306/hertech_database?useTimezone=true&serverTimezone=America/Sao_Paulo
-    username: herTechAdmin
-    password: herTechPassword
+    driver-class-name: org.postgresql.Driver
+    url: ${HER_TECH_DATABASE_DEV_URL}         # variável diferente para o banco dev
+    username: ${HER_TECH_DATABASE_USERNAME}
+    password: ${HER_TECH_DATABASE_PASSWORD}
   jpa:
     hibernate:
-      ddl-auto: none
+      ddl-auto: update                         # permite atualizar schema automaticamente no dev
     properties:
       hibernate.jdbc.time_zone: America/Sao_Paulo
-    show-sql: false
+    show-sql: false                           # show-sql:true - se quiser mostrar as queries no console no dev
     open-in-view: false
   mail:
     host: smtp.gmail.com
@@ -47,4 +47,4 @@ spring:
     baseline-on-migrate: true
 logging:
   level:
-    root: INFO
+    root: INFO                              # root: DEBUG - se quiser mais verboso no dev

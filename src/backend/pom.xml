@@ -33,6 +33,7 @@
 		<java-jwt.version>4.5.0</java-jwt.version>
 		<jjwt.version>0.12.6</jjwt.version>
 		<testcontainers.version>1.19.7</testcontainers.version>
+		<dotenv.version>3.2.0</dotenv.version>
 	</properties>
 	<dependencyManagement>
 		<dependencies>
@@ -76,8 +77,8 @@
 			<optional>true</optional>
 		</dependency>
 		<dependency>
-			<groupId>com.mysql</groupId>
-			<artifactId>mysql-connector-j</artifactId>
+			<groupId>org.postgresql</groupId>
+			<artifactId>postgresql</artifactId>
 			<scope>runtime</scope>
 		</dependency>
 
@@ -108,7 +109,7 @@
 
 		<dependency>
 			<groupId>org.testcontainers</groupId>
-			<artifactId>mysql</artifactId>
+			<artifactId>postgresql</artifactId>
 			<version>${testcontainers.version}</version>
 			<scope>test</scope>
 		</dependency>
@@ -118,6 +119,11 @@
 			<scope>test</scope>
 		</dependency>
 
+		<dependency>
+			<groupId>io.github.cdimascio</groupId>
+			<artifactId>dotenv-java</artifactId>
+			<version>${dotenv.version}</version>
+		</dependency>
 
 		<!-- Dependencias do Flyway Migrations -->
 		<dependency>
@@ -126,7 +132,7 @@
 		</dependency>
 		<dependency>
 			<groupId>org.flywaydb</groupId>
-			<artifactId>flyway-mysql</artifactId>
+			<artifactId>flyway-database-postgresql</artifactId>
 		</dependency>
 
 		<!-- Dependencia do Swagger -->
@@ -218,9 +224,9 @@
 				<artifactId>flyway-maven-plugin</artifactId>
 				<version>11.7.2</version>
 				<configuration>
-					<url>jdbc:mysql://localhost:3306/hertech_database</url>
-					<user>herTechAdmin</user>
-					<password>herTechPassword</password>
+					<url>jdbc:postgresql://ep-dry-sunset-ac5rgtsh-pooler.sa-east-1.aws.neon.tech/neondb?sslmode=require</url>
+					<user>neondb_owner</user>
+					<password>npg_PNKS9Ffvt0Je</password>
 				</configuration>
 			</plugin>
 			<plugin>
