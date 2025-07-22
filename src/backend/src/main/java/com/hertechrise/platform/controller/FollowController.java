@@ -5,6 +5,8 @@ import com.hertechrise.platform.data.dto.request.FollowRequestDTO;
 import com.hertechrise.platform.data.dto.request.UnfollowRequestDTO;
 import com.hertechrise.platform.data.dto.response.FollowResponseDTO;
 import com.hertechrise.platform.data.dto.response.MessageResponseDTO;
+import com.hertechrise.platform.data.dto.response.ProfessionalProfileResponseDTO;
+import com.hertechrise.platform.data.dto.response.VerifyFollowResponseDTO;
 import com.hertechrise.platform.services.FollowService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -46,5 +48,10 @@ public class FollowController implements FollowControllerDocs {
         return ResponseEntity
                 .ok()
                 .body(followService.listFollowers());
+    }
+
+    @GetMapping("/verifyFollow/{id}")
+    public ResponseEntity<VerifyFollowResponseDTO> verifyFollow(@PathVariable Long id) {
+        return ResponseEntity.ok().body(followService.verifyFollow(id));
     }
 }
