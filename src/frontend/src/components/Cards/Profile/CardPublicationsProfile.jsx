@@ -3,7 +3,7 @@ import BtnCallToAction from '../../btn/BtnCallToAction/BtnCallToAction'
 import CardPostProfile from '../Posts/CardPostProfile'
 import PopUpBlurProfile from '../Profile/PopUpBlurProfile'
 
-export default function CardPublicationsProfile({ title, posts, setActivePopUp }) {
+export default function CardPublicationsProfile({ title, posts, photo, name, setActivePopUp }) {
   const [visiblePosts, setVisiblePosts] = useState([]);
   const [limit, setLimit] = useState(3);
   const [isPopupOpen, setIsPopupOpen] = useState(false);
@@ -44,7 +44,7 @@ export default function CardPublicationsProfile({ title, posts, setActivePopUp }
         {visiblePosts.length > 0 ? (
           <div className="grid gap-6 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3">
             {visiblePosts.map((post) => (
-              <CardPostProfile key={post.id} post={post} />
+              <CardPostProfile key={post.id} post={post} photo={photo} name={name} />
             ))}
           </div>
         ) : (
@@ -68,7 +68,7 @@ export default function CardPublicationsProfile({ title, posts, setActivePopUp }
               {[...posts]
                 .sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt))
                 .map((post) => (
-                  <CardPostProfile key={post.id} post={post} isPopupView={true} />
+                  <CardPostProfile key={post.id} post={post} photo={photo} name={name} isPopupView={true} />
               ))}
             </div>
           }
