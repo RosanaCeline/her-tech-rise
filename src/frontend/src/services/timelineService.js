@@ -1,4 +1,9 @@
 import { getCurrentUser } from "./authService";
+<<<<<<< HEAD
+=======
+import { requestService } from "./requestService";
+
+>>>>>>> 79a50fe (feat: allowed to delete post)
 const baseUrl = import.meta.env.VITE_API_BASE_URL;
 
 export const newPost = async (formData) => {
