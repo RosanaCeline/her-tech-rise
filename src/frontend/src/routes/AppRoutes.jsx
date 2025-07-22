@@ -1,4 +1,5 @@
 import React from 'react';
+import { useNavigate } from 'react-router-dom'
 import { Routes, Route } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { getRoutesByRole // vai mandar a lista de rotas certa dependendo do tipo de usuário
@@ -8,9 +9,10 @@ import PublicLayout from "../components/layout/PublicLayout/PublicLayout"
 import PrivateLayout from "../components/layout/PrivateLayout/PrivateLayout"
 
 export default function AppRoutes() {
-  const { user } = useAuth();
-  const tipoUsuario = user?.tipo_usuario;
-  const privateRoutes = getRoutesByRole(tipoUsuario || 'profissional'); 
+  const { user } = useAuth()
+  const navigate = useNavigate();
+  const tipoUsuario = user?.tipo_usuario
+  const privateRoutes = getRoutesByRole(tipoUsuario || 'profissional', navigate); 
 
   return (
     <Routes>

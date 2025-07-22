@@ -150,7 +150,7 @@ export default function VerPerfil() {
             <CardDescriptionsProfile title="Sobre nós" content={user.aboutUs} />
             </>
         )}
-        <CardPublicationsProfile title="Publicações" posts={user.posts} setActivePopUp={setActivePopUp}/>
+        <CardPublicationsProfile title="Publicações" posts={user.posts} photo={user.photo} name={user.nome} setActivePopUp={setActivePopUp}/>
         {activePopUp && (
           <PopUp>
               {activePopUp === 'post' && <ManagePost user={{profileURL: user.profilePic, userName: user.name}} setActivePopUp={setActivePopUp} 
