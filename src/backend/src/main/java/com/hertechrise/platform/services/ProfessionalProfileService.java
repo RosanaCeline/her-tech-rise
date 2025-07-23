@@ -7,6 +7,7 @@ import java.net.URL;
 import java.util.Comparator;
 import java.util.List;
 
+import com.hertechrise.platform.data.dto.request.PostFilterRequestDTO;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
@@ -40,9 +41,9 @@ public class ProfessionalProfileService {
     private final UserRepository userRepository;
     private final ProfessionalRepository professionalRepository;
     private final FollowRelationshipRepository followRepository;
-    private final PostRepository postRepository;
 
     private final ExperienceService experienceService;
+    private final PostService postService;
 
     @Transactional
     public ProfessionalProfileResponseDTO getProfile(Long id) {
@@ -57,11 +58,17 @@ public class ProfessionalProfileService {
 
         long followersCount = followRepository.countByFollowing(user);
 
-        List<PostResponseDTO> posts = postRepository
-                .findByAuthorOrderByCreatedAtDesc(user)
-                .stream()
-                .map(this::toPostDto)
-                .toList();
+        PostFilterRequestDTO filter = new PostFilterRequestDTO(null, null, null, null);
+
+        List<PostResponseDTO> posts;
+
+        if (loggedUser.getId().equals(id)) {
+            // É o próprio usuário: pode ver todos os posts e editar os seus (editable = true quando < 7 dias)
+            posts = postService.getMyPosts(filter).stream().toList();
+        } else {
+            // Outro usuário visualizando: só vê posts públicos e não editáveis
+            posts = postService.getUserPosts(id, filter).stream().toList();
+        }
 
         List<ExperienceResponseDTO> experiences = professional.getExperiences().stream()
                 .sorted(Comparator.comparing(Experience::getStartDate).reversed())
@@ -201,27 +208,6 @@ public class ProfessionalProfileService {
             throw new ValidationException("externalLink não é uma URL válida.");
         }
         return link;
-    }
-
-    private PostResponseDTO toPostDto(Post p) {
-        List<MediaResponseDTO> medias = p.getMedia().stream()
-                .map(m -> new MediaResponseDTO(
-                        m.getId(),
-                        m.getMediaType(),
-                        m.getUrl()
-                )).toList();
-
-        return new PostResponseDTO(
-                p.getId(),
-                p.getAuthor().getId(),
-                p.getContent(),
-                p.getCreatedAt(),
-                p.getCommunity() != null ? p.getCommunity().getId() : null,
-                medias,
-                p.getVisibility(),
-                p.isEdited(),
-                p.getEditedAt()
-        );
     }
 
     private ExperienceResponseDTO toExperienceDto(Experience e) {
