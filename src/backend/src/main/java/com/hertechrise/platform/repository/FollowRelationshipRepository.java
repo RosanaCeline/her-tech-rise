@@ -21,8 +21,8 @@ public interface FollowRelationshipRepository extends JpaRepository<FollowRelati
     List<FollowRelationship> findAllByFollower(User follower);
     List<FollowRelationship> findAllByFollowing(User following);
 
-    long countByFollowedId(Long followedId);
-    long countByFollowerId(Long followerId);
+    long countByFollowing_Id(Long followingId);
+    long countByFollower_Id(Long followerId);
 
     @Query("""
         SELECT fr.following.id, COUNT(fr.follower.id)
