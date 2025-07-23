@@ -1,7 +1,7 @@
 package com.hertechrise.platform.model;
 
 public enum MediaType {
-    IMAGEM,
+    IMAGE,
     VIDEO,
-    DOCUMENTO
+    DOCUMENT
 }
