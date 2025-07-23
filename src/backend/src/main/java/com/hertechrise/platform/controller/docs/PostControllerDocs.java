@@ -1,8 +1,10 @@
 package com.hertechrise.platform.controller.docs;
 
 import com.hertechrise.platform.data.dto.request.PostEditRequestDTO;
+import com.hertechrise.platform.data.dto.request.PostFilterRequestDTO;
 import com.hertechrise.platform.data.dto.response.MessageResponseDTO;
 import com.hertechrise.platform.data.dto.response.PostMessageResponseDTO;
+import com.hertechrise.platform.data.dto.response.PostResponseDTO;
 import com.hertechrise.platform.model.PostVisibility;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
@@ -12,6 +14,7 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
+import org.springframework.data.domain.Page;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -121,5 +124,18 @@ public interface PostControllerDocs {
             @Parameter(description = "Dados para edição do post")
             @Valid @ModelAttribute PostEditRequestDTO request
     );
+
+    @Operation(
+            summary = "Buscar postagens para a timeline",
+            description = "Retorna uma lista paginada de postagens públicas com base nos filtros fornecidos. Usado para montar a timeline geral da plataforma."
+    )
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Postagens recuperadas com sucesso",
+                    content = @Content(mediaType = "application/json", schema = @Schema(implementation = PostResponseDTO.class))),
+            @ApiResponse(responseCode = "400", description = "Parâmetros inválidos", content = @Content),
+            @ApiResponse(responseCode = "500", description = "Erro interno no servidor", content = @Content)
+    })
+    @GetMapping("/timeline")
+    ResponseEntity<Page<PostResponseDTO>> getTimelinePosts(@Valid PostFilterRequestDTO filter);
 
 }
