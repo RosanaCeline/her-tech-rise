@@ -1,6 +1,7 @@
 package com.hertechrise.platform.data.dto.response;
 
 
+import com.hertechrise.platform.model.Media;
 import com.hertechrise.platform.model.MediaType;
 import io.swagger.v3.oas.annotations.media.Schema;
 
