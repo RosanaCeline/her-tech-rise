@@ -1,13 +1,13 @@
 package com.hertechrise.platform.services;
 
 import com.hertechrise.platform.data.dto.request.CompanyProfileRequestDTO;
+import com.hertechrise.platform.data.dto.request.PostFilterRequestDTO;
 import com.hertechrise.platform.data.dto.response.*;
 import com.hertechrise.platform.exception.CompanyNotFoundException;
 import com.hertechrise.platform.exception.UserNotFoundException;
 import com.hertechrise.platform.model.*;
 import com.hertechrise.platform.repository.CompanyRepository;
 import com.hertechrise.platform.repository.FollowRelationshipRepository;
-import com.hertechrise.platform.repository.PostRepository;
 import com.hertechrise.platform.repository.UserRepository;
 import jakarta.validation.ValidationException;
 import lombok.RequiredArgsConstructor;
@@ -29,7 +29,8 @@ public class CompanyProfileService {
     private final UserRepository userRepository;
     private final CompanyRepository companyRepository;
     private final FollowRelationshipRepository followRepository;
-    private final PostRepository postRepository;
+
+    private final PostService postService;
 
     public CompanyProfileResponseDTO getProfile(Long id) {
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
@@ -43,11 +44,17 @@ public class CompanyProfileService {
 
         long followersCount = followRepository.countByFollowing(user);
 
-        List<PostResponseDTO> posts = postRepository
-                .findByAuthorOrderByCreatedAtDesc(user)
-                .stream()
-                .map(this::toPostDto)
-                .toList();
+        PostFilterRequestDTO filter = new PostFilterRequestDTO(null, null, null, null);
+
+        List<PostResponseDTO> posts;
+
+        if (loggedUser.getId().equals(id)) {
+            // É o próprio usuário: pode ver todos os posts e editar os seus (editable = true quando < 7 dias)
+            posts = postService.getMyPosts(filter).stream().toList();
+        } else {
+            // Outro usuário visualizando: só vê posts públicos e não editáveis
+            posts = postService.getUserPosts(id, filter).stream().toList();
+        }
 
         return new CompanyProfileResponseDTO(
                 user.getId(),
@@ -158,26 +165,5 @@ public class CompanyProfileService {
             throw new ValidationException("externalLink não é uma URL válida.");
         }
         return link;
-    }
-
-    private PostResponseDTO toPostDto(Post p) {
-        List<MediaResponseDTO> medias = p.getMedia().stream()
-                .map(m -> new MediaResponseDTO(
-                        m.getId(),
-                        m.getMediaType(),
-                        m.getUrl()
-                )).toList();
-
-        return new PostResponseDTO(
-                p.getId(),
-                p.getAuthor().getId(),
-                p.getContent(),
-                p.getCreatedAt(),
-                p.getCommunity() != null ? p.getCommunity().getId() : null,
-                medias,
-                p.getVisibility(),
-                p.isEdited(),
-                p.getEditedAt()
-        );
     }
 }

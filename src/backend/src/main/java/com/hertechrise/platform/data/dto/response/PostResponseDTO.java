@@ -38,5 +38,8 @@ public record PostResponseDTO(
         boolean edited,
 
         @Schema(description = "Data e hora da última edição (ISO‑8601), ou null se nunca editado", example = "2025-07-08T10:15:30", type = "string", format = "date-time", nullable = true)
-        LocalDateTime editedAt
+        LocalDateTime editedAt,
+
+        @Schema(description = "Indica se essa publicação pode ser editada pelo usuário", example = "false")
+        boolean editable
 ) {}

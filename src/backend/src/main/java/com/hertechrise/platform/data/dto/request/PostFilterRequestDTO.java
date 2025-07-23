@@ -1,53 +1,24 @@
 package com.hertechrise.platform.data.dto.request;
 
 import io.swagger.v3.oas.annotations.media.Schema;
+import jakarta.validation.constraints.Pattern;
 
-@Schema(description = "Filtros e configurações para listagem de postagens")
+@Schema(name = "PostFilterRequestDTO", description = "Filtros e configurações para listagem de postagens")
 public record PostFilterRequestDTO(
 
-        @Schema(description = "Status da postagem: 'ativo', 'inativo' ou ''. Opcional.",
-                example = "ativo"
-        )
-        String status,
-
-        @Schema(
-                description = "Campo para ordenação. Padrão: 'createdAt'.",
-                example = "createdAt",
-                defaultValue = "createdAt"
-        )
-        String orderBy,
-
-        @Schema(
-                description = "Direção da ordenação: 'ASC' ou 'DESC'. Padrão: 'DESC'.",
-                example = "DESC",
-                defaultValue = "DESC"
-        )
-        String direction,
-
-        @Schema(
-                description = "Número da página (começa em 0). Padrão: 0.",
-                example = "0",
-                defaultValue = "0"
-        )
+        @Schema(description = "Número da página", example = "0", defaultValue = "0")
         Integer page,
 
-        @Schema(
-                description = "Quantidade de elementos por página. Padrão: 10.",
-                example = "10",
-                defaultValue = "10"
-        )
-        Integer size
+        @Schema(description = "Tamanho da página", example = "10", defaultValue = "10")
+        Integer size,
 
+        @Schema(description = "Campo de ordenação", example = "createdAt")
+        String orderBy,
+
+        @Schema(description = "Direção de ordenação", example = "DESC")
+        @Pattern(regexp = "ASC|DESC", message = "Direção de ordenação deve ser ASC ou DESC.")
+        String direction
 ) {
-    // Valores padrão para quando não forem informados no request
-    public String orderBy() {
-        return orderBy == null ? "createdAt" : orderBy;
-    }
-
-    public String direction() {
-        return direction == null ? "DESC" : direction.toUpperCase();
-    }
-
     public Integer page() {
         return page == null ? 0 : page;
     }
@@ -55,5 +26,14 @@ public record PostFilterRequestDTO(
     public Integer size() {
         return size == null ? 10 : size;
     }
+
+    public String orderBy() {
+        return orderBy == null ? "createdAt" : orderBy;
+    }
+
+    public String direction() {
+        return direction == null ? "DESC" : direction.toUpperCase();
+    }
 }
+
 
