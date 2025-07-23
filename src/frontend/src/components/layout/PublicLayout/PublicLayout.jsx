@@ -2,7 +2,7 @@ import React from 'react';
 
 import PublicHeader from "../Header/Public/PublicHeader";
 import Footer from "../Footer/Footer";
-import { useAuth } from "../../../context/AuthContext"; // hook que fornece o user logado
+import { useAuth } from "../../../context/AuthContext"; 
 
 import { Outlet, Navigate } from "react-router-dom";
 

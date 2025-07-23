@@ -8,6 +8,7 @@ import FormEditExperience from "../../../../components/Cards/Profile/FormEditExp
 import PopUpBlurProfile from "../../../../components/Cards/Profile/PopUpBlurProfile";
 import LabelInput from "../../../../components/form/Label/LabelInput";
 import BtnCallToAction from "../../../../components/btn/BtnCallToAction/BtnCallToAction";
+
 import { validateField } from "../../../../components/form/Label/validationField";
 import { maskField } from "../../../../components/form/Label/maskField";
 import { useCepAutoComplete } from '../../../../services/hooks/useCepAutoComplete'
@@ -32,7 +33,7 @@ export default function EditProfessional() {
   });
 
   const navigate = useNavigate();
-  const { setUser } = useAuth();
+  const { user, setUser, load } = useAuth();
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(true);
   const [originalUser, setOriginalUser] = useState(null);
@@ -60,9 +61,15 @@ export default function EditProfessional() {
   const options = estados.map(estado => ({ value: estado, label: estado }));
 
   useEffect(() => {
+
+    if (!user || load) return
+
     async function fetchProfile() {
       try {
         const user = await getAllProfile();
+        console.log('Perfil carregado:', user)
+        if (!user) throw new Error('Perfil não encontrado')
+
         const mappedForm = {
           nome: user.name || '',
           handle: user.handle || '',
@@ -94,7 +101,7 @@ export default function EditProfessional() {
       }
     }
     fetchProfile();
-  }, []);
+  }, [user, load]);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -173,7 +180,7 @@ export default function EditProfessional() {
         posts: formData.posts ?? [],
       };
 
-      const updatedUser = await updateProfile(finalData);
+      const updatedUser = await updateProfile(finalData)
       setUser(updatedUser);
       setSuccessModalOpen(true);
     } catch (err) {

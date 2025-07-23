@@ -1,6 +1,3 @@
-import React from 'react';
-import { useNavigate } from 'react-router-dom'
-
 import LandingPage from "../pages/LandingPage/LandingPage";
 
 import Login from '../pages/Auth/Login/Login';
