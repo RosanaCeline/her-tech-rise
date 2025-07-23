@@ -70,13 +70,6 @@ class AuthServiceTest extends AbstractIntegrationTest {
     @Autowired
     private ResetPasswordTokenService resetPasswordTokenService;
 
-    @BeforeEach
-    void cleanUpDatabase() {
-        professionalRepository.deleteAll();
-        companyRepository.deleteAll();
-        userRepository.deleteAll();
-    }
-
     @DisplayName("Registro de Profissional com Sucesso")
     @Test
     void registerProfessionalSuccess() {

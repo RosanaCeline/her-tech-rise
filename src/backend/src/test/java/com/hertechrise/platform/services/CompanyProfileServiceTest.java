@@ -50,13 +50,7 @@ class CompanyProfileServiceTest extends AbstractIntegrationTest {
 
     @Autowired
     private RoleRepository roleRepository;
-    @AfterEach
-    void cleanUp() {
-        postRepository.deleteAll();
-        followRepository.deleteAll();
-        companyRepository.deleteAll();
-        userRepository.deleteAll();
-    }
+
     @DisplayName("Deve retorna o perfil da empresa")
     @Test
     void getProfile() {
