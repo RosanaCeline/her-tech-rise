@@ -1,5 +1,3 @@
-import React from 'react'
-
 import { services } from './data/services'
 import { faqs } from './data/faqs'
 import { fields } from './data/fields'
