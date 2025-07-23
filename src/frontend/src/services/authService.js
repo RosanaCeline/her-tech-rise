@@ -2,19 +2,13 @@ import axios from 'axios';
 
 const API_URL = `${import.meta.env.VITE_API_URL}/auth`;
 
-// Verifique a documentacao do back em http://localhost:8080/swagger-ui/index.html
-
-// Dados mockados (teste)
-// import mockUsers from '../mocks/mockUsers';
-// let users = [...mockUsers];
-
 export const login = async (email, senha) => {
   const response = await axios.post(`${API_URL}/login`, { email, password: senha });
   if (response.status === 200) {
     localStorage.setItem('user', JSON.stringify(response.data));
     return response.data;
   }
-  throw new Error('Erro ao realizar login');
+  throw new Error(error?.response?.data?.message || 'Erro ao realizar login');
 }
 
 export const register = async (formData) => {
@@ -64,7 +58,8 @@ export const getCurrentUser = () => {
 }
 
 export const logout = () => {
-  localStorage.clear();
+  localStorage.clear()
+  window.location.reload()
 }
 
 export const resetPassword = async (email) => {
