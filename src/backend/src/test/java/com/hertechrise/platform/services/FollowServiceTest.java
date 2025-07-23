@@ -45,12 +45,6 @@ class FollowServiceTest extends AbstractIntegrationTest {
     @Autowired
     private RoleRepository roleRepository;
 
-
-    @BeforeEach
-    void cleanUpDatabase() {
-        userRepository.deleteAll();
-    }
-
     @DisplayName("Seguir outros usuários(follow")
     @Test
     void followUserSuccess() {

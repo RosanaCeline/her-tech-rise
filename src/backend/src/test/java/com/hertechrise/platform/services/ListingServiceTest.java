@@ -43,13 +43,6 @@ class ListingServiceTest {
     @Autowired
     private CompanyRepository companyRepository;
 
-    @BeforeEach
-    void cleanUpDatabase(){
-        professionalRepository.deleteAll();
-        companyRepository.deleteAll();
-        userRepository.deleteAll();
-    }
-
     private User createTestUser(String name, String email, String handle, String user_role) {
         User user = new User();
         user.setName(name);
