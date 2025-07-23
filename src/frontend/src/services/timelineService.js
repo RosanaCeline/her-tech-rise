@@ -3,6 +3,8 @@ import { requestService } from "./requestService";
 
 const baseUrl = import.meta.env.VITE_API_URL;
 
+const baseUrl = import.meta.env.VITE_API_BASE_URL;
+
 export const newPost = async (formData) => {
   const token = getCurrentUser().token;
   const fd = new FormData()

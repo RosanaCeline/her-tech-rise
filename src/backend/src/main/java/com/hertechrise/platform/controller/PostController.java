@@ -2,6 +2,7 @@ package com.hertechrise.platform.controller;
 
 import com.hertechrise.platform.controller.docs.PostControllerDocs;
 import com.hertechrise.platform.data.dto.request.PostEditRequestDTO;
+import com.hertechrise.platform.data.dto.request.PostFilterRequestDTO;
 import com.hertechrise.platform.data.dto.request.PostRequestDTO;
 import com.hertechrise.platform.data.dto.response.MessageResponseDTO;
 import com.hertechrise.platform.data.dto.response.PostMessageResponseDTO;
@@ -10,6 +11,7 @@ import com.hertechrise.platform.model.PostVisibility;
 import com.hertechrise.platform.services.PostService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -65,5 +67,11 @@ public class PostController implements PostControllerDocs {
         PostMessageResponseDTO response = new PostMessageResponseDTO("Postagem editada com sucesso.", postResponse);
 
         return ResponseEntity.status(HttpStatus.CREATED).body(response);
+    }
+
+    @GetMapping("/timeline")
+    public ResponseEntity<Page<PostResponseDTO>> getTimelinePosts(@Valid PostFilterRequestDTO filter) {
+        Page<PostResponseDTO> posts = postService.getTimelinePosts(filter);
+        return ResponseEntity.ok(posts);
     }
 }

@@ -8,14 +8,16 @@ import com.hertechrise.platform.data.dto.response.TokenResponseDTO;
 import com.hertechrise.platform.services.AuthService;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
+import jakarta.validation.constraints.NotBlank;
 import lombok.RequiredArgsConstructor;
+import org.hibernate.validator.constraints.br.CNPJ;
+import org.hibernate.validator.constraints.br.CPF;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.validation.annotation.Validated;
+import org.springframework.web.bind.annotation.*;
 
+@Validated
 @RestController
 @RequestMapping("/auth")
 @RequiredArgsConstructor
@@ -37,6 +39,18 @@ public class AuthController implements AuthControllerDocs {
         return ResponseEntity.status(HttpStatus.CREATED)
                 .header("Message", "Empresa cadastrada com sucesso!")
                 .body(tokenResponse);
+    }
+
+    @GetMapping("/cpf")
+    public ResponseEntity<Void> validateCpf(@RequestParam @NotBlank @CPF String cpf) {
+        authService.checkCpfNotExists(cpf);
+        return ResponseEntity.noContent().build();
+    }
+
+    @GetMapping("/cnpj")
+    public ResponseEntity<Void> validateCnpj(@RequestParam @NotBlank @CNPJ String cnpj) {
+        authService.checkCnpjNotExists(cnpj);
+        return ResponseEntity.noContent().build();
     }
 
     @PostMapping("/login")
