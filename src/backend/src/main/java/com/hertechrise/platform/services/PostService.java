@@ -9,7 +9,13 @@ import com.hertechrise.platform.repository.CommunityRepository;
 import com.hertechrise.platform.repository.MediaRepository;
 import com.hertechrise.platform.repository.PostRepository;
 import jakarta.persistence.EntityNotFoundException;
+import jakarta.persistence.criteria.Predicate;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -18,7 +24,9 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 @Service
 @RequiredArgsConstructor
@@ -26,7 +34,6 @@ public class PostService {
 
     private final PostRepository postRepository;
     private final CommunityRepository communityRepository;
-    private final MediaRepository mediaRepository;
 
     private final MediaService mediaService;
     private final CloudinaryService cloudinaryService;
@@ -98,7 +105,8 @@ public class PostService {
                 mediaDtos,
                 post.getVisibility(),
                 post.isEdited(),
-                post.getEditedAt()
+                post.getEditedAt(),
+                true
         );
     }
 
@@ -163,7 +171,7 @@ public class PostService {
         // IDs das mídias antigas que o usuário quer manter
         List<Long> mediaIdsToKeep = medias.stream()
                 .map(MediaEditRequestDTO::id)
-                .filter(id -> id != null)
+                .filter(Objects::nonNull)
                 .toList();
 
         // Remove mídias antigas que não estão na lista de manutenção
@@ -204,6 +212,8 @@ public class PostService {
                 .map(m -> new MediaResponseDTO(m.getId(), m.getMediaType(), m.getUrl()))
                 .toList();
 
+        boolean editable = post.getCreatedAt().isAfter(LocalDateTime.now().minusDays(7));
+
         return new PostResponseDTO(
                 saved.getId(),
                 saved.getAuthor().getId(),
@@ -213,70 +223,95 @@ public class PostService {
                 mediaDtos,
                 saved.getVisibility(),
                 saved.isEdited(),
-                saved.getEditedAt()
+                saved.getEditedAt(),
+                editable
         );
     }
 
-     /*
-    public Page<PostResponseDTO> getPostsByUser(Long userId, PostFilterRequestDTO filter, Long authenticatedUserId) {
+    public Page<PostResponseDTO> getMyPosts(PostFilterRequestDTO filter) {
+        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+        User loggedUser = (User) auth.getPrincipal();
 
-        // Configura ordenação (padrão: createdAt DESC)
         Pageable pageable = PageRequest.of(
                 filter.page(),
                 filter.size(),
                 Sort.by(Sort.Direction.fromString(filter.direction()), filter.orderBy())
         );
 
-        // Define critérios dinâmicos de busca (Specification)
         Specification<Post> spec = (root, query, cb) -> {
             List<Predicate> predicates = new ArrayList<>();
 
-            // Apenas posts do autor solicitado
-            predicates.add(cb.equal(root.get("author").get("id"), userId));
-
-            // Ignora posts deletados
+            predicates.add(cb.equal(root.get("author").get("id"), loggedUser.getId()));
             predicates.add(cb.isFalse(root.get("deleted")));
-
-            // Filtro por status (opcional)
-            if (filter.status() != null) {
-                switch (filter.status().toLowerCase()) {
-                    case "publico" -> predicates.add(cb.equal(root.get("visibility"), PostVisibility.PUBLICO));
-                    case "privado" -> predicates.add(cb.equal(root.get("visibility"), PostVisibility.PRIVADO));
-                }
-            }
 
             return cb.and(predicates.toArray(new Predicate[0]));
         };
 
-        // Consulta paginada ao banco
-        Page<Post> page = postRepository.findAll(spec, pageable);
+        Page<Post> posts = postRepository.findAll(spec, pageable);
 
-        // Mapeia cada entidade Post para um DTO de resposta
-        return page.map(post -> {
-            // Busca as mídias relacionadas a este post
-            List<MediaResponseDTO> media = mediaRepository.findByPostId(post.getId())
-                    .stream()
-                    .map(mediaEntity -> new MediaResponseDTO(
-                            mediaEntity.getId(),
-                            mediaEntity.getMediaType(),
-                            mediaEntity.getUrl()
-                    ))
+        return posts.map(post -> {
+            boolean editable = post.getCreatedAt().isAfter(LocalDateTime.now().minusDays(7));
+
+            List<MediaResponseDTO> mediaDtos = post.getMedia() == null
+                    ? List.of()
+                    : post.getMedia().stream()
+                    .map(m -> new MediaResponseDTO(m.getId(), m.getMediaType(), m.getUrl()))
                     .toList();
 
-            // Constrói o DTO de resposta
             return new PostResponseDTO(
                     post.getId(),
                     post.getAuthor().getId(),
                     post.getContent(),
                     post.getCreatedAt(),
                     post.getCommunity() != null ? post.getCommunity().getId() : null,
-                    media,
-                    PostVisibility.valueOf(post.getVisibility().name()),
+                    mediaDtos,
+                    post.getVisibility(),
                     post.isEdited(),
-                    post.getEditedAt()
+                    post.getEditedAt(),
+                    editable // Aqui o campo que indica se pode editar
             );
         });
     }
-      */
+
+    public Page<PostResponseDTO> getUserPosts(Long userId, PostFilterRequestDTO filter) {
+        Pageable pageable = PageRequest.of(
+                filter.page(),
+                filter.size(),
+                Sort.by(Sort.Direction.fromString(filter.direction()), filter.orderBy())
+        );
+
+        Specification<Post> spec = (root, query, cb) -> {
+            List<Predicate> predicates = new ArrayList<>();
+
+            predicates.add(cb.equal(root.get("author").get("id"), userId));
+            predicates.add(cb.equal(root.get("visibility"), PostVisibility.PUBLICO)); // Só públicos
+            predicates.add(cb.isFalse(root.get("deleted")));
+
+            return cb.and(predicates.toArray(new Predicate[0]));
+        };
+
+        Page<Post> posts = postRepository.findAll(spec, pageable);
+
+        return posts.map(post -> {
+            List<MediaResponseDTO> mediaDtos = post.getMedia() == null
+                    ? List.of()
+                    : post.getMedia().stream()
+                    .map(m -> new MediaResponseDTO(m.getId(), m.getMediaType(), m.getUrl()))
+                    .toList();
+
+            return new PostResponseDTO(
+                    post.getId(),
+                    post.getAuthor().getId(),
+                    post.getContent(),
+                    post.getCreatedAt(),
+                    post.getCommunity() != null ? post.getCommunity().getId() : null,
+                    mediaDtos,
+                    post.getVisibility(),
+                    post.isEdited(),
+                    post.getEditedAt(),
+                    false // posts de outros usuários não são editáveis
+            );
+        });
+    }
 }
 
