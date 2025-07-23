@@ -4,6 +4,7 @@ import com.hertechrise.platform.data.dto.request.FollowRequestDTO;
 import com.hertechrise.platform.data.dto.request.UnfollowRequestDTO;
 import com.hertechrise.platform.data.dto.response.FollowResponseDTO;
 import com.hertechrise.platform.data.dto.response.MessageResponseDTO;
+import com.hertechrise.platform.data.dto.response.VerifyFollowResponseDTO;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.ArraySchema;
 import io.swagger.v3.oas.annotations.media.Content;
@@ -13,6 +14,7 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.PathVariable;
 
 import java.util.List;
 
@@ -123,4 +125,23 @@ public interface FollowControllerDocs {
             }
     )
     ResponseEntity<List<FollowResponseDTO>> listFollowers();
+
+    @Operation(
+            summary = "Verificar se o usuário autenticado segue um usuário pelo ID",
+            description = "Retorna um booleano indicando se o usuário autenticado segue o usuário informado pelo ID.",
+            responses = {
+                    @ApiResponse(
+                            responseCode = "200",
+                            description = "Retorna true ou false indicando se o usuário autenticado segue o usuário informado",
+                            content = @Content(
+                                    schema = @Schema(implementation = VerifyFollowResponseDTO.class)
+                            )
+                    ),
+                    @ApiResponse(responseCode = "404", description = "Usuário informado não encontrado"),
+                    @ApiResponse(responseCode = "400", description = "Tentativa inválida de verificar o próprio follow")
+            }
+    )
+    ResponseEntity<VerifyFollowResponseDTO> verifyFollow(
+            @PathVariable Long id
+    );
 }

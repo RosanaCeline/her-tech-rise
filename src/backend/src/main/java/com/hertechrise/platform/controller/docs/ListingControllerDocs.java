@@ -1,8 +1,6 @@
 package com.hertechrise.platform.controller.docs;
 
-import com.hertechrise.platform.data.dto.response.MainListingResponseDTO;
-import com.hertechrise.platform.data.dto.response.PagedResponseDTO;
-import com.hertechrise.platform.data.dto.response.UserSummaryResponseDTO;
+import com.hertechrise.platform.data.dto.response.*;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.media.Content;
@@ -23,6 +21,15 @@ public interface ListingControllerDocs {
                 - Sem parâmetro `q`: mostra os 6 primeiros de cada tipo (profissionais e empresas).
                 - Com `q`: filtra por `name ILIKE %q%` ou `username ILIKE %q%` dentro do tipo.
                 - Resultado não paginado, apenas listas fixas.
+                - **O usuário autenticado (logado) não é incluído nos resultados.**
+                
+                Cada item retornado inclui:
+                - Nome
+                - Username (handle)
+                - Foto de perfil
+                - Cidade e UF
+                - **Quantidade de seguidores**
+                - (Para profissionais) Tecnologia principal
                 """,
             parameters = {
                     @Parameter(name = "q", description = "Termo de busca (opcional)", example = "ana")
@@ -49,6 +56,18 @@ public interface ListingControllerDocs {
                 - Busca opcional por `name ILIKE %q%` ou `username ILIKE %q%` dentro do tipo profissional.
                 - Paginação e ordenação independentes (frontend mantém página, tamanho e ordenação).
                 - Endpoint separado do de empresas, cada um tem sua própria paginação.
+                - **O usuário autenticado (logado) não é incluído nos resultados.**
+                
+                Cada item retornado inclui:
+                - Nome
+                - Username (handle)
+                - Foto de perfil
+                - Cidade e UF
+                - **Tecnologia principal**
+                - **Quantidade de seguidores**
+                
+                Exemplo de uso:
+                `{{baseUrl}}/api/listing/professionals?q=thalyta&page=0&size=20&sort=name,asc`
                 """,
             parameters = {
                     @Parameter(name = "q", description = "Termo de busca (opcional)", example = "joana"),
@@ -66,7 +85,7 @@ public interface ListingControllerDocs {
                     )
             }
     )
-    PagedResponseDTO<UserSummaryResponseDTO> professionals(String q, Pageable page);
+    PagedResponseDTO<ProfessionalSummaryResponseDTO> professionals(String q, Pageable page);
 
     @Operation(
             summary = "Listar empresas com paginação",
@@ -77,6 +96,17 @@ public interface ListingControllerDocs {
                 - Busca opcional por `name ILIKE %q%` ou `username ILIKE %q%` dentro do tipo empresa.
                 - Paginação e ordenação independentes (frontend mantém página, tamanho e ordenação).
                 - Endpoint separado do de profissionais, cada um tem sua própria paginação.
+                - **O usuário autenticado (logado) não é incluído nos resultados.**
+                
+                Cada item retornado inclui:
+                - Nome
+                - Username (handle)
+                - Foto de perfil
+                - Cidade e UF
+                - **Quantidade de seguidores**
+                
+                Exemplo de uso:
+                `{{baseUrl}}/api/listing/companies?q=tech&page=0&size=20&sort=name,asc`
                 """,
             parameters = {
                     @Parameter(name = "q", description = "Termo de busca (opcional)", example = "tech"),
@@ -94,5 +124,5 @@ public interface ListingControllerDocs {
                     )
             }
     )
-    PagedResponseDTO<UserSummaryResponseDTO> companies(String q, Pageable page);
+    PagedResponseDTO<CompanySummaryResponseDTO> companies(String q, Pageable page);
 }

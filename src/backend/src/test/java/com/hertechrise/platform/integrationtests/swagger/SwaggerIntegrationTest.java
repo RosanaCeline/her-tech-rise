@@ -1,16 +1,19 @@
 package com.hertechrise.platform.integrationtests.swagger;
 
+import com.hertechrise.platform.config.DotenvInitializer;
 import com.hertechrise.platform.integrationtests.testcontainers.AbstractIntegrationTest;
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.web.server.LocalServerPort;
 import org.springframework.test.context.ActiveProfiles;
+import org.springframework.test.context.ContextConfiguration;
 
 import static io.restassured.RestAssured.given;
 import static junit.framework.TestCase.assertTrue;
 
 @ActiveProfiles("test")
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
+@ContextConfiguration(initializers = DotenvInitializer.class)
 class SwaggerIntegrationTest extends AbstractIntegrationTest {
 
 	@LocalServerPort

@@ -3,6 +3,8 @@ package com.hertechrise.platform.services;
 import com.hertechrise.platform.data.dto.request.FollowRequestDTO;
 import com.hertechrise.platform.data.dto.request.UnfollowRequestDTO;
 import com.hertechrise.platform.data.dto.response.FollowResponseDTO;
+import com.hertechrise.platform.data.dto.response.FollowerCountResponseDTO;
+import com.hertechrise.platform.data.dto.response.VerifyFollowResponseDTO;
 import com.hertechrise.platform.exception.*;
 import com.hertechrise.platform.model.FollowRelationship;
 import com.hertechrise.platform.model.User;
@@ -17,6 +19,8 @@ import org.springframework.web.bind.annotation.PathVariable;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -79,6 +83,21 @@ public class FollowService {
         followRepository.deleteByFollowerAndFollowing(follower, following);
     }
 
+    public VerifyFollowResponseDTO verifyFollow(Long id){
+        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+        User loggedUser = (User) auth.getPrincipal();
+
+        if (loggedUser.getId().equals(id)) {
+            throw new VerifySelfFollowException();
+        }
+
+        User targetUser  = userRepository.findById(id)
+                .orElseThrow(UserNotFoundException::new);
+
+        boolean exists = followRepository.existsByFollowerAndFollowing(loggedUser, targetUser);
+        return new VerifyFollowResponseDTO(exists);
+    }
+
     @Transactional(readOnly = true)
     public List<FollowResponseDTO> listFollowing() {
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
@@ -100,6 +119,30 @@ public class FollowService {
                 .map(this::toDto)
                 .toList();
     }
+
+    public long countFollowers(Long userId) {
+        return followRepository.countByFollowing_Id(userId);
+    }
+
+    public long countFollowing(Long userId) {
+        return followRepository.countByFollower_Id(userId);
+    }
+
+    public FollowerCountResponseDTO getFollowerStats(Long userId) {
+        long followers = countFollowers(userId);
+        long following = countFollowing(userId);
+        return new FollowerCountResponseDTO(followers, following);
+    }
+
+    @Transactional(readOnly = true)
+    public Map<Long, Long> countFollowersListing(List<Long> userIds) {
+        List<Object[]> result = followRepository.countFollowersForUsers(userIds);
+        return result.stream().collect(Collectors.toMap(
+                row -> (Long) row[0],
+                row -> (Long) row[1]
+        ));
+    }
+
 
     private FollowResponseDTO toDto(FollowRelationship fr) {
         return new FollowResponseDTO(
