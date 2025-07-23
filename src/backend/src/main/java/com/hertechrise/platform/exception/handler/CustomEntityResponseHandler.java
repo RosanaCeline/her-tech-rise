@@ -44,7 +44,7 @@ public class CustomEntityResponseHandler extends ResponseEntityExceptionHandler 
     }
 
     @ExceptionHandler(UserNotFoundException.class)
-    public ResponseEntity<ExceptionResponse> handleUserNotFound(Exception ex, WebRequest request) {
+    public ResponseEntity<ExceptionResponse> handleUserNotFoundException(Exception ex, WebRequest request) {
         ExceptionResponse response = new ExceptionResponse(
                 new Date(),
                 ex.getMessage(),
@@ -53,7 +53,7 @@ public class CustomEntityResponseHandler extends ResponseEntityExceptionHandler 
     }
 
     @ExceptionHandler(ProfessionalNotFoundException.class)
-    public ResponseEntity<ExceptionResponse> handleProfessionalNotFound(Exception ex, WebRequest request) {
+    public ResponseEntity<ExceptionResponse> handleProfessionalNotFoundException(Exception ex, WebRequest request) {
         ExceptionResponse response = new ExceptionResponse(
                 new Date(),
                 ex.getMessage(),
@@ -62,7 +62,7 @@ public class CustomEntityResponseHandler extends ResponseEntityExceptionHandler 
     }
 
     @ExceptionHandler(CompanyNotFoundException.class)
-    public ResponseEntity<ExceptionResponse> handleCompanyNotFound(Exception ex, WebRequest request) {
+    public ResponseEntity<ExceptionResponse> handleCompanyNotFoundException(Exception ex, WebRequest request) {
         ExceptionResponse response = new ExceptionResponse(
                 new Date(),
                 ex.getMessage(),
@@ -71,7 +71,7 @@ public class CustomEntityResponseHandler extends ResponseEntityExceptionHandler 
     }
 
     @ExceptionHandler(FollowNotFoundException.class)
-    public ResponseEntity<ExceptionResponse> handleFollowNotFound(Exception ex, WebRequest request) {
+    public ResponseEntity<ExceptionResponse> handleFollowNotFoundException(Exception ex, WebRequest request) {
         ExceptionResponse response = new ExceptionResponse(
                 new Date(),
                 ex.getMessage(),
@@ -80,7 +80,7 @@ public class CustomEntityResponseHandler extends ResponseEntityExceptionHandler 
     }
 
     @ExceptionHandler(EmailAlreadyRegisteredException.class)
-    public ResponseEntity<?> handleEmailAlreadyRegistered(Exception ex, WebRequest request) {
+    public ResponseEntity<?> handleEmailAlreadyRegisteredException(Exception ex, WebRequest request) {
         ExceptionResponse response = new ExceptionResponse(
                 new Date(),
                 ex.getMessage(),
@@ -89,7 +89,7 @@ public class CustomEntityResponseHandler extends ResponseEntityExceptionHandler 
     }
 
     @ExceptionHandler(CpfAlreadyRegisteredException.class)
-    public ResponseEntity<?> handleCpfAlredyRegistered(Exception ex, WebRequest request) {
+    public ResponseEntity<?> handleCpfAlredyRegisteredException(Exception ex, WebRequest request) {
         ExceptionResponse response = new ExceptionResponse(
                 new Date(),
                 ex.getMessage(),
@@ -98,7 +98,7 @@ public class CustomEntityResponseHandler extends ResponseEntityExceptionHandler 
     }
 
     @ExceptionHandler(CnpjAlreadyRegisteredException.class)
-    public ResponseEntity<?> handleCnpjAlredyRegistered(Exception ex, WebRequest request) {
+    public ResponseEntity<?> handleCnpjAlredyRegisteredException(Exception ex, WebRequest request) {
         ExceptionResponse response = new ExceptionResponse(
                 new Date(),
                 ex.getMessage(),
@@ -107,7 +107,7 @@ public class CustomEntityResponseHandler extends ResponseEntityExceptionHandler 
     }
 
     @ExceptionHandler(RuntimeException.class)
-    public ResponseEntity<?> handleRuntimeException(Exception ex, WebRequest request) {
+    public ResponseEntity<?> handleRuntimeExceptionException(Exception ex, WebRequest request) {
         ExceptionResponse response = new ExceptionResponse(
                 new Date(),
                 ex.getMessage(),
@@ -131,7 +131,7 @@ public class CustomEntityResponseHandler extends ResponseEntityExceptionHandler 
     }
 
     @ExceptionHandler(SelfFollowException.class)
-    public ResponseEntity<?> handleSelfFollow(Exception ex, WebRequest request) {
+    public ResponseEntity<?> handleSelfFollowException(Exception ex, WebRequest request) {
         ExceptionResponse response = new ExceptionResponse(
                 new Date(),
                 ex.getMessage(),
@@ -140,7 +140,7 @@ public class CustomEntityResponseHandler extends ResponseEntityExceptionHandler 
     }
 
     @ExceptionHandler(SelfUnfollowException.class)
-    public ResponseEntity<?> handleSelfUnfollow(Exception ex, WebRequest request) {
+    public ResponseEntity<?> handleSelfUnfollowException(Exception ex, WebRequest request) {
         ExceptionResponse response = new ExceptionResponse(
                 new Date(),
                 ex.getMessage(),
@@ -149,7 +149,7 @@ public class CustomEntityResponseHandler extends ResponseEntityExceptionHandler 
     }
 
     @ExceptionHandler(FileReadException.class)
-    public ResponseEntity<?> handleFileRead(Exception ex, WebRequest request) {
+    public ResponseEntity<?> handleFileReadException(Exception ex, WebRequest request) {
         ExceptionResponse response = new ExceptionResponse(
                 new Date(),
                 ex.getMessage(),
@@ -158,7 +158,7 @@ public class CustomEntityResponseHandler extends ResponseEntityExceptionHandler 
     }
 
     @ExceptionHandler(InvalidFileTypeException.class)
-    public ResponseEntity<?> handleInvalidFileType(Exception ex, WebRequest request) {
+    public ResponseEntity<?> handleInvalidFileTypeException(Exception ex, WebRequest request) {
         ExceptionResponse response = new ExceptionResponse(
                 new Date(),
                 ex.getMessage(),
@@ -167,7 +167,7 @@ public class CustomEntityResponseHandler extends ResponseEntityExceptionHandler 
     }
 
     @ExceptionHandler(AlreadyFollowingException.class)
-    public ResponseEntity<?> handleAlreadyFollowing(Exception ex, WebRequest request) {
+    public ResponseEntity<?> handleAlreadyFollowingException(Exception ex, WebRequest request) {
         ExceptionResponse response = new ExceptionResponse(
                 new Date(),
                 ex.getMessage(),
@@ -176,11 +176,29 @@ public class CustomEntityResponseHandler extends ResponseEntityExceptionHandler 
     }
 
     @ExceptionHandler(AccountDisabledException.class)
-    public ResponseEntity<?> handleAccountDisabled(Exception ex, WebRequest request) {
+    public ResponseEntity<?> handleAccountDisabledException(Exception ex, WebRequest request) {
         ExceptionResponse response = new ExceptionResponse(
                 new Date(),
                 ex.getMessage(),
                 request.getDescription(false));
         return new ResponseEntity<>(response, HttpStatus.FORBIDDEN);
+    }
+
+    @ExceptionHandler(InvalidMediaTypeException.class)
+    public ResponseEntity<?> handleInvalidMediaTypeException(Exception ex, WebRequest request) {
+        ExceptionResponse response = new ExceptionResponse(
+                new Date(),
+                ex.getMessage(),
+                request.getDescription(false));
+        return new ResponseEntity<>(response, HttpStatus.UNSUPPORTED_MEDIA_TYPE);
+    }
+
+    @ExceptionHandler(MediaFileTooLargeException.class)
+    public ResponseEntity<?> handleMediaFileTooLargeException(Exception ex, WebRequest request) {
+        ExceptionResponse response = new ExceptionResponse(
+                new Date(),
+                ex.getMessage(),
+                request.getDescription(false));
+        return new ResponseEntity<>(response, HttpStatus.PAYLOAD_TOO_LARGE);
     }
 }
