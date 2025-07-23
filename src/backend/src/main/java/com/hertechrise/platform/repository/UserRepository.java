@@ -46,8 +46,6 @@ public interface UserRepository extends JpaRepository<User, Long> {
         String getProfilePic();
     }
 
-<<<<<<< HEAD
-=======
     @Query("""
         SELECT u.id AS id, u.name AS name, u.handle AS handle, 
                p.technology AS technology, u.city AS city, u.uf AS uf, u.profilePic AS profilePic
@@ -59,7 +57,6 @@ public interface UserRepository extends JpaRepository<User, Long> {
     Page<ProfessionalSummary> searchProfessionalsPagedWithTechnology(@Param("term") String term, @Param("excludedId") Long excludedId, Pageable pageable);
 
 
->>>>>>> main
     <T> Page<T> findByTypeAndIdNotAndNameContainingIgnoreCaseOrTypeAndIdNotAndHandleContainingIgnoreCase(
             UserType t1, Long excludedId1, String name,
             UserType t2, Long excludedId2, String handle,

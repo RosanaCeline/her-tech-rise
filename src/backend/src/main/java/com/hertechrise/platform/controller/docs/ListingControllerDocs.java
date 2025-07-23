@@ -22,8 +22,6 @@ public interface ListingControllerDocs {
                 - Com `q`: filtra por `name ILIKE %q%` ou `username ILIKE %q%` dentro do tipo.
                 - Resultado não paginado, apenas listas fixas.
                 - **O usuário autenticado (logado) não é incluído nos resultados.**
-<<<<<<< HEAD
-=======
                 
                 Cada item retornado inclui:
                 - Nome
@@ -32,7 +30,6 @@ public interface ListingControllerDocs {
                 - Cidade e UF
                 - **Quantidade de seguidores**
                 - (Para profissionais) Tecnologia principal
->>>>>>> main
                 """,
             parameters = {
                     @Parameter(name = "q", description = "Termo de busca (opcional)", example = "ana")
@@ -54,15 +51,12 @@ public interface ListingControllerDocs {
             summary = "Listar profissionais com paginação",
             description = """
                 Retorna uma página de profissionais filtrados e ordenados por nome.
-            
+
                 Regras de busca:
                 - Busca opcional por `name ILIKE %q%` ou `username ILIKE %q%` dentro do tipo profissional.
                 - Paginação e ordenação independentes (frontend mantém página, tamanho e ordenação).
                 - Endpoint separado do de empresas, cada um tem sua própria paginação.
                 - **O usuário autenticado (logado) não é incluído nos resultados.**
-<<<<<<< HEAD
-            
-=======
                 
                 Cada item retornado inclui:
                 - Nome
@@ -72,7 +66,6 @@ public interface ListingControllerDocs {
                 - **Tecnologia principal**
                 - **Quantidade de seguidores**
                 
->>>>>>> main
                 Exemplo de uso:
                 `{{baseUrl}}/api/listing/professionals?q=thalyta&page=0&size=20&sort=name,asc`
                 """,
@@ -105,8 +98,6 @@ public interface ListingControllerDocs {
                 - Endpoint separado do de profissionais, cada um tem sua própria paginação.
                 - **O usuário autenticado (logado) não é incluído nos resultados.**
                 
-<<<<<<< HEAD
-=======
                 Cada item retornado inclui:
                 - Nome
                 - Username (handle)
@@ -114,7 +105,6 @@ public interface ListingControllerDocs {
                 - Cidade e UF
                 - **Quantidade de seguidores**
                 
->>>>>>> main
                 Exemplo de uso:
                 `{{baseUrl}}/api/listing/companies?q=tech&page=0&size=20&sort=name,asc`
                 """,
