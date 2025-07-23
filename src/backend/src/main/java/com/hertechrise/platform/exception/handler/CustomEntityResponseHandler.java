@@ -88,13 +88,22 @@ public class CustomEntityResponseHandler extends ResponseEntityExceptionHandler 
         return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
     }
 
-    @ExceptionHandler(CnpjAlreadyRegisteredException.class)
-    public ResponseEntity<?> handleCrpCrmAlredyRegistered(Exception ex, WebRequest request) {
+    @ExceptionHandler(CpfAlreadyRegisteredException.class)
+    public ResponseEntity<?> handleCpfAlredyRegistered(Exception ex, WebRequest request) {
         ExceptionResponse response = new ExceptionResponse(
                 new Date(),
                 ex.getMessage(),
                 request.getDescription(false));
-        return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
+        return new ResponseEntity<>(response, HttpStatus.CONFLICT);
+    }
+
+    @ExceptionHandler(CnpjAlreadyRegisteredException.class)
+    public ResponseEntity<?> handleCnpjAlredyRegistered(Exception ex, WebRequest request) {
+        ExceptionResponse response = new ExceptionResponse(
+                new Date(),
+                ex.getMessage(),
+                request.getDescription(false));
+        return new ResponseEntity<>(response, HttpStatus.CONFLICT);
     }
 
     @ExceptionHandler(RuntimeException.class)
