@@ -121,11 +121,11 @@ public class FollowService {
     }
 
     public long countFollowers(Long userId) {
-        return followRepository.countByFollowedId(userId);
+        return followRepository.countByFollowing_Id(userId);
     }
 
     public long countFollowing(Long userId) {
-        return followRepository.countByFollowerId(userId);
+        return followRepository.countByFollower_Id(userId);
     }
 
     public FollowerCountResponseDTO getFollowerStats(Long userId) {
