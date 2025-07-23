@@ -1,5 +1,6 @@
 package com.hertechrise.platform.services;
 
+import com.hertechrise.platform.config.DotenvInitializer;
 import com.hertechrise.platform.data.dto.response.CompanySummaryResponseDTO;
 import com.hertechrise.platform.data.dto.response.MainListingResponseDTO;
 import com.hertechrise.platform.data.dto.response.PagedResponseDTO;
@@ -19,11 +20,17 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
+import org.springframework.test.annotation.Rollback;
+import org.springframework.test.context.ContextConfiguration;
+import org.springframework.transaction.annotation.Transactional;
 
 import static org.junit.jupiter.api.Assertions.*;
 import java.util.List;
 
 @SpringBootTest
+@Transactional
+@Rollback
+@ContextConfiguration(initializers = DotenvInitializer.class)
 class ListingServiceTest {
     @Autowired
     private ListingService listingService;

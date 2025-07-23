@@ -1,4 +1,5 @@
 package com.hertechrise.platform.services;
+import com.hertechrise.platform.config.DotenvInitializer;
 import com.hertechrise.platform.data.dto.request.*;
 import com.hertechrise.platform.data.dto.response.TokenResponseDTO;
 import com.hertechrise.platform.exception.*;
@@ -24,12 +25,19 @@ import com.hertechrise.platform.exception.AccountDisabledException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import com.hertechrise.platform.exception.CnpjAlreadyRegisteredException;
 import com.hertechrise.platform.exception.UserNotFoundException;
+import org.springframework.test.annotation.Rollback;
 import org.springframework.test.context.ActiveProfiles;
 import com.hertechrise.platform.security.jwt.ResetPasswordTokenService;
 import com.hertechrise.platform.security.jwt.TokenService;
+import org.springframework.test.context.ContextConfiguration;
+import org.springframework.transaction.annotation.Transactional;
+
 import static org.junit.jupiter.api.Assertions.*;
 
 @SpringBootTest
+@Transactional
+@Rollback
+@ContextConfiguration(initializers = DotenvInitializer.class)
 class AuthServiceTest extends AbstractIntegrationTest {
 
     @Autowired

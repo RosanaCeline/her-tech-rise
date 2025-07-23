@@ -1,4 +1,5 @@
 package com.hertechrise.platform.services;
+import com.hertechrise.platform.config.DotenvInitializer;
 import com.hertechrise.platform.data.dto.request.FollowRequestDTO;
 import com.hertechrise.platform.data.dto.request.UnfollowRequestDTO;
 import com.hertechrise.platform.data.dto.response.FollowResponseDTO;
@@ -17,11 +18,18 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.test.annotation.Rollback;
+import org.springframework.test.context.ContextConfiguration;
+import org.springframework.transaction.annotation.Transactional;
+
 import java.time.LocalDateTime;
 import java.util.List;
 import static org.junit.jupiter.api.Assertions.*;
 
 @SpringBootTest
+@Transactional
+@Rollback
+@ContextConfiguration(initializers = DotenvInitializer.class)
 class FollowServiceTest extends AbstractIntegrationTest {
 
     //BD

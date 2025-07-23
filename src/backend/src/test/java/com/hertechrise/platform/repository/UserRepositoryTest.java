@@ -1,4 +1,5 @@
 package com.hertechrise.platform.repository;
+import com.hertechrise.platform.config.DotenvInitializer;
 import org.junit.jupiter.api.Test;
 import com.hertechrise.platform.integrationtests.testcontainers.AbstractIntegrationTest;
 import com.hertechrise.platform.model.User;
@@ -8,9 +9,17 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
-import static org.junit.jupiter.api.Assertions.*;
-@SpringBootTest
+import org.springframework.test.annotation.Rollback;
+import org.springframework.test.context.ActiveProfiles;
+import org.springframework.test.context.ContextConfiguration;
+import org.springframework.transaction.annotation.Transactional;
 
+import static org.junit.jupiter.api.Assertions.*;
+
+@SpringBootTest
+@Transactional
+@Rollback
+@ContextConfiguration(initializers = DotenvInitializer.class)
 class UserRepositoryTest extends AbstractIntegrationTest{
 //usando Bd com TestContainer(banco de dados temporario(dinamico)
 
