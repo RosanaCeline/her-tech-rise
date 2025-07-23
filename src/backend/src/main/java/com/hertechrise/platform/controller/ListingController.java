@@ -1,9 +1,7 @@
 package com.hertechrise.platform.controller;
 
 import com.hertechrise.platform.controller.docs.ListingControllerDocs;
-import com.hertechrise.platform.data.dto.response.MainListingResponseDTO;
-import com.hertechrise.platform.data.dto.response.PagedResponseDTO;
-import com.hertechrise.platform.data.dto.response.UserSummaryResponseDTO;
+import com.hertechrise.platform.data.dto.response.*;
 import com.hertechrise.platform.services.ListingService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Pageable;
@@ -26,14 +24,14 @@ public class ListingController implements ListingControllerDocs {
     }
 
     @GetMapping("/professionals")
-    public PagedResponseDTO<UserSummaryResponseDTO> professionals(
+    public PagedResponseDTO<ProfessionalSummaryResponseDTO> professionals(
             @RequestParam(required = false) String q,
             @PageableDefault(size = 20, sort = "name") Pageable page) {
         return service.pageProfessionals(q, page);
     }
 
     @GetMapping("/companies")
-    public PagedResponseDTO<UserSummaryResponseDTO> companies(
+    public PagedResponseDTO<CompanySummaryResponseDTO> companies(
             @RequestParam(required = false) String q,
             @PageableDefault(size = 20, sort = "name") Pageable page) {
         return service.pageCompanies(q, page);
