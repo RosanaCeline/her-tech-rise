@@ -2,7 +2,7 @@ import React from 'react';
 import { useNavigate } from 'react-router-dom'
 import { Routes, Route } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
-import { getRoutesByRole // vai mandar a lista de rotas certa dependendo do tipo de usuário
+import { getRoutesByRole 
         , publicRoutes, authRoutes } from './listRoutes';
 
 import PublicLayout from "../components/layout/PublicLayout/PublicLayout"

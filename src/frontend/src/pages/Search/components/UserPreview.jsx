@@ -1,5 +1,6 @@
 import BtnCallToAction from "../../../components/btn/BtnCallToAction/BtnCallToAction"
 import { useNavigate } from "react-router-dom"
+
 export default function UserPreview({user, type}){
     const navigate = useNavigate()
 

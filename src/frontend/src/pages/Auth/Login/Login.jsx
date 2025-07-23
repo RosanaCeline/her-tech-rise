@@ -1,8 +1,7 @@
-import React from 'react';
 import LoginForm from './components/LoginForm'
 import logo from "../../../assets/logo/LogoNamePurple.png";
 import login from "../../../assets/auth/login.png";
-import { useAuth } from "../../../context/AuthContext"; // hook que fornece o user logado
+import { useAuth } from "../../../context/AuthContext"; 
 import { Navigate } from "react-router-dom";
 
 export default function Login ({ resetPass, registerPath, enter }) {
