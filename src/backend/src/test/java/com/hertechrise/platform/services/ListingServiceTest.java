@@ -1,8 +1,9 @@
 package com.hertechrise.platform.services;
 
+import com.hertechrise.platform.data.dto.response.CompanySummaryResponseDTO;
 import com.hertechrise.platform.data.dto.response.MainListingResponseDTO;
 import com.hertechrise.platform.data.dto.response.PagedResponseDTO;
-import com.hertechrise.platform.data.dto.response.UserSummaryResponseDTO;
+import com.hertechrise.platform.data.dto.response.ProfessionalSummaryResponseDTO;
 import com.hertechrise.platform.model.Role;
 import com.hertechrise.platform.model.User;
 import com.hertechrise.platform.model.UserType;
@@ -152,7 +153,7 @@ class ListingServiceTest {
             createTestUser("Tatiana Lopes", "tatiana.lopes@test.com", "tatianal123", "PROFESSIONAL")
         );
 
-        PagedResponseDTO<UserSummaryResponseDTO> result = listingService.pageProfessionals("a", PageRequest.of(0, 20, Sort.by("name")));
+        PagedResponseDTO<ProfessionalSummaryResponseDTO> result = listingService.pageProfessionals("a", PageRequest.of(0, 20, Sort.by("name")));
 
         assertEquals(20, result.content().size());
         assertEquals(2, result.totalPages());
@@ -192,7 +193,7 @@ class ListingServiceTest {
             createTestUser("Pulse Innovations", "hello@pulse.com", "pulse", "COMPANY")
         );
 
-        PagedResponseDTO<UserSummaryResponseDTO> result = listingService.pageCompanies("a", PageRequest.of(0, 20, Sort.by("name")));
+        PagedResponseDTO<CompanySummaryResponseDTO> result = listingService.pageCompanies("a", PageRequest.of(0, 20, Sort.by("name")));
 
         assertEquals(20, result.content().size());
         assertEquals(2, result.totalPages());

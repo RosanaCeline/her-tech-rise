@@ -105,4 +105,16 @@ public class ListingService {
                 u.getProfilePic()
         ));
     }
+
+    private <T> PagedResponseDTO<T> toPagedResponse(Page<T> page) {
+        return new PagedResponseDTO<>(
+                page.getContent(),
+                page.getTotalElements(),
+                page.getTotalPages(),
+                page.getNumber(),
+                page.getSize(),
+                page.isLast(),
+                page.isFirst()
+        );
+    }
 }
