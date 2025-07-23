@@ -24,7 +24,7 @@ class MediaServiceTest {
     void buildMediaEntitiesSuccess() {
         Post post = new Post();
         MediaRequestDTO dto = new MediaRequestDTO(
-                MediaType.IMAGEM,
+                MediaType.IMAGE,
                 "image/png",
                 "https://res.cloudinary.com/dl63ih00u/image/upload/v1752673929/profile_pics/user_2.jpg"
         );
@@ -34,7 +34,7 @@ class MediaServiceTest {
         assertEquals(1, result.size());
         Media media = result.get(0);
         assertEquals(post, media.getPost());
-        assertEquals(MediaType.IMAGEM, media.getMediaType());
+        assertEquals(MediaType.IMAGE, media.getMediaType());
         assertEquals("image/png", media.getMimeType());
         assertEquals("https://res.cloudinary.com/dl63ih00u/image/upload/v1752673929/profile_pics/user_2.jpg", media.getUrl());
     }
