@@ -214,7 +214,6 @@ class ProfessionalProfileServiceTest extends AbstractIntegrationTest {
                 "Spring Boot", "Sou a Midian", "@midian");
 
         Experience exp = new Experience();
-        exp.setId(1L);
         exp.setProfessional(professional);
         exp.setCompany("Prefeitura");
         exp.setModality("Presencial");
@@ -223,6 +222,7 @@ class ProfessionalProfileServiceTest extends AbstractIntegrationTest {
         exp.setEndDate(LocalDate.of(2020, 5, 1));
         exp.setTitle("Assistente Admistrativo");
         exp.setDescription("Assistente na prefeitura");
+        professional.getExperiences().add(exp);
         experienceRepository.save(exp);
 
         List<ExperienceRequestDTO> experiences = new ArrayList<>();
@@ -260,7 +260,7 @@ class ProfessionalProfileServiceTest extends AbstractIntegrationTest {
         assertEquals("@midian", response.handle());
         assertEquals(3, response.experiences().size());
         assertEquals("Engenheira de Software", response.experiences().getFirst().title());
-        assertEquals("Assistente Admistrativo", response.experiences().get(1).description());
+        assertEquals("Assistente Admistrativo", response.experiences().get(1).title());
         assertEquals("Desenvolvedor Java", response.experiences().get(2).title());
     }
 
