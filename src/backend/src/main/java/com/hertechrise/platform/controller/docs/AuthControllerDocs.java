@@ -4,13 +4,18 @@ import com.hertechrise.platform.data.dto.request.*;
 import com.hertechrise.platform.data.dto.response.MessageResponseDTO;
 import com.hertechrise.platform.data.dto.response.TokenResponseDTO;
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.parameters.RequestBody;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
+import jakarta.validation.constraints.NotBlank;
+import org.hibernate.validator.constraints.br.CNPJ;
+import org.hibernate.validator.constraints.br.CPF;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.RequestParam;
 
 @Tag(name = "Autenticação", description = "Endpoints para autenticação de usuários")
 public interface AuthControllerDocs {
@@ -50,6 +55,31 @@ public interface AuthControllerDocs {
             }
     )
     ResponseEntity<TokenResponseDTO> registerCompany(@Valid RegisterCompanyRequestDTO request);
+
+    @Operation(
+            summary = "Verifica se um CPF já está cadastrado",
+            description = "Recebe um CPF como parâmetro e verifica se ele já existe no banco de dados. " +
+                    "Retorna 200 se o CPF não existir (disponível para cadastro) e 409 se já existir (não disponível).",
+            parameters = @Parameter(name = "cpf", description = "CPF a ser verificado", required = true, example = "123.456.789-09"),
+            responses = {
+                    @ApiResponse(responseCode = "200", description = "CPF não cadastrado (disponível)"),
+                    @ApiResponse(responseCode = "409", description = "CPF já cadastrado")
+            }
+    )
+    public ResponseEntity<Void> validateCpf(@RequestParam @NotBlank @CPF String cpf);
+
+    @Operation(
+            summary = "Verifica se um CNPJ já está cadastrado",
+            description = "Recebe um CNPJ como parâmetro e verifica se ele já existe no banco de dados. " +
+                    " Retorna 200 se o CNPJ não existir (disponível para cadastro) e 409 se já existir (não disponível).",
+            parameters = @Parameter(name = "cnpj", description = "CNPJ a ser verificado", required = true, example = "12.345.678/0001-95"),
+            responses = {
+                    @ApiResponse(responseCode = "200", description = "CNPJ não cadastrado (disponível)"),
+                    @ApiResponse(responseCode = "409", description = "CNPJ já cadastrado")
+            }
+    )
+    public ResponseEntity<Void> validateCnpj(@RequestParam @NotBlank @CNPJ String cnpj);
+
 
     @Operation(
             summary = "Login",

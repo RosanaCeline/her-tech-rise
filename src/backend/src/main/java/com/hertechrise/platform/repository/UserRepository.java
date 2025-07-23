@@ -27,14 +27,39 @@ public interface UserRepository extends JpaRepository<User, Long> {
             Pageable pageable);
 
     // projeção para poupar dados (interface‑based projection)
-    interface Summary {
+    interface ProfessionalSummary {
+        Long getId();
+        String getName();
+        String getHandle();
+        String getTechnology();
+        String getCity();
+        String getUf();
+        String getProfilePic();
+    }
+
+    interface CompanySummary {
         Long getId();
         String getName();
         String getHandle();
         String getCity();
+        String getUf();
         String getProfilePic();
     }
 
+<<<<<<< HEAD
+=======
+    @Query("""
+        SELECT u.id AS id, u.name AS name, u.handle AS handle, 
+               p.technology AS technology, u.city AS city, u.uf AS uf, u.profilePic AS profilePic
+        FROM User u
+        JOIN Professional p ON u.id = p.id
+        WHERE u.type = 'PROFESSIONAL' AND u.id <> :excludedId 
+          AND (LOWER(u.name) LIKE LOWER(CONCAT('%', :term, '%')) OR LOWER(u.handle) LIKE LOWER(CONCAT('%', :term, '%')))
+    """)
+    Page<ProfessionalSummary> searchProfessionalsPagedWithTechnology(@Param("term") String term, @Param("excludedId") Long excludedId, Pageable pageable);
+
+
+>>>>>>> main
     <T> Page<T> findByTypeAndIdNotAndNameContainingIgnoreCaseOrTypeAndIdNotAndHandleContainingIgnoreCase(
             UserType t1, Long excludedId1, String name,
             UserType t2, Long excludedId2, String handle,
