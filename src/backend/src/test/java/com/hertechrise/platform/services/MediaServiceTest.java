@@ -1,4 +1,5 @@
 package com.hertechrise.platform.services;
+import com.hertechrise.platform.config.DotenvInitializer;
 import com.hertechrise.platform.data.dto.request.MediaRequestDTO;
 import com.hertechrise.platform.model.Media;
 import com.hertechrise.platform.model.MediaType;
@@ -9,9 +10,16 @@ import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.test.annotation.Rollback;
+import org.springframework.test.context.ContextConfiguration;
+import org.springframework.transaction.annotation.Transactional;
+
 import static org.junit.jupiter.api.Assertions.*;
 
 @SpringBootTest
+@Transactional
+@Rollback
+@ContextConfiguration(initializers = DotenvInitializer.class)
 class MediaServiceTest {
 
     //MediaService converte uma list de obj MRDTO em uma list media (post)

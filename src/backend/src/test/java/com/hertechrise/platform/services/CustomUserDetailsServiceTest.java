@@ -1,5 +1,6 @@
 
 package com.hertechrise.platform.services;
+import com.hertechrise.platform.config.DotenvInitializer;
 import com.hertechrise.platform.exception.InvalidUserTypeException;
 import com.hertechrise.platform.integrationtests.testcontainers.AbstractIntegrationTest;
 import com.hertechrise.platform.model.Role;
@@ -14,9 +15,16 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.test.annotation.Rollback;
+import org.springframework.test.context.ContextConfiguration;
+import org.springframework.transaction.annotation.Transactional;
+
 import static org.junit.jupiter.api.Assertions.*;
 
 @SpringBootTest
+@Transactional
+@Rollback
+@ContextConfiguration(initializers = DotenvInitializer.class)
 class CustomUserDetailsServiceTest extends AbstractIntegrationTest {
 
     @Autowired

@@ -1,4 +1,5 @@
 package com.hertechrise.platform.services;
+import com.hertechrise.platform.config.DotenvInitializer;
 import com.hertechrise.platform.data.dto.response.CompanyProfileResponseDTO;
 import com.hertechrise.platform.data.dto.request.RegisterCompanyRequestDTO;
 import com.hertechrise.platform.data.dto.response.CompanyProfileResponseDTO;
@@ -19,10 +20,17 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.test.annotation.Rollback;
+import org.springframework.test.context.ContextConfiguration;
+import org.springframework.transaction.annotation.Transactional;
+
 import java.time.LocalDateTime;
 import java.util.List;
 
 @SpringBootTest
+@Transactional
+@Rollback
+@ContextConfiguration(initializers = DotenvInitializer.class)
 class CompanyProfileServiceTest extends AbstractIntegrationTest {
 
     @Autowired
@@ -60,12 +68,12 @@ class CompanyProfileServiceTest extends AbstractIntegrationTest {
         newUser.setPhoneNumber("88 900000000");
         newUser.setStreet("teste");
         newUser.setNeighborhood("test");
-        newUser.setCity("Tiangua");
+        newUser.setCity("Tianguá");
         newUser.setCep("62320000");
         newUser.setUf("CE");
         newUser.setExternalLink("");
         newUser.setType(UserType.COMPANY);
-        newUser.setHandle("her");
+        newUser.setHandle("@hertech");
         newUser.setProfilePic("https://res.cloudinary.com/dl63ih00u/image/upload/v1752625413/default_profile_company_qizndf.png");
 
         Role role = roleRepository.findByName("COMPANY")
@@ -87,13 +95,14 @@ class CompanyProfileServiceTest extends AbstractIntegrationTest {
         user2.setStreet("test");
         user2.setType(UserType.COMPANY);
         user2.setRole(role);
+        userRepository.save(user2);
 
         Company company = new Company();
         company.setUser(newUser);
         company.setCnpj("12.345.678/0001-95");
         company.setCompanyType(CompanyType.NACIONAL);
-        company.setDescription("bla bla");
-        company.setAboutUs("bla");
+        company.setDescription("Inovação,igualdade e oportunidade");
+        company.setAboutUs("Transformamos o mundo");
 
         companyRepository.save(company);
 
