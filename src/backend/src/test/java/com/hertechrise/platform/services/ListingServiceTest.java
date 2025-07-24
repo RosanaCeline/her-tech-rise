@@ -5,6 +5,8 @@ import com.hertechrise.platform.data.dto.response.CompanySummaryResponseDTO;
 import com.hertechrise.platform.data.dto.response.MainListingResponseDTO;
 import com.hertechrise.platform.data.dto.response.PagedResponseDTO;
 import com.hertechrise.platform.data.dto.response.ProfessionalSummaryResponseDTO;
+import com.hertechrise.platform.integrationtests.testcontainers.AbstractIntegrationTest;
+import com.hertechrise.platform.model.Professional;
 import com.hertechrise.platform.model.Role;
 import com.hertechrise.platform.model.User;
 import com.hertechrise.platform.model.UserType;
@@ -20,18 +22,23 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.test.annotation.Rollback;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.transaction.annotation.Transactional;
 
 import static org.junit.jupiter.api.Assertions.*;
+
+import java.time.LocalDate;
 import java.util.List;
+import java.util.Random;
 
 @SpringBootTest
 @Transactional
 @Rollback
 @ContextConfiguration(initializers = DotenvInitializer.class)
-class ListingServiceTest {
+class ListingServiceTest extends AbstractIntegrationTest {
     @Autowired
     private ListingService listingService;
     @Autowired
@@ -42,6 +49,11 @@ class ListingServiceTest {
     private ProfessionalRepository  professionalRepository;
     @Autowired
     private CompanyRepository companyRepository;
+
+    @BeforeEach
+    void cleanUpDatabase(){
+        userRepository.deleteAll();
+    }
 
     private User createTestUser(String name, String email, String handle, String user_role) {
         User user = new User();
@@ -63,7 +75,15 @@ class ListingServiceTest {
                 .orElseThrow(InvalidUserTypeException::new);
         user.setRole(role);
 
-        return userRepository.save(user);
+        if(user_role.equals("PROFESSIONAL")){
+            Professional professional = new Professional();
+            professional.setCpf(String.format("%011d", new Random().nextLong() % 1_000_000_00000L));
+            professional.setBirthDate(LocalDate.of(1998, 7, 23));
+            professional.setUser(user);
+            professionalRepository.save(professional);
+        }
+        else userRepository.save(user);
+        return user;
     }
 
     @DisplayName("Pesquisar todos os usuários, em ordem alfabética")
@@ -86,7 +106,12 @@ class ListingServiceTest {
             createTestUser("CodeFlow Inc.", "dev@codeflow.com", "codeflow", "COMPANY")
         );
 
-        MainListingResponseDTO result = listingService.mainListing(null);
+        User loggedUser = createTestUser("Thalyta", "thalyta@email.com", "@thalyta", "PROFESSIONAL");
+        UsernamePasswordAuthenticationToken auth =
+                new UsernamePasswordAuthenticationToken(loggedUser, null, List.of());
+        SecurityContextHolder.getContext().setAuthentication(auth);
+
+        MainListingResponseDTO result = listingService.mainListing("");
 
         assertNotNull(result);
         assertEquals(6, result.professionals().size());
