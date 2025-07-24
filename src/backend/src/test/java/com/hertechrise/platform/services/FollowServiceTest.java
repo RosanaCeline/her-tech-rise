@@ -3,6 +3,8 @@ import com.hertechrise.platform.config.DotenvInitializer;
 import com.hertechrise.platform.data.dto.request.FollowRequestDTO;
 import com.hertechrise.platform.data.dto.request.UnfollowRequestDTO;
 import com.hertechrise.platform.data.dto.response.FollowResponseDTO;
+import com.hertechrise.platform.data.dto.response.FollowerCountResponseDTO;
+import com.hertechrise.platform.data.dto.response.VerifyFollowResponseDTO;
 import com.hertechrise.platform.exception.*;
 import com.hertechrise.platform.integrationtests.testcontainers.AbstractIntegrationTest;
 import com.hertechrise.platform.model.*;
@@ -24,12 +26,15 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Map;
+
 import static org.junit.jupiter.api.Assertions.*;
 
 @SpringBootTest
 @Transactional
 @Rollback
 @ContextConfiguration(initializers = DotenvInitializer.class)
+
 class FollowServiceTest extends AbstractIntegrationTest {
 
     //BD
@@ -432,6 +437,441 @@ class FollowServiceTest extends AbstractIntegrationTest {
         assertEquals("Você não segue este usuário.", exception.getMessage());
 
     }
+    @DisplayName("Verificar follow de usuário")
+    @Test
+    void verifyFollow(){
+        // criando usuario
+        User loggedUser = new User();
+        loggedUser.setName("Cláudia");
+        loggedUser.setEnabled(true);
+        loggedUser.setUf("CE");
+        loggedUser.setCep("62320000");
+        loggedUser.setCity("Tiangua");
+        loggedUser.setEmail("claudia@test.com");
+        loggedUser.setNeighborhood("teste");
+        loggedUser.setStreet("teste");
+        loggedUser.setHandle("claudia123");
+        loggedUser.setPhoneNumber("88900000000");
+        loggedUser.setPassword("senhasegura123");
+        loggedUser.setType(UserType.PROFESSIONAL);
+        loggedUser.setProfilePic("https://res.cloudinary.com/ddotqrebs/image/upload/v1751250361/default_profile_company_kpqrxc.png");
+
+        Role role = roleRepository.findByName("PROFESSIONAL")
+                .orElseThrow(InvalidUserTypeException::new);
+        loggedUser.setRole(role);
+        userRepository.save(loggedUser);
+
+        User user2 = new User();
+        user2.setName("Lais Coutinho");
+        user2.setEnabled(true);
+        user2.setUf("CE");
+        user2.setCep("62320000");
+        user2.setCity("Tiangua");
+        user2.setEmail("laiscoutinho@test.com");
+        user2.setNeighborhood("centro");
+        user2.setStreet("teste");
+        user2.setHandle("laiscout");
+        user2.setPhoneNumber("88900000000");
+        user2.setPassword("senhasegura123");
+        user2.setType(UserType.PROFESSIONAL);
+        user2.setProfilePic("https://res.cloudinary.com/ddotqrebs/image/upload/v1751250361/default_profile_company_kpqrxc.png");
+
+        user2.setRole(role);
+        userRepository.save(user2);
+
+        FollowRelationship follow = new FollowRelationship();
+        follow.setFollower(loggedUser);
+        follow.setFollowing(user2);
+        followRepository.save(follow);
+
+        UsernamePasswordAuthenticationToken auth =
+                new UsernamePasswordAuthenticationToken(loggedUser, null, List.of());
+        SecurityContextHolder.getContext().setAuthentication(auth);
+
+        VerifyFollowResponseDTO result = followService.verifyFollow(user2.getId());
+
+        assertTrue(result.isFollowing());
+
+    }
+    @DisplayName("Deve lançar VerifySelfFollowException ao tentar verificar follow de si proprio")
+    @Test
+    void verifySelfFollowException(){
+      // user
+        User loggedUser = new User();
+        loggedUser.setName("Cláudia");
+        loggedUser.setEnabled(true);
+        loggedUser.setUf("CE");
+        loggedUser.setCep("62320000");
+        loggedUser.setCity("Tiangua");
+        loggedUser.setEmail("claudia@test.com");
+        loggedUser.setNeighborhood("teste");
+        loggedUser.setStreet("teste");
+        loggedUser.setHandle("claudia123");
+        loggedUser.setPhoneNumber("88900000000");
+        loggedUser.setPassword("senhasegura123");
+        loggedUser.setType(UserType.PROFESSIONAL);
+        loggedUser.setProfilePic("https://res.cloudinary.com/ddotqrebs/image/upload/v1751250361/default_profile_company_kpqrxc.png");
+
+        Role role = roleRepository.findByName("PROFESSIONAL")
+                .orElseThrow(InvalidUserTypeException::new);
+        loggedUser.setRole(role);
+        userRepository.save(loggedUser);
+
+        UsernamePasswordAuthenticationToken auth =
+                new UsernamePasswordAuthenticationToken(loggedUser, null, List.of());
+        SecurityContextHolder.getContext().setAuthentication(auth);
+
+        VerifySelfFollowException exception = assertThrows(
+                VerifySelfFollowException.class,
+                () -> followService.verifyFollow(loggedUser.getId())
+        );
+
+        assertEquals("Você não pode seguir a si mesmo.", exception.getMessage());
+    }
+
+
+
+   @DisplayName("Deve contar o número de seguidores do usuário")
+   @Test
+    void countFollowers(){
+        // contar os followers
+        User loggedUser = new User();
+        loggedUser.setName("Cláudia");
+        loggedUser.setEnabled(true);
+        loggedUser.setUf("CE");
+        loggedUser.setCep("62320000");
+        loggedUser.setCity("Tiangua");
+        loggedUser.setEmail("claudia@test.com");
+        loggedUser.setNeighborhood("teste");
+        loggedUser.setStreet("teste");
+        loggedUser.setHandle("claudia123");
+        loggedUser.setPhoneNumber("88900000000");
+        loggedUser.setPassword("senhasegura123");
+        loggedUser.setType(UserType.PROFESSIONAL);
+        loggedUser.setProfilePic("https://res.cloudinary.com/ddotqrebs/image/upload/v1751250361/default_profile_company_kpqrxc.png");
+
+
+        Role role = roleRepository.findByName("PROFESSIONAL")
+                .orElseThrow(InvalidUserTypeException::new);
+        loggedUser.setRole(role);
+        userRepository.save(loggedUser);
+
+
+
+
+        //user 2
+        User user2 = new User();
+        user2.setName("Lais Coutinho");
+        user2.setEnabled(true);
+        user2.setUf("CE");
+        user2.setCep("62320000");
+        user2.setCity("Tianguá");
+        user2.setEmail("laiscoutinho@test.com");
+        user2.setNeighborhood("Centro");
+        user2.setStreet("Rua A");
+        user2.setHandle("laiscout");
+        user2.setPhoneNumber("88999990001");
+        user2.setPassword("senha123");
+        user2.setType(UserType.PROFESSIONAL);
+        user2.setProfilePic("https://res.cloudinary.com/ddotqrebs/image/upload/v1751250361/default_profile_company_kpqrxc.png");
+        user2.setRole(role);
+        userRepository.save(user2);
+
+
+        User user3 = new User();
+        user3.setName("Rafael Lima");
+        user3.setEnabled(true);
+        user3.setUf("CE");
+        user3.setCep("62320000");
+        user3.setCity("Tianguá");
+        user3.setEmail("rafaellima@test.com");
+        user3.setNeighborhood("Bairro Novo");
+        user3.setStreet("Rua B");
+        user3.setHandle("rafael_dev");
+        user3.setPhoneNumber("88999990002");
+        user3.setPassword("rafael123");
+        user3.setType(UserType.PROFESSIONAL);
+        user3.setProfilePic("https://res.cloudinary.com/ddotqrebs/image/upload/v1751250361/default_profile_company_kpqrxc.png");
+        user3.setRole(role);
+        userRepository.save(user3);
+
+
+        UsernamePasswordAuthenticationToken auth =
+                new UsernamePasswordAuthenticationToken(loggedUser, null, List.of());
+        SecurityContextHolder.getContext().setAuthentication(auth);
+
+
+        FollowRelationship follow1 = new FollowRelationship();
+        follow1.setFollower(user2);           // Lais segue Cláudia
+        follow1.setFollowing(loggedUser);
+        followRepository.save(follow1);
+
+
+        FollowRelationship follow2 = new FollowRelationship();
+        follow2.setFollower(user3);           // Rafael segue Cláudia
+        follow2.setFollowing(loggedUser);
+        followRepository.save(follow2);
+
+
+        long followersCount = followService.countFollowers(loggedUser.getId());
+        assertEquals(2, followersCount);
+
+
+    }
+
+
+
+    @DisplayName("contar quantos seguidores o usuario esta seguindo ")
+    @Test
+    void countFollowing() {
+        Role role = roleRepository.findByName("PROFESSIONAL")
+                .orElseThrow(InvalidUserTypeException::new);
+
+        User loggedUser = new User();
+        loggedUser.setName("Cláudia");
+        loggedUser.setEnabled(true);
+        loggedUser.setUf("CE");
+        loggedUser.setCep("62320000");
+        loggedUser.setCity("Tiangua");
+        loggedUser.setEmail("claudia@test.com");
+        loggedUser.setNeighborhood("teste");
+        loggedUser.setStreet("teste");
+        loggedUser.setHandle("claudia123");
+        loggedUser.setPhoneNumber("88900000000");
+        loggedUser.setPassword("senhasegura123");
+        loggedUser.setType(UserType.PROFESSIONAL);
+        loggedUser.setProfilePic("https://res.cloudinary.com/ddotqrebs/image/upload/v1751250361/default_profile_company_kpqrxc.png");
+        loggedUser.setRole(role);
+        userRepository.save(loggedUser);
+
+
+        User user2 = new User();
+        user2.setName("Lais Coutinho");
+        user2.setEnabled(true);
+        user2.setUf("CE");
+        user2.setCep("62320000");
+        user2.setCity("Tianguá");
+        user2.setEmail("laiscoutinho@test.com");
+        user2.setNeighborhood("Centro");
+        user2.setStreet("Rua A");
+        user2.setHandle("laiscout");
+        user2.setPhoneNumber("88999990001");
+        user2.setPassword("senha123");
+        user2.setType(UserType.PROFESSIONAL);
+        user2.setProfilePic("https://res.cloudinary.com/ddotqrebs/image/upload/v1751250361/default_profile_company_kpqrxc.png");
+        user2.setRole(role);
+        userRepository.save(user2);
+
+
+        User user3 = new User();
+        user3.setName("Rafael Lima");
+        user3.setEnabled(true);
+        user3.setUf("CE");
+        user3.setCep("62320000");
+        user3.setCity("Tianguá");
+        user3.setEmail("rafaellima@test.com");
+        user3.setNeighborhood("Bairro Novo");
+        user3.setStreet("Rua B");
+        user3.setHandle("rafael_dev");
+        user3.setPhoneNumber("88999990002");
+        user3.setPassword("rafael123");
+        user3.setType(UserType.PROFESSIONAL);
+        user3.setProfilePic("https://res.cloudinary.com/ddotqrebs/image/upload/v1751250361/default_profile_company_kpqrxc.png");
+        user3.setRole(role);
+        userRepository.save(user3);
+
+
+        UsernamePasswordAuthenticationToken auth =
+                new UsernamePasswordAuthenticationToken(loggedUser, null, List.of());
+        SecurityContextHolder.getContext().setAuthentication(auth);
+
+
+
+
+        FollowRelationship follow1 = new FollowRelationship();
+        follow1.setFollower(loggedUser);
+        follow1.setFollowing(user2);
+        followRepository.save(follow1);
+
+
+        FollowRelationship follow2 = new FollowRelationship();
+        follow2.setFollower(loggedUser);
+        follow2.setFollowing(user3);
+        followRepository.save(follow2);
+
+
+        long totalFollowing = followService.countFollowing(loggedUser.getId());
+
+
+        assertEquals(2, totalFollowing);
+
+
+    }
+    @DisplayName("Deve retornar corretamente o total de seguidores e seguidos")
+    @Test
+    void getFollowerStatsSucess(){
+        Role role = roleRepository.findByName("PROFESSIONAL")
+                .orElseThrow(InvalidUserTypeException::new);
+
+        User loggedUser = new User();
+        loggedUser.setName("Cláudia");
+        loggedUser.setEnabled(true);
+        loggedUser.setUf("CE");
+        loggedUser.setCep("62320000");
+        loggedUser.setCity("Tiangua");
+        loggedUser.setEmail("claudia@test.com");
+        loggedUser.setNeighborhood("teste");
+        loggedUser.setStreet("teste");
+        loggedUser.setHandle("claudia123");
+        loggedUser.setPhoneNumber("88900000000");
+        loggedUser.setPassword("senhasegura123");
+        loggedUser.setType(UserType.PROFESSIONAL);
+        loggedUser.setProfilePic("https://res.cloudinary.com/ddotqrebs/image/upload/v1751250361/default_profile_company_kpqrxc.png");
+        loggedUser.setRole(role);
+        userRepository.save(loggedUser);
+
+        User user2 = new User();
+        user2.setName("Lais Coutinho");
+        user2.setEnabled(true);
+        user2.setUf("CE");
+        user2.setCep("62320000");
+        user2.setCity("Tianguá");
+        user2.setEmail("laiscoutinho@test.com");
+        user2.setNeighborhood("Centro");
+        user2.setStreet("Rua A");
+        user2.setHandle("laiscout");
+        user2.setPhoneNumber("88999990001");
+        user2.setPassword("senha123");
+        user2.setType(UserType.PROFESSIONAL);
+        user2.setProfilePic("https://res.cloudinary.com/ddotqrebs/image/upload/v1751250361/default_profile_company_kpqrxc.png");
+        user2.setRole(role);
+        userRepository.save(user2);
+
+        User user3 = new User();
+        user3.setName("Rafael Lima");
+        user3.setEnabled(true);
+        user3.setUf("CE");
+        user3.setCep("62320000");
+        user3.setCity("Tianguá");
+        user3.setEmail("rafaellima@test.com");
+        user3.setNeighborhood("Bairro Novo");
+        user3.setStreet("Rua B");
+        user3.setHandle("rafael_dev");
+        user3.setPhoneNumber("88999990002");
+        user3.setPassword("rafael123");
+        user3.setType(UserType.PROFESSIONAL);
+        user3.setProfilePic("https://res.cloudinary.com/ddotqrebs/image/upload/v1751250361/default_profile_company_kpqrxc.png");
+        user3.setRole(role);
+        userRepository.save(user3);
+
+        FollowRelationship follow1 = new FollowRelationship();
+        follow1.setFollower(user2);
+        follow1.setFollowing(loggedUser);
+        followRepository.save(follow1);
+
+        FollowRelationship follow2 = new FollowRelationship();
+        follow2.setFollower(user3);
+        follow2.setFollowing(loggedUser);
+        followRepository.save(follow2);
+
+        FollowRelationship follow3 = new FollowRelationship();
+        follow3.setFollower(loggedUser);
+        follow3.setFollowing(user2);
+        followRepository.save(follow3);
+
+        FollowerCountResponseDTO result = followService.getFollowerStats(loggedUser.getId());
+
+        assertEquals(2L, result.followers()); // Cláudia tem dois seguidores
+        assertEquals(1L, result.following()); // Cláudia está seguindo uma pessoa
+
+    }
+    @DisplayName("Deve contar o número de seguidores para múltiplos usuários")
+    @Test
+    void countFollowersListing(){
+        Role role = roleRepository.findByName("PROFESSIONAL")
+                .orElseThrow(InvalidUserTypeException::new);
+
+        User loggedUser = new User();
+        loggedUser.setName("Cláudia");
+        loggedUser.setEnabled(true);
+        loggedUser.setUf("CE");
+        loggedUser.setCep("62320000");
+        loggedUser.setCity("Tiangua");
+        loggedUser.setEmail("claudia@test.com");
+        loggedUser.setNeighborhood("teste");
+        loggedUser.setStreet("teste");
+        loggedUser.setHandle("claudia123");
+        loggedUser.setPhoneNumber("88900000000");
+        loggedUser.setPassword("senhasegura123");
+        loggedUser.setType(UserType.PROFESSIONAL);
+        loggedUser.setProfilePic("url");
+        loggedUser.setRole(role);
+        userRepository.save(loggedUser);
+
+        User user2 = new User();
+        user2.setName("Lais Coutinho");
+        user2.setEmail("laiscoutinho@test.com");
+        user2.setHandle("laiscout");
+        user2.setEnabled(true);
+        user2.setUf("CE");
+        user2.setCep("62320000");
+        user2.setCity("Tianguá");
+        user2.setNeighborhood("Centro");
+        user2.setStreet("Rua A");
+        user2.setPhoneNumber("88999990001");
+        user2.setPassword("senha123");
+        user2.setType(UserType.PROFESSIONAL);
+        user2.setProfilePic("url");
+        user2.setRole(role);
+        userRepository.save(user2);
+
+        User user3 = new User();
+        user3.setName("Rafael Lima");
+        user3.setEmail("rafaellima@test.com");
+        user3.setHandle("rafael_dev");
+        user3.setEnabled(true);
+        user3.setUf("CE");
+        user3.setCep("62320000");
+        user3.setCity("Tianguá");
+        user3.setNeighborhood("Bairro Novo");
+        user3.setStreet("Rua B");
+        user3.setPhoneNumber("88999990002");
+        user3.setPassword("rafael123");
+        user3.setType(UserType.PROFESSIONAL);
+        user3.setProfilePic("url");
+        user3.setRole(role);
+        userRepository.save(user3);
+
+        FollowRelationship follow1 = new FollowRelationship();
+        follow1.setFollower(user2);
+        follow1.setFollowing(loggedUser);
+        followRepository.save(follow1);
+
+        FollowRelationship follow2 = new FollowRelationship();
+        follow2.setFollower(user3);
+        follow2.setFollowing(loggedUser);
+        followRepository.save(follow2);
+
+
+        FollowRelationship follow3 = new FollowRelationship();
+        follow3.setFollower(loggedUser);
+        follow3.setFollowing(user3);
+        followRepository.save(follow3);
+
+        FollowRelationship follow4 = new FollowRelationship();
+        follow4.setFollower(loggedUser);
+        follow4.setFollowing(user2);
+        followRepository.save(follow4);
+
+        List<Long> userIds = List.of(loggedUser.getId(), user2.getId(), user3.getId());
+        Map<Long, Long> result = followService.countFollowersListing(userIds);
+
+        assertEquals(2L, result.get(loggedUser.getId()));
+        assertEquals(1L, result.get(user2.getId()));
+        assertEquals(1L, result.get(user3.getId()));
+
+
+    }
 
     @DisplayName("Deve listar os usuários que o usuário logado está seguindo")
     @Test
@@ -561,5 +1001,4 @@ class FollowServiceTest extends AbstractIntegrationTest {
         assertNotNull(dto.followedAt());
 
     }
-    //falta testar private DTO
 }
