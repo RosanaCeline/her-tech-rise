@@ -1,5 +1,4 @@
 package com.hertechrise.platform.services;
-
 import com.hertechrise.platform.config.DotenvInitializer;
 import com.hertechrise.platform.data.dto.request.ExperienceRequestDTO;
 import com.hertechrise.platform.data.dto.request.ProfessionalProfileRequestDTO;
@@ -164,6 +163,7 @@ class ProfessionalProfileServiceTest extends AbstractIntegrationTest {
     void viewProfileOfUserThatDoesNotExist(){
         Professional loggedProfessional = createTestProfessioanal("User", "user@email.com",
                 "Tecnologia", "Biografia", "@teste");
+
         UsernamePasswordAuthenticationToken auth =
                 new UsernamePasswordAuthenticationToken(loggedProfessional.getUser(), null, List.of());
         SecurityContextHolder.getContext().setAuthentication(auth);
@@ -209,7 +209,7 @@ class ProfessionalProfileServiceTest extends AbstractIntegrationTest {
 
     @DisplayName("Atualiza perfil com sucesso")
     @Test
-    void updateProfile(){
+    void updateProfileSucess(){
         Professional professional = createTestProfessioanal("Midian Lima", "midian@email.com",
                 "Spring Boot", "Sou a Midian", "@midian");
 

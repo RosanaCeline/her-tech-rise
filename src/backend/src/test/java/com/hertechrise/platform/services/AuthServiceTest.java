@@ -214,6 +214,48 @@ class AuthServiceTest extends AbstractIntegrationTest {
         assertEquals("Cnpj já registrado.",exception.getMessage());
 
     }
+    @DisplayName("CPF ")
+    @Test
+    void checkCpfNotExists() {
+        String cpf = "12345678900";
+        RegisterProfessionalRequestDTO request = new RegisterProfessionalRequestDTO(
+                "Maria Teste", cpf, LocalDate.of(1990, 1, 1), "88 99999999",
+                "62320000", "CE", "Tianguá", "Centro", "Rua 1",
+                "maria@test.com", "senha123");
+
+        authService.registerProfessional(request);
+
+        // When + Then: tentar checar CPF existente deve lançar exceção
+        CpfAlreadyRegisteredException exception = assertThrows(
+                CpfAlreadyRegisteredException.class,
+                () -> authService.checkCpfNotExists(cpf)
+        );
+
+        assertEquals("Cpf já registrado.", exception.getMessage());
+
+    }
+
+    @DisplayName("CNPJ")
+    @Test
+    void checkCnpjNotExists( ) {
+        String cnpj = "12345678000100";
+        RegisterCompanyRequestDTO request = new RegisterCompanyRequestDTO(
+                "Empresa Teste", cnpj, CompanyType.NACIONAL,
+                "88 88888888", "62320000", "CE", "Tianguá", "Centro", "Rua 2",
+                "empresa@test.com", "senha123");
+
+        authService.registerCompany(request);
+
+        // When + Then: verificar CNPJ existente deve lançar exceção
+        CnpjAlreadyRegisteredException exception = assertThrows(
+                CnpjAlreadyRegisteredException.class,
+                () -> authService.checkCnpjNotExists(cnpj)
+        );
+
+        assertEquals("Cnpj já registrado.", exception.getMessage());
+
+    }
+
 
     @DisplayName("Login de usuário com sucesso ")
     @Test
