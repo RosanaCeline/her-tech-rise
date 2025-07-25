@@ -150,6 +150,7 @@ public class AuthService {
     public void checkCpfNotExists(String cpf) {
         if (professionalRepository.findByCpf(cpf).isPresent()) {
             throw new CpfAlreadyRegisteredException();
+
         }
     }
 

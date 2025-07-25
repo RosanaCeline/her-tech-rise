@@ -2,7 +2,6 @@ package com.hertechrise.platform.services;
 import com.hertechrise.platform.config.DotenvInitializer;
 import com.hertechrise.platform.data.dto.request.CompanyProfileRequestDTO;
 import com.hertechrise.platform.data.dto.response.*;
-import com.hertechrise.platform.data.dto.request.RegisterCompanyRequestDTO;
 import com.hertechrise.platform.data.dto.response.CompanyProfileResponseDTO;
 import com.hertechrise.platform.exception.CompanyNotFoundException;
 import com.hertechrise.platform.exception.InvalidUserTypeException;
@@ -23,7 +22,6 @@ import org.springframework.test.annotation.Rollback;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.transaction.annotation.Transactional;
 import java.util.Random;
-import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
 
@@ -52,7 +50,7 @@ class CompanyProfileServiceTest extends AbstractIntegrationTest {
     private RoleRepository roleRepository;
 
 
-    private Company createTestCompanyUser(String name, String email,String handle, String description, String aboutUs) {
+    private Company createTestCompanyUser(String name, String email, String handle, String description, String aboutUs) {
         User user = new User();
         user.setName(name);
         user.setEnabled(true);
@@ -88,7 +86,7 @@ class CompanyProfileServiceTest extends AbstractIntegrationTest {
     @DisplayName("Visualizar detalhes de outra Empresa a partir do ID")
     @Test
     void viewOtherCompanyProfile() {
-        Company company = createTestCompanyUser("Hertech", "hert@test.com", "@hertech","Descrição teste","Sobre nós");
+        Company company = createTestCompanyUser("Hertech", "hert@test.com", "@hertech", "Descrição teste", "Sobre nós");
 
         Post post_1 = new Post();
         post_1.setAuthor(company.getUser());
@@ -129,7 +127,7 @@ class CompanyProfileServiceTest extends AbstractIntegrationTest {
         assertEquals("Hertech", response.name());
         assertEquals("hert@test.com", response.email());
         assertEquals("@hertech", response.handle());
-        assertEquals("Descrição teste",response.description());
+        assertEquals("Descrição teste", response.description());
         assertEquals("Sobre nós", response.aboutUs());
         assertEquals(1, response.followersCount());
         assertEquals(1, response.posts().size());
@@ -139,7 +137,7 @@ class CompanyProfileServiceTest extends AbstractIntegrationTest {
     @DisplayName("Visualizar detalhes do próprio perfil")
     @Test
     void viewOwnCompanyProfile() {
-        Company company = createTestCompanyUser("Hertech", "hert@test.com","@hertech","Descrição teste","Sobre nós");
+        Company company = createTestCompanyUser("Hertech", "hert@test.com", "@hertech", "Descrição teste", "Sobre nós");
 
         Post post_1 = new Post();
         post_1.setAuthor(company.getUser());
@@ -173,7 +171,7 @@ class CompanyProfileServiceTest extends AbstractIntegrationTest {
     @Test
     void viewProfileOfUserThatDoesNotExist() {
 
-        Company loggedUser = createTestCompanyUser("Hertech", "hert@test.com","@hertech","Descrição teste","Sobre nós");
+        Company loggedUser = createTestCompanyUser("Hertech", "hert@test.com", "@hertech", "Descrição teste", "Sobre nós");
 
 
         UsernamePasswordAuthenticationToken auth =
@@ -225,15 +223,15 @@ class CompanyProfileServiceTest extends AbstractIntegrationTest {
     @DisplayName("Atualiza perfil com sucesso")
     @Test
     void updateProfileSucess() {
-        Company loggedUser = createTestCompanyUser("Hertech", "hert@test.com","@hertech","Descrição teste","Sobre nós");
+        Company loggedUser = createTestCompanyUser("Hertech", "hert@test.com", "@hertech", "Descrição teste", "Sobre nós");
 
         UsernamePasswordAuthenticationToken auth =
                 new UsernamePasswordAuthenticationToken(loggedUser.getUser(), null, List.of());
         SecurityContextHolder.getContext().setAuthentication(auth);
 
         CompanyProfileRequestDTO request = new CompanyProfileRequestDTO(
-                "Hertech Atualizado", "12.345.678/0001-99",CompanyType.NACIONAL,"88 99999999",
-                "62320001","teste","teste","test","CE","Descrição atualizada","Sobre nós atualizado","https://hertech.com"
+                "Hertech Atualizado", "12.345.678/0001-99", CompanyType.NACIONAL, "88 99999999",
+                "62320001", "teste", "teste", "test", "CE", "Descrição atualizada", "Sobre nós atualizado", "https://hertech.com"
         );
 
         CompanyProfileResponseDTO response = companyProfileService.updateMyProfile(request);
@@ -253,7 +251,7 @@ class CompanyProfileServiceTest extends AbstractIntegrationTest {
     @Test
     void descriptionMaxLengthValidation() {
         String longDescription = "a".repeat(401);
-        Company loggedUser = createTestCompanyUser("Hertech", "hert@test.com","@hertech","Descrição teste","Sobre nós");
+        Company loggedUser = createTestCompanyUser("Hertech", "hert@test.com", "@hertech", "Descrição teste", "Sobre nós");
 
         UsernamePasswordAuthenticationToken auth =
                 new UsernamePasswordAuthenticationToken(loggedUser.getUser(), null, List.of());
@@ -269,16 +267,17 @@ class CompanyProfileServiceTest extends AbstractIntegrationTest {
             companyProfileService.updateMyProfile(request);
         });
 
-        assertEquals("description deve ter no máximo 400 caracteres.",exception.getMessage());
+        assertEquals("description deve ter no máximo 400 caracteres.", exception.getMessage());
 
 
     }
+
     @DisplayName("Deve Lança exceção quando aboutUs excede 1000 caracteres")
     @Test
     void updateProfileAboutUsTooLong_throwsValidationException() {
         String longAboutUs = "a".repeat(1001);
 
-        Company loggedUser = createTestCompanyUser("Hertech", "hert@test.com","@hertech","Descrição teste","Sobre nós");
+        Company loggedUser = createTestCompanyUser("Hertech", "hert@test.com", "@hertech", "Descrição teste", "Sobre nós");
 
         UsernamePasswordAuthenticationToken auth =
                 new UsernamePasswordAuthenticationToken(loggedUser.getUser(), null, List.of());
@@ -297,7 +296,6 @@ class CompanyProfileServiceTest extends AbstractIntegrationTest {
         assertEquals("aboutUs deve ter no máximo 1000 caracteres.", exception.getMessage());
 
 
-
     }
 
 
@@ -305,18 +303,17 @@ class CompanyProfileServiceTest extends AbstractIntegrationTest {
     @Test
     void externalLinkMustHave100Characters() {
         String externalLink = "a".repeat(101);
-        Company loggedUser = createTestCompanyUser("Hertech", "hert@test.com","@hertech","Descrição teste","Sobre nós");
+        Company loggedUser = createTestCompanyUser("Hertech", "hert@test.com", "@hertech", "Descrição teste", "Sobre nós");
 
         UsernamePasswordAuthenticationToken auth =
                 new UsernamePasswordAuthenticationToken(loggedUser.getUser(), null, List.of());
         SecurityContextHolder.getContext().setAuthentication(auth);
 
 
-
         CompanyProfileRequestDTO request = new CompanyProfileRequestDTO(
                 "Hertech Atualizado", "12.345.678/0001-99", CompanyType.NACIONAL, "88 99999999",
                 "62320001", "teste", "teste", "test", "CE",
-                "Descrição válida", "Sobre nós válido", "meulinkinvalido-sem-http.com"
+                "Descrição válida", "Sobre nós válido",externalLink
         );
 
 
@@ -327,6 +324,59 @@ class CompanyProfileServiceTest extends AbstractIntegrationTest {
 
         assertEquals("externalLink deve começar com http ou https.", ex.getMessage());
     }
+
+    @DisplayName("Deve lançar exceção quando external Link não começar com http ou https")
+    @Test
+    void shouldThrowExceptionWhenExternalLinkDoesNotStartWithHttpOrHttps() {
+        String externalLink = "ftp://site.com";
+
+        Company loggedUser = createTestCompanyUser(
+                "Hertech", "hertech@teste.com", "@hertech", "Descrição de teste", "Sobre nós"
+        );
+
+        UsernamePasswordAuthenticationToken auth =
+                new UsernamePasswordAuthenticationToken(loggedUser.getUser(), null, List.of());
+        SecurityContextHolder.getContext().setAuthentication(auth);
+
+        CompanyProfileRequestDTO request = new CompanyProfileRequestDTO(
+                "Hertech Atualizado", "12.345.678/0001-99", CompanyType.NACIONAL, "88 99999999",
+                "62320001", "teste", "teste", "test", "CE",
+                "Descrição válida", "Sobre nós válido", externalLink
+        );
+
+        ValidationException ex = assertThrows(
+                ValidationException.class,
+                () -> companyProfileService.updateMyProfile(request)
+        );
+
+        assertEquals("externalLink deve começar com http ou https.", ex.getMessage());
+
+    }
+
+
+    @DisplayName("Deve lançar exceção para external Link inválido")
+    @Test
+    void externalLinkInvalid() {
+        Company loggedUser = createTestCompanyUser("Hertech", "hert@test.com", "@hertech", "Descrição teste", "Sobre nós");
+
+        UsernamePasswordAuthenticationToken auth =
+                new UsernamePasswordAuthenticationToken(loggedUser.getUser(), null, List.of());
+        SecurityContextHolder.getContext().setAuthentication(auth);
+
+        CompanyProfileRequestDTO request = new CompanyProfileRequestDTO(
+                "Hertech Atualizado", "12.345.678/0001-99", CompanyType.NACIONAL, "88 99999999",
+                "62320001", "teste", "teste", "test", "CE",
+                "Descrição válida", "Sobre nós válido", "ht!tp://inválido"
+        );
+
+        ValidationException ex = assertThrows(
+                ValidationException.class,
+                () -> companyProfileService.updateMyProfile(request)
+        );
+        assertEquals("externalLink não é uma URL válida.", ex.getMessage());
+    }
+
+
     @DisplayName("Visualizar detalhes pessoais do perfil")
     @Test
     void viewPersonalDetails(){
