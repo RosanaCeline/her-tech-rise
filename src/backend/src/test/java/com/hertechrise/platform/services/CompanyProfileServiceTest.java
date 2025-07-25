@@ -322,7 +322,7 @@ class CompanyProfileServiceTest extends AbstractIntegrationTest {
                 () -> companyProfileService.updateMyProfile(request)
         );
 
-        assertEquals("externalLink deve começar com http ou https.", ex.getMessage());
+        assertEquals("externalLink deve ter no máximo 100 caracteres.", ex.getMessage());
     }
 
     @DisplayName("Deve lançar exceção quando external Link não começar com http ou https")
