@@ -8,6 +8,7 @@ import com.hertechrise.platform.data.dto.request.PostRequestDTO;
 import com.hertechrise.platform.data.dto.response.PostResponseDTO;
 import com.hertechrise.platform.exception.InvalidFileTypeException;
 import com.hertechrise.platform.exception.InvalidUserTypeException;
+import com.hertechrise.platform.exception.MaxMediaLimitExceededException;
 import com.hertechrise.platform.integrationtests.testcontainers.AbstractIntegrationTest;
 import com.hertechrise.platform.model.*;
 import com.hertechrise.platform.repository.MediaRepository;
@@ -118,7 +119,7 @@ class PostServiceTest extends AbstractIntegrationTest {
 
     @DisplayName("Anexa arquivo com MIME não suportado")
     @Test
-    void createPostAndAttachFileWithUnsupportedMIMEType() throws IOException {
+    void createPostAndAttachFileWithUnsupportedMIMEType() {
         User loggedUser = createTestUser("Thalyta", "thalyta@email.com", "@thalyta");
         UsernamePasswordAuthenticationToken auth =
                 new UsernamePasswordAuthenticationToken(loggedUser, null, List.of());
@@ -135,7 +136,29 @@ class PostServiceTest extends AbstractIntegrationTest {
             PostRequestDTO request = postService.processPostData("Olá mundo!", null,
                     PostVisibility.PUBLICO, List.of(file));
         });
-        assertEquals("MIME inválido: text/plain", exception.getMessage());
+        assertEquals("Tipo não suportado: text/plain", exception.getMessage());
+    }
+
+    @DisplayName("Anexa arquivo sem MIME")
+    @Test
+    void createPostAndAttachFileWithoutMIMEType() {
+        User loggedUser = createTestUser("Thalyta", "thalyta@email.com", "@thalyta");
+        UsernamePasswordAuthenticationToken auth =
+                new UsernamePasswordAuthenticationToken(loggedUser, null, List.of());
+        SecurityContextHolder.getContext().setAuthentication(auth);
+
+        MultipartFile file = new MockMultipartFile(
+                "file",
+                "text.txt",
+                null,
+                "Olá mundo".getBytes()
+        );
+
+        InvalidFileTypeException exception = assertThrows(InvalidFileTypeException.class, () -> {
+            PostRequestDTO request = postService.processPostData("Olá mundo!", null,
+                    PostVisibility.PUBLICO, List.of(file));
+        });
+        assertEquals("MIME nulo", exception.getMessage());
     }
 
     @DisplayName("Cria publicação sem midias com sucesso")
@@ -153,6 +176,30 @@ class PostServiceTest extends AbstractIntegrationTest {
         assertNotNull(response);
         assertEquals("Olá mundo!", response.content());
         assertEquals(0, response.media().size());
+    }
+
+    @DisplayName("Cria publicação anexando mais de 10 mídias")
+    @Test
+    void createPostWithMoreThan10Medias() throws Exception{
+        User loggedUser = createTestUser("Thalyta", "thalyta@email.com", "@thalyta");
+        UsernamePasswordAuthenticationToken auth =
+                new UsernamePasswordAuthenticationToken(loggedUser, null, List.of());
+        SecurityContextHolder.getContext().setAuthentication(auth);
+
+        InputStream imageInput = getClass().getResourceAsStream("/imageTestPosts.jpg");
+        MultipartFile image = new MockMultipartFile(
+                "file", "imageTestPosts.jpg", "image/jpg", imageInput);
+
+        ArrayList<MultipartFile> medias = new ArrayList<>();
+        for(int i = 0; i < 11; i++){medias.add(image);}
+
+        PostRequestDTO request = postService.processPostData("Olá mundo!", null,
+                PostVisibility.PUBLICO, medias);
+
+        MaxMediaLimitExceededException exception = assertThrows(MaxMediaLimitExceededException.class, () -> {
+            postService.create(request);
+        });
+        assertEquals("Máximo de 10 mídias por postagem.",  exception.getMessage());
     }
 
     @DisplayName("Deleta publicação com sucesso")
@@ -396,7 +443,7 @@ class PostServiceTest extends AbstractIntegrationTest {
         PostEditRequestDTO request = new PostEditRequestDTO("Essa é minha postagem", PostVisibility.PRIVADO,
                 medias);
 
-        IllegalArgumentException exception = assertThrows(IllegalArgumentException.class, () -> {
+        MaxMediaLimitExceededException exception = assertThrows(MaxMediaLimitExceededException.class, () -> {
             postService.editPost(post.getId(), request);
         });
         assertEquals("Máximo de 10 mídias por postagem.",  exception.getMessage());
