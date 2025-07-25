@@ -4,9 +4,9 @@ import com.hertechrise.platform.data.dto.request.*;
 import com.hertechrise.platform.data.dto.response.MediaResponseDTO;
 import com.hertechrise.platform.data.dto.response.PostResponseDTO;
 import com.hertechrise.platform.exception.InvalidFileTypeException;
+import com.hertechrise.platform.exception.MaxMediaLimitExceededException;
 import com.hertechrise.platform.model.*;
 import com.hertechrise.platform.repository.CommunityRepository;
-import com.hertechrise.platform.repository.MediaRepository;
 import com.hertechrise.platform.repository.PostRepository;
 import jakarta.persistence.EntityNotFoundException;
 import jakarta.persistence.criteria.Predicate;
@@ -48,10 +48,11 @@ public class PostService {
         return new PostRequestDTO(content, idCommunity, visibility, media);
     }
 
+    @Transactional
     private MediaRequestDTO toMediaRequestDTO(MultipartFile file) {
         String mimeType = file.getContentType();
-        if (mimeType == null || !mimeType.matches("^(image|video|application)/.+$")) {
-            throw new InvalidFileTypeException("MIME inválido: " + mimeType);
+        if (mimeType == null) {
+            throw new InvalidFileTypeException("MIME nulo");
         }
 
         MediaType mediaType = switch (mimeType) {
@@ -84,6 +85,10 @@ public class PostService {
         post.setVisibility(request.visibility());
 
         if (request.media() != null && !request.media().isEmpty()) {
+            if (request.media().size() > 10) {
+                throw new MaxMediaLimitExceededException();
+            }
+
             List<Media> mediaList = mediaService.buildMediaEntities(post, request.media());
             post.setMedia(mediaList);
         }
@@ -162,7 +167,7 @@ public class PostService {
         List<MediaEditRequestDTO> medias = request.medias() != null ? request.medias() : List.of();
 
         if (medias.size() > 10) {
-            throw new IllegalArgumentException("Máximo de 10 mídias por postagem.");
+            throw new MaxMediaLimitExceededException();
         }
 
         // Atualiza conteúdo e visibilidade
