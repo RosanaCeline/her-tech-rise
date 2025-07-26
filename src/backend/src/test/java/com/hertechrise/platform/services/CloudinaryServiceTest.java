@@ -2,6 +2,8 @@ package com.hertechrise.platform.services;
 
 import com.cloudinary.Cloudinary;
 import com.hertechrise.platform.config.DotenvInitializer;
+import com.hertechrise.platform.exception.InvalidMediaTypeException;
+import com.hertechrise.platform.exception.MediaFileTooLargeException;
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.junit.jupiter.api.DisplayName;
@@ -85,4 +87,69 @@ class CloudinaryServiceTest {
         assertTrue(url.contains("profile_pics/user_4"));
 
     }
+    @DisplayName("Deve lançar InvalidMediaTypeException para mídia inválido")
+    @Test
+    void uploadFile_throwsInvalidMediaTypeException() throws Exception {
+        MultipartFile file = new MockMultipartFile("file", "video.txt", "text/plain", "invalid".getBytes());
+
+        assertThrows(InvalidMediaTypeException.class, () -> cloudinaryService.uploadFile(file));
+    }
+
+    @DisplayName("Deve lança MediaFileTooLargeException para imagem maior que 10MB")
+    @Test
+    void uploadFile_tooLargeImage() {
+        byte[] bigImage = new byte[11 * 1024 * 1024]; // 11MB
+        MultipartFile bigFile = new MockMultipartFile(
+                "file",
+                "grandeimagem.png",
+                "image/png",
+                bigImage
+        );
+
+        assertThrows(MediaFileTooLargeException.class, () -> cloudinaryService.uploadFile(bigFile));
+    }
+
+    @DisplayName("Deve lança MediaFileTooLargeException para documento maior que 10MB")
+    @Test
+    void uploadFile_tooLargeDocument() {
+        byte[] bigDoc = new byte[12 * 1024 * 1024];
+        MultipartFile bigFile = new MockMultipartFile(
+                "file",
+                "doc.pdf",
+                "application/pdf",
+                bigDoc
+        );
+
+        assertThrows(MediaFileTooLargeException.class, () -> cloudinaryService.uploadFile(bigFile));
+    }
+
+    @DisplayName("Deve lança MediaFileTooLargeException para Vídeo maior que 100MB")
+    @Test
+    void uploadFile_tooLargeVideo() {
+        byte[] bigVideo = new byte[101 * 1024 * 1024]; // 101MB
+        MultipartFile bigFile = new MockMultipartFile(
+                "file",
+                "video.mp4",
+                "video/mp4",
+                bigVideo
+        );
+
+        assertThrows(MediaFileTooLargeException.class, () -> cloudinaryService.uploadFile(bigFile));
+    }
+
+    @DisplayName("Deve lançar InvalidMediaTypeException para foto de perfil inválida")
+    @Test
+    void uploadProfilePicture_invalidType() {
+        MultipartFile file = new MockMultipartFile(
+                "file",
+                "notimage.pdf",
+                "application/pdf",
+                "teste".getBytes()
+        );
+
+        assertThrows(InvalidMediaTypeException.class, () ->
+                cloudinaryService.uploadProfilePicture(file, 5L)
+        );
+    }
+
 }
