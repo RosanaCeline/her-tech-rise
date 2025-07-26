@@ -75,6 +75,7 @@ public class JobPostingService {
         jobPosting.setSalaryMax(request.salaryMax());
         jobPosting.setContractType(request.contractType());
         jobPosting.setJoblevel(request.jobLevel());
+        jobPosting.setUpdated(true);
         jobPosting.setApplicationDeadline(request.applicationDeadline());
 
         JobPosting updated = jobPostingRepository.save(jobPosting);
@@ -132,7 +133,7 @@ public class JobPostingService {
         Company loggedCompany = companyRepository.findById(loggedUser.getId())
                 .orElseThrow(() -> new EntityNotFoundException("Usuário logado não é uma empresa."));
 
-        return jobPostingRepository.findByCompanyOrderByApplicationDeadlineAsc(loggedCompany)
+        return jobPostingRepository.findByCompanyOrderByApplicationDeadlineDesc(loggedCompany)
                 .stream()
                 .map(this::mapEntityToSummaryDto)
                 .toList();
@@ -185,6 +186,8 @@ public class JobPostingService {
                 job.getApplicationDeadline(),
                 job.isActive(),
                 job.isExpired(),
+                job.isUpdated(),
+                job.getUpdatedAt(),
                 job.getCompany().getUser().getProfilePic(),
                 job.getCompany().getUserId()
         );
