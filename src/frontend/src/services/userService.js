@@ -83,3 +83,11 @@ export const unfollowUser = async(id) => {
 export const verifyFollowUser = async(id) => {
     return await requestService.apiRequest(`/follows/verifyFollow/${id}`, 'GET');
 }
+
+export const listFollowing = async(id) => {
+    return await requestService.apiRequest(`/follows/following`, 'GET');
+}
+
+export const listFollowers = async(id) => {
+    return await requestService.apiRequest(`/follows/followers`, 'GET');
+}
