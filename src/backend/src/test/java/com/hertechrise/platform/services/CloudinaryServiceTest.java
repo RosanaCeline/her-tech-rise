@@ -122,7 +122,7 @@ class CloudinaryServiceTest {
 
         assertThrows(MediaFileTooLargeException.class, () -> cloudinaryService.uploadFile(bigFile));
     }
-    
+
     @DisplayName("Deve lança MediaFileTooLargeException para Vídeo maior que 100MB")
     @Test
     void uploadFile_tooLargeVideo() {
