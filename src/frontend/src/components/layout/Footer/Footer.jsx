@@ -9,11 +9,9 @@ export default function Footer() {
         href="https://github.com/RosanaCeline/her-tech-rise"
         target="_blank"
         rel="noopener noreferrer"
-        className="hidden lg:block w-auto max-w-[20%]"
       >
         <img  src={logo} 
-            alt="Logo Her Tech Rise" 
-            className="hidden lg:block w-auto max-w-[20%]" />
+            alt="Logo Her Tech Rise" />
       </a>
       <span className="mt-4 md:mt-0 w-full text-center lg:text-right lg:w-auto">
         © Copyright Her Tech Rise {currentYear}. Todos os direitos reservados.

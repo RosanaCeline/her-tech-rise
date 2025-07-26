@@ -53,7 +53,6 @@ export const changeProfilePicture = async (photo) => {
 
   try{
       const response = await fetch(`${baseUrl}/api/users/profile-picture`, config);
-      const response = await fetch(`${baseUrl}/api/users/profile-picture`, config);
 
       if (!response.ok) {
         const errorData = await response.json();
@@ -79,4 +78,8 @@ export const followUser = async(id) => {
 
 export const unfollowUser = async(id) => {
     return await requestService.apiRequest(`/follows`, 'DELETE', {id: id});
+}
+
+export const verifyFollowUser = async(id) => {
+    return await requestService.apiRequest(`/follows/verifyFollow/${id}`, 'GET');
 }

@@ -3,7 +3,7 @@ import BtnCallToAction from '../../btn/BtnCallToAction/BtnCallToAction'
 import CardPostProfile from '../Posts/CardPostProfile'
 import PopUpBlurProfile from '../Profile/PopUpBlurProfile'
 
-export default function CardPublicationsProfile({ title, posts, photo, name, onPostsUpdated, setActivePopUp }) {
+export default function CardPublicationsProfile({ title, posts, photo, name, onPostsUpdated, setActivePopUp, isCurrentUser }) {
   const [visiblePosts, setVisiblePosts] = useState([]);
   const [limit, setLimit] = useState(3);
 
@@ -49,9 +49,11 @@ export default function CardPublicationsProfile({ title, posts, photo, name, onP
       <article className="bg-white text-[var(--purple-secundary)] drop-shadow-md rounded-xl p-8 flex flex-col w-full max-w-8xl z-0">
         <div className="flex justify-between items-center mb-6">
           <h2 className="text-4xl font-semibold text-[var(--purple-secundary)]">{title}</h2>
-          <BtnCallToAction onClick={() => setActivePopUp('post')}>
-            CRIAR PUBLICAÇÃO
-          </BtnCallToAction>
+          {isCurrentUser && (
+            <BtnCallToAction onClick={() => setActivePopUp('post')}>
+              CRIAR PUBLICAÇÃO
+            </BtnCallToAction>
+          )}
         </div>
 
         {visiblePosts.length > 0 ? (
@@ -63,7 +65,9 @@ export default function CardPublicationsProfile({ title, posts, photo, name, onP
             ))}
           </div>
         ) : (
-          <p>Sem publicações para mostrar.</p>
+          <p className="italic text-xl text-[var(--text-secondary)] leading-relaxed opacity-70">
+            Nenhuma postagem disponível no momento.
+          </p>
         )}
 
         {posts.length > visiblePosts.length && (

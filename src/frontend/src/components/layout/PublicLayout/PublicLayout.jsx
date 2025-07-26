@@ -8,17 +8,16 @@ import { Outlet, Navigate } from "react-router-dom";
 
 export default function PublicLayout() {
   const { user } = useAuth();
-  
-    if (user) 
-      return <Navigate to="/timeline" replace />;
+
+  if (user) return <Navigate to="/timeline" replace />;
 
   return (
-    <>
+    <div className="min-h-screen flex flex-col">
       <PublicHeader />
-      <main>
+      <main className="flex-grow">
         <Outlet />
       </main>
       <Footer />
-    </>
+    </div>
   );
 }
