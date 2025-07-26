@@ -1,6 +1,7 @@
 package com.hertechrise.platform.services;
 import com.hertechrise.platform.config.DotenvInitializer;
 import com.hertechrise.platform.config.EmailConfig;
+import com.hertechrise.platform.mail.EmailSender;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mock;
@@ -12,7 +13,7 @@ import org.springframework.test.context.ContextConfiguration;
 import org.springframework.transaction.annotation.Transactional;
 
 @SpringBootTest
-//@ActiveProfiles("email")
+@ActiveProfiles("mailtrap")
 @Transactional
 @Rollback
 @ContextConfiguration(initializers = DotenvInitializer.class)
@@ -20,8 +21,11 @@ class EmailServiceTest {
 
     //Testando envio de email personalizados com mailtrap servidor de teste SMTP
 
-    @Mock
-    private EmailService emailService;
+    @Autowired
+    private EmailSender emailSender;
+
+    @Autowired
+    private EmailConfig emailConfigs;
 
     @DisplayName("Valida o envio de e-mail de cadastro para profissional")
     @Test
