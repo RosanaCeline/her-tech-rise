@@ -4,6 +4,7 @@ import com.hertechrise.platform.model.JobLevel;
 import io.swagger.v3.oas.annotations.media.Schema;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 
 @Schema(name = "JobPostingSummaryResponseDTO", description = "Resumo das informações de uma vaga")
 public record JobPostingSummaryResponseDTO(
@@ -31,6 +32,12 @@ public record JobPostingSummaryResponseDTO(
 
         @Schema(description = "Se a vaga já teve o prazo de inscrição expirado", example = "false")
         boolean isExpired,
+
+        @Schema(description = "Se a vaga foi modificada", example = "false")
+        boolean isUpdated,
+
+        @Schema(description = "Quando a vaga foi modificada", example = "null")
+        LocalDateTime updatedAt,
 
         @Schema(description = "URL da foto de perfil da empresa", example = "https://res.cloudinary.com/demo/image/upload/v123456/company_profile.jpg")
         String companyProfilePic,
