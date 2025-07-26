@@ -12,6 +12,11 @@ export default function CardPublicationsProfile({ title, posts, photo, name, onP
   const [isUniquePostPopup, setIsUniquePostPopup] = useState(false);
   const [selectedPostId, setSelectedPostId] = useState(null);
 
+  const [filter, setFilter] = useState("TODOS");
+  const filteredPosts = [...posts]
+    .filter((post) => filter === "TODOS" || post.visibility === filter)
+    .sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
+
   useEffect(() => {
     const handleResize = () => {
       if (window.innerWidth < 1024) {
@@ -84,10 +89,32 @@ export default function CardPublicationsProfile({ title, posts, photo, name, onP
           content={
             <div className="flex flex-col gap-6 max-h-[80vh] overflow-y-auto p-2">
               <h1 className="text-4xl font-bold text-[var(--purple-secundary)] mb-4">MINHAS POSTAGENS</h1>
-              {[...posts]
-                .sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt))
-                .map((post) => (
-                  <CardPostProfile key={post.id} post={post} photo={photo} name={name} onPostsUpdated={onPostsUpdated} isPopupView={true} />
+              <div className="mb-4">
+                <select
+                  value={filter}
+                  onChange={(e) => setFilter(e.target.value)}
+                  className="px-4 py-2 border rounded-lg bg-white shadow-sm focus:outline-none focus:ring-2 focus:ring-purple-500"
+                >
+                  <option value="TODOS">Todas</option>
+                  <option value="PUBLICO">Públicas</option>
+                  <option value="PRIVADO">Privadas</option>
+                </select>
+              </div>
+
+              {filteredPosts.map((post) => (
+                <div
+                  key={post.id}
+                  className="cursor-pointer"
+                  onClick={() => openUniquePostPopup(post.id)}
+                >
+                  <CardPostProfile
+                    post={post}
+                    photo={photo}
+                    name={name}
+                    onPostsUpdated={onPostsUpdated}
+                    isPopupView={true}
+                  />
+                </div>
               ))}
             </div>
           }

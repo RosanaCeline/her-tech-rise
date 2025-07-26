@@ -14,7 +14,7 @@ export default function ContentPost({ post, isOpen, onExpand }) {
 
       {isOpen ? (
         media.map((m, i) => {
-          if (m.mediaType === 'IMAGEM')
+          if (m.mediaType === 'IMAGE')
             return (
               <img
                 key={i}
@@ -55,7 +55,7 @@ export default function ContentPost({ post, isOpen, onExpand }) {
       ) : (
         firstMedia && (
           <div className="relative">
-            {firstMedia.mediaType === 'IMAGEM' && (
+            {firstMedia.mediaType === 'IMAGE' && (
               <img
                 src={firstMedia.url}
                 alt="Imagem do post"

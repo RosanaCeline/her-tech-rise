@@ -96,8 +96,8 @@ export default function VerPerfil() {
     useEffect(() => {
         const checkFollow = async () => {
             try {
-                const isFollowing = await verifyFollowUser(userId)
-                setFollowedUser(isFollowing)
+                const res = await verifyFollowUser(userId)
+                setFollowedUser(res.isFollowing === true || res.isFollowing === "True");
             } catch (err) {
                 console.log(err)
             }
@@ -108,12 +108,12 @@ export default function VerPerfil() {
     const handleFollow = async () => {
         try {
             if (followedUser){
-                const res = await unfollowUser(user.id)
+                const res = await unfollowUser(userId)
                 setFollowedUser(false)
                 setFollowersCount((prev) => prev - 1)
                 console.log("Resposta UNFOLLOW:", res);
             } else {
-                const res = await followUser(user.id)
+                const res = await followUser(userId)
                 setFollowedUser(true)
                 setFollowersCount((prev) => prev + 1)
                 console.log("Resposta FOLLOW:", res);
