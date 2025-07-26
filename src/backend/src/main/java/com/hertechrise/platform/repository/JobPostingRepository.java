@@ -25,7 +25,7 @@ public interface JobPostingRepository extends JpaRepository<JobPosting, Long> {
     List<JobPosting> findByCompanyUserIdAndActiveTrueAndApplicationDeadlineGreaterThanEqualOrderByApplicationDeadlineAsc(Long userId, LocalDate currentDate);
 
     // Vagas ativas, inativas e expiradas da empresa criadora, ordenadas pelo prazo mais próximo
-    List<JobPosting> findByCompanyOrderByApplicationDeadlineAsc(Company company);
+    List<JobPosting> findByCompanyOrderByApplicationDeadlineDesc(Company company);
 
     //
     Optional<JobPosting> findByIdAndCompany(Long id, Company company);
