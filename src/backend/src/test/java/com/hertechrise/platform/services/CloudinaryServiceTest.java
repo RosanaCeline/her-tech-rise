@@ -122,7 +122,7 @@ class CloudinaryServiceTest {
 
         assertThrows(MediaFileTooLargeException.class, () -> cloudinaryService.uploadFile(bigFile));
     }
-
+    
     @DisplayName("Deve lança MediaFileTooLargeException para Vídeo maior que 100MB")
     @Test
     void uploadFile_tooLargeVideo() {
@@ -151,5 +151,23 @@ class CloudinaryServiceTest {
                 cloudinaryService.uploadProfilePicture(file, 5L)
         );
     }
+    @DisplayName("Deve lança InvalidMediaTypeException para arquivo com mimeType nulo")
+    @Test
+    void uploadFile_nullMimeType() {
+        MultipartFile file = new MockMultipartFile(
+                "file",
+                "null",
+                null,  //
+                "null".getBytes()
+        );
+
+        InvalidMediaTypeException exception = assertThrows(InvalidMediaTypeException.class, () ->
+                cloudinaryService.uploadFile(file)
+        );
+
+        assertTrue(exception.getMessage().contains("Tipo de mídia não identificado"));
+    }
+
+
 
 }
