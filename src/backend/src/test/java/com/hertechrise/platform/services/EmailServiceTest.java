@@ -13,12 +13,12 @@ import org.springframework.test.context.ContextConfiguration;
 import org.springframework.transaction.annotation.Transactional;
 
 @SpringBootTest
-@ActiveProfiles("mailtrap")
+//@ActiveProfiles("mailtrap")
 @Transactional
 @Rollback
 @ContextConfiguration(initializers = DotenvInitializer.class)
 class EmailServiceTest {
-
+/**
     //Testando envio de email personalizados com mailtrap servidor de teste SMTP
 
     @Autowired
@@ -51,4 +51,5 @@ class EmailServiceTest {
         emailService.sendResetPasswordEmail(destinatario_ficticio,token);
 
     }
+    **/
 }

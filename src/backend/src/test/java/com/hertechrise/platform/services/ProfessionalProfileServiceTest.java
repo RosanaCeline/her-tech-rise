@@ -20,7 +20,6 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.test.annotation.Rollback;
 import org.springframework.test.context.ContextConfiguration;
-
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
@@ -437,10 +436,10 @@ class ProfessionalProfileServiceTest extends AbstractIntegrationTest {
         professional.setTechnology("Tecnologia");
         professional.setBirthDate(LocalDate.of(2000, 1, 1));
         professionalRepository.save(professional);
-
         UsernamePasswordAuthenticationToken auth =
                 new UsernamePasswordAuthenticationToken(user, null, List.of());
         SecurityContextHolder.getContext().setAuthentication(auth);
+
         MyProfessionalProfileResponseDTO response = professionalProfileService.getMyProfile();
 
         assertNotNull(response);
