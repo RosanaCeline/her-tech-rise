@@ -9,10 +9,10 @@ import Timeline from '../pages/Timeline/Timeline';
 import VerMeuPerfil from '../pages/User/VerMeuPerfil';
 import VerPerfil from '../pages/User/VerPerfil';
 import SearchUser from '../pages/Search/SearchUser';
-
+import JobsListing from "../pages/JobsListing/JobsListing";
 import { logout } from '../services/authService';
 
-import { Home, User, LogOut } from 'lucide-react';
+import { Home, User, LogOut, BriefcaseBusiness } from 'lucide-react';
 
 const iconSize = 20;
 
@@ -37,13 +37,15 @@ export function getRoutesByRole(tipoUsuario, navigate) {
     return [
       { path: '/timeline',          element: <Timeline />,      title: 'Pagina Inicial',      visible: true,  icon: <Home size={iconSize} /> },
       { path: '/meuperfil',     element: <VerMeuPerfil />, title: 'Perfil',        visible: true,  icon: <User size={iconSize} /> },
-      { title: 'Sair',              visible: true,              icon: <LogOut size={iconSize} />,       action: () => { handleLogout() } }
+      { path: '/vagas', element: <JobsListing/>, title: 'Vagas', icon: <BriefcaseBusiness size={iconSize} />},
+      { title: 'Sair',              visible: true,              icon: <LogOut size={iconSize} />,       action: () => { handleLogout() } },
   ]
   return [
     { path: '/timeline',          element: <Timeline />,      title: 'Pagina Inicial',      visible: true,  icon: <Home size={iconSize} /> },
     { path: '/meuperfil',     element: <VerMeuPerfil />, title: 'Perfil',        visible: true,  icon: <User size={iconSize} /> },
+    { path: '/vagas', element: <JobsListing/>, title: 'Vagas', icon: <BriefcaseBusiness size={iconSize} />},
     { title: 'Sair',              visible: true,              icon: <LogOut size={iconSize} />,       action: () => { handleLogout() } },
     { path: '/search', element: <SearchUser/> },
-    { path: '/profile/:user_type/:user_info', element: <VerPerfil />, title: 'Perfil', visible: false }
+    { path: '/profile/:user_type/:user_info', element: <VerPerfil />, title: 'Perfil', visible: false },
   ]
 }
