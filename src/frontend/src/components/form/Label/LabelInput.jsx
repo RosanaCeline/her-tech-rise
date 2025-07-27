@@ -100,7 +100,7 @@ export default function LabelInput ({    name,
             <input
             id={name}
             name={name}
-            type={type === 'senha' ? 'password' : type === 'email' ? 'email' : 'text'}
+            type={type === 'senha' ? 'password' : type === 'email' ? 'email' : type === 'date' ? 'date' : 'text'}
             value={value}
             onChange={onChange}
             onClick={onClick}
