@@ -33,9 +33,11 @@ export default function CompanyJobsListing(){
     }, [])
 
     const handleDeactivate = async (id) => {
+        setJobs((prev) => prev.map(j => j.id === id ? {...j, isActive: false} : j))
         await deactivateJobPosting(id)
         fetchMyJobs()
     }
+
 
     return(
         <main className='flex flex-col bg-(--gray) pt-34 pb-6'>
@@ -85,7 +87,7 @@ function CompanyJobDetails({job, setManageJobModal, setJobFormData, handleDeacti
     }
 
     return(
-        <div className="flex grid grid-cols-10 border rounded-xl hover:bg-slate-50 border-(--gray) p-3">
+        <div className={`flex grid grid-cols-10 border rounded-xl hover:bg-slate-50 border-(--gray) p-3 ${!job.isActive ? 'grayscale opacity-60' : ''}`}>
             <div className="">
                 <img src={job.companyProfilePic} className="w-full object-cover rounded-xl"/>
             </div>
@@ -116,10 +118,10 @@ function CompanyJobDetails({job, setManageJobModal, setJobFormData, handleDeacti
                             <p className="flex items-center gap-1"><CalendarDays size={18}/>{new Date(job.applicationDeadline).toLocaleDateString('pt-BR')}</p>
                         </div>
                     </div>
-
-                    {!job.isActive && <p>Vaga desativada</p>}
                 </div>
                 <div className="lg:w-2/9 text-sm flex flex-col md:flex-row lg:flex-col gap-y-3 items-end justify-around mt-4 lg:mt-0">
+                    {!job.isActive && <p className="text-normal font-bold">Vaga desativada</p>}
+                    {job.isActive &&
                     <div className="lg:ml-auto">
                     <button className="border border-(--purple-primary) text-(--purple-primary) cursor-pointer rounded-2xl py-2 px-6
                     transition duration-300 hover:bg-(--purple-primary) hover:text-white hover:scale-110"
@@ -133,7 +135,7 @@ function CompanyJobDetails({job, setManageJobModal, setJobFormData, handleDeacti
                         setManageJobModal('edit')
                     }}>
                         Editar
-                    </button></div>
+                    </button></div>}
 
                     <div className="lg:ml-auto">
                     <button className="border border-(--purple-primary) text-(--purple-primary) cursor-pointer rounded-2xl py-2 px-6
