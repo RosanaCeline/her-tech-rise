@@ -12,4 +12,9 @@ public class CloudinaryUploadException extends RuntimeException {
     public CloudinaryUploadException(String message) {
         super(message);
     }
+
+    // add
+    public CloudinaryUploadException(String message, Throwable cause) {
+        super(message, cause);
+    }
 }
