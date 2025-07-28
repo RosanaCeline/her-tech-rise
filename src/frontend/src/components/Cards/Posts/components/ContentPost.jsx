@@ -59,7 +59,7 @@ export default function ContentPost({ post, isOpen, onExpand }) {
               <img
                 src={firstMedia.url}
                 alt="Imagem do post"
-                className="w-full max-h-64 object-contain rounded-md"
+                className="w-full max-h-90 object-contain rounded-md"
               />
             )}
 

@@ -59,6 +59,6 @@ export const updatePost = async (postId) => {
   return await requestService.apiRequest(`/post/${postId}`, 'PUT');
 }
 
-export const getTimelinePosts = async (page = 0, size = 20) => {
+export const getTimelinePosts = async (page = 0, size = 11) => {
   return await requestService.apiRequest(`/post/timeline?page=${page}&size=${size}&orderBy=createdAt&direction=DESC`,'GET');
 }
