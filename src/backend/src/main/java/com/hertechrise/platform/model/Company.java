@@ -4,6 +4,8 @@ import jakarta.persistence.*;
 import lombok.*;
 
 import java.io.Serializable;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Objects;
 
 @Entity
@@ -38,4 +40,7 @@ public class Company implements Serializable{
 
     @Column(name = "about_us", length = 1000)
     private String aboutUs;
+
+    @OneToMany(mappedBy = "company", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<JobPosting> jobPostings = new ArrayList<>();
 }
