@@ -19,3 +19,11 @@ export const companyJobPostingDetail = async (id) => {
 export const deactivateJobPosting = async (id) => {
     return await requestService.apiRequest(`/job-postings/${id}/deactivate`, 'PATCH');
 }
+
+export const publicJobPostings = async () => {
+    return await requestService.apiRequest(`/job-postings/public`, 'GET');
+}
+
+export const publicJobDetail = async (id) => {
+    return await requestService.apiRequest(`/job-postings/public/${id}`, 'GET');
+}

@@ -3,11 +3,10 @@ import BtnCallToAction from "../../components/btn/BtnCallToAction/BtnCallToActio
 import ManageJob from "./components/ManageJob"
 import PopUp from "../../components/PopUp"
 import { companyJobPostings, companyJobPostingDetail, deactivateJobPosting } from "../../services/jobsService"
-import { House, MapPin, CalendarDays, PopcornIcon } from 'lucide-react'
+import { House, MapPin, CalendarDays } from 'lucide-react'
 import { maskField } from "../../components/form/Label/maskField";
 
-
-export default function JobsListing(){
+export default function CompanyJobsListing(){
     const [manageJobModal, setManageJobModal] = useState('')
     const [jobs, setJobs] = useState([])
     const emptyJobFormData = {
@@ -42,7 +41,7 @@ export default function JobsListing(){
         <main className='flex flex-col bg-(--gray) pt-34 pb-6'>
             <div className="flex flex-col mb-6 w-5/6 p-6 bg-white mx-auto rounded-xl">
                 <div className="flex justify-between items-center"> 
-                    <h2 className="text-4xl font-semibold text-[var(--purple-secundary)]">Minhas vagas publicadas</h2>
+                    <h2 className="text-3xl font-semibold text-[var(--purple-secundary)]">Minhas vagas publicadas</h2>
                     <BtnCallToAction 
                     onClick={() => {
                         setJobFormData(emptyJobFormData)
