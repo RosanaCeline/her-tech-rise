@@ -1,12 +1,6 @@
 package com.hertechrise.platform.services;
 
-<<<<<<< HEAD
-import com.hertechrise.platform.data.dto.response.MainListingResponseDTO;
-import com.hertechrise.platform.data.dto.response.PagedResponseDTO;
-import com.hertechrise.platform.data.dto.response.UserSummaryResponseDTO;
-=======
 import com.hertechrise.platform.data.dto.response.*;
->>>>>>> main
 import com.hertechrise.platform.model.User;
 import com.hertechrise.platform.model.UserType;
 import com.hertechrise.platform.repository.UserRepository;
@@ -35,33 +29,13 @@ public class ListingService {
         Long loggedUserId = ((User) auth.getPrincipal()).getId();
 
         Pageable limit6 = PageRequest.of(0, 6, Sort.by("name"));
-<<<<<<< HEAD
-        var pros = search(UserType.PROFESSIONAL, q, limit6, loggedUserId);
-        var comps = search(UserType.COMPANY, q, limit6, loggedUserId);
-=======
 
         var pros = searchProfessionals(q, limit6, loggedUserId);
         var comps = searchCompanies(q, limit6, loggedUserId);
->>>>>>> main
 
         return new MainListingResponseDTO(pros, comps);
     }
 
-<<<<<<< HEAD
-    public PagedResponseDTO<UserSummaryResponseDTO> pageProfessionals(String q, Pageable page) {
-        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
-        Long loggedUserId = ((User) auth.getPrincipal()).getId();
-
-        Page<UserSummaryResponseDTO> pageResult = searchPaged(UserType.PROFESSIONAL, q, page, loggedUserId);
-        return toPagedResponse(pageResult);
-    }
-
-    public PagedResponseDTO<UserSummaryResponseDTO> pageCompanies(String q, Pageable page) {
-        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
-        Long loggedUserId = ((User) auth.getPrincipal()).getId();
-
-        Page<UserSummaryResponseDTO> pageResult = searchPaged(UserType.COMPANY, q, page, loggedUserId);
-=======
     public PagedResponseDTO<ProfessionalSummaryResponseDTO> pageProfessionals(String q, Pageable page) {
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
         Long loggedUserId = ((User) auth.getPrincipal()).getId();
@@ -75,25 +49,11 @@ public class ListingService {
         Long loggedUserId = ((User) auth.getPrincipal()).getId();
 
         Page<CompanySummaryResponseDTO> pageResult = searchCompaniesPaged(q, page, loggedUserId);
->>>>>>> main
         return toPagedResponse(pageResult);
     }
 
     /* ------------------ helpers ------------------ */
 
-<<<<<<< HEAD
-    private List<UserSummaryResponseDTO> search(UserType type, String q, Pageable p, Long loggedUserId) {
-        return searchPaged(type, q, p, loggedUserId).getContent();
-    }
-
-    private Page<UserSummaryResponseDTO> searchPaged(UserType type, String q, Pageable p, Long loggedUserId) {
-        String term = (q == null) ? "" : q.trim();
-        return userRepository
-                .findByTypeAndIdNotAndNameContainingIgnoreCaseOrTypeAndIdNotAndHandleContainingIgnoreCase(
-                        type, loggedUserId, term, type, loggedUserId, term, p, UserRepository.Summary.class)
-                .map(u -> new UserSummaryResponseDTO(
-                        u.getId(), u.getName(), u.getHandle(), u.getCity(), u.getProfilePic()));
-=======
     private List<ProfessionalSummaryResponseDTO> searchProfessionals(String q, Pageable p, Long loggedUserId) {
         return searchProfessionalsPaged(q, p, loggedUserId).getContent();
     }
@@ -144,7 +104,6 @@ public class ListingService {
                 u.getUf(),
                 u.getProfilePic()
         ));
->>>>>>> main
     }
 
     private <T> PagedResponseDTO<T> toPagedResponse(Page<T> page) {
