@@ -1,6 +1,8 @@
 package com.hertechrise.platform.data.dto.response;
 
+import com.hertechrise.platform.model.JobContractType;
 import com.hertechrise.platform.model.JobLevel;
+import com.hertechrise.platform.model.JobModel;
 import io.swagger.v3.oas.annotations.media.Schema;
 
 import java.time.LocalDate;
@@ -21,8 +23,17 @@ public record JobPostingSummaryResponseDTO(
         @Schema(description = "Localização da vaga", example = "São Paulo - SP")
         String location,
 
-        @Schema(description = "Nível da vaga", example = "JUNIOR")
-        JobLevel jobLevel,
+        @Schema(description = "Descrição da vaga", example = "Desenvolvedor Júnior Frontend")
+        String description,
+
+        @Schema(description = "Requisitos da vaga", example = "HTML, CSS  e JavaScript")
+        String requirements,
+
+        @Schema(description = "Tipo de contrato", example = "CLT")
+        JobContractType contractType,
+
+        @Schema(description = "Modelo da vaga", example = "HIBRIDO")
+        JobModel jobModel,
 
         @Schema(description = "Prazo de inscrição para a vaga", example = "2002-05-01")
         LocalDate applicationDeadline,
