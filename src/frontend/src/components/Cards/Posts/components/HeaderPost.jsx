@@ -1,10 +1,15 @@
 import { useState } from 'react';
+import { useNavigate } from "react-router-dom";
 import { Edit, Trash2, Eye, Globe, Users, Lock, AlertCircle } from 'lucide-react';
 import { updatePostVisibility, deletePost, updatePost } from '../../../../services/timelineService';
 import ConfirmModal from '../../../ConfirmModal/ConfirmModal';
 import BtnCallToAction from '../../../btn/BtnCallToAction/BtnCallToAction';
 
-export default function HeaderPost({ photo, name, visibility, communityId, postId, date, isOpen = false, onPostsUpdated = false, isFollowing = null, onFollowToggle = null }) {
+const baseUrl = import.meta.env.VITE_API_URL;
+
+export default function HeaderPost({ photo, name, visibility, communityId, postId, date, isOpen = false, onPostsUpdated = false, 
+                                      isFollowing = null, onFollowToggle = null, handle = null, idAuthor = null }) {
+  const navigate = useNavigate();
   const [showVisibilityOptions, setShowVisibilityOptions] = useState(false);
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [error, setError] = useState('');
@@ -51,6 +56,24 @@ export default function HeaderPost({ photo, name, visibility, communityId, postI
     }
   };
 
+  const handleNavigateProfile = async () => {
+    if (isFollowing !== null) {
+      const professionalPath = `/profile/professional/${idAuthor}-${handle}`;
+      const companyPath = `/profile/company/${idAuthor}-${handle}`;
+
+      try {
+        const response = await fetch(`${baseUrl}/profile/professional/${idAuthor}`);
+        if (response.ok) {
+          navigate(professionalPath);
+        } else {
+          navigate(companyPath);
+        }
+      } catch (err) {
+        navigate(companyPath);
+      }
+    }
+  };
+
   return (
     <div className="relative flex flex-col gap-2 mb-4">
       <div className="flex justify-between items-start">
@@ -60,7 +83,13 @@ export default function HeaderPost({ photo, name, visibility, communityId, postI
           </div>
 
           <div className="flex flex-col justify-start">
-            <p className="font-semibold text-base">{name}</p>
+            <p className={`font-semibold text-base ${
+                isFollowing !== null ? "text-[var(--purple-primary)] cursor-pointer hover:underline" : ""
+              }`}
+              onClick={handleNavigateProfile}
+            >
+              {name}
+            </p>
             <p className="text-xs text-[var(--purple-primary)] capitalize flex items-center gap-1">
               {communityId ? (
               <>

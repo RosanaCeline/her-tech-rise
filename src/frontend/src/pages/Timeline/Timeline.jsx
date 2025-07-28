@@ -3,9 +3,9 @@ import TimelineCard from './components/TimelineCard';
 import NewPost from './components/NewPost';
 import LoadingSpinner from '../../components/LoadingSpinner/LoadingSpinner';
 import CardPostProfile from '../../components/Cards/Posts/CardPostProfile';
+import PopUpBlurProfile from '../../components/Cards/Profile/PopUpBlurProfile';
 import { getTimelinePosts } from '../../services/timelineService';
 import { getCurrentUser } from '../../services/authService';
-import { getProfileById } from '../../services/userService';
 
 export default function Timeline() {
     const userData = getCurrentUser();
@@ -14,6 +14,19 @@ export default function Timeline() {
     const [hasMore, setHasMore] = useState(true);
     const [loadingMore, setLoadingMore] = useState(false);
     const [page, setPage] = useState(0);
+
+    const [isUniquePostPopup, setIsUniquePostPopup] = useState(false);
+    const [selectedPostId, setSelectedPostId] = useState(null);
+
+    const openUniquePostPopup = (postId) => {
+        setSelectedPostId(postId);
+        setIsUniquePostPopup(true);
+    };
+
+    const closeUniquePostPopup = () => {
+        setIsUniquePostPopup(false);
+        setSelectedPostId(null);
+    };
 
     useEffect(() => {
         async function fetchTimeline() {
@@ -93,12 +106,16 @@ export default function Timeline() {
             {posts.length > 0 ? (
                 <div className="flex flex-col gap-8 w-full mx-auto mt-6">
                     {posts.map((post) => (
-                        <div key={post.id} className="w-4/5 mx-auto bg-white p-8 rounded-xl shadow-md">
+                        <div key={post.id} 
+                            className="w-4/5 mx-auto bg-white p-8 rounded-xl shadow-md"
+                            onClick={() => openUniquePostPopup(post.id)}>
                             <CardPostProfile
                                 key={post.id}
                                 post={post}
                                 photo={post.author?.profilePic}
                                 name={post.author?.name}
+                                idAuthor={post.author?.id}
+                                handle={post.author?.handle}
                                 isFollowing={ post.isOwner ? null : post.author.isFollowed }
                                 onFollowToggle={() => handleToggleFollow(post.author.id)}
                             />
@@ -111,6 +128,21 @@ export default function Timeline() {
 
             {!hasMore && (
                 <p className="text-center text-gray-500 mt-6">Você chegou ao fim!</p>
+            )}
+            {isUniquePostPopup && (
+                <PopUpBlurProfile
+                isOpen={isUniquePostPopup}
+                onClose={closeUniquePostPopup}
+                content={
+                    <CardPostProfile
+                    post={posts.find((p) => p.id === selectedPostId)}
+                    photo={posts.find((p) => p.id === selectedPostId)?.author?.profilePic}
+                    name={posts.find((p) => p.id === selectedPostId)?.author?.name}
+                    isPopupView={true}
+                    isOpen={true}
+                    />
+                }
+                />
             )}
         </main>
     );
