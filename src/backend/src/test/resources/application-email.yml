@@ -1,0 +1,14 @@
+spring:
+  mail:
+    host: sandbox.smtp.mailtrap.io
+    port: 25
+    username: ca4526d5016da4
+    password: 0b2c0d013cb281
+    from: hertechrise@gmail.com
+    protocol: smtp
+    properties:
+      mail:
+        smtp:
+          auth: true
+          starttls:
+            enable: true

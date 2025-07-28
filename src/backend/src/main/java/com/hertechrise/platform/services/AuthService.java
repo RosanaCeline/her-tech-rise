@@ -1,5 +1,4 @@
 package com.hertechrise.platform.services;
-
 import com.hertechrise.platform.data.dto.request.*;
 import com.hertechrise.platform.data.dto.response.MessageResponseDTO;
 import com.hertechrise.platform.data.dto.response.TokenResponseDTO;
@@ -36,7 +35,6 @@ public class AuthService {
     private final PasswordEncoder passwordEncoder;
     private final ApplicationEventPublisher eventPublisher;
     private final AuthenticationManager authenticationManager;
-
     private final UserService userService;
     private final TokenService tokenService;
     private final ResetPasswordTokenService resetTokenService;
@@ -152,6 +150,7 @@ public class AuthService {
     public void checkCpfNotExists(String cpf) {
         if (professionalRepository.findByCpf(cpf).isPresent()) {
             throw new CpfAlreadyRegisteredException();
+
         }
     }
 

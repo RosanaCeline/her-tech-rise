@@ -131,12 +131,9 @@ public class ProfessionalProfileService {
             professional.setBiography(request.biography());
         }
 
-        if (request.experiences() != null) {
-            if (request.experiences().size() > 20) {
-                // Exemplo: limite arbitrário de 20 experiências
-                throw new ValidationException("Máximo de 20 experiências permitidas.");
-            }
-            experienceService.syncExperiences(professional, request.experiences());
+        if (request.experiences() != null && request.experiences().size() > 20) {
+            // Exemplo: limite arbitrário de 20 experiências
+            throw new ValidationException("Máximo de 20 experiências permitidas.");
         }
 
         // externalLink (até 100 caracteres e deve ser URL válida)

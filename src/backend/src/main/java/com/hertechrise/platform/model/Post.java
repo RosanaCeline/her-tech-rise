@@ -36,7 +36,6 @@ public class Post {
     @Column(name = "content", nullable = false, length = 3000)
     private String content;
 
-    @CreationTimestamp
     @Column(name = "created_at", nullable = false, updatable = false)
     private LocalDateTime createdAt;
 
