@@ -3,10 +3,10 @@ import BtnCallToAction from "../../../components/btn/BtnCallToAction/BtnCallToAc
 import { maskField } from "../../../components/form/Label/maskField";
 import {X} from 'lucide-react'
 import { useState } from "react";
-import { postJob } from '../../../services/jobsService'
+import { postJob, editPostJob } from '../../../services/jobsService'
 import { validateField } from "../../../components/form/Label/validationField";
 
-export default function ManageJob({jobFormData, setJobFormData, setManageJobModal}){
+export default function ManageJob({jobFormData, setJobFormData, setManageJobModal, fetchMyJobs, action = 'new'}){
     const [errorMessage, setErrorMessage] = useState('')
     const handleChange = (field, value) => {
         setJobFormData(prev => ({ ...prev, [field]: value }));
@@ -19,10 +19,11 @@ export default function ManageJob({jobFormData, setJobFormData, setManageJobModa
                 salaryMin: jobFormData.salaryMin.replace(/\s/g, '').replace('R$', '').replace(/\./g, '').replace(',', '.'),
                 salaryMax: jobFormData.salaryMax.replace(/\s/g, '').replace('R$', '').replace(/\./g, '').replace(',', '.'),
             }
-            await postJob(payload)
+            action === 'new' ? await postJob(payload) : await editPostJob(payload)
             setManageJobModal(false)
+            fetchMyJobs()
         }catch(err){
-            setErrorMessage(err.response?.data?.message || 'Erro ao cadastrar nova vaga de emprego')
+            setErrorMessage(err.response?.data?.message || `Erro ao ${action === 'new' ? 'cadastrar nova' : 'editar'} vaga de emprego`)
             setTimeout(() => setErrorMessage(null), 4000)
         }
     }
@@ -43,8 +44,8 @@ export default function ManageJob({jobFormData, setJobFormData, setManageJobModa
 
     return(
         <main className='flex flex-col'>
-            <X className='cursor-pointer ml-auto' onClick={() => setManageJobModal(false)}/>
-            <p className="mx-auto text-xl font-medium mb-4 px-2">Cadastre uma nova vaga de emprego</p>
+            <X className='cursor-pointer ml-auto' onClick={() => setManageJobModal('')}/>
+            <p className="mx-auto text-xl font-medium mb-4 px-2">{action === 'new' ? 'Cadastre uma nova' : 'Editar'} vaga de emprego</p>
             <div className="flex flex-col gap-y-3 max-h-[65vh] pb-2 overflow-y-auto">
                 <LabelInput label="Titulo da vaga" placeholder="Digite o título da vaga" required={true}
                 maxLength="100" value={jobFormData.title} onChange={(e) => handleChange('title', e.target.value)}/>
