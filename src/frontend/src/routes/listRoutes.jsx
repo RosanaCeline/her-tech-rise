@@ -9,10 +9,11 @@ import Timeline from '../pages/Timeline/Timeline';
 import VerMeuPerfil from '../pages/User/VerMeuPerfil';
 import VerPerfil from '../pages/User/VerPerfil';
 import SearchUser from '../pages/Search/SearchUser';
-import JobsListing from "../pages/JobsListing/JobsListing";
 import { logout } from '../services/authService';
 
 import { Home, User, LogOut, BriefcaseBusiness } from 'lucide-react';
+import ProfessionalJobsListing from "../pages/JobsListing/ProfessionalJobsListing";
+import CompanyJobsListing from "../pages/JobsListing/CompanyJobsListing";
 
 const iconSize = 20;
 
@@ -32,17 +33,19 @@ export function getRoutesByRole(tipoUsuario, navigate) {
     logout()
     navigate('/login')
   }
+  console.log("Tipo de usuário:", tipoUsuario)
 
-  if (tipoUsuario === 'enterprise') 
+
+  if (tipoUsuario === 'COMPANY') 
     return [
       { path: '/timeline',          element: <Timeline />,      title: 'Pagina Inicial',      visible: true,  icon: <Home size={iconSize} /> },
-      { path: '/vagas', element: <JobsListing/>, title: 'Vagas', icon: <BriefcaseBusiness size={iconSize} />},
+      { path: '/empresa/vagas', element: <CompanyJobsListing/>, title: 'Vagas', icon: <BriefcaseBusiness size={iconSize} />},
       { path: '/meuperfil',     element: <VerMeuPerfil />, title: 'Perfil',        visible: true,  icon: <User size={iconSize} /> },
       { title: 'Sair',              visible: true,              icon: <LogOut size={iconSize} />,       action: () => { handleLogout() } },
   ]
   return [
     { path: '/timeline',          element: <Timeline />,      title: 'Pagina Inicial',      visible: true,  icon: <Home size={iconSize} /> },
-    { path: '/vagas', element: <JobsListing/>, title: 'Vagas', icon: <BriefcaseBusiness size={iconSize} />},
+    { path: '/profissional/vagas', element: <ProfessionalJobsListing/>, title: 'Vagas', icon: <BriefcaseBusiness size={iconSize} />},
     { path: '/meuperfil',     element: <VerMeuPerfil />, title: 'Perfil',        visible: true,  icon: <User size={iconSize} /> },
     { title: 'Sair',              visible: true,              icon: <LogOut size={iconSize} />,       action: () => { handleLogout() } },
     { path: '/search', element: <SearchUser/> },
