@@ -45,13 +45,11 @@ export const newPost = async (formData) => {
   }
 }
 
-// Erro por enquanto - por causa do PATCH
 export const updatePostVisibility = async (postId, visibility) => {
   const visibilityUpper = visibility.toUpperCase();
   return await requestService.apiRequest(`/post/${postId}/visibility?visibility=${visibilityUpper}`, 'PATCH');
 }
 
-// Funcionando
 export const deletePost = async (postId) => {
   return await requestService.apiRequest(`/post/${postId}`, 'DELETE');
 }
