@@ -1,5 +1,5 @@
 package com.hertechrise.platform.services;
-
+import com.hertechrise.platform.data.dto.request.CompanyProfileRequestDTO;
 import com.hertechrise.platform.data.dto.request.CompanyProfileRequestDTO;
 import com.hertechrise.platform.data.dto.request.PostFilterRequestDTO;
 import com.hertechrise.platform.data.dto.response.*;

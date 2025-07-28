@@ -166,6 +166,15 @@ public class CustomEntityResponseHandler extends ResponseEntityExceptionHandler 
         return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
     }
 
+    @ExceptionHandler(MaxMediaLimitExceededException.class)
+    public ResponseEntity<?> handleMaxMediaLimitExceededException(Exception ex, WebRequest request) {
+        ExceptionResponse response = new ExceptionResponse(
+                new Date(),
+                ex.getMessage(),
+                request.getDescription(false));
+        return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
+    }
+
     @ExceptionHandler(AlreadyFollowingException.class)
     public ResponseEntity<?> handleAlreadyFollowingException(Exception ex, WebRequest request) {
         ExceptionResponse response = new ExceptionResponse(
