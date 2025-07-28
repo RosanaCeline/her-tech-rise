@@ -7,6 +7,7 @@ import com.hertechrise.platform.exception.InvalidFileTypeException;
 import com.hertechrise.platform.exception.MaxMediaLimitExceededException;
 import com.hertechrise.platform.model.*;
 import com.hertechrise.platform.repository.CommunityRepository;
+import com.hertechrise.platform.repository.FollowRelationshipRepository;
 import com.hertechrise.platform.repository.PostRepository;
 import jakarta.persistence.EntityNotFoundException;
 import jakarta.persistence.criteria.Predicate;
@@ -34,6 +35,7 @@ public class PostService {
 
     private final PostRepository postRepository;
     private final CommunityRepository communityRepository;
+    private final FollowRelationshipRepository followRelationshipRepository;
 
     private final MediaService mediaService;
     private final CloudinaryService cloudinaryService;
@@ -103,7 +105,13 @@ public class PostService {
 
         return new PostResponseDTO(
                 post.getId(),
-                post.getAuthor().getId(),
+                new PostResponseDTO.AuthorDTO(
+                        post.getAuthor().getId(),
+                        post.getAuthor().getName(),
+                        post.getAuthor().getHandle(),
+                        post.getAuthor().getProfilePic(),
+                        false
+                ),
                 post.getContent(),
                 post.getCreatedAt(),
                 post.getCommunity() != null ? post.getCommunity().getId() : null,
@@ -222,7 +230,13 @@ public class PostService {
 
         return new PostResponseDTO(
                 saved.getId(),
-                saved.getAuthor().getId(),
+                new PostResponseDTO.AuthorDTO(
+                        post.getAuthor().getId(),
+                        post.getAuthor().getName(),
+                        post.getAuthor().getHandle(),
+                        post.getAuthor().getProfilePic(),
+                        false
+                ),
                 saved.getContent(),
                 saved.getCreatedAt(),
                 saved.getCommunity() != null ? saved.getCommunity().getId() : null,
@@ -268,7 +282,13 @@ public class PostService {
 
             return new PostResponseDTO(
                     post.getId(),
-                    post.getAuthor().getId(),
+                    new PostResponseDTO.AuthorDTO(
+                            post.getAuthor().getId(),
+                            post.getAuthor().getName(),
+                            post.getAuthor().getHandle(),
+                            post.getAuthor().getProfilePic(),
+                            false
+                    ),
                     post.getContent(),
                     post.getCreatedAt(),
                     post.getCommunity() != null ? post.getCommunity().getId() : null,
@@ -284,6 +304,9 @@ public class PostService {
 
     @Transactional(readOnly = true)
     public Page<PostResponseDTO> getUserPosts(Long userId, PostFilterRequestDTO filter) {
+        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+        User loggedUser = (User) auth.getPrincipal();
+
         Pageable pageable = PageRequest.of(
                 filter.page(),
                 filter.size(),
@@ -309,9 +332,18 @@ public class PostService {
                     .map(m -> new MediaResponseDTO(m.getId(), m.getMediaType(), m.getUrl()))
                     .toList();
 
+            User author = post.getAuthor();
+            boolean isFollowed = followRelationshipRepository.existsByFollowerAndFollowing(loggedUser, author);
+
             return new PostResponseDTO(
                     post.getId(),
-                    post.getAuthor().getId(),
+                    new PostResponseDTO.AuthorDTO(
+                            post.getAuthor().getId(),
+                            post.getAuthor().getName(),
+                            post.getAuthor().getHandle(),
+                            post.getAuthor().getProfilePic(),
+                            isFollowed
+                    ),
                     post.getContent(),
                     post.getCreatedAt(),
                     post.getCommunity() != null ? post.getCommunity().getId() : null,
@@ -351,9 +383,11 @@ public class PostService {
 
         Page<Post> posts = postRepository.findAll(spec, pageable);
 
-        return posts.map(post ->
-                PostResponseDTO.from(post, loggedUser.getId())
-        );
+        return posts.map(post -> {
+            User author = post.getAuthor();
+            boolean isFollowed = followRelationshipRepository.existsByFollowerAndFollowing(loggedUser, author);
+            return PostResponseDTO.from(post, loggedUser.getId(), isFollowed);
+        });
     }
 }
 
