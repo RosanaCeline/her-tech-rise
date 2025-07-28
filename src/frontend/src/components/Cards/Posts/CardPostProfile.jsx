@@ -2,8 +2,9 @@ import { useState } from 'react';
 import { Heart, MessageCircle, Share } from 'lucide-react';
 import HeaderPost from './components/HeaderPost';
 import ContentPost from './components/ContentPost';
+import { followUser, unfollowUser} from '../../../services/userService';
 
-export default function CardPostProfile({ post, photo, name, isPopupView = false, isOpen = false, onPostsUpdated }) {
+export default function CardPostProfile({ post, photo, name, isPopupView = false, isOpen = false, onPostsUpdated = false, isFollowing = null, onFollowToggle = null }) {
   const [showPopup, setShowPopup] = useState(false);
 
   const openPopup = () => setShowPopup(true);
@@ -30,6 +31,8 @@ export default function CardPostProfile({ post, photo, name, isPopupView = false
           date={formattedDate}
           isOpen={isOpen}
           onPostsUpdated={onPostsUpdated}
+          isFollowing={isFollowing}
+          onFollowToggle={onFollowToggle}
         />
         
         <ContentPost 

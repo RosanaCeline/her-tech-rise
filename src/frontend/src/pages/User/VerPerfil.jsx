@@ -34,6 +34,7 @@ export default function VerPerfil() {
         visibility: 'public'
     })
 
+    const [followersCount, setFollowersCount] = useState(0);
     const [followedUser, setFollowedUser] = useState(false);
     const [statistics, setStatistics] = useState({
         profileVisits: 0,

@@ -2,8 +2,9 @@ import { useState } from 'react';
 import { Edit, Trash2, Eye, Globe, Users, Lock, AlertCircle } from 'lucide-react';
 import { updatePostVisibility, deletePost, updatePost } from '../../../../services/timelineService';
 import ConfirmModal from '../../../ConfirmModal/ConfirmModal';
+import BtnCallToAction from '../../../btn/BtnCallToAction/BtnCallToAction';
 
-export default function HeaderPost({ photo, name, visibility, communityId, postId, date, isOpen = false, onPostsUpdated }) {
+export default function HeaderPost({ photo, name, visibility, communityId, postId, date, isOpen = false, onPostsUpdated = false, isFollowing = null, onFollowToggle = null }) {
   const [showVisibilityOptions, setShowVisibilityOptions] = useState(false);
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [error, setError] = useState('');
@@ -78,6 +79,21 @@ export default function HeaderPost({ photo, name, visibility, communityId, postI
             <p className="text-xs text-gray-500">{date}</p>
           </div>
         </div>
+
+        {onPostsUpdated === true && (
+          <div className="flex justify-end text-xs text-gray-500 italic">
+            Editado
+          </div>
+        )}
+
+        {isFollowing !== null && onFollowToggle && (
+          <BtnCallToAction
+            onClick={onFollowToggle}
+            variant={isFollowing ? 'white' : 'purple'}
+          >
+            {isFollowing ? 'Seguindo' : 'Seguir'}
+          </BtnCallToAction>
+        )}
 
         {isOpen && (
           <div className="relative flex items-center gap-3">
