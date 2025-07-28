@@ -3,13 +3,11 @@ import { Edit, Trash2, Eye, Globe, Users, Lock, AlertCircle } from 'lucide-react
 import { updatePostVisibility, deletePost, updatePost } from '../../../../services/timelineService';
 import ConfirmModal from '../../../ConfirmModal/ConfirmModal';
 
-export default function HeaderPost({ photo, name, communityId, postId, date, isOpen = false, onPostsUpdated }) {
+export default function HeaderPost({ photo, name, visibility, communityId, postId, date, isOpen = false, onPostsUpdated }) {
   const [showVisibilityOptions, setShowVisibilityOptions] = useState(false);
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [error, setError] = useState('');
   const size = 18;
-
-  const isCommunity = Boolean(communityId);
 
   const onEdit = (e) => {
     e.stopPropagation();
@@ -64,8 +62,19 @@ export default function HeaderPost({ photo, name, communityId, postId, date, isO
           <div className="flex flex-col justify-start">
             <p className="font-semibold text-base">{name}</p>
             <p className="text-xs text-[var(--purple-primary)] capitalize flex items-center gap-1">
-              {isCommunity ? <Users size={14} /> : <Globe size={14} />}
-              {isCommunity ? 'Comunidade' : 'Público'}
+              {communityId ? (
+              <>
+                <Users size={14} /> Comunidade
+              </>
+            ) : visibility === 'PRIVADO' ? (
+              <>
+                <Lock size={14} /> Privado
+              </>
+            ) : (
+              <>
+                <Globe size={14} /> Público
+              </>
+            )}
             </p>
             <p className="text-xs text-gray-500">{date}</p>
           </div>

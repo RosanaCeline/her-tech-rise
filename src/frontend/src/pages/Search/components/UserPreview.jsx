@@ -15,7 +15,7 @@ export default function UserPreview({user, type}){
                     <p className="font-semibold truncate">{user.name}</p>
                     {type === 'Profissionais' && <p className="truncate">{user.technology || "Sem tecnologias informadas"}</p>}
                     <p className="truncate">{user.city}, {user.uf}</p>
-                    <p className="truncate">{user.followers} seguidor{user.followers > 1 && "es"}</p>
+                    <p className="truncate">{user.followersCount} seguidor{user.followersCount > 1 && "es"}</p>
                 </div>
                 <div className="my-auto">
                     <BtnCallToAction onClick={() => navigate(`/profile/${type === 'Profissionais' ? 'professional' : 'company'}/${user.id}-${user.handle}`)}>

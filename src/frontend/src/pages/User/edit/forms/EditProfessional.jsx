@@ -8,6 +8,7 @@ import FormEditExperience from "../../../../components/Cards/Profile/FormEditExp
 import PopUpBlurProfile from "../../../../components/Cards/Profile/PopUpBlurProfile";
 import LabelInput from "../../../../components/form/Label/LabelInput";
 import BtnCallToAction from "../../../../components/btn/BtnCallToAction/BtnCallToAction";
+import LoadingSpinner from './../../../../components/LoadingSpinner/LoadingSpinner'
 
 import { validateField } from "../../../../components/form/Label/validationField";
 import { maskField } from "../../../../components/form/Label/maskField";
@@ -191,7 +192,7 @@ export default function EditProfessional() {
   };
 
   if (loading) {
-    return <p className="text-[var(--gray)]">Carregando dados...</p>;
+    <LoadingSpinner />
   }
 
   return (

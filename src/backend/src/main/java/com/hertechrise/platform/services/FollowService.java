@@ -3,10 +3,7 @@ package com.hertechrise.platform.services;
 import com.hertechrise.platform.data.dto.request.FollowRequestDTO;
 import com.hertechrise.platform.data.dto.request.UnfollowRequestDTO;
 import com.hertechrise.platform.data.dto.response.FollowResponseDTO;
-<<<<<<< HEAD
-=======
 import com.hertechrise.platform.data.dto.response.FollowerCountResponseDTO;
->>>>>>> main
 import com.hertechrise.platform.data.dto.response.VerifyFollowResponseDTO;
 import com.hertechrise.platform.exception.*;
 import com.hertechrise.platform.model.FollowRelationship;
