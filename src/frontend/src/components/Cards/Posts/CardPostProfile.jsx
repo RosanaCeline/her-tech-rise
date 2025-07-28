@@ -4,7 +4,8 @@ import HeaderPost from './components/HeaderPost';
 import ContentPost from './components/ContentPost';
 import { followUser, unfollowUser} from '../../../services/userService';
 
-export default function CardPostProfile({ post, photo, name, isPopupView = false, isOpen = false, onPostsUpdated = false, isFollowing = null, onFollowToggle = null }) {
+export default function CardPostProfile({ post, photo, name, isPopupView = false, isOpen = false, onPostsUpdated = false, 
+                                          isFollowing = null, onFollowToggle = null, handle = null, idAuthor = null }) {
   const [showPopup, setShowPopup] = useState(false);
 
   const openPopup = () => setShowPopup(true);
@@ -29,6 +30,8 @@ export default function CardPostProfile({ post, photo, name, isPopupView = false
           communityId = {post.communityId}
           postId={post.id}
           date={formattedDate}
+          handle={handle}
+          idAuthor={idAuthor}
           isOpen={isOpen}
           onPostsUpdated={onPostsUpdated}
           isFollowing={isFollowing}
