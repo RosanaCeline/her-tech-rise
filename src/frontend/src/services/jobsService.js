@@ -17,7 +17,7 @@ export const companyJobPostingDetail = async (id) => {
 }
 
 export const deactivateJobPosting = async (id) => {
-    return await requestService.apiRequest(`/job-postings/${id}/deactivate`, 'PATCH');
+    return await requestService.apiRequest(`/job-postings/${id}/deactivate`, 'DELETE');
 }
 
 export const publicJobPostings = async () => {

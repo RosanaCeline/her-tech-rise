@@ -33,8 +33,6 @@ export function getRoutesByRole(tipoUsuario, navigate) {
     logout()
     navigate('/login')
   }
-  console.log("Tipo de usuário:", tipoUsuario)
-
 
   if (tipoUsuario === 'COMPANY') 
     return [
@@ -42,6 +40,8 @@ export function getRoutesByRole(tipoUsuario, navigate) {
       { path: '/empresa/vagas', element: <CompanyJobsListing/>, title: 'Vagas', icon: <BriefcaseBusiness size={iconSize} />},
       { path: '/meuperfil',     element: <VerMeuPerfil />, title: 'Perfil',        visible: true,  icon: <User size={iconSize} /> },
       { title: 'Sair',              visible: true,              icon: <LogOut size={iconSize} />,       action: () => { handleLogout() } },
+      { path: '/search', element: <SearchUser/> },
+      { path: '/profile/:user_type/:user_info', element: <VerPerfil />, title: 'Perfil', visible: false },  
   ]
   return [
     { path: '/timeline',          element: <Timeline />,      title: 'Pagina Inicial',      visible: true,  icon: <Home size={iconSize} /> },
