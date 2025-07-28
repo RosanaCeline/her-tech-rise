@@ -36,14 +36,14 @@ export function getRoutesByRole(tipoUsuario, navigate) {
   if (tipoUsuario === 'enterprise') 
     return [
       { path: '/timeline',          element: <Timeline />,      title: 'Pagina Inicial',      visible: true,  icon: <Home size={iconSize} /> },
-      { path: '/meuperfil',     element: <VerMeuPerfil />, title: 'Perfil',        visible: true,  icon: <User size={iconSize} /> },
       { path: '/vagas', element: <JobsListing/>, title: 'Vagas', icon: <BriefcaseBusiness size={iconSize} />},
+      { path: '/meuperfil',     element: <VerMeuPerfil />, title: 'Perfil',        visible: true,  icon: <User size={iconSize} /> },
       { title: 'Sair',              visible: true,              icon: <LogOut size={iconSize} />,       action: () => { handleLogout() } },
   ]
   return [
     { path: '/timeline',          element: <Timeline />,      title: 'Pagina Inicial',      visible: true,  icon: <Home size={iconSize} /> },
-    { path: '/meuperfil',     element: <VerMeuPerfil />, title: 'Perfil',        visible: true,  icon: <User size={iconSize} /> },
     { path: '/vagas', element: <JobsListing/>, title: 'Vagas', icon: <BriefcaseBusiness size={iconSize} />},
+    { path: '/meuperfil',     element: <VerMeuPerfil />, title: 'Perfil',        visible: true,  icon: <User size={iconSize} /> },
     { title: 'Sair',              visible: true,              icon: <LogOut size={iconSize} />,       action: () => { handleLogout() } },
     { path: '/search', element: <SearchUser/> },
     { path: '/profile/:user_type/:user_info', element: <VerPerfil />, title: 'Perfil', visible: false },
