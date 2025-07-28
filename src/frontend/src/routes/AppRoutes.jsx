@@ -34,6 +34,9 @@ export default function AppRoutes() {
           <Route key={path} path={path} element={element} />
         ))}
       </Route>
+
+      <Route path="*" element={<PrivateLayout routes={privateRoutes} />} />
+
     </Routes>
   )
 }
