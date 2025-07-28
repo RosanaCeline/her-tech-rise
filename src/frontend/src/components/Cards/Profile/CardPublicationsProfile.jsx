@@ -36,7 +36,6 @@ export default function CardPublicationsProfile({ title, posts, photo, name, onP
       (a, b) => new Date(b.createdAt) - new Date(a.createdAt)
     )
     setVisiblePosts(sorted.slice(0, limit))
-    console.log(posts)
   }, [posts, limit])
 
   const openUniquePostPopup = (postId) => {

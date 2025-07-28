@@ -329,7 +329,6 @@ export default function EditEnterprise() {
             value={formData.sobrenos ?? ''}
             placeholder={originalData.sobrenos ? '' : formData.sobrenos ? originalData.sobrenos : 'Descreva um pouco sobre sua empresa'}
             onChange={handleChange}
-            required
             validation="texto"
           />
 

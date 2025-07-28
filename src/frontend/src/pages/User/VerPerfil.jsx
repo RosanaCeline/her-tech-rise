@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { useParams } from 'react-router-dom';
 
 import { followUser, unfollowUser, verifyFollowUser } from '../../services/userService';
-import { getProfileById  } from '../../services/userService';
+import { getProfileById, listFollowers, listFollowing  } from '../../services/userService';
 import { getCurrentUser } from '../../services/authService';
 
 import SeeStatistics from './statistics/SeeStatistics'
@@ -33,8 +33,29 @@ export default function VerPerfil() {
         media: [],
         visibility: 'public'
     })
+
     const [followedUser, setFollowedUser] = useState(false);
-    const [followersCount, setFollowersCount] = useState(0);
+    const [statistics, setStatistics] = useState({
+        profileVisits: 0,
+        followers: 0,
+        following: 0,
+        likes: 0
+    });
+
+    async function fetchStatistics() {
+        try {
+            const followers = await listFollowers(userId);
+            const following = await listFollowing(userId);
+            setStatistics({
+                profileVisits: user?.statistics?.profilevisits || 0,
+                followers: followers.length || 0,
+                following: following.length || 0,
+                likes: user?.statistics?.likes || 0
+            });
+        } catch (err) {
+            console.error("Erro ao buscar estatísticas:", err);
+        }
+    }
 
     async function fetchProfile() {
         try {
@@ -48,8 +69,6 @@ export default function VerPerfil() {
             email: response.email,
             photo: response.profilePic,
             externalLink: response.externalLink,
-            followersCount: response.followersCount,
-            followedUser: false,
             endereco: {
                 cidade: response.city,
                 estado: response.uf,
@@ -59,29 +78,14 @@ export default function VerPerfil() {
                 tecnologias: response.technology,
                 biografia: response.biography,
                 experiencias: response.experiences,
-                statistics: {
-                    profilevisits: response.profileVisits ?? 0,
-                    followers: response.followersCount ?? 0,
-                    following: response.followingCount ?? 0,
-                    posts: response.posts?.length ?? 0,
-                    likes: response.likesCount ?? 0,
-                },
             }),
             ...(isCompany && {
                 description: response.description,
                 aboutUs: response.aboutUs,
-                statistics: {
-                    profilevisits: response.profileVisits ?? 0,
-                    followers: response.followersCount ?? 0,
-                    following: response.followingCount ?? 0,
-                    posts: response.posts?.length ?? 0,
-                    likes: response.likesCount ?? 0,
-                },
             }),
             };
 
             setUser(userMapped);
-            setFollowersCount(response.followersCount ?? 0);
         } catch (err) {
             setError('Erro ao carregar perfil.');
             console.error(err);
@@ -90,7 +94,7 @@ export default function VerPerfil() {
         }
     }
     useEffect(() => {
-        fetchProfile();
+        fetchProfile().then(() => fetchStatistics());
     }, [])
 
     useEffect(() => {
@@ -111,12 +115,10 @@ export default function VerPerfil() {
                 const res = await unfollowUser(userId)
                 setFollowedUser(false)
                 setFollowersCount((prev) => prev - 1)
-                console.log("Resposta UNFOLLOW:", res);
             } else {
                 const res = await followUser(userId)
                 setFollowedUser(true)
                 setFollowersCount((prev) => prev + 1)
-                console.log("Resposta FOLLOW:", res);
             }
             fetchProfile()
         }catch(err){
@@ -147,11 +149,11 @@ export default function VerPerfil() {
             followedUser={followedUser}
             statisticsComponent={
                 <SeeStatistics
-                profilevisits={user.statistics.profilevisits}
-                followers={user.statistics.followers}
-                following={user.statistics.following}
-                posts={user.statistics.posts}
-                likes={user.statistics.likes}
+                    profilevisits={statistics.profileVisits}
+                    followers={statistics.followers}
+                    following={statistics.following}
+                    posts={user.posts}
+                    likes={statistics.likes}
                 />
             }
         />

@@ -28,7 +28,6 @@ export default function HeaderPost({ photo, name, visibility, communityId, postI
     try {
       await updatePostVisibility(postId, value);
       setShowVisibilityOptions(false);
-      console.log('Visibilidade alterada para:', value);
     } catch (err) {
       console.error('Erro ao alterar visibilidade:', err);
       setError('Erro ao atualizar a visibilidade. Tente novamente.');
