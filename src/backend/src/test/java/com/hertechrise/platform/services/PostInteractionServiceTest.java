@@ -353,10 +353,10 @@ class PostInteractionServiceTest extends AbstractIntegrationTest {
         assertEquals(1, postInteractionService.countShares(post.getId()));
     }
 
-    /**
-    @DisplayName("Não deve permitir deletar comentário de outro usuário")
+    @DisplayName("Não deve permitir deletar comentário de outro usuário em post de outro usuário")
     @Test
-    void shouldNotDeleteOtherUserComment() {
+    void deleteCommentShouldThrowWhenUserNotOwnerNorAuthor() {
+       //dona do post
         User loggedUser = createTestUser("Thalyta", "thalyta@email.com", "@thalyta");
         UsernamePasswordAuthenticationToken auth =
                 new UsernamePasswordAuthenticationToken(loggedUser, null, List.of());
@@ -369,21 +369,30 @@ class PostInteractionServiceTest extends AbstractIntegrationTest {
         post.setCreatedAt(LocalDateTime.now());
         postRepository.save(post);
 
-
-        User otherUser = createTestUser("Claudia", "teste@email.com", "@claudia");
+        // usuario 2 comenta
+        User otherUser2 = createTestUser("Claudia", "test@email.com", "@claudia");
         UsernamePasswordAuthenticationToken auth1 =
-                new UsernamePasswordAuthenticationToken(otherUser, null, List.of());
+                new UsernamePasswordAuthenticationToken(otherUser2, null, List.of());
         SecurityContextHolder.getContext().setAuthentication(auth1);
 
-
         PostCommentResponseDTO comment = postInteractionService.comment(post.getId(),  new PostCommentRequestDTO(
-                "comentario de outro!",
+                "comentario de outro usuario",
                 null
         ));
+        // user 3
+        User otherUser3 = createTestUser("Rosana ", "teste@email.com", "@Rosana");
+        UsernamePasswordAuthenticationToken auth3 =
+                new UsernamePasswordAuthenticationToken(otherUser3, null, List.of());
+        SecurityContextHolder.getContext().setAuthentication(auth3);
 
-        assertThrows(SecurityException.class, () -> postInteractionService.deleteComment(comment.id()));
+        SecurityException exception = assertThrows(SecurityException.class, () -> {
+            postInteractionService.deleteComment(comment.id());
+        });
+
+        assertEquals("Você não tem permissão para excluir este comentário", exception.getMessage());
     }
-    **/
+
+
 
     @DisplayName("Deve lançar exceção ao curtir post inexistente")
     @Test
