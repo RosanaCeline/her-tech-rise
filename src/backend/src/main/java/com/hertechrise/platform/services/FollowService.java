@@ -51,12 +51,7 @@ public class FollowService {
         follow.setFollowing(following);
         followRepository.save(follow);
 
-        return new FollowResponseDTO(
-                follow.getId(),
-                follow.getFollower().getId(),
-                follow.getFollowing().getId(),
-                follow.getFollowedAt()
-        );
+        return toDto(follow);
     }
 
     public void unfollow(UnfollowRequestDTO request) {
@@ -148,7 +143,11 @@ public class FollowService {
         return new FollowResponseDTO(
                 fr.getId(),
                 fr.getFollower().getId(),
+                fr.getFollower().getName(),
+                fr.getFollower().getProfilePic(),
                 fr.getFollowing().getId(),
+                fr.getFollowing().getName(),
+                fr.getFollowing().getProfilePic(),
                 fr.getFollowedAt()
         );
     }
