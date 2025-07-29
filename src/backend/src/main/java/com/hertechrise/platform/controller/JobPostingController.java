@@ -32,7 +32,7 @@ public class JobPostingController implements JobPostingControllerDocs {
         return new ResponseEntity<>(updated, HttpStatus.OK);
     }
 
-    @PatchMapping("/{id}/deactivate")
+    @DeleteMapping("/{id}/deactivate")
     public ResponseEntity<String> deactivateJobPosting(@PathVariable Long id) {
         jobPostingService.deactivateJobPosting(id);
         return ResponseEntity.ok("Vaga desativada com sucesso.");
