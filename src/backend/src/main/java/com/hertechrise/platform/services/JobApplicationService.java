@@ -2,6 +2,7 @@ package com.hertechrise.platform.services;
 
 import com.hertechrise.platform.data.dto.request.JobApplicationRequestDTO;
 import com.hertechrise.platform.data.dto.response.*;
+import com.hertechrise.platform.exception.AlreadyCandidateException;
 import com.hertechrise.platform.model.JobApplication;
 import com.hertechrise.platform.model.JobPosting;
 import com.hertechrise.platform.model.Professional;
@@ -20,6 +21,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
@@ -42,6 +44,15 @@ public class JobApplicationService {
 
         JobPosting jobPosting = jobPostingRepository.findById(request.jobPostingId())
                 .orElseThrow(() -> new EntityNotFoundException("Vaga não encontrada."));
+
+        List<JobApplication> applications = jobApplicationRepository
+                .findAllByJobPostingIdAndProfessionalUserId(jobPosting.getId(), loggedUser.getId());
+
+        boolean hasActive = applications.stream().anyMatch(a -> !a.isDeleted());
+
+        if (hasActive) {
+            throw new AlreadyCandidateException();
+        }
 
         String resumeUrl = cloudinaryService.uploadResumeFile(request.resumeFile(), loggedUser.getName()) ;
 

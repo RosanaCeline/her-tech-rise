@@ -5,6 +5,7 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
+import java.util.Optional;
 
 @Repository
 public interface JobApplicationRepository extends JpaRepository<JobApplication, Long> {
@@ -12,4 +13,6 @@ public interface JobApplicationRepository extends JpaRepository<JobApplication, 
     List<JobApplication> findByProfessionalUserId(Long professionalId);
 
     List<JobApplication> findByJobPostingId(Long jobPostingId);
+
+    List<JobApplication> findAllByJobPostingIdAndProfessionalUserId(Long jobPostingId, Long userId);
 }
