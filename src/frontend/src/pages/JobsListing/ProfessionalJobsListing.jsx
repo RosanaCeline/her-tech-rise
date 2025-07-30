@@ -2,12 +2,16 @@ import { useEffect, useState } from "react"
 import { publicJobPostings, publicJobDetail } from "../../services/jobsService"
 import { House, MapPin, CalendarDays } from 'lucide-react'
 import BtnCallToAction from "../../components/btn/BtnCallToAction/BtnCallToAction"
-
+import PopUp from "../../components/PopUp"
+import ApplyJob from "./components/ApplyJob"
+import { useNavigate } from "react-router-dom"
 
 export default function ProfessionalJobsListing(){
+    const navigate = useNavigate()
     const [jobs, setJobs] = useState([])
     const [jobDetail, setJobDetail] = useState('')
     const [currentJobDetail, setCurrentJobDetail] = useState(0)
+    const [applyJobModal, setApplyJobModal] = useState(false)
 
     const fetchJobs = async () => {
         const response = await publicJobPostings()
@@ -30,7 +34,10 @@ export default function ProfessionalJobsListing(){
     return(
         <main className='flex flex-col bg-(--gray) pt-34 pb-6'>
             <div className="flex flex-col mb-6 w-5/6 p-6 bg-white mx-auto rounded-xl">
-                <h1 className="text-3xl font-semibold text-[var(--purple-secundary)] mb-5">Confira vagas em destaque</h1>
+                <div className="flex flex-col md:flex-row justify-between mb-5 gap-y-2">
+                    <h1 className="text-3xl font-semibold text-[var(--purple-secundary)] pt-2">Confira vagas em destaque</h1>
+                    <BtnCallToAction onClick={() => navigate('/candidaturas')}>MINHAS CANDIDATURAS</BtnCallToAction>
+                </div>
                 {jobs.length > 0
                 ? <div className="max-h-[65vh] bg-(--gray) rounded-2xl flex border border-(--gray)">
                     <div className="w-full md:w-2/5 overflow-y-auto">
@@ -39,16 +46,21 @@ export default function ProfessionalJobsListing(){
                             <JobItem key={job.id} job={job} 
                             fetchJobDetail={fetchJobDetail} setJobDetail={setJobDetail} isCurrent={currentJobDetail === job.id}
                             setCurrentJobDetail={setCurrentJobDetail}/>
-                            {currentJobDetail === job.id && <div className="md:hidden"><JobDetails job={jobDetail}/></div>}
+                            {currentJobDetail === job.id && 
+                            <div className="md:hidden">
+                                <JobDetails setApplyJobModal={setApplyJobModal} job={jobDetail}/>
+                            </div>}
                         </div>
                         )}
                     </div>
-                    <div className="hidden md:flex w-3/5">
-                        <JobDetails job={jobDetail}/>
+                    <div className="hidden md:flex w-3/5 overflow-y-auto">
+                        <JobDetails setApplyJobModal={setApplyJobModal} job={jobDetail}/>
                     </div>
                 </div>
                 : <p className="mx-auto my-4">Não há vagas disponíveis no momento</p>}
             </div>
+            {applyJobModal !== false &&
+            <PopUp><ApplyJob setApplyJobModal={setApplyJobModal} applyJobModal={applyJobModal}/></PopUp>}
         </main>
     )
 }
@@ -71,7 +83,7 @@ function JobItem({job, setJobDetail, fetchJobDetail, isCurrent, setCurrentJobDet
     )
 }
 
-function JobDetails({job}){
+function JobDetails({job, setApplyJobModal}){
     const contractTypes = {
         CLT: "CLT", PJ: "PJ",
         APRENDIZ: "Aprendiz", ESTAGIO: "Estágio",
@@ -113,7 +125,11 @@ function JobDetails({job}){
                     </div>
                 </div>
             </div>
-            <div className="flex justify-center mt-7"><BtnCallToAction>CANDIDATAR-SE</BtnCallToAction></div>
+            <div className="flex justify-center mt-7">
+                <BtnCallToAction onClick={() => setApplyJobModal(job)}>
+                    CANDIDATAR-SE
+                </BtnCallToAction>
+            </div>
         </div>
     )
 }
