@@ -51,8 +51,6 @@ public class JobApplicationService {
         application.setGithubLink(request.githubLink());
         application.setPortfolioLink(request.portfolioLink());
         application.setResumeUrl(resumeUrl);
-        application.setApplicantPhone(request.applicantPhone());
-        application.setApplicantEmail(request.applicantEmail());
         application.setAppliedAt(LocalDateTime.now());
 
         jobApplicationRepository.save(application);
@@ -156,8 +154,8 @@ public class JobApplicationService {
                 application.getProfessional().getUserId(),
                 application.getProfessional().getUser().getName(),
                 application.getProfessional().getTechnology(),
-                application.getApplicantPhone(),
-                application.getApplicantEmail(),
+                application.getProfessional().getUser().getPhoneNumber(),
+                application.getProfessional().getUser().getEmail(),
                 application.getProfessional().getUser().getProfilePic(),
                 application.getResumeUrl(),
                 application.getGithubLink(),
@@ -194,8 +192,8 @@ public class JobApplicationService {
                 application.getProfessional().getUserId(),
                 application.getProfessional().getUser().getName(),
                 application.getProfessional().getTechnology(),
-                application.getApplicantPhone(),
-                application.getApplicantEmail(),
+                application.getProfessional().getUser().getPhoneNumber(),
+                application.getProfessional().getUser().getEmail(),
                 application.getProfessional().getUser().getProfilePic(),
                 application.getResumeUrl(),
                 application.getGithubLink(),
