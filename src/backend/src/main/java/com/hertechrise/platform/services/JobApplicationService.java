@@ -9,12 +9,14 @@ import com.hertechrise.platform.model.User;
 import com.hertechrise.platform.repository.JobApplicationRepository;
 import com.hertechrise.platform.repository.JobPostingRepository;
 import com.hertechrise.platform.repository.ProfessionalRepository;
+import com.hertechrise.platform.utils.HibernateUtils;
+import jakarta.persistence.EntityManager;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
-import org.springframework.web.multipart.MultipartFile;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -28,6 +30,9 @@ public class JobApplicationService {
     private final ProfessionalRepository professionalRepository;
     private final CloudinaryService cloudinaryService;
 
+    private final EntityManager entityManager;
+
+    @Transactional
     public CandidateApplicationDetailsResponseDTO applyToJob(JobApplicationRequestDTO request) {
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
         User loggedUser= (User) auth.getPrincipal();
@@ -55,9 +60,12 @@ public class JobApplicationService {
         return mapToCandidateDetailsDto(application);
     }
 
+    @Transactional(readOnly = true)
     public CandidateApplicationDetailsResponseDTO getMyApplicationDetails(Long applicationId) {
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
         User loggedUser = (User) auth.getPrincipal();
+
+        HibernateUtils.enableDeletedFilter(entityManager);
 
         JobApplication application = jobApplicationRepository.findById(applicationId)
                 .orElseThrow(() -> new EntityNotFoundException("Candidatura não encontrada."));
@@ -69,9 +77,12 @@ public class JobApplicationService {
         return mapToCandidateDetailsDto(application);
     }
 
+    @Transactional(readOnly = true)
     public ReceivedApplicationDetailsResponseDTO getReceivedApplicationDetails(Long applicationId) {
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
         User loggedUser = (User) auth.getPrincipal();
+
+        HibernateUtils.enableDeletedFilter(entityManager);
 
         JobApplication application = jobApplicationRepository.findById(applicationId)
                 .orElseThrow(() -> new EntityNotFoundException("Candidatura não encontrada."));
@@ -85,9 +96,12 @@ public class JobApplicationService {
         return mapToReceivedDetailsDto(application);
     }
 
+    @Transactional(readOnly = true)
     public List<CandidateApplicationSummaryResponseDTO> listMyApplications() {
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
         User loggedUser = (User) auth.getPrincipal();
+
+        HibernateUtils.enableDeletedFilter(entityManager);
 
         Professional professional = professionalRepository.findById(loggedUser.getId())
                 .orElseThrow(() -> new EntityNotFoundException("Usuário logado não é um profissional."));
@@ -99,9 +113,12 @@ public class JobApplicationService {
                 .toList();
     }
 
+    @Transactional(readOnly = true)
     public ReceivedApplicationsByJobResponseDTO listReceivedApplicationsByJob(Long jobId) {
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
         User loggedUser = (User) auth.getPrincipal();
+
+        HibernateUtils.enableDeletedFilter(entityManager);
 
         JobPosting jobPosting = jobPostingRepository.findById(jobId)
                 .orElseThrow(() -> new EntityNotFoundException("Vaga não encontrada."));
@@ -113,6 +130,24 @@ public class JobApplicationService {
         List<JobApplication> applications = jobApplicationRepository.findByJobPostingId(jobId);
 
         return mapToReceivedByJobDto(jobPosting, applications);
+    }
+
+    @Transactional
+    public void deleteById(Long id) {
+        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+        User loggedUser = (User) auth.getPrincipal();
+
+        HibernateUtils.enableDeletedFilter(entityManager);
+
+        JobApplication application = jobApplicationRepository.findById(id)
+                .orElseThrow(() -> new EntityNotFoundException("Candidatura não encontrada"));
+
+        if (!application.getProfessional().getUser().getId().equals(loggedUser.getId())) {
+            throw new SecurityException("Você não tem permissão para deletar essa candidatura.");
+        }
+
+        application.setDeleted(true);
+        jobApplicationRepository.save(application);
     }
 
     private CandidateApplicationDetailsResponseDTO mapToCandidateDetailsDto(JobApplication application) {

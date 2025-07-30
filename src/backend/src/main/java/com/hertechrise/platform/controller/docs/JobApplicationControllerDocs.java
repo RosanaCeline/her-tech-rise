@@ -82,4 +82,15 @@ public interface JobApplicationControllerDocs {
             }
     )
     ResponseEntity<ReceivedApplicationsByJobResponseDTO> listReceivedApplicationsByJob(@PathVariable Long jobId);
+
+    @Operation(
+            summary = "Excluir candidatura",
+            description = "Realiza a exclusão lógica de uma candidatura feita pelo profissional autenticado.",
+            responses = {
+                    @ApiResponse(responseCode = "204", description = "Candidatura excluída com sucesso"),
+                    @ApiResponse(responseCode = "403", description = "O usuário logado não tem permissão para excluir essa candidatura"),
+                    @ApiResponse(responseCode = "404", description = "Candidatura não encontrada")
+            }
+    )
+    ResponseEntity<Void> deleteApplication(@PathVariable Long id);
 }
