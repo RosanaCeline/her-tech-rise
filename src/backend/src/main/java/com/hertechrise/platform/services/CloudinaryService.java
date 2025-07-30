@@ -9,6 +9,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
+import java.util.List;
 import java.util.Map;
 
 @Service
@@ -47,7 +48,7 @@ public class CloudinaryService {
                     Map.of(
                             "folder", "posts",
                             "resource_type", "auto",
-                            "overwrite", true
+                            "overwrite", false
                     )
             );
             return (String) uploadResult.get("secure_url");
@@ -80,7 +81,7 @@ public class CloudinaryService {
                     Map.of(
                             "folder", "profile_pics",
                             "public_id", "user_" + userId,
-                            "overwrite", true,
+                            "overwrite", false,
                             "resource_type", "image"
                     )
             );
@@ -90,5 +91,62 @@ public class CloudinaryService {
         }
     }
 
+    public String uploadResumeFile(MultipartFile file, String professionalName) {
+        String mimeType = file.getContentType();
+        long size = file.getSize();
+
+        if (mimeType == null) {
+            throw new InvalidMediaTypeException("Tipo de mídia não identificado.");
+        }
+
+        if (!List.of(
+                "application/pdf",
+                "application/msword",
+                "application/vnd.openxmlformats-officedocument.wordprocessingml.document"
+        ).contains(mimeType)) {
+            throw new InvalidMediaTypeException("Apenas arquivos PDF, DOC ou DOCX são permitidos.");
+        }
+
+        if (size > 10 * 1024 * 1024) {
+            throw new MediaFileTooLargeException("Documento excede o limite de 10MB.");
+        }
+
+        try {
+            String sanitized = professionalName
+                    .toLowerCase()
+                    .replaceAll("[^a-z0-9]", "_")
+                    .replaceAll("_+", "_")
+                    .replaceAll("^_|_$", "");
+
+            String publicId = "curriculo_" + sanitized + "_" + System.currentTimeMillis();
+
+            Map<?, ?> uploadResult = cloudinary.uploader().upload(
+                    file.getBytes(),
+                    Map.of(
+                            "folder", "posts",
+                            "resource_type", "auto",
+                            "overwrite", false,
+                            "public_id", publicId
+                    )
+            );
+
+            String uploadedUrl = (String) uploadResult.get("secure_url");
+
+            String originalFilename = file.getOriginalFilename();
+            if (originalFilename == null || !originalFilename.contains(".")) {
+                throw new InvalidMediaTypeException("Nome de arquivo inválido.");
+            }
+            String extension = originalFilename.substring(originalFilename.lastIndexOf('.') + 1);
+
+            return uploadedUrl + "?fl_attachment=" + publicId + "." + extension;
+        } catch (IOException e) {
+            throw new RuntimeException("Erro ao fazer upload para Cloudinary", e);
+        } catch (RuntimeException e) {
+            if ("Empty file".equals(e.getMessage())) {
+                throw new CloudinaryUploadException("Erro ao enviar arquivo para Cloudinary.", e);
+            }
+            throw e;
+        }
+    }
 
 }
