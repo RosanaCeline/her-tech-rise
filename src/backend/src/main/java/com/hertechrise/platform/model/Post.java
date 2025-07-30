@@ -51,7 +51,7 @@ public class Post {
             fetch = FetchType.LAZY)
     private List<Media> media = new ArrayList<>();
 
-    @Column(name = "deleted", nullable = false)
+    @Column(nullable = false)
     private boolean deleted = false;
 
     @Enumerated(EnumType.STRING)
