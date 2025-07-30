@@ -7,5 +7,5 @@ import org.springframework.stereotype.Repository;
 @Repository
 public interface PostShareRepository extends JpaRepository<PostShare, Long> {
 
-    long countByPostId(Long postId);;
+    long countByPostId(Long postId);
 }

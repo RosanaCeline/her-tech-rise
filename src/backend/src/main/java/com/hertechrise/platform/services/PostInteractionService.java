@@ -97,7 +97,7 @@ public class PostInteractionService {
         PostComment comment = commentRepository.findById(commentId)
                 .orElseThrow(() -> new EntityNotFoundException("Comentário não encontrado"));
 
-        if (!comment.getUser().getId().equals(user.getId())) {
+        if (!comment.getUser().getId().equals(user.getId()) && !comment.getPost().getAuthor().getId().equals(user.getId())) {
             throw new SecurityException("Você não tem permissão para excluir este comentário");
         }
 

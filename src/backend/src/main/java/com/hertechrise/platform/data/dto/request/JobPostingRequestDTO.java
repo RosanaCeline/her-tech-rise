@@ -10,23 +10,23 @@ import java.time.LocalDate;
 
 public record JobPostingRequestDTO(
 
-        @NotBlank
-        @Size(max = 100)
+        @NotBlank(message = "Título da vaga é obrigatório.")
+        @Size(max = 100, message = "Título deve ter no máximo 100 caracteres.")
         String title,
 
-        @NotBlank
-        @Size(max = 2000)
+        @NotBlank(message = "Descrição da vaga é obrigatória.")
+        @Size(max = 2000, message = "Descrição da vaga deve ter no máximo 2000 caracteres.")
         String description,
 
-        @NotBlank
-        @Size(max = 1000)
+        @NotBlank(message = "Requisitos da vaga são obrigatórios.")
+        @Size(max = 1000, message = "Requisitos da vaga devem ter no máximo 1000 caracteres.")
         String requirements,
 
-        @NotBlank
-        @Size(max = 100)
+        @NotBlank(message = "Localização da vaga é obrigatória.")
+        @Size(max = 100, message = "Localização da vaga deve ter no máximo 100 caracteres.")
         String location,
 
-        @NotNull
+        @NotNull(message = "Modelo da vaga é obrigatório.")
         JobModel jobModel,
 
         @DecimalMin(value = "0.0", inclusive = false)
@@ -35,13 +35,13 @@ public record JobPostingRequestDTO(
         @DecimalMin(value = "0.0", inclusive = false)
         BigDecimal salaryMax,
 
-        @NotNull
+        @NotNull(message = "Tipo de contrato da vaga é obrigatório.")
         JobContractType contractType,
 
-        @NotNull
+        @NotNull(message = "Nível da vaga é obrigatório.")
         JobLevel jobLevel,
 
-        @NotNull
+        @NotNull(message = "Data limite da vaga é obrigatória.")
         @FutureOrPresent(message = "A data limite deve ser hoje ou uma data futura.")
         LocalDate applicationDeadline
 ) {}
