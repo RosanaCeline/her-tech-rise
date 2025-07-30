@@ -49,4 +49,10 @@ public class JobApplicationController implements JobApplicationControllerDocs {
             @PathVariable Long jobId) {
         return ResponseEntity.ok(jobApplicationService.listReceivedApplicationsByJob(jobId));
     }
+
+    @DeleteMapping("/{id}")
+    public ResponseEntity<Void> deleteApplication(@PathVariable Long id) {
+        jobApplicationService.deleteById(id);
+        return ResponseEntity.noContent().build();
+    }
 }
