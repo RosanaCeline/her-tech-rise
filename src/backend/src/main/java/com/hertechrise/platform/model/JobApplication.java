@@ -48,12 +48,6 @@ public class JobApplication implements Serializable {
     @Column(name = "resume_url", nullable = false, length = 1000)
     private String resumeUrl;
 
-    @Column(name = "applicant_email", nullable = false, length = 255)
-    private String applicantEmail;
-
-    @Column(name = "applicant_phone", nullable = false, length = 20)
-    private String applicantPhone;
-
     @Column(name = "applied_at", nullable = false)
     private LocalDateTime appliedAt;
 

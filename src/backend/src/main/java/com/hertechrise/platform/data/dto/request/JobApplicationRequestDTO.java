@@ -18,16 +18,7 @@ public record JobApplicationRequestDTO(
         String portfolioLink,
 
         @NotNull(message = "Currículo é obrigatório.")
-        MultipartFile resumeFile,
-
-        @NotBlank(message = "Email é obrigatório.")
-        @Email(message = "Email informado não é válido.")
-        @Size(max = 255, message = "Email deve ter no máximo 255 caracteres.")
-        String applicantEmail,
-
-        @NotBlank(message = "Telefone é obrigatório.")
-        @Size(max = 20, message = "Telefone deve ter no máximo 20 caracteres.")
-        String applicantPhone
+        MultipartFile resumeFile
 
 ) {}
 
