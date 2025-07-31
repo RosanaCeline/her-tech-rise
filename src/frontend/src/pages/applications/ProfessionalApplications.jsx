@@ -1,6 +1,7 @@
 import { useNavigate } from "react-router-dom"
 import { Undo2 , CircleCheck, CircleX, X, File} from "lucide-react"
-import { myApplications, myApplicationDetail, cancelApplication } from "../../services/applicationService"
+import { myApplications } from "../../services/applicationService"
+import ApplicationDetail from "./components/ApplicationDetail"
 import { useEffect, useState } from "react"
 import BtnCallToAction from "../../components/btn/BtnCallToAction/BtnCallToAction"
 import PopUp from "../../components/PopUp"
@@ -31,15 +32,14 @@ export default function ProfessionalApplications(){
                 <h1 className="text-3xl font-semibold text-[var(--purple-secundary)] pt-2 mx-auto mb-4">Minhas candidaturas</h1>
 
                 {applications.length > 0
-                ? <div className="grid grid-cols-2 gap-x-10 px-10 gap-y-5">
+                ? <div className="grid lg:grid-cols-2 gap-x-10 px-10 gap-y-5">
                     {applications.map((application) => <ApplicationItem application={application} setApplicationDetail={setApplicationDetail}/>)}
                 </div>
                 : <p className="mx-auto my-4">Nenhuma candidatura realizada.</p>}
             </div>
             {applicationDetail !== '' && 
-            <PopUp>
-                <ApplicationDetail applicationDetail={applicationDetail} setApplicationDetail={setApplicationDetail} fetchMyApplications={fetchMyApplications}/>
-            </PopUp>}
+                <ApplicationDetail applicationDetail={applicationDetail} setApplicationDetail={setApplicationDetail} 
+                fetchMyApplications={fetchMyApplications}/>}
         </main>
     )
 }
@@ -66,102 +66,3 @@ function ApplicationItem({application, setApplicationDetail}){
         </div>
     )
 }
-
-function ApplicationDetail({applicationDetail, setApplicationDetail, fetchMyApplications}){
-    const [data, setData] = useState('')
-    const [cancelModalOpen, setCancelModalOpen] = useState(false)
-
-    const fetchApplicationDetail = async (id) => {
-        const response = await myApplicationDetail(id)
-        setData(response)
-    }
-
-    useEffect(() => {
-        fetchApplicationDetail(applicationDetail)
-    }, [applicationDetail])
-    
-    const handleCancelApplication = async () => {
-        await cancelApplication(applicationDetail)
-        setCancelModalOpen(false)
-        setApplicationDetail('')
-        await fetchMyApplications()
-        console.log("Fechando o PopUp!")
-    }
-
-    return(
-        <div>
-            <X className='cursor-pointer ml-auto' onClick={() => setApplicationDetail('')}/>
-            <div className="flex gap-x-7 justify-center">
-                <img src={data.companyProfilePic} className="w-1/9 h-1/9 my-auto rounded-xl"/>
-                <div className="flex flex-col my-auto">
-                    <p className="font-bold">{data.jobTitle}</p>
-                    <p>{data.companyName}</p>
-                </div>
-            </div>
-            <div className="mt-4 font-bold flex flex-col gap-y-1.5">
-                <p>
-                    Link do portifólio:{" "}
-                    {data.portfolioLink ?
-                    <a href={data.portfolioLink} target="_blank" rel="noopener noreferrer" className="font-normal text-blue-600 underline break-words max-w-full">
-                        {data.portfolioLink}
-                    </a>
-                    : <span className="font-normal">não informado</span>}
-                </p>
-
-                <p>
-                    Link do GitHub:{" "}
-                    {data.githubLink ?
-                    <a href={data.githubLink} target="_blank" rel="noopener noreferrer" className="font-normal text-blue-600 underline break-words max-w-full">
-                        {data.githubLink}
-                    </a>
-                    : <span className="font-normal">não informado</span>}
-                </p>
-
-                <p className="flex mx-auto">
-                    Currículo:{" "}
-                    <a href={data.resumeUrl} target="_blank" rel="noopener noreferrer" className="ml-3 gap-1 flex font-normal text-blue-600 break-words max-w-full">
-                        <File/> Acessar
-                    </a>
-                </p>
-
-                <p>Candidatado em: <span className="font-normal">{new Date(data.appliedAt).toLocaleDateString('pt-BR')}</span></p>
-
-                {data.isActive
-                ? <p className="flex mx-auto">Status da vaga: 
-                    <span className="ml-2 flex font-normal gap-2">Ativa <CircleCheck size='18' className="my-auto text-green-900"/></span></p>
-                : <p className="flex mx-auto">Status da vaga: 
-                    <span className="ml-2 flex font-normal gap-2">Inativa <CircleX size='18' className="my-auto text-red-900"/></span></p>}
-                
-                {data.isExpired
-                ? <p>Essa vaga não aceita mais candidaturas</p>
-                : <p>Expira em: <span className="font-normal">{new Date(data.applicationDeadline).toLocaleDateString('pt-BR')}</span></p>}
-                
-            </div>
-            <div className="mt-5">
-                <BtnCallToAction onClick={() => setCancelModalOpen(true)}>Cancelar candidatura</BtnCallToAction>
-            </div>
-            {cancelModalOpen && (
-            <div className="fixed inset-0 z-50 bg-black/40 backdrop-blur-sm flex items-center justify-center">
-            <div className="bg-white p-8 rounded-2xl shadow-lg text-center max-w-sm">
-                <h2 className="text-2xl font-bold mb-4 text-[var(--purple-primary)]">
-                Confirmar Cancelamento
-                </h2>
-                <p className="mb-6 text-gray-700">Tem certeza que deseja cancelar candidatura?</p>
-                <div className="flex justify-center gap-6">
-                <button
-                    onClick={() => setCancelModalOpen(false)}
-                    className="bg-gray-300 text-gray-800 px-6 py-2 rounded-xl hover:bg-gray-400 transition">
-                    Não
-                </button>
-                <button
-                    onClick={() => handleCancelApplication()}
-                    className="bg-purple-600 text-white px-6 py-2 rounded-xl hover:bg-purple-700 transition">
-                    Sim
-                </button>
-                </div>
-            </div>
-            </div>
-            )}
-        </div>
-    )
-} 
