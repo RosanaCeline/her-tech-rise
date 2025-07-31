@@ -36,7 +36,7 @@ export default function ProfessionalJobsListing(){
             <div className="flex flex-col mb-6 w-5/6 p-6 bg-white mx-auto rounded-xl">
                 <div className="flex flex-col md:flex-row justify-between mb-5 gap-y-2">
                     <h1 className="text-3xl font-semibold text-[var(--purple-secundary)] pt-2">Confira vagas em destaque</h1>
-                    <BtnCallToAction onClick={() => navigate('/candidaturas')}>MINHAS CANDIDATURAS</BtnCallToAction>
+                    <BtnCallToAction onClick={() => navigate('/profissional/vagas/candidaturas')}>MINHAS CANDIDATURAS</BtnCallToAction>
                 </div>
                 {jobs.length > 0
                 ? <div className="max-h-[65vh] bg-(--gray) rounded-2xl flex border border-(--gray)">
@@ -125,9 +125,9 @@ function JobDetails({job, setApplyJobModal}){
                     </div>
                 </div>
             </div>
-            <div className="flex justify-center mt-7">
-                <BtnCallToAction onClick={() => setApplyJobModal(job)}>
-                    CANDIDATAR-SE
+            <div className={`flex justify-center mt-7 ${job.hasApplied && 'grayscale opacity-60'}`}>
+                <BtnCallToAction onClick={() => !job.hasApplied && setApplyJobModal(job)}>
+                    {job.hasApplied ? 'JÁ CANDIDATADO' : 'CANDIDATAR-SE'}
                 </BtnCallToAction>
             </div>
         </div>

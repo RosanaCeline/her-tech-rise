@@ -15,6 +15,7 @@ import { Home, User, LogOut, BriefcaseBusiness } from 'lucide-react';
 import ProfessionalJobsListing from "../pages/JobsListing/ProfessionalJobsListing";
 import CompanyJobsListing from "../pages/JobsListing/CompanyJobsListing";
 import ProfessionalApplications from "../pages/applications/ProfessionalApplications";
+import CompanyApplications from "../pages/applications/CompanyApplications";
 
 const iconSize = 20;
 
@@ -43,6 +44,8 @@ export function getRoutesByRole(tipoUsuario, navigate) {
       { title: 'Sair',              visible: true,              icon: <LogOut size={iconSize} />,       action: () => { handleLogout() } },
       { path: '/search', element: <SearchUser/> },
       { path: '/profile/:user_type/:user_info', element: <VerPerfil />, title: 'Perfil', visible: false },  
+      { path: '/empresa/vagas/:id', element: <CompanyApplications/> },
+
   ]
   return [
     { path: '/timeline',          element: <Timeline />,      title: 'Pagina Inicial',      visible: true,  icon: <Home size={iconSize} /> },
@@ -51,6 +54,6 @@ export function getRoutesByRole(tipoUsuario, navigate) {
     { title: 'Sair',              visible: true,              icon: <LogOut size={iconSize} />,       action: () => { handleLogout() } },
     { path: '/search', element: <SearchUser/> },
     { path: '/profile/:user_type/:user_info', element: <VerPerfil />, title: 'Perfil', visible: false },
-    { path: '/candidaturas', element: <ProfessionalApplications/> },
+    { path: '/profissional/vagas/candidaturas', element: <ProfessionalApplications/> },
   ]
 }

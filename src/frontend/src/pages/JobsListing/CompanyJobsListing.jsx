@@ -5,6 +5,7 @@ import PopUp from "../../components/PopUp"
 import { companyJobPostings, companyJobPostingDetail, deactivateJobPosting } from "../../services/jobsService"
 import { House, MapPin, CalendarDays } from 'lucide-react'
 import { maskField } from "../../components/form/Label/maskField";
+import { useNavigate } from "react-router-dom"
 
 export default function CompanyJobsListing(){
     const [manageJobModal, setManageJobModal] = useState('')
@@ -86,6 +87,8 @@ function CompanyJobDetails({job, setManageJobModal, setJobFormData, handleDeacti
         REMOTO: 'Remoto', HIBRIDO: 'Híbrido', PRESENCIAL: 'Presencial'
     }
 
+    const navigate = useNavigate()
+
     return(
         <div className={`flex grid grid-cols-10 border rounded-xl hover:bg-slate-50 border-(--gray) p-3 ${!job.isActive ? 'grayscale opacity-60' : ''}`}>
             <div className="">
@@ -139,7 +142,8 @@ function CompanyJobDetails({job, setManageJobModal, setJobFormData, handleDeacti
 
                     <div className="lg:ml-auto">
                     <button className="border border-(--purple-primary) text-(--purple-primary) cursor-pointer rounded-2xl py-2 px-6
-                    transition duration-300 hover:bg-(--purple-primary) hover:text-white hover:scale-110">
+                    transition duration-300 hover:bg-(--purple-primary) hover:text-white hover:scale-110"
+                    onClick={() => navigate(`/empresa/vagas/${job.id}`)}>
                         Ver candidaturas
                     </button></div>
 

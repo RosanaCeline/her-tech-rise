@@ -18,6 +18,14 @@ export const myApplicationDetail = async (id) => {
     return await requestService.apiRequest(`/job-applications/my/${id}`, 'GET');
 }
 
+export const myCompanyApplicationDetail = async (id) => {
+    return await requestService.apiRequest(`/job-applications/received/${id}`, 'GET');
+}
+
 export const cancelApplication = async (id) => {
     return await requestService.apiRequest(`/job-applications/${id}`, 'DELETE');
+}
+
+export const applicationsById = async (id) => {
+    return await requestService.apiRequest(`/job-applications/received/job/${id}`, 'GET');
 }
