@@ -17,6 +17,9 @@ public record ReceivedApplicationDetailsResponseDTO(
         @Schema(description = "Nome completo do candidato", example = "João da Silva")
         String applicantName,
 
+        @Schema(description = "Hanlde do candidato", example = "@joaosilva")
+        String applicantHandle,
+
         @Schema(description = "Tecnologias ou stack principal do candidato", example = "Java | Spring Boot")
         String applicantTechnology,
 
