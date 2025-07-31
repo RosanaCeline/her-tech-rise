@@ -1,7 +1,7 @@
 import { useState, useCallback } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { Undo2 } from 'lucide-react'
-import { register } from '../../../../services/authService';
+import { register, verifyCNPJ, verifyCPF } from '../../../../services/authService';
 import { useAuth } from '../../../../context/AuthContext';
 import RegisterStep1 from './RegisterStep1'
 import RegisterStep2 from './RegisterStep2'
@@ -62,8 +62,59 @@ export default function RegisterForm(){
         }
     }
 
-    const validateFields = (fields, message = 'Preencha os campos obrigatórios e corrija os erros antes de continuar') => {
+    const [formHasChanged, setFormHasChanged] = useState(false);
+     async function fetchCPF() {
+        if (formData.cpf.length === 14) {
+            try {
+                const verify = await verifyCPF(formData.cpf)
+                if(verify === false){
+                    setErrorMessage("O CPF informado pertence a outra conta")
+                    setFormHasChanged(true);
+                }
+                else if(verify === true) setErrorMessage('')
+                return verify
+            } catch (error) {
+                console.error("Erro ao verificar CPF:", error);
+            }
+        }else if(formHasChanged){
+            setFormHasChanged(false);
+            setErrorMessage('')
+        }
+    }
+
+    async function fetchCNPJ() {
+        if (formData.cnpj.length === 18) {
+            try {
+                const verify = await verifyCNPJ(formData.cnpj)
+                if(verify === false){
+                    setErrorMessage("O CNPJ informado pertence a outra conta");
+                    setFormHasChanged(true);
+                } 
+                else if(verify === true) setErrorMessage('')
+                return verify
+            } catch (error) {
+                console.error("Erro ao verificar CNPJ:", error);
+            }
+        }else if(formHasChanged){
+            setFormHasChanged(false);
+            setErrorMessage('')
+        }
+    }
+
+    const validateFields = async (fields, message = 'Preencha os campos obrigatórios e corrija os erros antes de continuar') => {
         const hasError = fields.some(field => validateField(field, formData[field], true))
+
+        if (fields.includes('cpf')) {
+            const isCPFValid = await fetchCPF()
+            if (!isCPFValid) return
+        }
+
+        if (fields.includes('cnpj')) {
+            const isCNPJValid = await fetchCNPJ()
+            console.log(isCNPJValid)
+            if (!isCNPJValid) return
+        }
+
         if(hasError) 
             setErrorMessage(message)
         else {
@@ -110,6 +161,7 @@ export default function RegisterForm(){
                         formData={formData}
                         setFormData={setFormData}
                         handleChange={handleChange}
+                        fetchCNPJ={fetchCNPJ} fetchCPF={fetchCPF}
                     />
                 </StepWrapper>
             )

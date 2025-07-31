@@ -71,3 +71,13 @@ export const newPassword = async (token, newPassword) => {
   const response = await axios.post(`${API_URL}/confirmedResetPassword`, {token, newPassword})
   return response.data
 }
+
+export const verifyCPF = async (cpf) => {
+  const response = await axios.get(`${API_URL}/cpf?cpf=${cpf}`, {validateStatus: (status) => status < 500})
+  return response.status === 204 ? true : response.status === 409 ? false : null
+}
+
+export const verifyCNPJ = async (cnpj) => {
+  const response = await axios.get(`${API_URL}/cnpj?cnpj=${cnpj}`, {validateStatus: (status) => status < 500})
+  return response.status === 204 ? true : response.status === 409 ? false : null
+}
