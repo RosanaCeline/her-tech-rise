@@ -1,6 +1,8 @@
 package com.hertechrise.platform.data.dto.response;
 
+import com.hertechrise.platform.model.ProfessionalGender;
 import io.swagger.v3.oas.annotations.media.Schema;
+import jakarta.validation.constraints.NotNull;
 
 @Schema(name = "TokenResponseDTO", description = "DTO com token JWT retornado após autenticação")
 public record TokenResponseDTO(
@@ -18,5 +20,11 @@ public record TokenResponseDTO(
         String role,
 
         @Schema(description = "URL da foto de perfil do usuário", example = "https://res.cloudinary.com/xyz/image/upload/v123456/ana_clara.png")
-        String profilePicture
+        String profilePicture,
+
+        @Schema(description = "Identidade de gênero do candidato", example = "null")
+        ProfessionalGender gender,
+
+        @Schema(description = "Consentimento para compartilhar gênero do profissional nas vagas", example = "true")
+        Boolean consentGenderSharing
 ) {}
