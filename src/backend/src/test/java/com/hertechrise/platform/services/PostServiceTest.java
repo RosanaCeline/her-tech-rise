@@ -576,16 +576,16 @@ class PostServiceTest extends AbstractIntegrationTest {
         assertEquals(3, response.getTotalElements());
         assertEquals(1, response.getTotalPages());
         assertEquals(10, response.getSize());
-        assertEquals("Postando a 10 minutos e editado", response.getContent().getFirst().content());
-        assertTrue(response.getContent().getFirst().edited());
-        assertEquals("Postando a uma hora e privado", response.getContent().get(1).content());
-        assertEquals(1, response.getContent().get(1).media().size());
-        assertEquals("Postando a 7 dias", response.getContent().get(2).content());
-        assertFalse(response.getContent().get(2).canEdit());
+        assertEquals("Postando a 10 minutos e editado", response.getContent().getFirst().post().content());
+        assertTrue(response.getContent().getFirst().post().edited());
+        assertEquals("Postando a uma hora e privado", response.getContent().get(1).post().content());
+        assertEquals(1, response.getContent().get(1).post().media().size());
+        assertEquals("Postando a 7 dias", response.getContent().get(2).post().content());
+        assertFalse(response.getContent().get(2).post().canEdit());
         assertFalse(response.getContent().stream()
-                        .anyMatch(post -> post.content().equals("Postagem apagada")));
+                        .anyMatch(post -> post.post().content().equals("Postagem apagada")));
         assertFalse(response.getContent().stream()
-                .anyMatch(post -> post.content().equals("Postagem de outro usuario")));
+                .anyMatch(post -> post.post().content().equals("Postagem de outro usuario")));
     }
 
     @DisplayName("Listar posts de outro usuário")
@@ -648,16 +648,16 @@ class PostServiceTest extends AbstractIntegrationTest {
         assertEquals(2, response.getTotalElements());
         assertEquals(1, response.getTotalPages());
         assertEquals(10, response.getSize());
-        assertEquals("Postando a 10 minutos e editado", response.getContent().getFirst().content());
-        assertTrue(response.getContent().getFirst().edited());
-        assertEquals(1, response.getContent().getFirst().media().size());
-        assertEquals("Postando a 7 dias", response.getContent().get(1).content());
+        assertEquals("Postando a 10 minutos e editado", response.getContent().getFirst().post().content());
+        assertTrue(response.getContent().getFirst().post().edited());
+        assertEquals(1, response.getContent().getFirst().post().media().size());
+        assertEquals("Postando a 7 dias", response.getContent().get(1).post().content());
         assertFalse(response.getContent().stream()
-                .anyMatch(post -> post.content().equals("Postagem apagada")));
+                .anyMatch(post -> post.post().content().equals("Postagem apagada")));
         assertFalse(response.getContent().stream()
-                .anyMatch(post -> post.content().equals("Postagem de outro usuario")));
+                .anyMatch(post -> post.post().content().equals("Postagem de outro usuario")));
         assertFalse(response.getContent().stream()
-                .anyMatch(post -> post.content().equals("Postando a uma hora e privado")));
+                .anyMatch(post -> post.post().content().equals("Postando a uma hora e privado")));
     }
 
     @DisplayName("Listar posts da timeline")
@@ -726,19 +726,19 @@ class PostServiceTest extends AbstractIntegrationTest {
         assertEquals(4, response.getTotalElements());
         assertEquals(1, response.getTotalPages());
         assertEquals(10, response.getSize());
-        assertEquals("Postagem privada do usuário logado", response.getContent().getFirst().content());
-        assertEquals(loggedUser.getId(), response.getContent().getFirst().author().id());
-        assertEquals("Postagem pública do usuário logado", response.getContent().get(1).content());
-        assertEquals(loggedUser.getId(), response.getContent().get(1).author().id());
-        assertEquals("Postando a 10 minutos e editado", response.getContent().get(2).content());
-        assertEquals(user.getId(), response.getContent().get(2).author().id());
-        assertTrue(response.getContent().get(2).edited());
-        assertEquals(1, response.getContent().get(2).media().size());
-        assertEquals("Postando a 7 dias", response.getContent().get(3).content());
-        assertEquals(user.getId(), response.getContent().get(3).author().id());
+        assertEquals("Postagem privada do usuário logado", response.getContent().getFirst().post().content());
+        assertEquals(loggedUser.getId(), response.getContent().getFirst().post().author().id());
+        assertEquals("Postagem pública do usuário logado", response.getContent().get(1).post().content());
+        assertEquals(loggedUser.getId(), response.getContent().get(1).post().author().id());
+        assertEquals("Postando a 10 minutos e editado", response.getContent().get(2).post().content());
+        assertEquals(user.getId(), response.getContent().get(2).post().author().id());
+        assertTrue(response.getContent().get(2).post().edited());
+        assertEquals(1, response.getContent().get(2).post().media().size());
+        assertEquals("Postando a 7 dias", response.getContent().get(3).post().content());
+        assertEquals(user.getId(), response.getContent().get(3).post().author().id());
         assertFalse(response.getContent().stream()
-                .anyMatch(post -> post.content().equals("Postagem apagada")));
+                .anyMatch(post -> post.post().content().equals("Postagem apagada")));
         assertFalse(response.getContent().stream()
-                .anyMatch(post -> post.content().equals("Postando a uma hora e privado")));
+                .anyMatch(post -> post.post().content().equals("Postando a uma hora e privado")));
     }
 }
