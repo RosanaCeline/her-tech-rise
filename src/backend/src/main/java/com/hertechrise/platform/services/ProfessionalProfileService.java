@@ -8,6 +8,9 @@ import java.util.Comparator;
 import java.util.List;
 
 import com.hertechrise.platform.data.dto.request.PostFilterRequestDTO;
+import com.hertechrise.platform.data.dto.response.*;
+import com.hertechrise.platform.model.*;
+import com.hertechrise.platform.repository.*;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
@@ -15,21 +18,8 @@ import org.springframework.transaction.annotation.Transactional;
 
 import com.hertechrise.platform.data.dto.request.ExperienceRequestDTO;
 import com.hertechrise.platform.data.dto.request.ProfessionalProfileRequestDTO;
-import com.hertechrise.platform.data.dto.response.ExperienceResponseDTO;
-import com.hertechrise.platform.data.dto.response.MediaResponseDTO;
-import com.hertechrise.platform.data.dto.response.MyProfessionalProfileResponseDTO;
-import com.hertechrise.platform.data.dto.response.PostResponseDTO;
-import com.hertechrise.platform.data.dto.response.ProfessionalProfileResponseDTO;
 import com.hertechrise.platform.exception.ProfessionalNotFoundException;
 import com.hertechrise.platform.exception.UserNotFoundException;
-import com.hertechrise.platform.model.Experience;
-import com.hertechrise.platform.model.Post;
-import com.hertechrise.platform.model.Professional;
-import com.hertechrise.platform.model.User;
-import com.hertechrise.platform.repository.FollowRelationshipRepository;
-import com.hertechrise.platform.repository.PostRepository;
-import com.hertechrise.platform.repository.ProfessionalRepository;
-import com.hertechrise.platform.repository.UserRepository;
 
 import jakarta.validation.ValidationException;
 import lombok.RequiredArgsConstructor;
@@ -41,6 +31,7 @@ public class ProfessionalProfileService {
     private final UserRepository userRepository;
     private final ProfessionalRepository professionalRepository;
     private final FollowRelationshipRepository followRepository;
+    private final PostShareRepository postShareRepository;
 
     private final ExperienceService experienceService;
     private final PostService postService;
@@ -60,13 +51,11 @@ public class ProfessionalProfileService {
 
         PostFilterRequestDTO filter = new PostFilterRequestDTO(null, null, null, null);
 
-        List<PostResponseDTO> posts;
+        List<UnifiedPostResponseDTO> posts;
 
         if (loggedUser.getId().equals(id)) {
-            // É o próprio usuário: pode ver todos os posts e editar os seus (editable = true quando < 7 dias)
             posts = postService.getMyPosts(filter).stream().toList();
         } else {
-            // Outro usuário visualizando: só vê posts públicos e não editáveis
             posts = postService.getUserPosts(id, filter).stream().toList();
         }
 
@@ -117,7 +106,6 @@ public class ProfessionalProfileService {
         professional.setConsentGenderSharing(request.consentGenderSharing());
         professional.setBirthDate(request.birthDate());
 
-        // technology (até 80 caracteres)
         if (request.technology() != null) {
             if (request.technology().length() > 80) {
                 throw new ValidationException("technology deve ter no máximo 80 caracteres.");
@@ -125,7 +113,6 @@ public class ProfessionalProfileService {
             professional.setTechnology(request.technology());
         }
 
-        // biography (até 1000 caracteres)
         if (request.biography() != null) {
             if (request.biography().length() > 1000) {
                 throw new ValidationException("biography deve ter no máximo 1000 caracteres.");
@@ -134,11 +121,9 @@ public class ProfessionalProfileService {
         }
 
         if (request.experiences() != null && request.experiences().size() > 20) {
-            // Exemplo: limite arbitrário de 20 experiências
             throw new ValidationException("Máximo de 20 experiências permitidas.");
         }
 
-        // externalLink (até 100 caracteres e deve ser URL válida)
         if (request.externalLink() != null) {
             String link = getLink(request);
             user.setExternalLink(link);
@@ -155,7 +140,7 @@ public class ProfessionalProfileService {
         userRepository.save(user);
         professionalRepository.save(professional);
 
-        return getProfile(user.getId()); // retorna o perfil atualizado
+        return getProfile(user.getId());
     }
 
     @Transactional

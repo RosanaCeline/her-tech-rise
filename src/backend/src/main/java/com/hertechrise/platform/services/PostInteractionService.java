@@ -53,11 +53,15 @@ public class PostInteractionService {
         Post post = postRepository.findById(postId)
                 .orElseThrow(() -> new EntityNotFoundException("Postagem não encontrada"));
 
+        PostComment parentComment = commentRepository.findById(dto.parentCommentId())
+                .orElseThrow(() -> new EntityNotFoundException("Comentário pai não encontrado"));
+
         PostComment comment = new PostComment();
         comment.setUser(user);
         comment.setPost(post);
         comment.setContent(dto.content());
         comment.setCreatedAt(LocalDateTime.now());
+        comment.setParentComment(parentComment);
 
         comment = commentRepository.save(comment);
 
@@ -68,7 +72,8 @@ public class PostInteractionService {
                 user.getProfilePic(),
                 comment.getContent(),
                 comment.isEdited(),
-                comment.getCreatedAt()
+                comment.getCreatedAt(),
+                comment.getParentComment() != null ? comment.getParentComment().getId() : null
         );
     }
 
@@ -119,6 +124,7 @@ public class PostInteractionService {
         shareRepository.delete(share);
     }
 
+    @Transactional(readOnly = true)
     public List<PostLikeResponseDTO> listLikes(Long postId) {
         Post post = postRepository.findById(postId)
                 .orElseThrow(() -> new EntityNotFoundException("Postagem não encontrada"));
@@ -134,6 +140,7 @@ public class PostInteractionService {
                 .toList();
     }
 
+    @Transactional(readOnly = true)
     public List<PostCommentResponseDTO> listComments(Long postId) {
         Post post = postRepository.findById(postId)
                 .orElseThrow(() -> new EntityNotFoundException("Postagem não encontrada"));
@@ -146,7 +153,8 @@ public class PostInteractionService {
                         comment.getUser().getProfilePic(),
                         comment.getContent(),
                         comment.isEdited(),
-                        comment.getCreatedAt()
+                        comment.getCreatedAt(),
+                        comment.getParentComment() != null ? comment.getParentComment().getId() : null
                 ))
                 .toList();
     }

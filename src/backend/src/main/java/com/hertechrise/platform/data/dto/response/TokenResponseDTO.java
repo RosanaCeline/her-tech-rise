@@ -2,7 +2,6 @@ package com.hertechrise.platform.data.dto.response;
 
 import com.hertechrise.platform.model.ProfessionalGender;
 import io.swagger.v3.oas.annotations.media.Schema;
-import jakarta.validation.constraints.NotNull;
 
 @Schema(name = "TokenResponseDTO", description = "DTO com token JWT retornado após autenticação")
 public record TokenResponseDTO(

@@ -1,5 +1,5 @@
 package com.hertechrise.platform.services;
-import com.hertechrise.platform.data.dto.request.CompanyProfileRequestDTO;
+
 import com.hertechrise.platform.data.dto.request.CompanyProfileRequestDTO;
 import com.hertechrise.platform.data.dto.request.PostFilterRequestDTO;
 import com.hertechrise.platform.data.dto.response.*;
@@ -46,13 +46,11 @@ public class CompanyProfileService {
 
         PostFilterRequestDTO filter = new PostFilterRequestDTO(null, null, null, null);
 
-        List<PostResponseDTO> posts;
+        List<UnifiedPostResponseDTO> posts;
 
         if (loggedUser.getId().equals(id)) {
-            // É o próprio usuário: pode ver todos os posts e editar os seus (editable = true quando < 7 dias)
             posts = postService.getMyPosts(filter).stream().toList();
         } else {
-            // Outro usuário visualizando: só vê posts públicos e não editáveis
             posts = postService.getUserPosts(id, filter).stream().toList();
         }
 
@@ -96,7 +94,6 @@ public class CompanyProfileService {
         company.setCnpj(request.cnpj());
         company.setCompanyType(request.companyType());
 
-        // description (até 400 caracteres)
         if (request.description() != null) {
             if (request.description().length() > 400) {
                 throw new ValidationException("description deve ter no máximo 400 caracteres.");
@@ -104,7 +101,6 @@ public class CompanyProfileService {
             company.setDescription(request.description());
         }
 
-        // aboutUs (até 1000 caracteres)
         if (request.aboutUs() != null) {
             if (request.aboutUs().length() > 1000) {
                 throw new ValidationException("aboutUs deve ter no máximo 1000 caracteres.");
@@ -112,7 +108,6 @@ public class CompanyProfileService {
             company.setAboutUs(request.aboutUs());
         }
 
-        // externalLink (até 100 caracteres e deve ser URL válida)
         if (request.externalLink() != null) {
             String link = getLink(request);
             user.setExternalLink(link);
@@ -121,7 +116,7 @@ public class CompanyProfileService {
         userRepository.save(user);
         companyRepository.save(company);
 
-        return getProfile(user.getId()); // retorna o perfil atualizado
+        return getProfile(user.getId());
     }
 
     public MyCompanyProfileResponseDTO getMyProfile() {

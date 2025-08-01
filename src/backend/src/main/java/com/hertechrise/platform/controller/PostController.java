@@ -7,6 +7,7 @@ import com.hertechrise.platform.data.dto.request.PostRequestDTO;
 import com.hertechrise.platform.data.dto.response.MessageResponseDTO;
 import com.hertechrise.platform.data.dto.response.PostMessageResponseDTO;
 import com.hertechrise.platform.data.dto.response.PostResponseDTO;
+import com.hertechrise.platform.data.dto.response.UnifiedPostResponseDTO;
 import com.hertechrise.platform.model.PostVisibility;
 import com.hertechrise.platform.services.PostService;
 import jakarta.validation.Valid;
@@ -70,8 +71,8 @@ public class PostController implements PostControllerDocs {
     }
 
     @GetMapping("/timeline")
-    public ResponseEntity<Page<PostResponseDTO>> getTimelinePosts(@Valid PostFilterRequestDTO filter) {
-        Page<PostResponseDTO> posts = postService.getTimelinePosts(filter);
+    public ResponseEntity<Page<UnifiedPostResponseDTO>> getTimelinePosts(@Valid PostFilterRequestDTO filter) {
+        Page<UnifiedPostResponseDTO> posts = postService.getTimelinePosts(filter);
         return ResponseEntity.ok(posts);
     }
 }
