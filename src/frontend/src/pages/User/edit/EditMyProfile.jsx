@@ -3,7 +3,6 @@ import React, { useState, useEffect } from "react"
 import { getCurrentUser } from "../../../services/authService"
 import EditEnterprise from './forms/EditEnterprise'
 import EditProfessional from './forms/EditProfessional'
-import LoadingSpinner from './../../../components/LoadingSpinner/LoadingSpinner'
 
 export default function EditMyProfile() {
     const [user, setUser] = useState(null);
@@ -28,7 +27,7 @@ export default function EditMyProfile() {
         {tipoUsuario === "PROFESSIONAL" && <EditProfessional user={user} />}
 
         {!tipoUsuario && (
-            <LoadingSpinner />
+            <p className="text-[var(--gray)] mt-4">Carregando informações do usuário...</p>
         )}
         </section>
     )

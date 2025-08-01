@@ -4,12 +4,6 @@ import { AuthProvider } from './context/AuthContext';
 import './index.css';
 import App from './App.jsx';
 
-const appStartedKey = 'appHasStartedBefore'
-if (!localStorage.getItem(appStartedKey)) {
-  localStorage.clear()
-  localStorage.setItem(appStartedKey, 'true') 
-}
-
 createRoot(document.getElementById('root')).render(
   <StrictMode>
     <AuthProvider>

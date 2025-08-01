@@ -213,15 +213,14 @@ export default function CardProfile({
           </BtnCallToAction>
         </>
         : <div className='flex flex-col mx-auto gap-y-2'>
-            <p className='mx-auto'>{followersCount} seguidor{followersCount > 1 && 'es'}</p>
-            <button onClick={handleFollow}
-                    className={`p-4 cursor-pointer mt-3 rounded-2xl 
-                              ${followedUser ? 'bg-(--purple-primary) text-white' : 'bg-(--gray)' 
-                    }`}>
-                {followedUser ? <p className='flex gap-x-4'><Check />Seguindo</p> 
-                              : <p className='flex gap-x-4'><Plus/>Seguir</p>}
-            </button>
-          </div>}
+          <p className='mx-auto'>{followersCount} seguidor{followersCount > 1 && 'es'}</p>
+          <button onClick={() => handleFollow()}
+            className={`p-4 cursor-pointer mt-3 rounded-2xl ${followedUser ? 'bg-(--purple-primary) text-white' : 'bg-(--gray)' }`}>
+            {followedUser 
+            ? <p className='flex gap-x-4'><Check />Seguindo</p> 
+            : <p className='flex gap-x-4'><Plus/>Seguir</p>}
+          </button>
+        </div>}
         </div>
       </article>
 

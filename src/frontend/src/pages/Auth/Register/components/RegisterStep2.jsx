@@ -1,12 +1,7 @@
 import LabelInput from '../../../../components/form/Label/LabelInput';
 import { maskField } from '../../../../components/form/Label/maskField';
-import { useEffect } from 'react';
 
-export default function RegisterStep1({formData, handleChange, fetchCPF, fetchCNPJ}){
-
-    useEffect(() => {
-        formData.tipo_usuario === 'profissional' ? fetchCPF() : fetchCNPJ()
-    }, [formData.cnpj, formData.cpf]);
+export default function RegisterStep1({formData, handleChange }){
 
     return(
         <section>

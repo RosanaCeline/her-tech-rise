@@ -21,7 +21,7 @@ export default function ManagePost({user, setActivePopUp, formData, setFormData}
             try{
                 await newPost(formData)
                 setActivePopUp('')
-                window.location.reload()
+                // redirecionar para detalhes de publicação, quando disponível
             }catch(err){
                 setPostErrorMessage(err.response?.data?.message || 'Erro ao registrar');
                 setTimeout(() => setPostErrorMessage(null), 4000)

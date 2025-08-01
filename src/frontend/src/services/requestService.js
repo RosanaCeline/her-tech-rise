@@ -10,17 +10,18 @@ export const requestService = {
   async apiRequest(endpoint, method = "GET", data = null) {
     const token = getCurrentUser().token;
 
-    const isFormData = data instanceof FormData;
-
     const config = {
-      method,
-      headers: {
-        Authorization: `Bearer ${token}`,
-        ...(isFormData ? {} : { "Content-Type": "application/json" }),
-      },
-      credentials: "include",
-      body: data ? (isFormData ? data : JSON.stringify(data)) : null,
+        method,
+        headers: {
+            "Authorization": `Bearer ${token}`,
+            "Content-Type": "application/json",
+        },
+        credentials: "include",
     };
+
+    if (data) {
+      config.body = JSON.stringify(data)
+    }
 
     try {
       const response = await fetch(`${BASE_URL}/api${endpoint}`, config);
@@ -35,15 +36,10 @@ export const requestService = {
         throw error;
       }
 
-      const contentType = response.headers.get("content-type");
-      if (contentType && contentType.includes("application/json")) {
-        return await response.json();
-      }
-
-      return null; 
+      return await response.json();
     } catch (error) {
       console.error('API request error:', error);
       throw error;
     }
   },
-};
+}

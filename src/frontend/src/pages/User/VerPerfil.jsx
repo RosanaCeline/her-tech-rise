@@ -1,20 +1,20 @@
 import React, { useEffect, useState } from 'react';
-import { useParams } from 'react-router-dom';
 
-import { followUser, unfollowUser, verifyFollowUser } from '../../services/userService';
 import { getProfileById  } from '../../services/userService';
 import { getCurrentUser } from '../../services/authService';
 
-import SeeStatistics from './statistics/SeeStatistics'
-import CardProfile from '../../components/Cards/Profile/CardProfile';
 import CardDescriptionsProfile from '../../components/Cards/Profile/CardDescriptionsProfile';
+import CardProfile from '../../components/Cards/Profile/CardProfile';
 import CardPublicationsProfile from '../../components/Cards/Profile/CardPublicationsProfile'
 import CardExperienceProfile from '../../components/Cards/Profile/CardExperienceProfile'
+import SeeStatistics from './statistics/SeeStatistics'
 
 import PopUp from '../../components/PopUp';
 import AttachFile from '../../components/posts/AttachFile';
 import ManagePost from '../../components/posts/ManagePost';
-import LoadingSpinner from './../../components/LoadingSpinner/LoadingSpinner'
+
+import { useParams } from 'react-router-dom';
+import { followUser, unfollowUser } from '../../services/userService';
 
 export default function VerPerfil() {
     const { user_type, user_info } = useParams()
@@ -33,9 +33,6 @@ export default function VerPerfil() {
         media: [],
         visibility: 'public'
     })
-    const [followedUser, setFollowedUser] = useState(false);
-    const [followersCount, setFollowersCount] = useState(0);
-
     async function fetchProfile() {
         try {
             const response = await getProfileById(userId, user_type);
@@ -81,7 +78,6 @@ export default function VerPerfil() {
             };
 
             setUser(userMapped);
-            setFollowersCount(response.followersCount ?? 0);
         } catch (err) {
             setError('Erro ao carregar perfil.');
             console.error(err);
@@ -93,38 +89,22 @@ export default function VerPerfil() {
         fetchProfile();
     }, [])
 
-    useEffect(() => {
-        const checkFollow = async () => {
-            try {
-                const res = await verifyFollowUser(userId)
-                setFollowedUser(res.isFollowing === true || res.isFollowing === "True");
-            } catch (err) {
-                console.log(err)
-            }
-        }
-        if (user?.id && !isCurrentUser) checkFollow()
-    }, [user?.id, isCurrentUser])
-
     const handleFollow = async () => {
-        try {
-            if (followedUser){
-                const res = await unfollowUser(userId)
-                setFollowedUser(false)
-                setFollowersCount((prev) => prev - 1)
-                console.log("Resposta UNFOLLOW:", res);
-            } else {
-                const res = await followUser(userId)
-                setFollowedUser(true)
-                setFollowersCount((prev) => prev + 1)
-                console.log("Resposta FOLLOW:", res);
-            }
-            fetchProfile()
-        }catch(err){
-            console.log(err)
-        }
+    try{
+      if(user.followedUser){
+        await unfollowUser(user.id)
+        setUser((prev) => ({...prev, followedUser: false}))
+      }else{
+        await followUser(user.id)
+        setUser((prev) => ({...prev, followedUser: true}))
+      }
+      fetchProfile()
+    }catch(err){
+      console.log(err)
     }
+  }
 
-    if (loading) return ( <LoadingSpinner /> )
+    if (loading) return <main className="...">Carregando perfil...</main>;
     if (error) return <main className="..."><p className="text-red-600">{error}</p></main>;
     if (!user) return <main className="...">Nenhum perfil encontrado.</main>;
 
@@ -144,7 +124,7 @@ export default function VerPerfil() {
             state={user.endereco.estado}
             followersCount={user.followersCount}
             handleFollow={handleFollow}
-            followedUser={followedUser}
+            followedUser={user.followedUser}
             statisticsComponent={
                 <SeeStatistics
                 profilevisits={user.statistics.profilevisits}
@@ -170,14 +150,7 @@ export default function VerPerfil() {
             <CardDescriptionsProfile title="Sobre nós" content={user.aboutUs} />
             </>
         )}
-        <CardPublicationsProfile title="Publicações" 
-                                posts={user.posts} 
-                                photo={user.photo} 
-                                name={user.nome} 
-                                onPostsUpdated={fetchProfile} 
-                                setActivePopUp={setActivePopUp}
-                                isCurrentUser={isCurrentUser}
-        />
+        <CardPublicationsProfile title="Publicações" posts={user.posts} setActivePopUp={setActivePopUp}/>
         {activePopUp && (
           <PopUp>
               {activePopUp === 'post' && <ManagePost user={{profileURL: user.profilePic, userName: user.name}} setActivePopUp={setActivePopUp} 

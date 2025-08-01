@@ -1,3 +1,5 @@
+import React from 'react';
+import { useNavigate } from 'react-router-dom'
 import LandingPage from "../pages/LandingPage/LandingPage";
 
 import Login from '../pages/Auth/Login/Login';
@@ -9,14 +11,14 @@ import Timeline from '../pages/Timeline/Timeline';
 import VerMeuPerfil from '../pages/User/VerMeuPerfil';
 import VerPerfil from '../pages/User/VerPerfil';
 import SearchUser from '../pages/Search/SearchUser';
+
 import { logout } from '../services/authService';
 
-import { Home, User, LogOut, BriefcaseBusiness } from 'lucide-react';
-import ProfessionalJobsListing from "../pages/JobsListing/ProfessionalJobsListing";
-import CompanyJobsListing from "../pages/JobsListing/CompanyJobsListing";
-import ProfessionalApplications from "../pages/applications/ProfessionalApplications";
-import CompanyApplications from "../pages/applications/CompanyApplications";
+// import ListarComunidades from '../pages/Communities/CommunityList';
+// import UListarVagas from '../pages/Vacancies/User/UserListarVagas';
+// import UListarCursos from '../pages/Courses/User/UserListarCursos';
 
+import { Home, Users, Briefcase, BookOpen, User, LogOut } from 'lucide-react';
 const iconSize = 20;
 
 export const publicRoutes = [
@@ -30,30 +32,37 @@ export const authRoutes = [
     { path: '/redefinirnovasenha', element: <NewPassword/>},
 ];
 
-export function getRoutesByRole(tipoUsuario, navigate) {
-  const handleLogout = () => {
-    logout()
-    navigate('/login')
-  }
+export const privateRoutes = [
+  { path: '/timeline',          element: <Timeline />,      title: 'Pagina Inicial',      visible: true,  icon: <Home size={iconSize} /> },
+//   { path: '/listarcomunidades', element: <ListarComunidades />,   title: 'Comunidades',   visible: true,  icon: <Users size={iconSize} /> },
+//   { path: '/listarvagas',       element: <UListarVagas />,  title: 'Vagas',         visible: true,  icon: <Briefcase size={iconSize} /> },
+//   { path: '/listarcursos',      element: <UListarCursos />, title: 'Cursos',        visible: true,  icon: <BookOpen size={iconSize} /> },
+  { path: '/meuperfil',     element: <VerMeuPerfil />, title: 'Perfil',        visible: true,  icon: <User size={iconSize} /> },
+  { title: 'Sair',              visible: true,              icon: <LogOut size={iconSize} />,       action: () => { handleLogout() } },
+  { path: '/search', element: <SearchUser/> },
+  { path: '/profile/:user_type/:user_info', element: <VerPerfil />, title: 'Perfil', visible: false }
+];
 
-  if (tipoUsuario === 'COMPANY') 
-    return [
-      { path: '/timeline',          element: <Timeline />,      title: 'Pagina Inicial',      visible: true,  icon: <Home size={iconSize} /> },
-      { path: '/empresa/vagas', element: <CompanyJobsListing/>, title: 'Vagas', icon: <BriefcaseBusiness size={iconSize} />},
-      { path: '/meuperfil',     element: <VerMeuPerfil />, title: 'Perfil',        visible: true,  icon: <User size={iconSize} /> },
-      { title: 'Sair',              visible: true,              icon: <LogOut size={iconSize} />,       action: () => { handleLogout() } },
-      { path: '/search', element: <SearchUser/> },
-      { path: '/profile/:user_type/:user_info', element: <VerPerfil />, title: 'Perfil', visible: false },  
-      { path: '/empresa/vagas/:id', element: <CompanyApplications/> },
 
-  ]
-  return [
+export const privateRoutesEnterprise = [
     { path: '/timeline',          element: <Timeline />,      title: 'Pagina Inicial',      visible: true,  icon: <Home size={iconSize} /> },
-    { path: '/profissional/vagas', element: <ProfessionalJobsListing/>, title: 'Vagas', icon: <BriefcaseBusiness size={iconSize} />},
     { path: '/meuperfil',     element: <VerMeuPerfil />, title: 'Perfil',        visible: true,  icon: <User size={iconSize} /> },
-    { title: 'Sair',              visible: true,              icon: <LogOut size={iconSize} />,       action: () => { handleLogout() } },
-    { path: '/search', element: <SearchUser/> },
-    { path: '/profile/:user_type/:user_info', element: <VerPerfil />, title: 'Perfil', visible: false },
-    { path: '/profissional/vagas/candidaturas', element: <ProfessionalApplications/> },
-  ]
+    // { path: '/minhasvagas', element: <VagasEmpresa /> },
+    // { path: '/meuscursos', element: <CursosEmpresa /> },
+    { title: 'Sair',              visible: true,              icon: <LogOut size={iconSize} />,       action: () => { handleLogout() } }
+]
+
+export function getRoutesByRole(tipoUsuario) {
+    if (tipoUsuario === 'enterprise') return privateRoutesEnterprise;
+    return privateRoutes; 
+}
+
+export default function Logout() {
+  const { logout } = useAuth();
+  const navigate = useNavigate();
+
+  const handleLogout = () => {
+    logout();
+    navigate('/login');
+  }
 }

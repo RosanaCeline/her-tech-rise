@@ -10,13 +10,14 @@ export default function NewPost(){
     const [formData, setFormData] = useState({
         content: '',
         media: [],
-        visibility: ''
+        visibility: 'PUBLICO'
     })
     const [activePopUp, setActivePopUp] = useState(null)
     const user = {
         userName: getCurrentUser().name,
         profileURL: getCurrentUser().profilePicture
     }
+    console.log(user)
     return (
         <>
             <div className="flex gap-x-4">
@@ -47,7 +48,8 @@ export default function NewPost(){
             </div>
             {activePopUp && (
                 <PopUp>
-                    {activePopUp === 'post' && <ManagePost user={user} setActivePopUp={setActivePopUp} formData={formData} setFormData={setFormData}/>}
+                    {activePopUp === 'post' && <ManagePost user={user} setActivePopUp={setActivePopUp} 
+                    formData={formData} setFormData={setFormData}/>}
                     {activePopUp === 'image' && <AttachFile type='image' setFormData={setFormData} setActivePopUp={setActivePopUp}/>}
                     {activePopUp === 'video' && <AttachFile type='video' setFormData={setFormData} setActivePopUp={setActivePopUp}/>}
                     {activePopUp === 'docs' && <AttachFile type='docs' setFormData={setFormData} setActivePopUp={setActivePopUp}/>}

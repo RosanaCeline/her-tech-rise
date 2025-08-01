@@ -5,7 +5,6 @@ import LabelInput from "../../../../components/form/Label/LabelInput";
 import BtnCallToAction from "../../../../components/btn/BtnCallToAction/BtnCallToAction";
 import { validateField } from "../../../../components/form/Label/validationField";
 import { maskField } from "../../../../components/form/Label/maskField";
-import LoadingSpinner from './../../../../components/LoadingSpinner/LoadingSpinner'
 
 import { useAuth } from "../../../../context/AuthContext";
 import { getAllProfile, updateProfile } from "../../../../services/userService";
@@ -180,7 +179,7 @@ export default function EditEnterprise() {
   };
 
   if (loading) {
-    <LoadingSpinner />
+    return <p className="text-[var(--gray)]">Carregando dados...</p>;
   }
 
   return (

@@ -1,7 +1,7 @@
 import { requestService } from "./requestService";
 import { getCurrentUser } from './authService';
 
-const baseUrl = import.meta.env.VITE_API_URL;
+const baseUrl = import.meta.env.VITE_API_BASE_URL;
 
 export const getProfileById = async (user_id, role) => {
   if (role === 'company') {
@@ -10,7 +10,7 @@ export const getProfileById = async (user_id, role) => {
   else if (role === 'professional') {
     return await requestService.apiRequest(`/profiles/professionals/${user_id}`, 'GET');
   }
-  return console.log('ById: Sem user no local-storage.')
+  return console.log('Sem user no localstorage.')
 };
 
 export const getAllProfile = async () => {
@@ -22,7 +22,7 @@ export const getAllProfile = async () => {
   else if (role === 'PROFESSIONAL') {
     return await requestService.apiRequest("/profiles/professionals/me", "GET");
   }
-  return console.log('GetAll: Sem user no localstorage.')  
+  return console.log('Sem user no localstorage.')  
 };
 
 export const updateProfile = async (data) => {
@@ -30,11 +30,12 @@ export const updateProfile = async (data) => {
   const role = user?.role;
   
   if (role === 'COMPANY') {
-    return await requestService.apiRequest(`/profiles/companies/update`, 'PUT', data);
+    await requestService.apiRequest(`/profiles/companies/update`, 'PUT', data);
+    return await getProfileById(); 
   } else if (role === 'PROFESSIONAL') {
-    return await requestService.apiRequest(`/profiles/professionals/update`, 'PUT', data);
+    await requestService.apiRequest(`/profiles/professionals/update`, 'PUT', data);
+    return await getProfileById();  
   }
-  return console.log('Update: Sem user no local-storage.')
 };
 
 export const changeProfilePicture = async (photo) => {
@@ -78,16 +79,4 @@ export const followUser = async(id) => {
 
 export const unfollowUser = async(id) => {
     return await requestService.apiRequest(`/follows`, 'DELETE', {id: id});
-}
-
-export const verifyFollowUser = async(id) => {
-    return await requestService.apiRequest(`/follows/verifyFollow/${id}`, 'GET');
-}
-
-export const listFollowing = async(id) => {
-    return await requestService.apiRequest(`/follows/following`, 'GET');
-}
-
-export const listFollowers = async(id) => {
-    return await requestService.apiRequest(`/follows/followers`, 'GET');
 }

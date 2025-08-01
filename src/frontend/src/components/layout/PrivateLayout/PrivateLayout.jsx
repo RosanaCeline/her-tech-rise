@@ -1,5 +1,6 @@
+import React from 'react';
 import { Navigate, Outlet } from "react-router-dom";
-import { useAuth } from "../../../context/AuthContext";  
+import { useAuth } from "../../../context/AuthContext"; // hook que fornece o user logado
 
 import PrivateHeader from "../Header/Private/PrivateHeader";
 import Footer from "../Footer/Footer";
@@ -7,16 +8,16 @@ import Footer from "../Footer/Footer";
 export default function PrivateLayout({ routes }) {
   const { user, loading } = useAuth();
 
-  if (loading) return <div>Carregando...</div>;
+  if (loading) return 
   if (!user) return <Navigate to="/login" replace />;
 
   return (
-    <div className="min-h-screen flex flex-col">
-      <PrivateHeader routes={routes} />
-      <main className="flex-grow">
+    <>
+      <PrivateHeader routes={routes}/>
+      <main>
         <Outlet />
       </main>
       <Footer />
-    </div>
+    </>
   );
 }

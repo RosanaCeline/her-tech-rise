@@ -2,7 +2,6 @@ import React from "react";
 import { FaEye, FaUserFriends, FaUserPlus, FaFileAlt, FaHeart } from "react-icons/fa";
 
 import Card from '../../../components/Cards/LandingPage/Card'
-import LoadingSpinner from './../../../components/LoadingSpinner/LoadingSpinner'
 
 export default function SeeStatistics({ profilevisits, followers, following, posts, likes }) {
   const loading = 
@@ -18,7 +17,7 @@ export default function SeeStatistics({ profilevisits, followers, following, pos
         <p className="mt-2 text-lg max-w-3xl text-[var(--font-gray)]">Acompanhe sua atividade e o engajamento do seu perfil.</p>
 
         {loading ? (
-            <LoadingSpinner />
+            <p className="mt-4 text-center text-[var(--font-gray)]">Carregando estatísticas...</p>
         ) : (
             <article  className="grid grid-cols-3 gap-6 max-w-6xl mx-auto p-8">
                 <Card

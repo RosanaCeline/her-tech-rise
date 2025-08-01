@@ -1,8 +1,7 @@
 import React from 'react';
-import { useLocation, useNavigate } from 'react-router-dom';
+import { NavLink, useLocation } from 'react-router-dom';
 
 export default function NavMenuHeader({ routes, isHovered = true, isMobile = false }) {
-  const navigate = useNavigate();
   const location = useLocation();
 
   const isPerfilActive = (pathname) =>
@@ -25,23 +24,22 @@ export default function NavMenuHeader({ routes, isHovered = true, isMobile = fal
           </>
         );
 
-        const isActive =
-          route.title === 'Perfil'
-            ? isPerfilActive(location.pathname)
-            : location.pathname.startsWith(route.path);
-
         if (route.path) {
+          const isActive =
+            route.title === 'Perfil'
+              ? isPerfilActive(location.pathname)
+              : location.pathname.startsWith(route.path);
+
           return (
-            <button
+            <NavLink
               key={route.path}
-              onClick={() => navigate(route.path)}
+              to={route.path}
               className={`flex flex-col items-center text-white transition duration-300 hover:scale-105 ${
                 isActive ? '!text-violet-200 scale-105 my-2' : ''
               }`}
-              type="button"
             >
               {content}
-            </button>
+            </NavLink>
           );
         }
 
@@ -57,6 +55,7 @@ export default function NavMenuHeader({ routes, isHovered = true, isMobile = fal
             </button>
           );
         }
+
         return null;
       })}
     </div>

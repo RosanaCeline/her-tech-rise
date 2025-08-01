@@ -8,8 +8,6 @@ import FormEditExperience from "../../../../components/Cards/Profile/FormEditExp
 import PopUpBlurProfile from "../../../../components/Cards/Profile/PopUpBlurProfile";
 import LabelInput from "../../../../components/form/Label/LabelInput";
 import BtnCallToAction from "../../../../components/btn/BtnCallToAction/BtnCallToAction";
-import LoadingSpinner from './../../../../components/LoadingSpinner/LoadingSpinner'
-
 import { validateField } from "../../../../components/form/Label/validationField";
 import { maskField } from "../../../../components/form/Label/maskField";
 import { useCepAutoComplete } from '../../../../services/hooks/useCepAutoComplete'
@@ -34,7 +32,7 @@ export default function EditProfessional() {
   });
 
   const navigate = useNavigate();
-  const { user, setUser, load } = useAuth();
+  const { setUser } = useAuth();
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(true);
   const [originalUser, setOriginalUser] = useState(null);
@@ -62,15 +60,9 @@ export default function EditProfessional() {
   const options = estados.map(estado => ({ value: estado, label: estado }));
 
   useEffect(() => {
-
-    if (!user || load) return
-
     async function fetchProfile() {
       try {
         const user = await getAllProfile();
-        console.log('Perfil carregado:', user)
-        if (!user) throw new Error('Perfil não encontrado')
-
         const mappedForm = {
           nome: user.name || '',
           handle: user.handle || '',
@@ -93,16 +85,17 @@ export default function EditProfessional() {
           posts: user.posts || [],
           experiences: user.experiences || [],
         };
-        setFormData(mappedForm)
-        setOriginalUser(mappedForm)
+        setFormData(mappedForm);
+        setOriginalUser(mappedForm);
+        console.log(mappedForm)
       } catch (err) {
-          console.error("Erro ao carregar dados do profissional:", err)
+        console.error("Erro ao carregar dados do profissional:", err);
       } finally {
-          setLoading(false);
+        setLoading(false);
       }
     }
     fetchProfile();
-  }, [user, load]);
+  }, []);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -155,6 +148,7 @@ export default function EditProfessional() {
 
 
   const handleSubmit = async (e) => {
+    console.log('passei aqui')
     e.preventDefault();
     if (!validateAllFields()) return;
 
@@ -181,7 +175,8 @@ export default function EditProfessional() {
         posts: formData.posts ?? [],
       };
 
-      const updatedUser = await updateProfile(finalData)
+      console.log("Dados enviados para o backend:", finalData);
+      const updatedUser = await updateProfile(finalData);
       setUser(updatedUser);
       setSuccessModalOpen(true);
     } catch (err) {
@@ -192,7 +187,7 @@ export default function EditProfessional() {
   };
 
   if (loading) {
-    <LoadingSpinner />
+    return <p className="text-[var(--gray)]">Carregando dados...</p>;
   }
 
   return (
@@ -333,6 +328,7 @@ export default function EditProfessional() {
             type="mensagem"
             value={formData.biografia ?? ''}
             onChange={handleChange}
+            required
             validation="texto"
             placeholder="Conte um pouco sobre sua trajetória"
           />
