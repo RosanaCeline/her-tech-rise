@@ -20,7 +20,6 @@ export function useAuthProvider() {
     try {
       await loginService(email, senha);
       setUser(getCurrentUser())
-      console.log(getCurrentUser())
     } catch (err) {
       throw new Error(err.response?.data?.message || 'Erro ao fazer login');
     }

@@ -1,29 +1,19 @@
 import { useState } from 'react';
 import { useNavigate } from "react-router-dom";
 import { Edit, Trash2, Eye, Globe, Users, Lock, AlertCircle } from 'lucide-react';
-import { updatePostVisibility, deletePost, updatePost } from '../../../../services/timelineService';
+import { updatePostVisibility, deletePost } from '../../../../services/timelineService';
 import ConfirmModal from '../../../ConfirmModal/ConfirmModal';
 import BtnCallToAction from '../../../btn/BtnCallToAction/BtnCallToAction';
 
 const baseUrl = import.meta.env.VITE_API_URL;
 
-export default function HeaderPost({ photo, name, visibility, communityId, postId, date, isOpen = false, onPostsUpdated = false, 
-                                      isFollowing = null, onFollowToggle = null, handle = null, idAuthor = null }) {
+export default function HeaderPost({ photo, name, post, date, isOpen = false, onPostsUpdated = false, 
+                                      isFollowing = null, onFollowToggle = null, handle = null, idAuthor = null, isOwner = false, onEdit = false }) {
   const navigate = useNavigate();
   const [showVisibilityOptions, setShowVisibilityOptions] = useState(false);
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [error, setError] = useState('');
   const size = 18;
-
-  const onEdit = (e) => {
-    e.stopPropagation();
-    console.log('Edit');
-  };
-
-  const onDelete = (e) => {
-    e.stopPropagation();
-    setShowDeleteModal(true);
-  };
 
   const toggleVisibilityDropdown = (e) => {
     e.stopPropagation();
@@ -32,12 +22,17 @@ export default function HeaderPost({ photo, name, visibility, communityId, postI
 
   const changeVisibility = async (value) => {
     try {
-      await updatePostVisibility(postId, value);
+      await updatePostVisibility(post.id, value);
       setShowVisibilityOptions(false);
     } catch (err) {
       console.error('Erro ao alterar visibilidade:', err);
       setError('Erro ao atualizar a visibilidade. Tente novamente.');
     }
+  };
+
+  const onDelete = (e) => {
+    e.stopPropagation();
+    setShowDeleteModal(true);
   };
 
   const handleConfirmDelete = async (postId) => {
@@ -53,6 +48,13 @@ export default function HeaderPost({ photo, name, visibility, communityId, postI
       console.error("Erro ao excluir o post:", err);
       setShowDeleteModal(false);
       setError(err.message || "Erro ao excluir o post. Tente novamente.");
+    }
+  };
+
+  const handleEditClick = (e) => {
+    e.stopPropagation();
+    if (onEdit) {
+      onEdit(post);
     }
   };
 
@@ -91,11 +93,11 @@ export default function HeaderPost({ photo, name, visibility, communityId, postI
               {name}
             </p>
             <p className="text-xs text-[var(--purple-primary)] capitalize flex items-center gap-1">
-              {communityId ? (
+              {post.communityId ? (
               <>
                 <Users size={14} /> Comunidade
               </>
-            ) : visibility === 'PRIVADO' ? (
+            ) : post.visibility === 'PRIVADO' ? (
               <>
                 <Lock size={14} /> Privado
               </>
@@ -124,9 +126,9 @@ export default function HeaderPost({ photo, name, visibility, communityId, postI
           </BtnCallToAction>
         )}
 
-        {isOpen && (
+        {isOpen && isOwner && (
           <div className="relative flex items-center gap-3">
-            <button onClick={onEdit} title="Editar">
+            <button onClick={handleEditClick} title="Editar">
               <Edit size={size} className="cursor-pointer hover:text-gray-700" />
             </button>
 
@@ -173,7 +175,7 @@ export default function HeaderPost({ photo, name, visibility, communityId, postI
           message="Tem certeza que deseja excluir esta publicação?"
           confirmText="Excluir"
           cancelText="Cancelar"
-          onConfirm={() => handleConfirmDelete(postId)}
+          onConfirm={() => handleConfirmDelete(post.id)}
           onCancel={() => setShowDeleteModal(false)}
         />
       )}

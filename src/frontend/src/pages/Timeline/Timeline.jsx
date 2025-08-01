@@ -6,9 +6,11 @@ import CardPostProfile from '../../components/Cards/Posts/CardPostProfile';
 import PopUpBlurProfile from '../../components/Cards/Profile/PopUpBlurProfile';
 import { getTimelinePosts } from '../../services/timelineService';
 import { getCurrentUser } from '../../services/authService';
+import { useError } from "../../context/ErrorContext";
 
 export default function Timeline() {
     const userData = getCurrentUser();
+    const { showError } = useError();
     const [posts, setPosts] = useState([]);
     const [loading, setLoading] = useState(true);
     const [hasMore, setHasMore] = useState(true);
@@ -17,6 +19,7 @@ export default function Timeline() {
 
     const [isUniquePostPopup, setIsUniquePostPopup] = useState(false);
     const [selectedPostId, setSelectedPostId] = useState(null);
+    const selectedPost = posts.find((p) => p.id === selectedPostId);
 
     const openUniquePostPopup = (postId) => {
         setSelectedPostId(postId);
@@ -37,7 +40,6 @@ export default function Timeline() {
                 const response = await getTimelinePosts(page);
                 let rawPosts = response.content || response;
                 rawPosts = rawPosts.filter((post) => post.visibility === "PUBLICO");
-                console.log(rawPosts);
 
                 if (rawPosts.length === 0) {
                     setHasMore(false); 
@@ -58,7 +60,7 @@ export default function Timeline() {
                 );
                 setPosts(prevPosts => (page === 0 ? finalPosts : [...prevPosts, ...finalPosts]));
             } catch (err) {
-                console.error("Erro ao carregar timeline:", err);
+                showError("Erro ao carregar a timeline. Tente novamente.");
             } finally {
                 setLoading(false);
                 setLoadingMore(false);
@@ -92,7 +94,7 @@ export default function Timeline() {
             setIsFollowing(true);
           }
         } catch (err) {
-          console.error("Erro ao seguir/desseguir:", err);
+          showError("Erro ao atualizar o status de seguir.");
         }
     };
 
@@ -116,6 +118,7 @@ export default function Timeline() {
                                 name={post.author?.name}
                                 idAuthor={post.author?.id}
                                 handle={post.author?.handle}
+                                isOwner={post.isOwner}
                                 isFollowing={ post.isOwner ? null : post.author.isFollowed }
                                 onFollowToggle={() => handleToggleFollow(post.author.id)}
                             />
@@ -129,21 +132,22 @@ export default function Timeline() {
             {!hasMore && (
                 <p className="text-center text-gray-500 mt-6">Você chegou ao fim!</p>
             )}
-            {isUniquePostPopup && (
+            {isUniquePostPopup && selectedPost && (
                 <PopUpBlurProfile
-                isOpen={isUniquePostPopup}
-                onClose={closeUniquePostPopup}
-                content={
+                    isOpen={isUniquePostPopup}
+                    onClose={closeUniquePostPopup}
+                    content={
                     <CardPostProfile
-                    post={posts.find((p) => p.id === selectedPostId)}
-                    photo={posts.find((p) => p.id === selectedPostId)?.author?.profilePic}
-                    name={posts.find((p) => p.id === selectedPostId)?.author?.name}
-                    isPopupView={true}
-                    isOpen={true}
+                        post={selectedPost}
+                        photo={selectedPost.author?.profilePic}
+                        name={selectedPost.author?.name}
+                        isPopupView={true}
+                        isOpen={true}
+                        isOwner={selectedPost.isOwner}  
                     />
-                }
+                    }
                 />
-            )}
+                )}
         </main>
     );
 }
