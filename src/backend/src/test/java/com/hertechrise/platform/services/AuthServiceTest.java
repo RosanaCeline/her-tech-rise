@@ -69,7 +69,9 @@ class AuthServiceTest extends AbstractIntegrationTest {
     void registerProfessionalSuccess() {
 
         //Given / Arrange
-        RegisterProfessionalRequestDTO request = new RegisterProfessionalRequestDTO("Rosana Celine","07900000000", LocalDate.of(2003,10,15),"88 00000000",
+        RegisterProfessionalRequestDTO request = new RegisterProfessionalRequestDTO("Rosana Celine","07900000000",
+                ProfessionalGender.MULHER, true,
+                LocalDate.of(2003,10,15),"88 00000000",
                 "62320000","CE","Tianguá","Teste","Teste","rosana@test.com","senha1234");
 
         //When / ACT
@@ -107,7 +109,9 @@ class AuthServiceTest extends AbstractIntegrationTest {
     @Test
     void registerEmailProfessional_ThrowsException(){
 
-        RegisterProfessionalRequestDTO request = new RegisterProfessionalRequestDTO("Rosana Celine", "07900000000", LocalDate.of(2003, 10, 15), "88 00000000", "62320000", "CE", "Tianguá", "Teste",
+        RegisterProfessionalRequestDTO request = new RegisterProfessionalRequestDTO("Rosana Celine", "07900000000",
+                ProfessionalGender.MULHER, true,
+                LocalDate.of(2003, 10, 15), "88 00000000", "62320000", "CE", "Tianguá", "Teste",
                 "Teste", "rosana@test.com", "senha1234"
         );
 
@@ -125,12 +129,16 @@ class AuthServiceTest extends AbstractIntegrationTest {
     @Test
     void registerCpfProfessional_ThrowsException(){
 
-        RegisterProfessionalRequestDTO request1 = new RegisterProfessionalRequestDTO("Rosana Celine", "07900000000", LocalDate.of(2003, 10, 15), "88 00000000", "62320000", "CE", "Tianguá", "Teste",
+        RegisterProfessionalRequestDTO request1 = new RegisterProfessionalRequestDTO("Rosana Celine", "07900000000",
+                ProfessionalGender.MULHER, true,
+                LocalDate.of(2003, 10, 15), "88 00000000", "62320000", "CE", "Tianguá", "Teste",
                 "Teste", "rosana1@test.com", "senha1234"
         );
         authService.registerProfessional(request1);
 
-        RegisterProfessionalRequestDTO request = new RegisterProfessionalRequestDTO("Rosana Celine", "07900000000", LocalDate.of(2003, 10, 15), "88 00000000", "62320000", "CE", "Tianguá", "Teste",
+        RegisterProfessionalRequestDTO request = new RegisterProfessionalRequestDTO("Rosana Celine", "07900000000",
+                ProfessionalGender.MULHER, true,
+                LocalDate.of(2003, 10, 15), "88 00000000", "62320000", "CE", "Tianguá", "Teste",
                 "Teste", "rosana2@test.com", "senha1234"
         );
 
@@ -208,7 +216,8 @@ class AuthServiceTest extends AbstractIntegrationTest {
     void checkCpfNotExists() {
         String cpf = "12345678900";
         RegisterProfessionalRequestDTO request = new RegisterProfessionalRequestDTO(
-                "Maria Teste", cpf, LocalDate.of(1990, 1, 1), "88 99999999",
+                "Maria Teste", cpf, ProfessionalGender.MULHER, true,
+                LocalDate.of(1990, 1, 1), "88 99999999",
                 "62320000", "CE", "Tianguá", "Centro", "Rua 1",
                 "maria@test.com", "senha123");
 
