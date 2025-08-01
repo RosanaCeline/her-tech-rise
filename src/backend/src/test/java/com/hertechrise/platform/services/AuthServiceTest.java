@@ -8,11 +8,8 @@ import com.hertechrise.platform.security.jwt.ResetPasswordTokenService;
 import org.springframework.security.authentication.AuthenticationManager;
 import com.hertechrise.platform.repository.CompanyRepository;
 import com.hertechrise.platform.repository.RoleRepository;
-import com.hertechrise.platform.services.AuthService;
 import com.hertechrise.platform.repository.UserRepository;
 import com.hertechrise.platform.repository.ProfessionalRepository;
-import org.junit.jupiter.api.AfterEach;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.springframework.beans.factory.annotation.Autowired;
 import com.hertechrise.platform.integrationtests.testcontainers.AbstractIntegrationTest;
@@ -26,9 +23,6 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import com.hertechrise.platform.exception.CnpjAlreadyRegisteredException;
 import com.hertechrise.platform.exception.UserNotFoundException;
 import org.springframework.test.annotation.Rollback;
-import org.springframework.test.context.ActiveProfiles;
-import com.hertechrise.platform.security.jwt.ResetPasswordTokenService;
-import com.hertechrise.platform.security.jwt.TokenService;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -74,19 +68,18 @@ class AuthServiceTest extends AbstractIntegrationTest {
     @Test
     void registerProfessionalSuccess() {
 
-        //Given / Arrange (montar dados)
+        //Given / Arrange
         RegisterProfessionalRequestDTO request = new RegisterProfessionalRequestDTO("Rosana Celine","07900000000", LocalDate.of(2003,10,15),"88 00000000",
                 "62320000","CE","Tianguá","Teste","Teste","rosana@test.com","senha1234");
 
         //When / ACT
         TokenResponseDTO response = authService.registerProfessional(request);
 
-        //Then / Assert - verificação de saida
+        //Then / Assert
         assertNotNull(response);
         assertNotNull(response.token());
         assertEquals("PROFESSIONAL", response.role());
 
-        //verificar se foi salvo no banco (de forma certa)
         Optional<User> savedUserOpt = userRepository.findByEmail("rosana@test.com");
         assertTrue(savedUserOpt.isPresent());
         User savedUser = savedUserOpt.get();
@@ -96,7 +89,7 @@ class AuthServiceTest extends AbstractIntegrationTest {
         assertEquals("CE", savedUser.getUf());
         assertEquals("Tianguá", savedUser.getCity());
         assertEquals("Teste", savedUser.getStreet());
-        assertNotEquals("senha1234", savedUser.getPassword()); // senha deve estar criptografada
+        assertNotEquals("senha1234", savedUser.getPassword());
         assertEquals(savedUser.getId(), response.id());
 
         Optional<Professional> savedProfessionalOpt = professionalRepository.findByCpf("07900000000");
@@ -105,14 +98,12 @@ class AuthServiceTest extends AbstractIntegrationTest {
         assertEquals(LocalDate.of(2003, 10, 15), savedProfessional.getBirthDate());
         assertEquals(savedUser.getId(), savedProfessional.getUser().getId());
 
-
-        // Verifica o token de resposta
         assertEquals("Rosana Celine", response.name());
         assertEquals("PROFESSIONAL", response.role());
 
     }
 
-    @DisplayName("Deve lançar EmailAlreadyRegisteredException para email já cadastrado")
+    @DisplayName("Deve lançar EmailAlreadyRegisteredException para email de profissional já cadastrado")
     @Test
     void registerEmailProfessional_ThrowsException(){
 
@@ -130,7 +121,7 @@ class AuthServiceTest extends AbstractIntegrationTest {
         assertEquals("E-mail já cadastrado.", exception.getMessage());
     }
 
-    @DisplayName("Deve lançar ProfessionalCpfAlreadyRegisteredException para CPF já cadastrado")
+    @DisplayName("Deve lançar ProfessionalCpfAlreadyRegisteredException para CPF de profissional já cadastrado")
     @Test
     void registerCpfProfessional_ThrowsException(){
 
@@ -178,7 +169,7 @@ class AuthServiceTest extends AbstractIntegrationTest {
         assertEquals("COMPANY", response.role());
     }
 
-    @DisplayName("Deve lançar CompanyEmailAlreadyRegisteredException para email já cadastrado")
+    @DisplayName("Deve lançar CompanyEmailAlreadyRegisteredException para email de empresa já cadastrado")
     @Test
     void registerEmailCompany_ThrowsException() {
 
@@ -195,15 +186,13 @@ class AuthServiceTest extends AbstractIntegrationTest {
 
     }
 
-    @DisplayName("Deve lançar CompanyCnpjAlreadyRegisteredException para CNPJ já cadastrado")
+    @DisplayName("Deve lançar CompanyCnpjAlreadyRegisteredException para cnpj de empresa já registrado")
     @Test
     void registerCnpjCompany_ThrowsException() {
         RegisterCompanyRequestDTO request1 = new RegisterCompanyRequestDTO("Company", "12345678000100", CompanyType.NACIONAL, "88 99999999", "62320000", "CE", "Ubajara", "Teste", "teste", "Company@test.com", "senha123");
 
         authService.registerCompany(request1);
 
-
-        //testando msm cnpj e email diferente
         RegisterCompanyRequestDTO request = new RegisterCompanyRequestDTO("Company1", "12345678000100", CompanyType.NACIONAL, "88 99999999", "62320000", "CE", "Ubajara", "Teste", "teste", "jaburanga@test.com", "senha123");
 
         CnpjAlreadyRegisteredException exception = assertThrows(
@@ -214,7 +203,7 @@ class AuthServiceTest extends AbstractIntegrationTest {
         assertEquals("Cnpj já registrado.",exception.getMessage());
 
     }
-    @DisplayName("CPF ")
+    @DisplayName("Deve lançar CpfAlreadyRegisteredException para Cpf de profissional já registrado")
     @Test
     void checkCpfNotExists() {
         String cpf = "12345678900";
@@ -225,7 +214,6 @@ class AuthServiceTest extends AbstractIntegrationTest {
 
         authService.registerProfessional(request);
 
-        // When + Then: tentar checar CPF existente deve lançar exceção
         CpfAlreadyRegisteredException exception = assertThrows(
                 CpfAlreadyRegisteredException.class,
                 () -> authService.checkCpfNotExists(cpf)
@@ -235,7 +223,7 @@ class AuthServiceTest extends AbstractIntegrationTest {
 
     }
 
-    @DisplayName("CNPJ")
+    @DisplayName("Deve lançar CnpjAlreadyRegisteredException para cnpj de empresa já registrado")
     @Test
     void checkCnpjNotExists( ) {
         String cnpj = "12345678000100";
@@ -256,7 +244,6 @@ class AuthServiceTest extends AbstractIntegrationTest {
 
     }
 
-
     @DisplayName("Login de usuário com sucesso ")
     @Test
     void loginSuccess(){
@@ -271,7 +258,7 @@ class AuthServiceTest extends AbstractIntegrationTest {
         user.setEmail("thalyta@test.com");
         user.setPassword(passwordEncoder.encode("senha1234"));
         user.setType(UserType.PROFESSIONAL);
-        user.setHandle("thalyta123");
+        user.setHandle("@thalyta123");
         user.setProfilePic("https://res.cloudinary.com/ddotqrebs/image/upload/v1751250361/default_profile_company_kpqrxc.png");
         user.setUf("CE");
 
@@ -310,11 +297,10 @@ class AuthServiceTest extends AbstractIntegrationTest {
         user.setEmail("thalyta@test.com");
         user.setPassword(passwordEncoder.encode("senha1234"));
         user.setType(UserType.PROFESSIONAL);
-        user.setHandle("thalyta123");
+        user.setHandle("@thalyta123");
         user.setProfilePic("https://res.cloudinary.com/ddotqrebs/image/upload/v1751250361/default_profile_company_kpqrxc.png");
         user.setUf("CE");
 
-        // habilitando o usuário
         user.setEnabled(true);
         Role role = roleRepository.findByName("PROFESSIONAL")
                 .orElseThrow(InvalidUserTypeException::new);
@@ -329,7 +315,7 @@ class AuthServiceTest extends AbstractIntegrationTest {
         assertEquals("Usuário autenticado não encontrado.", exception.getMessage());
     }
 
-    @DisplayName("Deve lançar AccountDisabledException para Conta de usuário desativada")
+    @DisplayName("Deve lançar AccountDisabledException para conta de usuário desativada")
     @Test
     void login_ThrowExceptionAccountDisabledException(){
         User user = new User();
@@ -342,12 +328,10 @@ class AuthServiceTest extends AbstractIntegrationTest {
         user.setEmail("thalyta@test.com");
         user.setPassword(passwordEncoder.encode("senha1234"));
         user.setType(UserType.PROFESSIONAL);
-        user.setHandle("thalyta123");
+        user.setHandle("@thalyta123");
         user.setProfilePic("https://res.cloudinary.com/ddotqrebs/image/upload/v1751250361/default_profile_company_kpqrxc.png");
         user.setUf("CE");
 
-
-        // deshabilitando o usuario
         user.setEnabled(false);
         Role role = roleRepository.findByName("PROFESSIONAL")
                 .orElseThrow(InvalidUserTypeException::new);
@@ -356,7 +340,6 @@ class AuthServiceTest extends AbstractIntegrationTest {
 
         LoginRequestDTO loginRequest= new LoginRequestDTO("thalyta@test.com","senha1234");
 
-        // tratando exception
         AccountDisabledException exception = assertThrows(AccountDisabledException.class, () -> {
             authService.login(loginRequest);
         });
@@ -377,7 +360,7 @@ class AuthServiceTest extends AbstractIntegrationTest {
         user.setEmail("thalyta@test.com");
         user.setPassword(passwordEncoder.encode("senha1234"));
         user.setType(UserType.PROFESSIONAL);
-        user.setHandle("thalyta123");
+        user.setHandle("@thalyta123");
         user.setProfilePic("https://res.cloudinary.com/ddotqrebs/image/upload/v1751250361/default_profile_company_kpqrxc.png");
         user.setUf("CE");
 
@@ -385,7 +368,6 @@ class AuthServiceTest extends AbstractIntegrationTest {
                 .orElseThrow(InvalidUserTypeException::new);
         user.setRole(role);
 
-        // habilitando o usuario
         user.setEnabled(true);
 
         userRepository.save(user);
@@ -399,7 +381,7 @@ class AuthServiceTest extends AbstractIntegrationTest {
         assertEquals("Senha incorreta.", exception.getMessage());
 
     }
-    @DisplayName("resetPasswordSuccess")
+    @DisplayName("Mudança de senha com sucesso")
     @Test
     void resetPasswordSuccess(){
 
@@ -413,7 +395,7 @@ class AuthServiceTest extends AbstractIntegrationTest {
         user.setEmail("thalyta@test.com");
         user.setPassword(passwordEncoder.encode("senha1234"));
         user.setType(UserType.PROFESSIONAL);
-        user.setHandle("thalyta123");
+        user.setHandle("@thalyta123");
         user.setProfilePic("https://res.cloudinary.com/ddotqrebs/image/upload/v1751250361/default_profile_company_kpqrxc.png");
         user.setUf("CE");
 
@@ -425,10 +407,9 @@ class AuthServiceTest extends AbstractIntegrationTest {
 
         ResetPasswordRequestDTO request = new ResetPasswordRequestDTO(user.getEmail());
 
-        // Act
         authService.resetPassword(request);
     }
-
+    @DisplayName("Deve lançar UserNotFoundException para usuário autenticado não encontrado ")
     @Test
     void resetPassword_ExceptionUserNotFound() {
         User user = new User();
@@ -441,7 +422,7 @@ class AuthServiceTest extends AbstractIntegrationTest {
         user.setEmail("thalyta@test.com");
         user.setPassword(passwordEncoder.encode("senha1234"));
         user.setType(UserType.PROFESSIONAL);
-        user.setHandle("thalyta123");
+        user.setHandle("@thalyta123");
         user.setProfilePic("https://res.cloudinary.com/ddotqrebs/image/upload/v1751250361/default_profile_company_kpqrxc.png");
         user.setUf("CE");
 
@@ -449,7 +430,6 @@ class AuthServiceTest extends AbstractIntegrationTest {
                 .orElseThrow(InvalidUserTypeException::new);
         user.setRole(role);
 
-        // habilitando o usuario
         user.setEnabled(true);
 
         userRepository.save(user);
@@ -462,7 +442,7 @@ class AuthServiceTest extends AbstractIntegrationTest {
         assertEquals("Usuário autenticado não encontrado.", exception.getMessage());
     }
 
-    @DisplayName("confirmResetPasswordSucess")
+    @DisplayName("Confirmação de mudança de senha com sucesso")
     @Test
     void confirmResetPasswordSuccess(){
         User user = new User();
@@ -475,7 +455,7 @@ class AuthServiceTest extends AbstractIntegrationTest {
         user.setEmail("thalyta@test.com");
         user.setPassword(passwordEncoder.encode("senha1234"));
         user.setType(UserType.PROFESSIONAL);
-        user.setHandle("thalyta123");
+        user.setHandle("@thalyta123");
         user.setProfilePic("https://res.cloudinary.com/ddotqrebs/image/upload/v1751250361/default_profile_company_kpqrxc.png");
         user.setUf("CE");
         user.setEnabled(true);
@@ -483,7 +463,6 @@ class AuthServiceTest extends AbstractIntegrationTest {
                 .orElseThrow(InvalidUserTypeException::new);
         user.setRole(role);
 
-        
         userRepository.save(user);
         String tokenTest = resetTokenService.generateResetToken(user.getEmail());
         ConfirmedResetPasswordRequestDTO dto = new ConfirmedResetPasswordRequestDTO(tokenTest, "novaSenhadethalyta");
