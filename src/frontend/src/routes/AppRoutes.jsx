@@ -11,7 +11,7 @@ import PrivateLayout from "../components/layout/PrivateLayout/PrivateLayout"
 export default function AppRoutes() {
   const { user } = useAuth()
   const navigate = useNavigate();
-  const tipoUsuario = user?.tipo_usuario
+  const tipoUsuario = user?.role
   const privateRoutes = getRoutesByRole(tipoUsuario || 'profissional', navigate); 
 
   return (
@@ -34,6 +34,9 @@ export default function AppRoutes() {
           <Route key={path} path={path} element={element} />
         ))}
       </Route>
+
+      <Route path="*" element={<PrivateLayout routes={privateRoutes} />} />
+
     </Routes>
   )
 }

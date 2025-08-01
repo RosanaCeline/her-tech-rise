@@ -1,6 +1,5 @@
 package com.hertechrise.platform.data.dto.response;
 
-import com.hertechrise.platform.model.Community;
 import com.hertechrise.platform.model.Post;
 import com.hertechrise.platform.model.PostVisibility;
 import io.swagger.v3.oas.annotations.media.ArraySchema;
@@ -17,7 +16,7 @@ public record PostResponseDTO(
         Long id,
 
         @Schema(description = "Autor da postagem")
-        AuthorDTO author,
+        AuthorResponseDTO author,
 
         @Schema(description = "Conteúdo textual do post", example = "Oi pessoal, esse é meu primeiro post!")
         String content,
@@ -49,23 +48,9 @@ public record PostResponseDTO(
         @Schema(description = "Indica se essa publicação ainda pode ser editada", example = "true")
         boolean canEdit
 ) {
-        public record AuthorDTO(
-                @Schema(description = "ID do autor", example = "123")
-                Long id,
-                @Schema(description = "Nome do autor", example = "Rosana Celine")
-                String name,
-                @Schema(description = "Handle do autor", example = "@rosanaceline")
-                String handle,
-                @Schema(description = "Foto de perfil do autor", example = "https://res.cloudinary.com/demo/image/upload/v123456/author_profile.jpg")
-                String profilePic,
-                @Schema(description = "Se o usuário logado segue o autor do post", example = "true")
-                boolean isFollowed
-        ) {}
-
         public static PostResponseDTO from(Post post, Long loggedUserId, boolean isFollowed) {
                 boolean isOwner = post.getAuthor().getId().equals(loggedUserId);
 
-                // Verifica se o post foi criado há no máximo 7 dias para permitir edição
                 boolean canEdit = isOwner &&
                         ChronoUnit.DAYS.between(post.getCreatedAt(), LocalDateTime.now()) <= 7;
 
@@ -75,7 +60,7 @@ public record PostResponseDTO(
 
                 return new PostResponseDTO(
                         post.getId(),
-                        new AuthorDTO(
+                        new AuthorResponseDTO(
                                 post.getAuthor().getId(),
                                 post.getAuthor().getName(),
                                 post.getAuthor().getHandle(),

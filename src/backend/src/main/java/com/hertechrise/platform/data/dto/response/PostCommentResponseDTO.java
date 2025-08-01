@@ -26,6 +26,9 @@ public record PostCommentResponseDTO(
         boolean edited,
 
         @Schema(description = "Data e hora em que o comentário foi criado (formato ISO‑8601)", example = "2025-07-14T10:30:00")
-        LocalDateTime createdAt
+        LocalDateTime createdAt,
+
+        @Schema(description = "ID do comentário pai", example = "41")
+        Long parentComment
 ) {}
 

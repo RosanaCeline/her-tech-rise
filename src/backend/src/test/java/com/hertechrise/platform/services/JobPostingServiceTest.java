@@ -4,6 +4,7 @@ import com.hertechrise.platform.config.DotenvInitializer;
 import com.hertechrise.platform.data.dto.request.JobPostingRequestDTO;
 import com.hertechrise.platform.data.dto.response.JobPostingResponseDTO;
 import com.hertechrise.platform.data.dto.response.JobPostingSummaryResponseDTO;
+import com.hertechrise.platform.data.dto.response.PublicJobPostingResponseDTO;
 import com.hertechrise.platform.exception.InvalidUserTypeException;
 import com.hertechrise.platform.integrationtests.testcontainers.AbstractIntegrationTest;
 import com.hertechrise.platform.model.*;
@@ -501,7 +502,7 @@ class JobPostingServiceTest extends AbstractIntegrationTest {
         job.setApplicationDeadline(LocalDate.now().plusWeeks(2));
         jobPostingRepository.save(job);
 
-        JobPostingResponseDTO response = jobPostingService.getPublicById(job.getId());
+        PublicJobPostingResponseDTO response = jobPostingService.getPublicById(job.getId());
 
         assertNotNull(response);
         assertEquals("Programador Júnior", response.title());

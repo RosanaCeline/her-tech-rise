@@ -3,10 +3,13 @@ package com.hertechrise.platform.services;
 import com.hertechrise.platform.data.dto.request.JobPostingRequestDTO;
 import com.hertechrise.platform.data.dto.response.JobPostingResponseDTO;
 import com.hertechrise.platform.data.dto.response.JobPostingSummaryResponseDTO;
+import com.hertechrise.platform.data.dto.response.PublicJobPostingResponseDTO;
 import com.hertechrise.platform.model.Company;
+import com.hertechrise.platform.model.JobApplication;
 import com.hertechrise.platform.model.JobPosting;
 import com.hertechrise.platform.model.User;
 import com.hertechrise.platform.repository.CompanyRepository;
+import com.hertechrise.platform.repository.JobApplicationRepository;
 import com.hertechrise.platform.repository.JobPostingRepository;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
@@ -25,6 +28,7 @@ public class JobPostingService {
 
     private final JobPostingRepository jobPostingRepository;
     private final CompanyRepository companyRepository;
+    private final JobApplicationRepository jobApplicationRepository;
 
     @Transactional
     public JobPostingResponseDTO createJobPosting(JobPostingRequestDTO request) {
@@ -111,10 +115,10 @@ public class JobPostingService {
     }
 
     @Transactional(readOnly = true)
-    public JobPostingResponseDTO getPublicById(Long id) {
+    public PublicJobPostingResponseDTO getPublicById(Long id) {
         JobPosting job = jobPostingRepository.findByIdAndActiveTrueAndApplicationDeadlineGreaterThanEqual(id, LocalDate.now())
                 .orElseThrow(() -> new EntityNotFoundException("Vaga não encontrada ou inativa"));
-        return mapEntityToDto(job);
+        return mapPublicJobPostingToDto(job);
     }
 
     @Transactional(readOnly = true)
@@ -150,6 +154,38 @@ public class JobPostingService {
         JobPosting job = jobPostingRepository.findByIdAndCompany(postId, loggedCompany)
                 .orElseThrow(() -> new EntityNotFoundException("Vaga não encontrada para sua empresa"));
         return mapEntityToDto(job);
+    }
+
+    private PublicJobPostingResponseDTO mapPublicJobPostingToDto(JobPosting job){
+        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+        User loggedUser= (User) auth.getPrincipal();
+
+        List<JobApplication> applications = jobApplicationRepository
+                .findAllByJobPostingIdAndProfessionalUserId(job.getId(), loggedUser.getId());
+        boolean hasApplied = applications.stream().anyMatch(a -> !a.isDeleted());
+
+        return new PublicJobPostingResponseDTO(
+                job.getId(),
+                job.getTitle(),
+                job.getDescription(),
+                job.getRequirements(),
+                job.getLocation(),
+                job.getJobModel(),
+                job.getSalaryMin(),
+                job.getSalaryMax(),
+                job.getContractType(),
+                job.getJoblevel(),
+                job.getApplicationDeadline(),
+                job.isActive(),
+                job.isExpired(),
+                job.getCreatedAt(),
+                hasApplied,
+                job.isUpdated(),
+                job.getUpdatedAt(),
+                job.getCompany().getUser().getName(),
+                job.getCompany().getUser().getProfilePic(),
+                job.getCompany().getUserId()
+        );
     }
 
     private JobPostingResponseDTO mapEntityToDto(JobPosting job) {

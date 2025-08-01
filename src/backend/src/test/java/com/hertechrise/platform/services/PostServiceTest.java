@@ -6,6 +6,7 @@ import com.hertechrise.platform.data.dto.request.PostEditRequestDTO;
 import com.hertechrise.platform.data.dto.request.PostFilterRequestDTO;
 import com.hertechrise.platform.data.dto.request.PostRequestDTO;
 import com.hertechrise.platform.data.dto.response.PostResponseDTO;
+import com.hertechrise.platform.data.dto.response.UnifiedPostResponseDTO;
 import com.hertechrise.platform.exception.InvalidFileTypeException;
 import com.hertechrise.platform.exception.InvalidUserTypeException;
 import com.hertechrise.platform.exception.MaxMediaLimitExceededException;
@@ -568,7 +569,7 @@ class PostServiceTest extends AbstractIntegrationTest {
         post_5.setCreatedAt(LocalDateTime.now());
         postRepository.save(post_5);
 
-        Page<PostResponseDTO> response = postService.getMyPosts(new PostFilterRequestDTO(
+        Page<UnifiedPostResponseDTO> response = postService.getMyPosts(new PostFilterRequestDTO(
                 null, null, null, null));
 
         assertNotNull(response);
@@ -640,7 +641,7 @@ class PostServiceTest extends AbstractIntegrationTest {
         post_5.setCreatedAt(LocalDateTime.now());
         postRepository.save(post_5);
 
-        Page<PostResponseDTO> response = postService.getUserPosts(user.getId(), new PostFilterRequestDTO(
+        Page<UnifiedPostResponseDTO> response = postService.getUserPosts(user.getId(), new PostFilterRequestDTO(
                 null, null, null, null));
 
         assertNotNull(response);
@@ -718,7 +719,7 @@ class PostServiceTest extends AbstractIntegrationTest {
         post_6.setCreatedAt(LocalDateTime.now().minusMinutes(3));
         postRepository.save(post_6);
 
-        Page<PostResponseDTO> response = postService.getTimelinePosts(new PostFilterRequestDTO(
+        Page<UnifiedPostResponseDTO> response = postService.getTimelinePosts(new PostFilterRequestDTO(
                 null, null, null, null));
 
         assertNotNull(response);
@@ -726,15 +727,15 @@ class PostServiceTest extends AbstractIntegrationTest {
         assertEquals(1, response.getTotalPages());
         assertEquals(10, response.getSize());
         assertEquals("Postagem privada do usuário logado", response.getContent().getFirst().content());
-        assertEquals(loggedUser.getId(), response.getContent().getFirst().idAuthor());
+        assertEquals(loggedUser.getId(), response.getContent().getFirst().author().id());
         assertEquals("Postagem pública do usuário logado", response.getContent().get(1).content());
-        assertEquals(loggedUser.getId(), response.getContent().get(1).idAuthor());
+        assertEquals(loggedUser.getId(), response.getContent().get(1).author().id());
         assertEquals("Postando a 10 minutos e editado", response.getContent().get(2).content());
-        assertEquals(user.getId(), response.getContent().get(2).idAuthor());
+        assertEquals(user.getId(), response.getContent().get(2).author().id());
         assertTrue(response.getContent().get(2).edited());
         assertEquals(1, response.getContent().get(2).media().size());
         assertEquals("Postando a 7 dias", response.getContent().get(3).content());
-        assertEquals(user.getId(), response.getContent().get(3).idAuthor());
+        assertEquals(user.getId(), response.getContent().get(3).author().id());
         assertFalse(response.getContent().stream()
                 .anyMatch(post -> post.content().equals("Postagem apagada")));
         assertFalse(response.getContent().stream()
