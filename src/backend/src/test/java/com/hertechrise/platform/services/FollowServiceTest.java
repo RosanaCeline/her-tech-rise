@@ -13,6 +13,7 @@ import com.hertechrise.platform.repository.RoleRepository;
 import com.hertechrise.platform.repository.UserRepository;
 import com.hertechrise.platform.model.FollowRelationship;
 import com.hertechrise.platform.model.User;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -37,7 +38,6 @@ import static org.junit.jupiter.api.Assertions.*;
 
 class FollowServiceTest extends AbstractIntegrationTest {
 
-    //BD
     @Autowired
     private FollowService followService;
 
@@ -50,6 +50,11 @@ class FollowServiceTest extends AbstractIntegrationTest {
     @Autowired
     private RoleRepository roleRepository;
 
+    @BeforeEach
+    void setup() {
+        followRepository.deleteAll();
+        userRepository.deleteAll();
+    }
     @DisplayName("Seguir outros usuários(follow")
     @Test
     void followUserSuccess() {
@@ -60,10 +65,10 @@ class FollowServiceTest extends AbstractIntegrationTest {
         loggedUser.setUf("CE");
         loggedUser.setCep("62320000");
         loggedUser.setCity("Tiangua");
-        loggedUser.setEmail("claudia@test.com");
+        loggedUser.setEmail("claudia@gmail.com");
         loggedUser.setNeighborhood("teste");
         loggedUser.setStreet("teste");
-        loggedUser.setHandle("claudia123");
+        loggedUser.setHandle("@claudia123");
         loggedUser.setPhoneNumber("88900000000");
         loggedUser.setPassword("senhasegura123");
         loggedUser.setType(UserType.PROFESSIONAL);
@@ -74,7 +79,6 @@ class FollowServiceTest extends AbstractIntegrationTest {
         loggedUser.setRole(role);
         userRepository.save(loggedUser);
 
-        // criando user2
         User user2 = new User();
         user2.setName("Lais Coutinho");
         user2.setEnabled(true);
@@ -84,7 +88,7 @@ class FollowServiceTest extends AbstractIntegrationTest {
         user2.setEmail("laiscoutinho@test.com");
         user2.setNeighborhood("centro");
         user2.setStreet("teste");
-        user2.setHandle("laiscout");
+        user2.setHandle("@laiscout");
         user2.setPhoneNumber("88900000000");
         user2.setPassword("senhasegura123");
         user2.setType(UserType.PROFESSIONAL);
@@ -92,12 +96,10 @@ class FollowServiceTest extends AbstractIntegrationTest {
         user2.setRole(role);
         userRepository.save(user2);
 
-        //simula login
         UsernamePasswordAuthenticationToken auth =
                 new UsernamePasswordAuthenticationToken(loggedUser, null, List.of());
         SecurityContextHolder.getContext().setAuthentication(auth);
 
-        //(chama o metodo follow service)
         FollowRequestDTO request = new FollowRequestDTO(user2.getId());
         FollowResponseDTO response = followService.follow(request);
 
@@ -119,10 +121,10 @@ class FollowServiceTest extends AbstractIntegrationTest {
         loggedUser.setUf("CE");
         loggedUser.setCep("62320000");
         loggedUser.setCity("Tiangua");
-        loggedUser.setEmail("claudia@test.com");
+        loggedUser.setEmail("claudia2@gmail.com");
         loggedUser.setNeighborhood("teste");
         loggedUser.setStreet("teste");
-        loggedUser.setHandle("claudia123");
+        loggedUser.setHandle("@claudia123");
         loggedUser.setPhoneNumber("88900000000");
         loggedUser.setPassword("senhasegura123");
         loggedUser.setType(UserType.PROFESSIONAL);
@@ -136,7 +138,6 @@ class FollowServiceTest extends AbstractIntegrationTest {
                 new UsernamePasswordAuthenticationToken(loggedUser, null, List.of());
         SecurityContextHolder.getContext().setAuthentication(auth);
 
-        //auto-seguimento
         FollowRequestDTO request = new FollowRequestDTO(loggedUser.getId());
 
         Exception exception = assertThrows(SelfFollowException.class, () -> {
@@ -156,10 +157,10 @@ class FollowServiceTest extends AbstractIntegrationTest {
         loggedUser.setUf("CE");
         loggedUser.setCep("62320000");
         loggedUser.setCity("Tiangua");
-        loggedUser.setEmail("claudia@test.com");
+        loggedUser.setEmail("claudia3@gmail.com");
         loggedUser.setNeighborhood("teste");
         loggedUser.setStreet("teste");
-        loggedUser.setHandle("claudia123");
+        loggedUser.setHandle("@claudia123");
         loggedUser.setPhoneNumber("88900000000");
         loggedUser.setPassword("senhasegura123");
         loggedUser.setType(UserType.PROFESSIONAL);
@@ -174,7 +175,6 @@ class FollowServiceTest extends AbstractIntegrationTest {
                 new UsernamePasswordAuthenticationToken(loggedUser, null, List.of());
         SecurityContextHolder.getContext().setAuthentication(auth);
 
-        // ID de usuário inesxistente
         FollowRequestDTO request = new FollowRequestDTO(99999L);
 
         UserNotFoundException exception = assertThrows(UserNotFoundException.class, () -> {
@@ -195,10 +195,10 @@ class FollowServiceTest extends AbstractIntegrationTest {
         loggedUser.setUf("CE");
         loggedUser.setCep("62320000");
         loggedUser.setCity("Tiangua");
-        loggedUser.setEmail("claudia@test.com");
+        loggedUser.setEmail("claudia4@gmail.com");
         loggedUser.setNeighborhood("teste");
         loggedUser.setStreet("teste");
-        loggedUser.setHandle("claudia123");
+        loggedUser.setHandle("@claudia123");
         loggedUser.setPhoneNumber("88900000000");
         loggedUser.setPassword("senhasegura123");
         loggedUser.setType(UserType.PROFESSIONAL);
@@ -218,7 +218,7 @@ class FollowServiceTest extends AbstractIntegrationTest {
         user2.setEmail("laiscoutinho@test.com");
         user2.setNeighborhood("centro");
         user2.setStreet("teste");
-        user2.setHandle("laiscout");
+        user2.setHandle("@laiscout");
         user2.setPhoneNumber("88900000000");
         user2.setPassword("senhasegura123");
         user2.setType(UserType.PROFESSIONAL);
@@ -256,10 +256,10 @@ class FollowServiceTest extends AbstractIntegrationTest {
         loggedUser.setUf("CE");
         loggedUser.setCep("62320000");
         loggedUser.setCity("Tiangua");
-        loggedUser.setEmail("claudia@test.com");
+        loggedUser.setEmail("claudia5@gmail.com");
         loggedUser.setNeighborhood("teste");
         loggedUser.setStreet("teste");
-        loggedUser.setHandle("claudia123");
+        loggedUser.setHandle("@claudia123");
         loggedUser.setPhoneNumber("88900000000");
         loggedUser.setPassword("senhasegura123");
         loggedUser.setType(UserType.PROFESSIONAL);
@@ -274,7 +274,7 @@ class FollowServiceTest extends AbstractIntegrationTest {
         user2.setEmail("laiscoutinho@test.com");
         user2.setNeighborhood("centro");
         user2.setStreet("teste");
-        user2.setHandle("laiscout");
+        user2.setHandle("@laiscout");
         user2.setPhoneNumber("88900000000");
         user2.setPassword("senhasegura123");
         user2.setType(UserType.PROFESSIONAL);
@@ -317,10 +317,10 @@ class FollowServiceTest extends AbstractIntegrationTest {
         loggedUser.setUf("CE");
         loggedUser.setCep("62320000");
         loggedUser.setCity("Tiangua");
-        loggedUser.setEmail("claudia@test.com");
+        loggedUser.setEmail("claudia6@gmail.com");
         loggedUser.setNeighborhood("teste");
         loggedUser.setStreet("teste");
-        loggedUser.setHandle("claudia123");
+        loggedUser.setHandle("@claudia123");
         loggedUser.setPhoneNumber("88900000000");
         loggedUser.setPassword("senhasegura123");
         loggedUser.setType(UserType.PROFESSIONAL);
@@ -352,10 +352,10 @@ class FollowServiceTest extends AbstractIntegrationTest {
         loggedUser.setUf("CE");
         loggedUser.setCep("62320000");
         loggedUser.setCity("Tiangua");
-        loggedUser.setEmail("claudia@test.com");
+        loggedUser.setEmail("claudia7@gmail.com");
         loggedUser.setNeighborhood("teste");
         loggedUser.setStreet("teste");
-        loggedUser.setHandle("claudia123");
+        loggedUser.setHandle("@claudia123");
         loggedUser.setPhoneNumber("88900000000");
         loggedUser.setPassword("senhasegura123");
         loggedUser.setType(UserType.PROFESSIONAL);
@@ -389,10 +389,10 @@ class FollowServiceTest extends AbstractIntegrationTest {
         loggedUser.setUf("CE");
         loggedUser.setCep("62320000");
         loggedUser.setCity("Tiangua");
-        loggedUser.setEmail("claudia@test.com");
+        loggedUser.setEmail("claudia8@gmail.com");
         loggedUser.setNeighborhood("teste");
         loggedUser.setStreet("teste");
-        loggedUser.setHandle("claudia123");
+        loggedUser.setHandle("@claudia123");
         loggedUser.setPhoneNumber("88900000000");
         loggedUser.setPassword("senhasegura123");
         loggedUser.setType(UserType.PROFESSIONAL);
@@ -412,7 +412,7 @@ class FollowServiceTest extends AbstractIntegrationTest {
         user2.setEmail("laiscoutinho@test.com");
         user2.setNeighborhood("centro");
         user2.setStreet("teste");
-        user2.setHandle("laiscout");
+        user2.setHandle("@laiscout");
         user2.setPhoneNumber("88900000000");
         user2.setPassword("senhasegura123");
         user2.setType(UserType.PROFESSIONAL);
@@ -447,10 +447,10 @@ class FollowServiceTest extends AbstractIntegrationTest {
         loggedUser.setUf("CE");
         loggedUser.setCep("62320000");
         loggedUser.setCity("Tiangua");
-        loggedUser.setEmail("claudia@test.com");
+        loggedUser.setEmail("claudia9@gmail.com");
         loggedUser.setNeighborhood("teste");
         loggedUser.setStreet("teste");
-        loggedUser.setHandle("claudia123");
+        loggedUser.setHandle("@claudia123");
         loggedUser.setPhoneNumber("88900000000");
         loggedUser.setPassword("senhasegura123");
         loggedUser.setType(UserType.PROFESSIONAL);
@@ -470,7 +470,7 @@ class FollowServiceTest extends AbstractIntegrationTest {
         user2.setEmail("laiscoutinho@test.com");
         user2.setNeighborhood("centro");
         user2.setStreet("teste");
-        user2.setHandle("laiscout");
+        user2.setHandle("@laiscout");
         user2.setPhoneNumber("88900000000");
         user2.setPassword("senhasegura123");
         user2.setType(UserType.PROFESSIONAL);
@@ -503,10 +503,10 @@ class FollowServiceTest extends AbstractIntegrationTest {
         loggedUser.setUf("CE");
         loggedUser.setCep("62320000");
         loggedUser.setCity("Tiangua");
-        loggedUser.setEmail("claudia@test.com");
+        loggedUser.setEmail("claudiaa@gmail.com");
         loggedUser.setNeighborhood("teste");
         loggedUser.setStreet("teste");
-        loggedUser.setHandle("claudia123");
+        loggedUser.setHandle("@claudia123");
         loggedUser.setPhoneNumber("88900000000");
         loggedUser.setPassword("senhasegura123");
         loggedUser.setType(UserType.PROFESSIONAL);
@@ -541,10 +541,10 @@ class FollowServiceTest extends AbstractIntegrationTest {
         loggedUser.setUf("CE");
         loggedUser.setCep("62320000");
         loggedUser.setCity("Tiangua");
-        loggedUser.setEmail("claudia@test.com");
+        loggedUser.setEmail("claudias@gmail.com");
         loggedUser.setNeighborhood("teste");
         loggedUser.setStreet("teste");
-        loggedUser.setHandle("claudia123");
+        loggedUser.setHandle("@claudia123");
         loggedUser.setPhoneNumber("88900000000");
         loggedUser.setPassword("senhasegura123");
         loggedUser.setType(UserType.PROFESSIONAL);
@@ -569,7 +569,7 @@ class FollowServiceTest extends AbstractIntegrationTest {
         user2.setEmail("laiscoutinho@test.com");
         user2.setNeighborhood("Centro");
         user2.setStreet("Rua A");
-        user2.setHandle("laiscout");
+        user2.setHandle("@laiscout");
         user2.setPhoneNumber("88999990001");
         user2.setPassword("senha123");
         user2.setType(UserType.PROFESSIONAL);
@@ -589,7 +589,7 @@ class FollowServiceTest extends AbstractIntegrationTest {
         user3.setStreet("Rua B");
         user3.setHandle("rafael_dev");
         user3.setPhoneNumber("88999990002");
-        user3.setPassword("rafael123");
+        user3.setPassword("@rafael123");
         user3.setType(UserType.PROFESSIONAL);
         user3.setProfilePic("https://res.cloudinary.com/ddotqrebs/image/upload/v1751250361/default_profile_company_kpqrxc.png");
         user3.setRole(role);
@@ -633,10 +633,10 @@ class FollowServiceTest extends AbstractIntegrationTest {
         loggedUser.setUf("CE");
         loggedUser.setCep("62320000");
         loggedUser.setCity("Tiangua");
-        loggedUser.setEmail("claudia@test.com");
+        loggedUser.setEmail("claudiaf@gmail.com");
         loggedUser.setNeighborhood("teste");
         loggedUser.setStreet("teste");
-        loggedUser.setHandle("claudia123");
+        loggedUser.setHandle("@claudia123");
         loggedUser.setPhoneNumber("88900000000");
         loggedUser.setPassword("senhasegura123");
         loggedUser.setType(UserType.PROFESSIONAL);
@@ -654,7 +654,7 @@ class FollowServiceTest extends AbstractIntegrationTest {
         user2.setEmail("laiscoutinho@test.com");
         user2.setNeighborhood("Centro");
         user2.setStreet("Rua A");
-        user2.setHandle("laiscout");
+        user2.setHandle("@laiscout");
         user2.setPhoneNumber("88999990001");
         user2.setPassword("senha123");
         user2.setType(UserType.PROFESSIONAL);
@@ -672,7 +672,7 @@ class FollowServiceTest extends AbstractIntegrationTest {
         user3.setEmail("rafaellima@test.com");
         user3.setNeighborhood("Bairro Novo");
         user3.setStreet("Rua B");
-        user3.setHandle("rafael_dev");
+        user3.setHandle("@rafael_dev");
         user3.setPhoneNumber("88999990002");
         user3.setPassword("rafael123");
         user3.setType(UserType.PROFESSIONAL);
@@ -719,10 +719,10 @@ class FollowServiceTest extends AbstractIntegrationTest {
         loggedUser.setUf("CE");
         loggedUser.setCep("62320000");
         loggedUser.setCity("Tiangua");
-        loggedUser.setEmail("claudia@test.com");
+        loggedUser.setEmail("claudiaa@gmail.com");
         loggedUser.setNeighborhood("teste");
         loggedUser.setStreet("teste");
-        loggedUser.setHandle("claudia123");
+        loggedUser.setHandle("@claudia123");
         loggedUser.setPhoneNumber("88900000000");
         loggedUser.setPassword("senhasegura123");
         loggedUser.setType(UserType.PROFESSIONAL);
@@ -739,7 +739,7 @@ class FollowServiceTest extends AbstractIntegrationTest {
         user2.setEmail("laiscoutinho@test.com");
         user2.setNeighborhood("Centro");
         user2.setStreet("Rua A");
-        user2.setHandle("laiscout");
+        user2.setHandle("@laiscout");
         user2.setPhoneNumber("88999990001");
         user2.setPassword("senha123");
         user2.setType(UserType.PROFESSIONAL);
@@ -756,7 +756,7 @@ class FollowServiceTest extends AbstractIntegrationTest {
         user3.setEmail("rafaellima@test.com");
         user3.setNeighborhood("Bairro Novo");
         user3.setStreet("Rua B");
-        user3.setHandle("rafael_dev");
+        user3.setHandle("@rafael_dev");
         user3.setPhoneNumber("88999990002");
         user3.setPassword("rafael123");
         user3.setType(UserType.PROFESSIONAL);
@@ -797,10 +797,10 @@ class FollowServiceTest extends AbstractIntegrationTest {
         loggedUser.setUf("CE");
         loggedUser.setCep("62320000");
         loggedUser.setCity("Tiangua");
-        loggedUser.setEmail("claudia@test.com");
+        loggedUser.setEmail("claudiafs@gmail.com");
         loggedUser.setNeighborhood("teste");
         loggedUser.setStreet("teste");
-        loggedUser.setHandle("claudia123");
+        loggedUser.setHandle("@claudia123");
         loggedUser.setPhoneNumber("88900000000");
         loggedUser.setPassword("senhasegura123");
         loggedUser.setType(UserType.PROFESSIONAL);
@@ -811,7 +811,7 @@ class FollowServiceTest extends AbstractIntegrationTest {
         User user2 = new User();
         user2.setName("Lais Coutinho");
         user2.setEmail("laiscoutinho@test.com");
-        user2.setHandle("laiscout");
+        user2.setHandle("@laiscout");
         user2.setEnabled(true);
         user2.setUf("CE");
         user2.setCep("62320000");
@@ -828,7 +828,7 @@ class FollowServiceTest extends AbstractIntegrationTest {
         User user3 = new User();
         user3.setName("Rafael Lima");
         user3.setEmail("rafaellima@test.com");
-        user3.setHandle("rafael_dev");
+        user3.setHandle("@rafael_dev");
         user3.setEnabled(true);
         user3.setUf("CE");
         user3.setCep("62320000");
@@ -882,10 +882,10 @@ class FollowServiceTest extends AbstractIntegrationTest {
         loggedUser.setUf("CE");
         loggedUser.setCep("62320000");
         loggedUser.setCity("Tiangua");
-        loggedUser.setEmail("claudia@test.com");
+        loggedUser.setEmail("claudi@gmail.com");
         loggedUser.setNeighborhood("teste");
         loggedUser.setStreet("teste");
-        loggedUser.setHandle("claudia123");
+        loggedUser.setHandle("@claudia123");
         loggedUser.setPhoneNumber("88900000000");
         loggedUser.setPassword("senhasegura123");
         loggedUser.setType(UserType.PROFESSIONAL);
@@ -905,7 +905,7 @@ class FollowServiceTest extends AbstractIntegrationTest {
         user2.setEmail("laiscoutinho@test.com");
         user2.setNeighborhood("centro");
         user2.setStreet("teste");
-        user2.setHandle("laiscout");
+        user2.setHandle("@laiscout");
         user2.setPhoneNumber("88900000000");
         user2.setPassword("senhasegura123");
         user2.setType(UserType.PROFESSIONAL);
@@ -948,10 +948,10 @@ class FollowServiceTest extends AbstractIntegrationTest {
         loggedUser.setUf("CE");
         loggedUser.setCep("62320000");
         loggedUser.setCity("Tiangua");
-        loggedUser.setEmail("claudia@test.com");
+        loggedUser.setEmail("clau@gmail.com");
         loggedUser.setNeighborhood("teste");
         loggedUser.setStreet("teste");
-        loggedUser.setHandle("claudia123");
+        loggedUser.setHandle("@claudia123");
         loggedUser.setPhoneNumber("88900000000");
         loggedUser.setPassword("senhasegura123");
         loggedUser.setType(UserType.PROFESSIONAL);
@@ -971,7 +971,7 @@ class FollowServiceTest extends AbstractIntegrationTest {
         user2.setEmail("roberto@test.com");
         user2.setNeighborhood("centro");
         user2.setStreet("teste");
-        user2.setHandle("robert");
+        user2.setHandle("@robert");
         user2.setPhoneNumber("88900000000");
         user2.setPassword("senhasegura123");
         user2.setType(UserType.PROFESSIONAL);

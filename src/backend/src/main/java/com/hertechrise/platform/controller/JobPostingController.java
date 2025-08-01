@@ -4,6 +4,7 @@ import com.hertechrise.platform.controller.docs.JobPostingControllerDocs;
 import com.hertechrise.platform.data.dto.request.JobPostingRequestDTO;
 import com.hertechrise.platform.data.dto.response.JobPostingResponseDTO;
 import com.hertechrise.platform.data.dto.response.JobPostingSummaryResponseDTO;
+import com.hertechrise.platform.data.dto.response.PublicJobPostingResponseDTO;
 import com.hertechrise.platform.services.JobPostingService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -44,7 +45,7 @@ public class JobPostingController implements JobPostingControllerDocs {
     }
 
     @GetMapping("/public/{postId}")
-    public ResponseEntity<JobPostingResponseDTO> getPublicById(@PathVariable Long postId) {
+    public ResponseEntity<PublicJobPostingResponseDTO> getPublicById(@PathVariable Long postId) {
         return ResponseEntity.ok(jobPostingService.getPublicById(postId));
     }
 
