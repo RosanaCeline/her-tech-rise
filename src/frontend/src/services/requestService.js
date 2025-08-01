@@ -27,15 +27,20 @@ export const requestService = {
       const response = await fetch(`${BASE_URL}/api${endpoint}`, config);
 
       if (!response.ok) {
-        const errorData = await response.json();
-        const error = new Error(errorData.message || "Erro desconhecido");
+        let errorMessage = "Erro desconhecido";
 
+        try {
+          const errorData = await response.json();
+          errorMessage = errorData.message || errorMessage;
+        } catch {}
+
+        const error = new Error(errorMessage);
         error.status = response.status;
-        error.backendMessage = errorData.message;
-
         throw error;
       }
-
+      const contentType = response.headers.get("content-type");
+      if (response.status === 204 || !contentType || !contentType.includes("application/json")) return null;
+      
       return await response.json();
     } catch (error) {
       console.error('API request error:', error);
