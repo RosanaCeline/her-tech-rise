@@ -1,16 +1,17 @@
-import { useState } from 'react';
-import { Heart, MessageCircle, Share } from 'lucide-react';
+import { useState, useRef, useEffect } from 'react';
 import HeaderPost from './components/HeaderPost';
 import ContentPost from './components/ContentPost';
 import PopUpBlurProfile from '../Profile/PopUpBlurProfile';
 import PopUp from '../../PopUp'
 import ManagePost from '../../posts/ManagePost';
 import AttachFile from '../../posts/AttachFile';
+import InteractionBar from '../../posts/Interactions/InteractionBar';
 
-export default function CardPostProfile({ post, photo, name, isPopupView = false, isOpen = false, onPostsUpdated = false, 
+export default function CardPostProfile({ post, photo, name, isPopupView = false, isOpen = false, onPostsUpdated = false, isShare = false,
                                           isFollowing = null, onFollowToggle = null, handle = null, idAuthor = null, isOwner = false }) {
   const [showPopup, setShowPopup] = useState(false);
-
+  const [activePopUp, setActivePopUp] = useState("post");
+  const [editingPost, setEditingPost] = useState(null);
   const openPopup = () => setShowPopup(true);
 
   const formattedDate = new Date(post.createdAt).toLocaleDateString('pt-BR');
@@ -26,9 +27,6 @@ export default function CardPostProfile({ post, photo, name, isPopupView = false
     visibility: post.visibility
   });
 
-  const [activePopUp, setActivePopUp] = useState("post");
-  const [editingPost, setEditingPost] = useState(null);
-
   const handleEdit = (postData) => {
     setFormData({
       postId: postData.id,
@@ -40,13 +38,28 @@ export default function CardPostProfile({ post, photo, name, isPopupView = false
     setActivePopUp("post");
   };
 
+  const containerRef = useRef(null);
+  const [cardWidth, setCardWidth] = useState(0);
+
+  useEffect(() => {
+    if (!containerRef.current) return;
+    const resizeObserver = new ResizeObserver(entries => {
+      for (let entry of entries) {
+        setCardWidth(entry.contentRect.width);
+      }
+    });
+    resizeObserver.observe(containerRef.current);
+    return () => resizeObserver.disconnect();
+  }, []);
+
   return (
       <div
+        ref={containerRef}
         onClick={openPopup}
         className={`flex flex-col justify-between bg-gray-50 rounded-xl shadow-md p-6 ${
           isPopupView
             ? 'w-full max-w-none min-h-[auto]'
-            : `w-full max-w-[460vh] ${hasMedia ? 'h-[32vh]' : 'min-h-[20vh] max-h-[32vh]'}`
+            : `w-full max-w-[460vh] ${hasMedia ? 'h-[52vh]' : 'min-h-[20vh] max-h-[32vh]'}`
         }`}
       >
         <HeaderPost
@@ -70,18 +83,12 @@ export default function CardPostProfile({ post, photo, name, isPopupView = false
           onExpand={openPopup}
         />
 
-        {/* Interações */}
-        <div className="flex justify-end items-center mt-4 text-sm text-gray-500 gap-6">
-          <div className="flex items-center gap-1">
-            <Heart size={16} /> <span>{post.likes ?? 0}</span>
-          </div>
-          <div className="flex items-center gap-1">
-            <MessageCircle size={16} /> <span>{post.comments ?? 0}</span>
-          </div>
-          <div className="flex items-center gap-1">
-            <Share size={16} /> <span>{post.shares ?? 0}</span>
-          </div>
-        </div>
+        {!isShare && (
+          <InteractionBar
+            post={post}
+            cardWidth={cardWidth}
+          />
+        )}
 
         {editingPost && (
           <PopUpBlurProfile
