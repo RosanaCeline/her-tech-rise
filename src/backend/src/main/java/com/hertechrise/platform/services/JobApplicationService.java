@@ -207,6 +207,7 @@ public class JobApplicationService {
                 application.getId(),
                 application.getProfessional().getUserId(),
                 application.getProfessional().getUser().getName(),
+                application.getProfessional().getUser().getHandle(),
                 application.getProfessional().getTechnology(),
                 application.getProfessional().getUser().getPhoneNumber(),
                 application.getProfessional().getUser().getEmail(),
