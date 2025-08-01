@@ -29,6 +29,9 @@ public record PostCommentResponseDTO(
         LocalDateTime createdAt,
 
         @Schema(description = "ID do comentário pai", example = "41")
-        Long parentComment
+        Long parentComment,
+
+        @Schema(description = "Quantidade de curtidas no comentário", example = "17")
+        Long countCommentLikes
 ) {}
 
