@@ -46,9 +46,18 @@ public record PostResponseDTO(
         boolean isOwner,
 
         @Schema(description = "Indica se essa publicação ainda pode ser editada", example = "true")
-        boolean canEdit
+        boolean canEdit,
+
+        @Schema(description = "Quantidade de curtidas na publicação", example = "58")
+        Long countLikes,
+
+        @Schema(description = "Quantidade de comentários na publicação", example = "16")
+        Long countComments,
+
+        @Schema(description = "Quantidade de compartilhamentos da publicação", example = "3")
+        Long countShares
 ) {
-        public static PostResponseDTO from(Post post, Long loggedUserId, boolean isFollowed) {
+        public static PostResponseDTO from(Post post, Long loggedUserId, boolean isFollowed, Long countLikes, Long countComments, Long countShares) {
                 boolean isOwner = post.getAuthor().getId().equals(loggedUserId);
 
                 boolean canEdit = isOwner &&
@@ -75,7 +84,10 @@ public record PostResponseDTO(
                         post.isEdited(),
                         post.getEditedAt(),
                         isOwner,
-                        canEdit
+                        canEdit,
+                        countLikes,
+                        countComments,
+                        countShares
                 );
         }
 }
