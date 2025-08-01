@@ -1,6 +1,7 @@
 package com.hertechrise.platform.data.dto.request;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
+import com.hertechrise.platform.model.ProfessionalGender;
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.*;
 import org.hibernate.validator.constraints.br.CPF;
@@ -19,6 +20,14 @@ public record RegisterProfessionalRequestDTO(
         @NotBlank(message = "CPF é obrigatório.")
         @CPF(message = "CPF inválido.")
         String cpf,
+
+        @Schema(description = "Identidade de gênero do profissional", example = "MULHER")
+        @NotNull(message = "Identidade de gênero é obrigatória.")
+        ProfessionalGender gender,
+
+        @Schema(description = "Consentimento para compartilhar gênero do profissional nas vagas", example = "false")
+        @NotNull(message = "Informar se há consentimento para compartilhamento de gênero é obrigátorio.")
+        Boolean consentGenderSharing,
 
         @Schema(description = "Data de nascimento no formato dd/MM/yyyy", example = "15/11/2004", type = "string")
         @NotNull(message = "Data de nascimento é obrigatória.")

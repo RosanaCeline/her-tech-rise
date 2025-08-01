@@ -113,6 +113,8 @@ public class ProfessionalProfileService {
         user.setUf(request.uf());
 
         professional.setCpf(request.cpf());
+        professional.setGender(request.gender());
+        professional.setConsentGenderSharing(request.consentGenderSharing());
         professional.setBirthDate(request.birthDate());
 
         // technology (até 80 caracteres)
@@ -174,6 +176,8 @@ public class ProfessionalProfileService {
                 loggedUser.getId(),
                 loggedUser.getName(),
                 loggedProfessional.getCpf(),
+                loggedProfessional.getGender(),
+                loggedProfessional.getConsentGenderSharing(),
                 loggedProfessional.getBirthDate(),
                 loggedUser.getPhoneNumber(),
                 loggedUser.getEmail(),

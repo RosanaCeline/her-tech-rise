@@ -1,5 +1,6 @@
 package com.hertechrise.platform.data.dto.response;
 
+import com.hertechrise.platform.model.ProfessionalGender;
 import io.swagger.v3.oas.annotations.media.Schema;
 
 import java.time.LocalDateTime;
@@ -27,6 +28,9 @@ public record ReceivedApplicationSummaryResponseDTO(
 
         @Schema(description = "Foto de perfil do candidato", example = "https://res.cloudinary.com/seuapp/user_56.png")
         String applicantProfilePic,
+
+        @Schema(description = "Identidade de gênero do candidato", example = "MULHER")
+        ProfessionalGender gender,
 
         @Schema(description = "Data da candidatura", example = "2024-07-15T10:20:30")
         LocalDateTime appliedAt

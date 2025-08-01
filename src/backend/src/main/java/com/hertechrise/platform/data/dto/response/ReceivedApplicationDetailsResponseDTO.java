@@ -1,5 +1,6 @@
 package com.hertechrise.platform.data.dto.response;
 
+import com.hertechrise.platform.model.ProfessionalGender;
 import io.swagger.v3.oas.annotations.media.Schema;
 
 import java.time.LocalDate;
@@ -28,6 +29,9 @@ public record ReceivedApplicationDetailsResponseDTO(
 
         @Schema(description = "Foto de perfil do candidato", example = "https://res.cloudinary.com/seuapp/user_56.png")
         String applicantProfilePic,
+
+        @Schema(description = "Identidade de gênero do candidato", example = "null")
+        ProfessionalGender gender,
 
         @Schema(description = "URL do currículo enviado", example = "https://res.cloudinary.com/seuapp/curriculo_joao.pdf")
         String resumeUrl,

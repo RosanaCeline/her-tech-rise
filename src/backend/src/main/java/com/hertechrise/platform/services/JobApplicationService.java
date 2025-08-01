@@ -3,10 +3,7 @@ package com.hertechrise.platform.services;
 import com.hertechrise.platform.data.dto.request.JobApplicationRequestDTO;
 import com.hertechrise.platform.data.dto.response.*;
 import com.hertechrise.platform.exception.AlreadyCandidateException;
-import com.hertechrise.platform.model.JobApplication;
-import com.hertechrise.platform.model.JobPosting;
-import com.hertechrise.platform.model.Professional;
-import com.hertechrise.platform.model.User;
+import com.hertechrise.platform.model.*;
 import com.hertechrise.platform.repository.JobApplicationRepository;
 import com.hertechrise.platform.repository.JobPostingRepository;
 import com.hertechrise.platform.repository.ProfessionalRepository;
@@ -21,7 +18,6 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
 import java.util.List;
-import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
@@ -159,6 +155,14 @@ public class JobApplicationService {
         jobApplicationRepository.save(application);
     }
 
+    private ProfessionalGender isConsentGenderSharing(Professional professional) {
+        if (Boolean.TRUE.equals(professional.getConsentGenderSharing())) {
+            return professional.getGender();
+        } else {
+            return null;
+        }
+    }
+
     private CandidateApplicationDetailsResponseDTO mapToCandidateDetailsDto(JobApplication application) {
         return new CandidateApplicationDetailsResponseDTO(
                 application.getId(),
@@ -168,6 +172,7 @@ public class JobApplicationService {
                 application.getProfessional().getUser().getPhoneNumber(),
                 application.getProfessional().getUser().getEmail(),
                 application.getProfessional().getUser().getProfilePic(),
+                isConsentGenderSharing(application.getProfessional()),
                 application.getResumeUrl(),
                 application.getGithubLink(),
                 application.getPortfolioLink(),
@@ -206,6 +211,7 @@ public class JobApplicationService {
                 application.getProfessional().getUser().getPhoneNumber(),
                 application.getProfessional().getUser().getEmail(),
                 application.getProfessional().getUser().getProfilePic(),
+                isConsentGenderSharing(application.getProfessional()),
                 application.getResumeUrl(),
                 application.getGithubLink(),
                 application.getPortfolioLink(),
@@ -226,6 +232,7 @@ public class JobApplicationService {
                 application.getProfessional().getUser().getPhoneNumber(),
                 application.getProfessional().getUser().getEmail(),
                 application.getProfessional().getUser().getProfilePic(),
+                isConsentGenderSharing(application.getProfessional()),
                 application.getAppliedAt()
         );
     }

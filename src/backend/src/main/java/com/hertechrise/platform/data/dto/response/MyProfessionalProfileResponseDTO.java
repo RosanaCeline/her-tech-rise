@@ -1,5 +1,6 @@
 package com.hertechrise.platform.data.dto.response;
 
+import com.hertechrise.platform.model.ProfessionalGender;
 import io.swagger.v3.oas.annotations.media.Schema;
 
 import java.time.LocalDate;
@@ -16,6 +17,12 @@ public record MyProfessionalProfileResponseDTO(
 
         @Schema(description = "CPF do profissional", example = "123.456.789-09")
         String cpf,
+
+        @Schema(description = "Identididade de gênero do profissional", example = "PESSOA_NAO_BINARIA")
+        ProfessionalGender gender,
+
+        @Schema(description = "Consentimento para compartilhar gênero do profissional nas vagas", example = "true")
+        Boolean consentGenderSharing,
 
         @Schema(description = "Data de nascimento do profissional", example = "01/05/2002")
         LocalDate birthDate,
