@@ -37,7 +37,7 @@ export default function RegisterStep1({formData, handleChange }){
                                     value={formData.cep} 
                                     onChange={(e) => handleChange('cep', maskField('cep', maskField('cep', e.target.value)))}
                         />
-                        <div class="col-span-2">
+                        <div className="col-span-2">
                         <LabelInput label="Rua:" 
                                     theme='white' 
                                     required={true} 
@@ -59,7 +59,7 @@ export default function RegisterStep1({formData, handleChange }){
                                 ref={bairroInput}
                                 onChange={(e) => handleChange('bairro', e.target.value)}
                     />
-                    <div class="grid grid-cols-2 gap-x-5">
+                    <div className="grid grid-cols-2 gap-x-5">
                         <LabelInput label="Cidade:"    
                                     theme='white' 
                                     required={true} 
