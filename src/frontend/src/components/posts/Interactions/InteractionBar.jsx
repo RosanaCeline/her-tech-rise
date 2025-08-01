@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 import { Heart, MessageCircle, Share, Earth, Lock } from "lucide-react";
 import PopUpBlurProfile from "../../../components/Cards/Profile/PopUpBlurProfile";
 import { getCurrentUser } from "../../../services/authService";
-import { getCountInteractionsPost, sendLikePost, getLikesPost, getCommentsPost, sendSharePost } from "../../../services/interactionsService";
+import { getCountInteractionsPost, sendLikePost, sendCommentPost, sendSharePost, getLikesPost, getCommentsPost,  } from "../../../services/interactionsService";
 import CardPostProfile from "../../Cards/Posts/CardPostProfile";
 import BtnCallToAction from "../../btn/BtnCallToAction/BtnCallToAction";
 import LabelInput from "../../form/Label/LabelInput";
@@ -22,6 +22,9 @@ export default function InteractionBar({ post, cardWidth }) {
 
     const [listComments, setListComments] = useState([]);
     const [showCommentsModal, setShowCommentsModal] = useState(false);
+    const [showCommentsInput, setShowCommentsInput] = useState(false);
+    const [newComment, setNewComment] = useState("");
+    const [commentsToShow, setCommentsToShow] = useState(2);
 
     const [showConfirmCancel, setShowConfirmCancel] = useState(false);
     const [showShareModal, setShareModal] = useState(false);
@@ -75,6 +78,18 @@ export default function InteractionBar({ post, cardWidth }) {
         }
     };
 
+    // Problem
+    const sendComment = async () => {
+        try {
+            await sendCommentPost(post.id, { content: newComment });
+            setNewComment("");
+            await fetchComments();
+            setCommentsCount((prev) => prev + 1);
+        } catch (error) {
+            console.error("Erro ao enviar comentário:", error);
+        }
+    };
+
     const sendShare = async (content) => {
         try {
             await sendSharePost(post.id, content);
@@ -100,7 +115,7 @@ export default function InteractionBar({ post, cardWidth }) {
         }
     };
 
-    // Not implemented yet
+    // Problem
     const getListComments = async () => {
         try {
             const list = await getCommentsPost(post.id);
@@ -108,12 +123,12 @@ export default function InteractionBar({ post, cardWidth }) {
             setListComments(list);
             setShowCommentsModal(true);
         } catch (error) {
-            console.error("Erro ao pegar lista de curtidas:", error);
+            console.error("Erro ao buscar comentários:", error);
         }
     };
 
   return (
-    <>
+    <div className="interaction-bar" onClick={(e) => e.stopPropagation()}>
         <div className="flex items-center justify-between text-sm text-(--purple-primary) mt-3">
             <button
                 className="flex items-center gap-1 cursor-pointer hover:opacity-80"
@@ -125,7 +140,8 @@ export default function InteractionBar({ post, cardWidth }) {
             </button>
 
             <div className="flex items-center gap-3">
-                <button className="flex items-center gap-1 cursor-pointer hover:opacity-80">
+                <button className="flex items-center gap-1 cursor-pointer hover:opacity-80"
+                        onClick={getListComments}>
                     {isCompact && <MessageCircle className="purple-primary" size={15} />}
                     <span>{commentsCount}</span>
                     {!isCompact && <span className="text-xs">comentários</span>}
@@ -152,11 +168,14 @@ export default function InteractionBar({ post, cardWidth }) {
                     fill={hasLiked ? "var(--purple-primary)" : "transparent"}
                     stroke={hasLiked ? "var(--purple-primary)" : "currentColor"}
                 />                
-                {!isCompact && "Curtir"}
+                {!isCompact && (hasLiked ? "Curtido" : "Curtir")}
             </button>
 
             <button
-            onClick={() => console.log("Abrir área de comentários")}
+            onClick={() => {
+                if (!showCommentsInput) getListComments();
+                setShowCommentsInput((prev) => !prev);
+            }}
             className="flex items-center gap-2 cursor-pointer transition duration-300 hover:scale-105"
             >
                 <MessageCircle />
@@ -170,7 +189,64 @@ export default function InteractionBar({ post, cardWidth }) {
                 <Share />
                 {!isCompact && "Compartilhar"}
             </button>
-      </div>
+        </div>
+
+        {showCommentsInput && (
+            <div className="mt-6 flex flex-col gap-4">
+                <div className="flex gap-x-4">
+                    <div className="relative w-full max-w-[70px] h-[70px] flex-shrink-0">
+                        <img src={user.profileURL} className="h-full w-full object-cover rounded-full" />
+                    </div>
+                    <div className="w-full pt-2">
+                        <LabelInput
+                            placeholder="Escreva um comentário..."
+                            value={newComment}
+                            onChange={(e) => setNewComment(e.target.value)}
+                            onKeyDown={(e) => e.key === "Enter" && sendComment()}
+                        />
+                    </div>
+                    <BtnCallToAction
+                            variant="purple"
+                            className="!px-3 !py-1 !text-sm" 
+                            onClick={() => {
+                                if (!newComment.trim()) return;
+                                sendComment(); 
+                            }}
+                        >
+                            Enviar
+                    </BtnCallToAction>
+                </div>
+
+                {listComments.slice(0, commentsToShow).map((comment) => (
+                <div key={comment.id} className="pt-3 flex gap-3">
+                    <img
+                    src={comment.userAvatarUrl || "/default-avatar.png"}
+                    className="w-8 h-8 rounded-full object-cover"
+                    />
+                    <div>
+                        <p className="font-semibold">{comment.userName}</p>
+                        <p>{comment.content}</p>
+                        <p className="text-xs text-gray-500">
+                            {new Intl.DateTimeFormat("pt-BR", {
+                            dateStyle: "short",
+                            timeStyle: "short",
+                            }).format(new Date(comment.createdAt))}
+                        </p>
+                    </div>
+                </div>
+                ))}
+
+                {/* Botão Ver mais */}
+                {listComments.length > commentsToShow && (
+                <button
+                    onClick={() => setCommentsToShow((prev) => prev + 2)}
+                    className="text-sm text-blue-600 hover:underline mt-2 self-start"
+                >
+                    Ver mais comentários
+                </button>
+                )}
+            </div>
+        )}
 
       <PopUpBlurProfile
         isOpen={showLikesModal}
@@ -299,6 +375,6 @@ export default function InteractionBar({ post, cardWidth }) {
             }}
             onCancel={() => setShowConfirmCancel(false)}
         />
-    </>
+    </div>
   );
 }
