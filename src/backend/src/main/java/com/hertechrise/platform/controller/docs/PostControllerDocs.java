@@ -5,6 +5,7 @@ import com.hertechrise.platform.data.dto.request.PostFilterRequestDTO;
 import com.hertechrise.platform.data.dto.response.MessageResponseDTO;
 import com.hertechrise.platform.data.dto.response.PostMessageResponseDTO;
 import com.hertechrise.platform.data.dto.response.PostResponseDTO;
+import com.hertechrise.platform.data.dto.response.UnifiedPostResponseDTO;
 import com.hertechrise.platform.model.PostVisibility;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
@@ -136,6 +137,6 @@ public interface PostControllerDocs {
             @ApiResponse(responseCode = "500", description = "Erro interno no servidor", content = @Content)
     })
     @GetMapping("/timeline")
-    ResponseEntity<Page<PostResponseDTO>> getTimelinePosts(@Valid PostFilterRequestDTO filter);
+    ResponseEntity<Page<UnifiedPostResponseDTO>> getTimelinePosts(@Valid PostFilterRequestDTO filter);
 
 }
