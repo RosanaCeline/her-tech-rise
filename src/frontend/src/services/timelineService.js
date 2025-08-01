@@ -54,9 +54,9 @@ export const deletePost = async (postId) => {
   return await requestService.apiRequest(`/post/${postId}`, 'DELETE');
 }
 
-// Nao implementado
-export const updatePost = async (postId) => {
-  return await requestService.apiRequest(`/post/${postId}`, 'PUT');
+export const updatePost = async (postId, data) => {
+  console.log("data:", data);
+  return await requestService.apiRequest(`/post/${postId}`, 'PUT', data);
 }
 
 export const getTimelinePosts = async (page = 0, size = 11) => {

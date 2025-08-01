@@ -11,6 +11,7 @@ export default function CardPublicationsProfile({ title, posts, photo, name, onP
 
   const [isUniquePostPopup, setIsUniquePostPopup] = useState(false);
   const [selectedPostId, setSelectedPostId] = useState(null);
+  const selectedPost = posts.find(p => p.id === selectedPostId);
 
   const [filter, setFilter] = useState("TODOS");
   const filteredPosts = [...posts]
@@ -130,6 +131,7 @@ export default function CardPublicationsProfile({ title, posts, photo, name, onP
               name={name}
               isPopupView={true}
               isOpen={true}
+              isOwner={selectedPost?.isOwner}
             />
           }
         />
