@@ -39,6 +39,7 @@ public class PostService {
 
     private final MediaService mediaService;
     private final CloudinaryService cloudinaryService;
+    private final PostInteractionService postInteractionService;
 
     public PostRequestDTO processPostData(String content, Long idCommunity, PostVisibility visibility, List<MultipartFile> mediaFiles) {
         List<MediaRequestDTO> media = mediaFiles != null
@@ -120,7 +121,10 @@ public class PostService {
                 post.isEdited(),
                 post.getEditedAt(),
                 true,
-                true
+                true,
+                postInteractionService.countLikes(post.getId()),
+                postInteractionService.countComments(post.getId()),
+                postInteractionService.countShares(post.getId())
         );
     }
 
@@ -238,7 +242,10 @@ public class PostService {
                 saved.isEdited(),
                 saved.getEditedAt(),
                 true,
-                editable
+                editable,
+                postInteractionService.countLikes(post.getId()),
+                postInteractionService.countComments(post.getId()),
+                postInteractionService.countShares(post.getId())
         );
     }
 
@@ -257,7 +264,14 @@ public class PostService {
             boolean isFollowed = followRelationshipRepository.existsByFollowerAndFollowing(loggedUser, post.getAuthor());
             return new UnifiedPostResponseDTO(
                     PostContentType.POSTAGEM,
-                    PostResponseDTO.from(post, loggedUser.getId(), isFollowed),
+                    PostResponseDTO.from(
+                            post,
+                            loggedUser.getId(),
+                            isFollowed,
+                            postInteractionService.countLikes(post.getId()),
+                            postInteractionService.countComments(post.getId()),
+                            postInteractionService.countShares(post.getId())
+                    ),
                     null,
                     post.getCreatedAt()
             );
@@ -269,7 +283,14 @@ public class PostService {
             return new UnifiedPostResponseDTO(
                     PostContentType.COMPARTILHAMENTO,
                     null,
-                    SharedPostResponseDTO.from(share, loggedUser.getId(), isFollowed, null),
+                    SharedPostResponseDTO.from(
+                            share,
+                            loggedUser.getId(),
+                            isFollowed,
+                            null,
+                            postInteractionService.countShareLikes(share.getId()),
+                            postInteractionService.countShareComments(share.getId())
+                    ),
                     share.getCreatedAt()
             );
         }).toList();
@@ -315,7 +336,14 @@ public class PostService {
             boolean isFollowed = followRelationshipRepository.existsByFollowerAndFollowing(loggedUser, post.getAuthor());
             return new UnifiedPostResponseDTO(
                     PostContentType.POSTAGEM,
-                    PostResponseDTO.from(post, loggedUser.getId(), isFollowed),
+                    PostResponseDTO.from(
+                            post,
+                            loggedUser.getId(),
+                            isFollowed,
+                            postInteractionService.countLikes(post.getId()),
+                            postInteractionService.countComments(post.getId()),
+                            postInteractionService.countShares(post.getId())
+                    ),
                     null,
                     post.getCreatedAt()
             );
@@ -342,7 +370,14 @@ public class PostService {
                     return new UnifiedPostResponseDTO(
                             PostContentType.COMPARTILHAMENTO,
                             null,
-                            SharedPostResponseDTO.from(share, loggedUser.getId(), isFollowed, isFollowedSharer),
+                            SharedPostResponseDTO.from(
+                                    share,
+                                    loggedUser.getId(),
+                                    isFollowed,
+                                    isFollowedSharer,
+                                    postInteractionService.countShareLikes(share.getId()),
+                                    postInteractionService.countShareComments(share.getId())
+                            ),
                             share.getCreatedAt()
                     );
                 }).toList();
@@ -389,7 +424,14 @@ public class PostService {
             boolean isFollowed = followRelationshipRepository.existsByFollowerAndFollowing(loggedUser, post.getAuthor());
             return new UnifiedPostResponseDTO(
                     PostContentType.POSTAGEM,
-                    PostResponseDTO.from(post, loggedUser.getId(), isFollowed),
+                    PostResponseDTO.from(
+                            post,
+                            loggedUser.getId(),
+                            isFollowed,
+                            postInteractionService.countLikes(post.getId()),
+                            postInteractionService.countComments(post.getId()),
+                            postInteractionService.countShares(post.getId())
+                    ),
                     null,
                     post.getCreatedAt()
             );
@@ -409,7 +451,14 @@ public class PostService {
                     return new UnifiedPostResponseDTO(
                             PostContentType.COMPARTILHAMENTO,
                             null,
-                            SharedPostResponseDTO.from(share, loggedUser.getId(), isFollowed, isFollowedSharer),
+                            SharedPostResponseDTO.from(
+                                    share,
+                                    loggedUser.getId(),
+                                    isFollowed,
+                                    isFollowedSharer,
+                                    postInteractionService.countShareLikes(share.getId()),
+                                    postInteractionService.countShareComments(share.getId())
+                            ),
                             share.getCreatedAt()
                     );
                 }).toList();
