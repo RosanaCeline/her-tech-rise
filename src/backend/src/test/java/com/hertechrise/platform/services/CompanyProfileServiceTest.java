@@ -131,7 +131,7 @@ class CompanyProfileServiceTest extends AbstractIntegrationTest {
         assertEquals("Sobre nós", response.aboutUs());
         assertEquals(1, response.followersCount());
         assertEquals(1, response.posts().size());
-        assertEquals("Olá mundo!", response.posts().get(0).content());
+        assertEquals("Olá mundo!", response.posts().get(0).post().content());
     }
 
     @DisplayName("Visualizar detalhes do próprio perfil")
