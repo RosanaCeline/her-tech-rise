@@ -99,6 +99,7 @@ class AuthServiceTest extends AbstractIntegrationTest {
         Professional savedProfessional = savedProfessionalOpt.get();
         assertEquals(LocalDate.of(2003, 10, 15), savedProfessional.getBirthDate());
         assertEquals(savedUser.getId(), savedProfessional.getUser().getId());
+        assertEquals("MULHER", savedProfessional.getGender().name());
 
         assertEquals("Rosana Celine", response.name());
         assertEquals("PROFESSIONAL", response.role());
