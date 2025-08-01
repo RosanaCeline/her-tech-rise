@@ -10,18 +10,17 @@ export const requestService = {
   async apiRequest(endpoint, method = "GET", data = null) {
     const token = getCurrentUser().token;
 
-    const config = {
-        method,
-        headers: {
-            "Authorization": `Bearer ${token}`,
-            "Content-Type": "application/json",
-        },
-        credentials: "include",
-    };
+    const isFormData = data instanceof FormData;
 
-    if (data) {
-      config.body = JSON.stringify(data)
-    }
+    const config = {
+      method,
+      headers: {
+        Authorization: `Bearer ${token}`,
+        ...(isFormData ? {} : { "Content-Type": "application/json" }),
+      },
+      credentials: "include",
+      body: data ? (isFormData ? data : JSON.stringify(data)) : null,
+    };
 
     try {
       const response = await fetch(`${BASE_URL}/api${endpoint}`, config);
@@ -47,4 +46,4 @@ export const requestService = {
       throw error;
     }
   },
-}
+};

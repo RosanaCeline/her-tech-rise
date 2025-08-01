@@ -9,10 +9,13 @@ import Timeline from '../pages/Timeline/Timeline';
 import VerMeuPerfil from '../pages/User/VerMeuPerfil';
 import VerPerfil from '../pages/User/VerPerfil';
 import SearchUser from '../pages/Search/SearchUser';
-
 import { logout } from '../services/authService';
 
-import { Home, User, LogOut } from 'lucide-react';
+import { Home, User, LogOut, BriefcaseBusiness } from 'lucide-react';
+import ProfessionalJobsListing from "../pages/JobsListing/ProfessionalJobsListing";
+import CompanyJobsListing from "../pages/JobsListing/CompanyJobsListing";
+import ProfessionalApplications from "../pages/applications/ProfessionalApplications";
+import CompanyApplications from "../pages/applications/CompanyApplications";
 
 const iconSize = 20;
 
@@ -33,17 +36,24 @@ export function getRoutesByRole(tipoUsuario, navigate) {
     navigate('/login')
   }
 
-  if (tipoUsuario === 'enterprise') 
+  if (tipoUsuario === 'COMPANY') 
     return [
       { path: '/timeline',          element: <Timeline />,      title: 'Pagina Inicial',      visible: true,  icon: <Home size={iconSize} /> },
+      { path: '/empresa/vagas', element: <CompanyJobsListing/>, title: 'Vagas', icon: <BriefcaseBusiness size={iconSize} />},
       { path: '/meuperfil',     element: <VerMeuPerfil />, title: 'Perfil',        visible: true,  icon: <User size={iconSize} /> },
-      { title: 'Sair',              visible: true,              icon: <LogOut size={iconSize} />,       action: () => { handleLogout() } }
+      { title: 'Sair',              visible: true,              icon: <LogOut size={iconSize} />,       action: () => { handleLogout() } },
+      { path: '/search', element: <SearchUser/> },
+      { path: '/profile/:user_type/:user_info', element: <VerPerfil />, title: 'Perfil', visible: false },  
+      { path: '/empresa/vagas/:id', element: <CompanyApplications/> },
+
   ]
   return [
     { path: '/timeline',          element: <Timeline />,      title: 'Pagina Inicial',      visible: true,  icon: <Home size={iconSize} /> },
+    { path: '/profissional/vagas', element: <ProfessionalJobsListing/>, title: 'Vagas', icon: <BriefcaseBusiness size={iconSize} />},
     { path: '/meuperfil',     element: <VerMeuPerfil />, title: 'Perfil',        visible: true,  icon: <User size={iconSize} /> },
     { title: 'Sair',              visible: true,              icon: <LogOut size={iconSize} />,       action: () => { handleLogout() } },
     { path: '/search', element: <SearchUser/> },
-    { path: '/profile/:user_type/:user_info', element: <VerPerfil />, title: 'Perfil', visible: false }
+    { path: '/profile/:user_type/:user_info', element: <VerPerfil />, title: 'Perfil', visible: false },
+    { path: '/profissional/vagas/candidaturas', element: <ProfessionalApplications/> },
   ]
 }

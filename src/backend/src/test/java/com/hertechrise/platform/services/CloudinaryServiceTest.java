@@ -79,7 +79,6 @@ class CloudinaryServiceTest {
                 inputStream
         );
 
-        //mandando imagem com id ficticio
         String url = cloudinaryService.uploadProfilePicture(multipartFile, 4L);
         assertNotNull(url);
         assertFalse(url.isEmpty());
@@ -87,7 +86,7 @@ class CloudinaryServiceTest {
         assertTrue(url.contains("profile_pics/user_4"));
 
     }
-    @DisplayName("Deve lançar InvalidMediaTypeException para mídia inválido")
+    @DisplayName("Deve lançar InvalidMediaTypeException para mídia inválida")
     @Test
     void uploadFile_throwsInvalidMediaTypeException() throws Exception {
         MultipartFile file = new MockMultipartFile("file", "video.txt", "text/plain", "invalid".getBytes());
@@ -95,7 +94,7 @@ class CloudinaryServiceTest {
         assertThrows(InvalidMediaTypeException.class, () -> cloudinaryService.uploadFile(file));
     }
 
-    @DisplayName("Deve lança MediaFileTooLargeException para imagem maior que 10MB")
+    @DisplayName("Deve lança MediaFileTooLargeException para tamanho de imagem maior que 10MB")
     @Test
     void uploadFile_tooLargeImage() {
         byte[] bigImage = new byte[11 * 1024 * 1024]; // 11MB
@@ -109,7 +108,7 @@ class CloudinaryServiceTest {
         assertThrows(MediaFileTooLargeException.class, () -> cloudinaryService.uploadFile(bigFile));
     }
 
-    @DisplayName("Deve lança MediaFileTooLargeException para documento maior que 10MB")
+    @DisplayName("Deve lança MediaFileTooLargeException para tamanho de documento maior que 10MB")
     @Test
     void uploadFile_tooLargeDocument() {
         byte[] bigDoc = new byte[12 * 1024 * 1024];
@@ -123,7 +122,7 @@ class CloudinaryServiceTest {
         assertThrows(MediaFileTooLargeException.class, () -> cloudinaryService.uploadFile(bigFile));
     }
 
-    @DisplayName("Deve lança MediaFileTooLargeException para Vídeo maior que 100MB")
+    @DisplayName("Deve lança MediaFileTooLargeException para tamanho de vídeo maior que 100MB")
     @Test
     void uploadFile_tooLargeVideo() {
         byte[] bigVideo = new byte[101 * 1024 * 1024]; // 101MB

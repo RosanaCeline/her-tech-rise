@@ -3,6 +3,7 @@ package com.hertechrise.platform.controller.docs;
 import com.hertechrise.platform.data.dto.request.JobPostingRequestDTO;
 import com.hertechrise.platform.data.dto.response.JobPostingResponseDTO;
 import com.hertechrise.platform.data.dto.response.JobPostingSummaryResponseDTO;
+import com.hertechrise.platform.data.dto.response.PublicJobPostingResponseDTO;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.ArraySchema;
 import io.swagger.v3.oas.annotations.media.Content;
@@ -117,7 +118,7 @@ public interface JobPostingControllerDocs {
                     @ApiResponse(responseCode = "404", description = "Vaga não encontrada ou não pública")
             }
     )
-    ResponseEntity<JobPostingResponseDTO> getPublicById(@PathVariable Long postId);
+    ResponseEntity<PublicJobPostingResponseDTO> getPublicById(@PathVariable Long postId);
 
     @Operation(
             summary = "Listar vagas públicas de uma empresa",

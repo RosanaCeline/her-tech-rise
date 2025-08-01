@@ -42,6 +42,13 @@ public class Professional implements Serializable {
     @Column(length = 1000)
     private String biography;
 
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false)
+    private ProfessionalGender gender;
+
+    @Column(name = "consent_gender_sharing", nullable = false)
+    private Boolean consentGenderSharing;
+
     @OneToMany(mappedBy = "professional", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Experience> experiences = new ArrayList<>();
 

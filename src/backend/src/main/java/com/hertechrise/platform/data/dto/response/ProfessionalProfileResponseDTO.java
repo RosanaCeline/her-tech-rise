@@ -45,5 +45,5 @@ public record ProfessionalProfileResponseDTO(
 
         List<ExperienceResponseDTO> experiences,
 
-        List<PostResponseDTO> posts
+        List<UnifiedPostResponseDTO> posts
 ) {}

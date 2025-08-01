@@ -48,5 +48,5 @@ public record CompanyProfileResponseDTO(
         String aboutUs,
 
         @Schema(description = "Lista de postagens da empresa")
-        List<PostResponseDTO> posts
+        List<UnifiedPostResponseDTO> posts
 ) {}

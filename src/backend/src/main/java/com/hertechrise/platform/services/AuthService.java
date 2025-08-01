@@ -1,6 +1,5 @@
 package com.hertechrise.platform.services;
 import com.hertechrise.platform.data.dto.request.*;
-import com.hertechrise.platform.data.dto.response.MessageResponseDTO;
 import com.hertechrise.platform.data.dto.response.TokenResponseDTO;
 import com.hertechrise.platform.exception.*;
 import com.hertechrise.platform.model.*;
@@ -12,7 +11,6 @@ import com.hertechrise.platform.security.jwt.ResetPasswordTokenService;
 import com.hertechrise.platform.security.jwt.TokenService;
 import com.hertechrise.platform.services.event.UserCreatedEvent;
 import com.hertechrise.platform.services.event.UserPasswordResetEvent;
-import org.springframework.http.ResponseEntity;
 import org.springframework.transaction.annotation.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.ApplicationEventPublisher;
@@ -21,8 +19,8 @@ import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestParam;
+
+import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
@@ -78,6 +76,8 @@ public class AuthService {
         professional.setBirthDate(request.birthDate());
         professional.setTechnology("");
         professional.setBiography("");
+        professional.setGender(request.gender());
+        professional.setConsentGenderSharing(request.consentGenderSharing());
 
         professionalRepository.save(professional);
         eventPublisher.publishEvent(new UserCreatedEvent(this, newUser));
@@ -90,7 +90,15 @@ public class AuthService {
                 2
         );
 
-        return new TokenResponseDTO(newUser.getName(), newUser.getId(), token, role.getName(), newUser.getProfilePic());
+        ProfessionalGender gender;
+
+        if (Boolean.TRUE.equals(professional.getConsentGenderSharing())) {
+            gender = professional.getGender();
+        } else {
+            gender = null;
+        }
+
+        return new TokenResponseDTO(newUser.getName(), newUser.getId(), token, role.getName(), newUser.getProfilePic(), gender, professional.getConsentGenderSharing());
     }
 
     @Transactional
@@ -144,7 +152,7 @@ public class AuthService {
                 2
         );
 
-        return new TokenResponseDTO(newUser.getName(), newUser.getId(), token, role.getName(), newUser.getProfilePic());
+        return new TokenResponseDTO(newUser.getName(), newUser.getId(), token, role.getName(), newUser.getProfilePic(), null, null);
     }
 
     public void checkCpfNotExists(String cpf) {
@@ -181,7 +189,29 @@ public class AuthService {
                     2
             );
 
-            return new TokenResponseDTO(user.getName(), user.getId(), token, user.getRole().getName(), user.getProfilePic());
+            ProfessionalGender gender;
+            Boolean consentGenderSharing;
+
+            if (user.isProfessional()) {
+                Optional<Professional> optionalProfessional = professionalRepository.findById(user.getId());
+                if (optionalProfessional.isPresent()) {
+                    Professional professional = optionalProfessional.get();
+                    if (Boolean.TRUE.equals(professional.getConsentGenderSharing())) {
+                        gender = professional.getGender();
+                    } else {
+                        gender = null;
+                    }
+                    consentGenderSharing = professional.getConsentGenderSharing();
+                } else {
+                    gender = null;
+                    consentGenderSharing = null;
+                }
+            } else {
+                gender = null;
+                consentGenderSharing = null;
+            }
+
+            return new TokenResponseDTO(user.getName(), user.getId(), token, user.getRole().getName(), user.getProfilePic(), gender, consentGenderSharing);
 
         } catch (BadCredentialsException e) {
             throw new InvalidPasswordException();

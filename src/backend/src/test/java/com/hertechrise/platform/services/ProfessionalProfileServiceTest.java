@@ -241,6 +241,7 @@ class ProfessionalProfileServiceTest extends AbstractIntegrationTest {
                 "Trabalho com arquitetura de microsserviços e DevOps."
         ));
         ProfessionalProfileRequestDTO request = new ProfessionalProfileRequestDTO("Rafaela Silva", "01234567890",
+                ProfessionalGender.MULHER, true,
                 LocalDate.of(2004, 11, 2), "88993042194", "rafaela@email.com",
                 "62320000", "Forum", "Rua Paturi", "CE", "React", "Sou a Rafa",
                 experiences, "https://google.com");
@@ -269,7 +270,8 @@ class ProfessionalProfileServiceTest extends AbstractIntegrationTest {
         String technology = "a".repeat(81);
 
         ProfessionalProfileRequestDTO request = new ProfessionalProfileRequestDTO(
-                "Nome", "12345678900", LocalDate.of(2000, 1, 1),
+                "Nome", "12345678900", ProfessionalGender.MULHER, true,
+                LocalDate.of(2000, 1, 1),
                 "88999999999", "email@email.com", "62000000", "Bairro",
                 "Rua", "CE", technology, "Bio", List.of(), null
         );
@@ -292,7 +294,9 @@ class ProfessionalProfileServiceTest extends AbstractIntegrationTest {
         String biografy = "a".repeat(1001);
 
         ProfessionalProfileRequestDTO request = new ProfessionalProfileRequestDTO(
-                "Nome", "12345678900", LocalDate.of(2000, 1, 1),
+                "Nome", "12345678900",
+                ProfessionalGender.MULHER, true,
+                LocalDate.of(2000, 1, 1),
                 "88999999999", "email@email.com", "62000000", "Bairro",
                 "Rua", "CE", "Tech", biografy, List.of(), null
         );
@@ -322,7 +326,8 @@ class ProfessionalProfileServiceTest extends AbstractIntegrationTest {
         for (int i = 0; i < 21; i++) experiences.add(baseExperience);
 
         ProfessionalProfileRequestDTO request = new ProfessionalProfileRequestDTO(
-                "Nome", "12345678900", LocalDate.of(2000, 1, 1),
+                "Nome", "12345678900", ProfessionalGender.MULHER, true,
+                LocalDate.of(2000, 1, 1),
                 "88999999999", "email@email.com", "62000000", "Bairro",
                 "Rua", "CE", "Tech", "Bio", experiences, null
         );
@@ -345,7 +350,8 @@ class ProfessionalProfileServiceTest extends AbstractIntegrationTest {
         String externalLink = "a".repeat(101);
 
         ProfessionalProfileRequestDTO request = new ProfessionalProfileRequestDTO(
-                "Nome", "12345678900", LocalDate.of(2000, 1, 1),
+                "Nome", "12345678900", ProfessionalGender.MULHER, true,
+                LocalDate.of(2000, 1, 1),
                 "88999999999", "email@email.com", "62000000", "Bairro",
                 "Rua", "CE", "Tech", "Bio", List.of(), externalLink
         );
@@ -368,7 +374,8 @@ class ProfessionalProfileServiceTest extends AbstractIntegrationTest {
         String externalLink = "google.com";
 
         ProfessionalProfileRequestDTO request = new ProfessionalProfileRequestDTO(
-                "Nome", "12345678900", LocalDate.of(2000, 1, 1),
+                "Nome", "12345678900", ProfessionalGender.MULHER, true,
+                LocalDate.of(2000, 1, 1),
                 "88999999999", "email@email.com", "62000000", "Bairro",
                 "Rua", "CE", "Tech", "Bio", List.of(), externalLink
         );
@@ -391,7 +398,8 @@ class ProfessionalProfileServiceTest extends AbstractIntegrationTest {
         String externalLink = "htp:/google .com";
 
         ProfessionalProfileRequestDTO request = new ProfessionalProfileRequestDTO(
-                "Nome", "12345678900", LocalDate.of(2000, 1, 1),
+                "Nome", "12345678900", ProfessionalGender.MULHER, true,
+                LocalDate.of(2000, 1, 1),
                 "88999999999", "email@email.com", "62000000", "Bairro",
                 "Rua", "CE", "Tech", "Bio", List.of(), externalLink
         );
