@@ -1,16 +1,20 @@
 import { getCurrentUser } from "./authService";
+import { requestService } from "./requestService";
 
-const baseUrl = import.meta.env.VITE_API_BASE_URL;
+const baseUrl = import.meta.env.VITE_API_URL;
 
 export const newPost = async (formData) => {
   const token = getCurrentUser().token;
   const fd = new FormData()
-  fd.append('content', formData.content);
-  fd.append('visibility', formData.visibility);
 
   formData.media.forEach((file) => {
-    fd.append('media', file);
+    fd.append('mediaFiles', file);
   });
+
+  const params = new URLSearchParams();
+  if(formData.content) params.append('content', formData.content);
+  if(formData.visibility) params.append('visibility', formData.visibility);
+  if(formData.idCommunity) params.append('idCommunity', formData.idCommunity);
 
   const config = {
     method: "POST",
@@ -19,10 +23,10 @@ export const newPost = async (formData) => {
     },
     body: fd,
     credentials: "include",
-    };
+  };
 
   try{
-      const response = await fetch(`${baseUrl}/api/post`, config);
+      const response = await fetch(`${baseUrl}/api/post?${params.toString()}`, config);
 
       if (!response.ok) {
         const errorData = await response.json();
@@ -39,4 +43,24 @@ export const newPost = async (formData) => {
     console.error('API request error:', error);
     throw error;
   }
+}
+
+// Erro por enquanto - por causa do PATCH
+export const updatePostVisibility = async (postId, visibility) => {
+  const visibilityUpper = visibility.toUpperCase();
+  return await requestService.apiRequest(`/post/${postId}/visibility?visibility=${visibilityUpper}`, 'PATCH');
+}
+
+// Funcionando
+export const deletePost = async (postId) => {
+  return await requestService.apiRequest(`/post/${postId}`, 'DELETE');
+}
+
+// Nao implementado
+export const updatePost = async (postId) => {
+  return await requestService.apiRequest(`/post/${postId}`, 'PUT');
+}
+
+export const getTimelinePosts = async (page = 0, size = 20) => {
+  return await requestService.apiRequest(`/post/timeline?page=${page}&size=${size}&orderBy=createdAt&direction=DESC`,'GET');
 }

@@ -1,9 +1,8 @@
-import React from 'react';
 import RegisterForm from './components/RegisterForm';
 import logo from "../../../assets/logo/LogoNamePurpleAction.png";
 import register from "../../../assets/auth/register.png";
 
-import { useAuth } from "../../../context/AuthContext"; // hook que fornece o user logado
+import { useAuth } from "../../../context/AuthContext"; 
 import { Navigate } from "react-router-dom";
 
 export default function Register () {
