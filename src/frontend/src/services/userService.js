@@ -3,6 +3,10 @@ import { getCurrentUser } from './authService';
 
 const baseUrl = import.meta.env.VITE_API_URL;
 
+export const deactivateAccount = async() => {
+    return await requestService.apiRequest(`/users/deactivate`, 'DELETE');
+}
+
 export const getProfileById = async (user_id, role) => {
   try {
     if (!role) {

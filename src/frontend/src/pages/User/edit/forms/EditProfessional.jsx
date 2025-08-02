@@ -30,6 +30,7 @@ export default function EditProfessional() {
     email: '',
     tecnologias: '',
     biografia: '',
+    experiences: [],
     link: '',
   });
 
@@ -68,7 +69,6 @@ export default function EditProfessional() {
     async function fetchProfile() {
       try {
         const user = await getAllProfile();
-        console.log('Perfil carregado:', user)
         if (!user) throw new Error('Perfil não encontrado')
 
         const mappedForm = {

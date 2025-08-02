@@ -12,6 +12,7 @@ export default function Timeline() {
     const userData = getCurrentUser();
     const { showError } = useError();
     const [posts, setPosts] = useState([]);
+    console.log('Timeline', posts);
     const [loading, setLoading] = useState(true);
     const [hasMore, setHasMore] = useState(true);
     const [loadingMore, setLoadingMore] = useState(false);

@@ -16,6 +16,8 @@ import AttachFile from '../../components/posts/AttachFile';
 import ManagePost from '../../components/posts/ManagePost';
 import LoadingSpinner from './../../components/LoadingSpinner/LoadingSpinner'
 
+const baseUrl = import.meta.env.VITE_API_URL;
+
 export default function VerPerfil() {
     const { user_type, user_info } = useParams()
     const userId = (user_info === 'me') ? getCurrentUser().id : user_info.split('-')[0];
@@ -110,22 +112,31 @@ export default function VerPerfil() {
         if (user?.id && !isCurrentUser) checkFollow()
     }, [user?.id, isCurrentUser])
 
-    const handleFollow = async () => {
+    const handleFollow = async (id = userId, isFollowing = followedUser) => {
         try {
-            if (followedUser){
-                const res = await unfollowUser(userId)
-                setFollowedUser(false)
-                setFollowersCount((prev) => prev - 1)
+            if (id === userId) {
+                if (followedUser) {
+                    await unfollowUser(userId);
+                    setFollowedUser(false);
+                    setFollowersCount((prev) => prev - 1);
+                } else {
+                    await followUser(userId);
+                    setFollowedUser(true);
+                    setFollowersCount((prev) => prev + 1);
+                }
             } else {
-                const res = await followUser(userId)
-                setFollowedUser(true)
-                setFollowersCount((prev) => prev + 1)
+                if (isFollowing) {
+                    await unfollowUser(id);
+                } else {
+                    await followUser(id);
+                }
             }
-            fetchProfile()
-        }catch(err){
-            console.log(err)
+            fetchProfile();
+        } catch (err) {
+            console.log(err);
         }
-    }
+    };
+
 
     if (loading) return ( <LoadingSpinner /> )
     if (error) return <main className="..."><p className="text-red-600">{error}</p></main>;
@@ -143,6 +154,13 @@ export default function VerPerfil() {
             email={user.email}
             number={user.telefone}
             link={user.externalLink}
+            copyMyLink={
+                user.externalLink && user.externalLink !== ''
+                ? user.externalLink
+                : user.tipo_usuario === 'company'
+                ? `${baseUrl}/profile/company/${user.id}-@${user.username}`
+                : `${baseUrl}/profile/professional/${user.id}-@${user.username}`
+            }
             city={user.endereco.cidade}
             state={user.endereco.estado}
             followersCount={user.followersCount}

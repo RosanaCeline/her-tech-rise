@@ -7,7 +7,7 @@ import BtnCallToAction from '../../../btn/BtnCallToAction/BtnCallToAction';
 
 const baseUrl = import.meta.env.VITE_API_URL;
 
-export default function HeaderPost({ photo, name, post, date, isOpen = false, onPostsUpdated = false, 
+export default function HeaderPost({ photo, name, post, date, isOpen = false, onPostsUpdated = false, isShare = false,
                                       isFollowing = null, onFollowToggle = null, handle = null, idAuthor = null, isOwner = false, onEdit = false }) {
   const navigate = useNavigate();
   const [showVisibilityOptions, setShowVisibilityOptions] = useState(false);
@@ -51,8 +51,20 @@ export default function HeaderPost({ photo, name, post, date, isOpen = false, on
     }
   };
 
+  const canEditPost = () => {
+    if (!isOwner) return false;
+    const createdAt = new Date(post.createdAt);
+    const now = new Date();
+    const diffDays = (now - createdAt) / (1000 * 60 * 60 * 24); 
+    return diffDays <= 7;
+  };
+
   const handleEditClick = (e) => {
     e.stopPropagation();
+    if (!canEditPost()) {
+      setError("Você só pode editar publicações feitas nos últimos 7 dias.");
+      return;
+    }
     if (onEdit) {
       onEdit(post);
     }
@@ -115,6 +127,12 @@ export default function HeaderPost({ photo, name, post, date, isOpen = false, on
           <div className="flex justify-end text-xs text-gray-500 italic">
             Editado
           </div>
+        )}
+
+        {isShare && (
+          <p className="text-sm text-gray-500">
+            Compartilhou uma publicação de <span className="font-semibold">{post.author.name}</span>
+          </p>
         )}
 
         {isFollowing !== null && onFollowToggle && (
