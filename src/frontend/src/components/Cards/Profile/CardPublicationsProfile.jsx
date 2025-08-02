@@ -4,32 +4,36 @@ import CardPostProfile from '../Posts/CardPostProfile'
 import PopUpBlurProfile from '../Profile/PopUpBlurProfile'
 
 export default function CardPublicationsProfile({ title, posts, photo, name, onPostsUpdated, setActivePopUp, isCurrentUser }) {
+  console.log('CardPublicationsProfile', posts);
+
   const [visiblePosts, setVisiblePosts] = useState([]);
+  const normalizePost = (post) => post.type === "POSTAGEM" ? post.post : post.share.originalPost;
   const [limit, setLimit] = useState(3);
 
   const [isPopupOpen, setIsPopupOpen] = useState(false);
 
   const [isUniquePostPopup, setIsUniquePostPopup] = useState(false);
   const [selectedPostId, setSelectedPostId] = useState(null);
-  const selectedPost = posts.find(p => p.id === selectedPostId);
-
+  const selectedPost = posts
+    .map(normalizePost)
+    .find(p => p?.id === selectedPostId);
+  
   const [filter, setFilter] = useState("TODOS");
-  const filteredPosts = [...posts]
-    .filter((post) => filter === "TODOS" || post.visibility === filter)
+  const filteredPosts = posts
+    .filter(p => {
+      const rp = normalizePost(p);
+      if (!rp) return false;
+      if (filter === "TODOS") return true;
+      return rp.visibility === filter;
+    })
     .sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
 
   useEffect(() => {
-    const handleResize = () => {
-      if (window.innerWidth < 1024) {
-        setLimit(2);
-      } else {
-        setLimit(3);
-      }
-    }
+    const handleResize = () => setLimit(window.innerWidth < 1024 ? 2 : 3);
     handleResize();
     window.addEventListener('resize', handleResize);
     return () => window.removeEventListener('resize', handleResize);
-  }, [])
+  }, []);
 
   useEffect(() => {
     if (!posts || posts.length === 0) return
@@ -63,11 +67,14 @@ export default function CardPublicationsProfile({ title, posts, photo, name, onP
 
         {visiblePosts.length > 0 ? (
           <div className="grid gap-6 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3">
-            {visiblePosts.map((post) => (
-              <div key={post.id} className="cursor-pointer" onClick={() => openUniquePostPopup(post.id)}>
-                <CardPostProfile post={post} photo={photo} name={name} />
-              </div>
-            ))}
+            {visiblePosts.map((post, idx) => {
+              const realPost = normalizePost(post);
+              return (
+                <div key={realPost?.id ?? `post-${idx}`} className="cursor-pointer" onClick={() => openUniquePostPopup(realPost?.id)} >
+                  <CardPostProfile post={realPost} photo={photo} name={name} />
+                </div>
+              );
+            })}
           </div>
         ) : (
           <p className="italic text-xl text-[var(--text-secondary)] leading-relaxed opacity-70">
@@ -101,32 +108,35 @@ export default function CardPublicationsProfile({ title, posts, photo, name, onP
                 </select>
               </div>
 
-              {filteredPosts.map((post) => (
+              {filteredPosts.map((post, idx) => {
+                const realPost = normalizePost(post);
+                return (
                 <div
-                  key={post.id}
+                  key={realPost?.id ?? `post-${idx}`}
                   className="cursor-pointer"
                   onClick={() => openUniquePostPopup(post.id)}
                 >
                   <CardPostProfile
-                    post={post}
+                    post={realPost}
                     photo={photo}
                     name={name}
                     onPostsUpdated={onPostsUpdated}
                     isPopupView={true}
                   />
                 </div>
-              ))}
+              )
+              })}
             </div>
           }
         />
       )}
-      {isUniquePostPopup && (
+      {isUniquePostPopup && selectedPost && (
         <PopUpBlurProfile
           isOpen={isUniquePostPopup}
           onClose={closeUniquePostPopup}
           content={
             <CardPostProfile
-              post={posts.find(p => p.id === selectedPostId)}
+              post={selectedPost}
               photo={photo}
               name={name}
               isPopupView={true}

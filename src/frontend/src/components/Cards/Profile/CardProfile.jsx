@@ -1,23 +1,23 @@
 import { useState, useRef } from 'react';
+import { useNavigate } from "react-router-dom";
 
 import { FaCamera, FaPaperclip, FaCheck, FaPaperPlane, FaSlidersH } from 'react-icons/fa';
 import { Check, Plus } from 'lucide-react'
 
-// import defaultProfessional from '../../../assets/profile/FotoPadraoProfissional.png';
-// import defaultEnterprise from '../../../assets/profile/FotoPadraoEnterprise.png';
-
 import BtnCallToAction from '../../btn/BtnCallToAction/BtnCallToAction';
 import PopUpBlurProfile from './PopUpBlurProfile';
 import EditMyProfile from '../../../pages/User/edit/EditMyProfile';
-import { changeProfilePicture, listFollowers, listFollowing } from '../../../services/userService';
+import { changeProfilePicture, listFollowers, listFollowing, deactivateAccount } from '../../../services/userService';
 import { useAuth } from '../../../context/AuthContext';
 
 export default function CardProfile({
+  id,
   photo,
   // tipo_usuario,
   name,
   nameuser,
   link,
+  copyMyLink,
   email,
   number,
   city,
@@ -28,6 +28,7 @@ export default function CardProfile({
   handleFollow,
   followedUser
 }) {
+  const navigate = useNavigate();
   const [showOptions, setShowOptions] = useState(false);
   const [modalContent, setModalContent] = useState(null);
   const [showModal, setShowModal] = useState(false);
@@ -36,15 +37,24 @@ export default function CardProfile({
   const fileInputRef = useRef();
   const [updateProfileError, setUpdateProfileError] = useState('')
 
+  const [deleteModalOpen, setDeleteModalOpen] = useState(false);
   const [showFollowersModal, setShowFollowersModal] = useState(false);
   const [showFollowingModal, setShowFollowingModal] = useState(false);
   const [followersList, setFollowersList] = useState([]);
   const [followingList, setFollowingList] = useState([]);
 
+  const deleteAccount = async () => {
+    try {
+      await deactivateAccount();
+      navigate('/');
+    } catch (err) {
+      console.error("Erro ao deletar conta:", err);
+    }
+  };
+
   const handleFollowersClick = async () => {
     try {
       const data = await listFollowers();
-      console.log('Seguidores:', data);
       setFollowersList(data);
       setShowFollowersModal(true);
     } catch (err) {
@@ -55,7 +65,6 @@ export default function CardProfile({
   const handleFollowingClick = async () => {
     try {
       const data = await listFollowing();
-      console.log('Seguindo:', data);
       setFollowingList(data);
       setShowFollowingModal(true);
     } catch (err) {
@@ -63,7 +72,6 @@ export default function CardProfile({
     }
   };
 
-  // const defaultPhoto = tipo_usuario === 'enterprise' ? defaultEnterprise : defaultProfessional;
   const userPhoto = previewPhoto || defaultPhoto;
 
   const handleOpenModal = (content) => {
@@ -89,9 +97,9 @@ export default function CardProfile({
     }
   };
 
-  const copyToClipboard = () => {
-    if (!link) return;
-    navigator.clipboard.writeText(link).then(() => {
+  const copyToClipboard = (copy) => {
+    if (!copy) return;
+    navigator.clipboard.writeText(copy).then(() => {
       setCopied(true);
       setTimeout(() => setCopied(false), 2000);
     });
@@ -139,7 +147,7 @@ export default function CardProfile({
           {link && (
             <div className="flex items-center gap-2 text-[var(--font-gray)] text-sm">
               <button
-                onClick={copyToClipboard}
+                onClick={() => copyToClipboard(link)}
                 aria-label="Copiar link"
                 className="text-[var(--font-gray)] hover:text-[var(--purple-primary)] transition-colors"
                 type="button"
@@ -171,6 +179,7 @@ export default function CardProfile({
           <button
             type="button"
             className="flex items-center mx-auto gap-3"
+            onClick={() => copyToClipboard(copyMyLink)}
           >
             <FaPaperPlane size={24} className="text-[var(--font-gray)]" />
             <span className="text-xl font-medium">Compartilhar</span>
@@ -196,7 +205,7 @@ export default function CardProfile({
                   flex md:hidden
                 `}
               >
-                <BtnCallToAction variant="white">Excluir Perfil</BtnCallToAction>
+                <BtnCallToAction variant="white" onClick={() => setDeleteModalOpen(true)}>Excluir Perfil</BtnCallToAction>
                 <BtnCallToAction
                   variant="purple"
                   onClick={() => handleOpenModal(<EditMyProfile />)}
@@ -230,7 +239,7 @@ export default function CardProfile({
                 hidden md:flex
               `}
             >
-              <BtnCallToAction variant="white">Excluir Perfil</BtnCallToAction>
+              <BtnCallToAction variant="white" onClick={() => setDeleteModalOpen(true)}>Excluir Perfil</BtnCallToAction>
               <BtnCallToAction
                 variant="purple"
                 onClick={() => handleOpenModal(<EditMyProfile />)}
@@ -248,7 +257,7 @@ export default function CardProfile({
         </>
         : <div className='flex flex-col mx-auto gap-y-2'>
             <p className='mx-auto'>{followersCount} seguidor{followersCount > 1 && 'es'}</p>
-            <button onClick={handleFollow}
+            <button onClick={() => handleFollow()}
                     className={`p-4 cursor-pointer mt-3 rounded-2xl 
                               ${followedUser ? 'bg-(--purple-primary) text-white' : 'bg-(--gray)' 
                     }`}>
@@ -257,8 +266,42 @@ export default function CardProfile({
             </button>
           </div>
         }
+        {deleteModalOpen && (
+          <div className="fixed inset-0 z-50 bg-black/40 backdrop-blur-sm flex items-center justify-center">
+            <div className="bg-white p-8 rounded-2xl shadow-lg text-center max-w-sm">
+              <h2 className="text-2xl font-bold mb-4 text-[var(--purple-primary)]">
+                Confirmar Exclusão
+              </h2>
+              <p className="mb-6 text-gray-700">
+                Tem certeza que deseja excluir seu perfil? Esta ação não poderá ser desfeita.
+              </p>
+              <div className="flex justify-center gap-6">
+                <button
+                  onClick={() => setDeleteModalOpen(false)}
+                  className="bg-gray-300 text-gray-800 px-6 py-2 rounded-xl hover:bg-gray-400 transition"
+                >
+                  Não
+                </button>
+                <button
+                  onClick={deleteAccount}
+                  className="bg-purple-600 text-white px-6 py-2 rounded-xl hover:bg-purple-700 transition"
+                >
+                  Sim
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
       </div>
     </article>
+    
+    {copied && (
+      <div className="fixed top-10 left-1/2 -translate-x-1/2 z-[9999] 
+                      bg-green-600 text-white px-6 py-3 rounded-lg shadow-lg 
+                      transition-opacity duration-300">
+        Endereço copiado!
+      </div>
+    )}
 
     <PopUpBlurProfile
       isOpen={showModal}
@@ -287,15 +330,15 @@ export default function CardProfile({
               >
                 <div className="relative w-full max-w-[85px] h-[85px] flex-shrink-0 my-auto mr-5">
                   <img
-                    src={user.photo || "/default-avatar.png"}
+                    src={user.followerProfilePic || "/default-avatar.png"}
                     className="h-full w-full object-cover rounded-full"
-                    alt={user.name}
+                    alt={user.followerName}
                   />
                 </div>
                 <div className="flex flex-col md:flex-row md:w-full justify-between">
                   <div className="flex flex-col max-w-[70%]">
-                    <p className="font-semibold truncate">{user.name}</p>
-                    {user.nameuser && <p className="truncate">@{user.nameuser}</p>}
+                    <p className="font-semibold truncate">{user.followerName}</p>
+                    {user.followerName && <p className="truncate">{user.followerHandle}</p>}
                     <p className="text-sm text-gray-500">
                       Seguiu em {user.followedAt}
                     </p>
@@ -326,15 +369,15 @@ export default function CardProfile({
               >
                 <div className="relative w-full max-w-[85px] h-[85px] flex-shrink-0 my-auto mr-5">
                   <img
-                    src={user.photo || "/default-avatar.png"}
+                    src={user.followingProfilePic || "/default-avatar.png"}
                     className="h-full w-full object-cover rounded-full"
-                    alt={user.name}
+                    alt={user.followingName}
                   />
                 </div>
                 <div className="flex flex-col md:flex-row md:w-full justify-between">
                   <div className="flex flex-col max-w-[70%]">
-                    <p className="font-semibold truncate">{user.name}</p>
-                    {user.nameuser && <p className="truncate">@{user.nameuser}</p>}
+                    <p className="font-semibold truncate">{user.followingName}</p>
+                    {user.followingName && <p className="truncate">{user.followingHandle}</p>}
                     <p className="text-sm text-gray-500">
                       Seguiu em {user.followedAt}
                     </p>
@@ -342,7 +385,16 @@ export default function CardProfile({
                   <div className="my-auto">
                     <BtnCallToAction
                       variant="purple"
-                      onClick={() => unfollowUser(user.id)}
+                      onClick={async () => {
+                        try {
+                          await handleFollow(user.followingId, true);
+                          setFollowingList((prev) =>
+                            prev.filter((u) => u.followingId !== user.followingId) 
+                          );
+                        } catch (err) {
+                          console.error("Erro ao deixar de seguir:", err);
+                        }
+                      }}
                     >
                       Deixar de seguir
                     </BtnCallToAction>
