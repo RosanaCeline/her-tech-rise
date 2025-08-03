@@ -7,8 +7,8 @@ import ManagePost from '../../posts/ManagePost';
 import AttachFile from '../../posts/AttachFile';
 import InteractionBar from '../../posts/Interactions/InteractionBar';
 
-export default function CardPostProfile({ post, photo, name, handle = null, idAuthor = null, isOwner = false, isShare = false, postShare = null,
-                                          isPopupView = false, isOpen = false, onPostsUpdated = false, isFollowing = null, onFollowToggle = null,   }) {
+export default function CardPostProfile({ idUserLogged, post, photo, name, handle = null, idAuthor = null, isOwner = false, isShare = false, postShare = null, hideInteractions = false,
+                                          isPopupView = false, isOpen = false, onPostsUpdated = false, isFollowing = null, onFollowToggle = null, }) {
   const [showPopup, setShowPopup] = useState(false);
   const [activePopUp, setActivePopUp] = useState("post");
   const [editingPost, setEditingPost] = useState(null);
@@ -56,10 +56,10 @@ export default function CardPostProfile({ post, photo, name, handle = null, idAu
       <div
         ref={containerRef}
         onClick={openPopup}
-        className={`flex flex-col justify-between bg-gray-50 rounded-xl shadow-md p-6 ${
+        className={`flex flex-col justify-between bg-gray-50 rounded-xl shadow-md p-6 transition-all duration-300 ${
           isPopupView
             ? 'w-full max-w-none min-h-[auto]'
-            : `w-full max-w-[460vh] ${hasMedia ? 'h-[52vh]' : 'min-h-[20vh] max-h-[32vh]'}`
+            : `w-full max-w-[460vh] ${hasMedia ? 'min-h-[52vh]' : 'min-h-[20vh] '}`
         }`}
       >
         <HeaderPost
@@ -81,14 +81,17 @@ export default function CardPostProfile({ post, photo, name, handle = null, idAu
         <ContentPost 
           post={post} 
           isShare={isShare}
-          postShare={postShare}
+          postShare={isShare && postShare ? postShare : null}
           isOpen={isOpen} 
           onExpand={openPopup}
           cardWidth={cardWidth}
         />
 
-        {!isShare && (
+        {!hideInteractions && (
           <InteractionBar
+            idAuthor={idAuthor}
+            photo={photo}
+            name={name}
             post={post}
             cardWidth={cardWidth}
           />

@@ -23,27 +23,28 @@ export default function ContentPost({ post, isShare = false, postShare = null, i
     <div className="flex flex-col gap-2 overflow-auto max-h-[40vh] p-1">
       <p className="text-sm text-gray-700 break-words">{post.content}</p>
 
-      {isShare && (
+      {isShare && postShare && (
         <>
           {isCompact ? (
-            <div className="mt-2 p-3 border border-gray-300 rounded-lg bg-gray-50">
+            <div className="mt-2 p-2 border border-gray-300 rounded-lg bg-gray-50">
               <p className="text-xs text-gray-500"> 📌 Compartilhando um post de{" "}
-                <span className="font-semibold">{postShare.author.name}</span>
+                <span className="font-semibold">{postShare?.author?.name}</span>
               </p>
             </div>
           ) : (
             <div className="mt-2 p-3 border border-gray-300 rounded-lg bg-gray-50">
               <p className="text-xs text-gray-500 mb-2"> 📌 Compartilhando um post de{" "}
-                <span className="font-semibold">{postShare.author.name}</span>. Clique para ver o post completo.
+                <span className="font-semibold">{postShare?.author?.name}</span>. Clique para ver o post completo.
               </p>
 
               <CardPostProfile
-                photo={postShare.author.profilePic}
-                name={postShare.author.name}
-                handle={postShare.author.handle}
-                idAuthor={postShare.author.id}
+                photo={postShare?.author.profilePic}
+                name={postShare?.author.name}
+                handle={postShare?.author.handle}
+                idAuthor={postShare?.author.id}
                 post={postShare}
                 isShare={false}
+                hideInteractions={true}
                 isOwner={false}
                 isPopupView={true}
               />

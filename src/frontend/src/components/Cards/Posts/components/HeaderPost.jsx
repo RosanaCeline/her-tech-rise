@@ -2,6 +2,8 @@ import { useState } from 'react';
 import { useNavigate } from "react-router-dom";
 import { Edit, Trash2, Eye, Globe, Users, Lock, AlertCircle } from 'lucide-react';
 import { updatePostVisibility, deletePost } from '../../../../services/timelineService';
+import { deleteShare } from '../../../../services/interactionsService';
+import { getProfileById } from '../../../../services/userService';
 import ConfirmModal from '../../../ConfirmModal/ConfirmModal';
 import BtnCallToAction from '../../../btn/BtnCallToAction/BtnCallToAction';
 
@@ -38,7 +40,11 @@ export default function HeaderPost({ photo, name, post, date, isOpen = false, on
 
   const handleConfirmDelete = async (postId) => {
     try {
-      await deletePost(postId);
+      if (post.type === "COMPARTILHAMENTO") {
+        await deleteShare(postId); 
+      } else {
+        await deletePost(postId); 
+      }
       setShowDeleteModal(false);
       console.log("Post excluído com sucesso.");
       if(onPostsUpdated) {
@@ -46,9 +52,9 @@ export default function HeaderPost({ photo, name, post, date, isOpen = false, on
       }
       window.location.reload();
     } catch (err) {
-      console.error("Erro ao excluir o post:", err);
-      setShowDeleteModal(false);
-      setError(err.message || "Erro ao excluir o post. Tente novamente.");
+        console.error("Erro ao excluir o post:", err);
+        setShowDeleteModal(false);
+        setError(err.message || "Erro ao excluir o post. Tente novamente.");
     }
   };
 
@@ -73,21 +79,18 @@ export default function HeaderPost({ photo, name, post, date, isOpen = false, on
 
   const handleNavigateProfile = async () => {
     if (isFollowing !== null) {
-        const professionalPath = `/profile/professional/${idAuthor}-${handle}`;
-        const companyPath = `/profile/company/${idAuthor}-${handle}`;
-
-        try {
-          const response = await fetch(`${baseUrl}/profile/professional/${idAuthor}`);
-          if (response.ok) {
-            navigate(professionalPath);
-          } else {
-            navigate(companyPath);
-          }
-        } catch (err) {
-          navigate(companyPath);
+      try {
+        const res = await getProfileById(idAuthor)
+        if (res.role === "PROFESSIONAL" || res.role === "professional") {
+          navigate(`/profile/professional/${idAuthor}-${handle}`);
+        } else {
+          navigate(`/profile/company/${idAuthor}-${handle}`);
         }
+      } catch (err) {
+        console.log('Erro ao buscar profissional.')
       }
-    };
+    }
+  };
 
   return (
     <div className="relative flex flex-col gap-2 mb-4">
