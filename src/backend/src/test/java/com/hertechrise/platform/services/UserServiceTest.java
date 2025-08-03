@@ -24,6 +24,9 @@ import java.io.InputStream;
 import java.util.List;
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyLong;
+import static org.mockito.Mockito.when;
 
 @SpringBootTest
 @ContextConfiguration(initializers = DotenvInitializer.class)
@@ -207,7 +210,6 @@ class UserServiceTest extends AbstractIntegrationTest {
         UsernamePasswordAuthenticationToken auth =
                 new UsernamePasswordAuthenticationToken(user, null, List.of());
         SecurityContextHolder.getContext().setAuthentication(auth);
-
 
         CloudinaryUploadException exception= assertThrows(CloudinaryUploadException.class,
                 () -> userService.updateProfilePicture(file));
