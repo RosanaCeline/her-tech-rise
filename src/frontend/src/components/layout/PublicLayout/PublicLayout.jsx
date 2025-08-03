@@ -4,12 +4,13 @@ import PublicHeader from "../Header/Public/PublicHeader";
 import Footer from "../Footer/Footer";
 import { useAuth } from "../../../context/AuthContext"; 
 
-import { Outlet, Navigate } from "react-router-dom";
+import { Outlet, useNavigate } from "react-router-dom";
 
 export default function PublicLayout() {
   const { user } = useAuth();
+  const navigate = useNavigate()
 
-  if (user) return <Navigate to="/timeline" replace />;
+  if (user) return navigate('/timeline');
 
   return (
     <div className="min-h-screen flex flex-col">
