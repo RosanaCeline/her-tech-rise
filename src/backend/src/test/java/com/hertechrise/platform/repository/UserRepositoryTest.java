@@ -46,7 +46,7 @@ class UserRepositoryTest extends AbstractIntegrationTest{
         user.setCity("Tianguá");
         user.setStreet("Rua Joaquim Lourenço");
         user.setNeighborhood("Centro");
-        user.setEmail("claudia@test.com");
+        user.setEmail("claudia-test@test.com");
         user.setPassword("senha123");
         user.setType(UserType.PROFESSIONAL);
         user.setHandle("claudia123");
@@ -59,7 +59,7 @@ class UserRepositoryTest extends AbstractIntegrationTest{
 
         // Then // Assert
         //Resultado esperado
-        assertTrue(userRepository.findByEmail("claudia@test.com").isPresent());
+        assertTrue(userRepository.findByEmail("claudia-test@test.com").isPresent());
 
     }
     @DisplayName("Verificação de handle existentes - true | false ")
