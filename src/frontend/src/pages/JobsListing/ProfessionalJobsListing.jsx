@@ -7,6 +7,7 @@ import ApplyJob from "./components/ApplyJob"
 import { useNavigate } from "react-router-dom"
 import { getGender } from "../../services/authService"
 import ConfirmModal from "../../components/ConfirmModal/ConfirmModal"
+import LoadingSpinner from "../../components/LoadingSpinner/LoadingSpinner"
 
 export default function ProfessionalJobsListing(){
     const navigate = useNavigate()
@@ -14,14 +15,23 @@ export default function ProfessionalJobsListing(){
     const [jobDetail, setJobDetail] = useState('')
     const [currentJobDetail, setCurrentJobDetail] = useState(0)
     const [applyJobModal, setApplyJobModal] = useState(false)
+    const [loading, setLoading] = useState(true)
+    const [error, setError] = useState(null);
 
     const fetchJobs = async () => {
-        const response = await publicJobPostings()
-        setJobs(response)
-        if(response.length > 0){
-            const detail = await publicJobDetail(response[0].id)
-            setJobDetail(detail)
-            setCurrentJobDetail(detail.id)
+        try{
+            const response = await publicJobPostings()
+            setJobs(response)
+            if(response.length > 0){
+                const detail = await publicJobDetail(response[0].id)
+                setJobDetail(detail)
+                setCurrentJobDetail(detail.id)
+            }
+        }catch(err){
+            setError('Erro ao carregar vagas de emprego.');
+            console.error(err);
+        }finally{
+            setLoading(false)
         }
     }
 
@@ -32,6 +42,9 @@ export default function ProfessionalJobsListing(){
     useEffect(() => {
         fetchJobs()
     }, [])
+
+    if (loading) return ( <LoadingSpinner /> )
+    if (error) return <main className="pt-34"><p className="text-red-600">{error}</p></main>;
 
     return(
         <main className='flex flex-col bg-(--gray) pt-34 pb-6'>
