@@ -24,16 +24,27 @@ export default function RegisterStep1({formData, handleChange, fetchCPF, fetchCN
                                 maxLength='180'
                                 value={formData.nome} 
                                 onChange={(e) => handleChange('nome', e.target.value)}/>
-                                {formData.tipo_usuario === 'profissional'
-                                    ? <LabelInput   label="CPF:"            theme='white' 
-                                                    required={true}         validation='cpf' 
-                                                    maxLength='14'          placeholder='Digite seu CPF'
-                                                    value={formData.cpf}    onChange={(e) => handleChange('cpf', maskField('cpf', e.target.value))}/>
-                                    : <LabelInput   label="CNPJ:"           theme='white' 
-                                                    required={true}         validation='cnpj' 
-                                                    maxLength='18'          placeholder='Digite seu CNPJ'
-                                                    value={formData.cnpj}   onChange={(e) => handleChange('cnpj', maskField('cnpj', e.target.value))}/>
-                                }
+                    {formData.tipo_usuario === 'profissional'
+                        ?   <div className='flex columns-2 gap-x-5'>
+                                <LabelInput   label="CPF:"            theme='white' 
+                                    required={true}         validation='cpf' 
+                                    maxLength='14'          placeholder='Digite seu CPF'
+                                    value={formData.cpf}    onChange={(e) => handleChange('cpf', maskField('cpf', e.target.value))}/>
+                                <LabelInput   label="Você se identifica como:"            theme='white' 
+                                    required={true}         type="select"
+                                    options={[
+                                        {value: 'MULHER', label: 'Mulher'}, 
+                                        {value: 'HOMEM', label: 'Homem'},
+                                        {value: 'PESSOA_NAO_BINARIA', label: 'Pessoa não binária'},
+                                        {value: 'OUTRO', label: 'Outro'},
+                                        {value: 'PREFIRO_NAO_INFORMAR', label: 'Prefiro não informar'}]}
+                                    value={formData.gender}    onChange={(e) => handleChange('gender', e.target.value)}/>
+                            </div>
+                        : <LabelInput   label="CNPJ:"           theme='white' 
+                                        required={true}         validation='cnpj' 
+                                        maxLength='18'          placeholder='Digite seu CNPJ'
+                                        value={formData.cnpj}   onChange={(e) => handleChange('cnpj', maskField('cnpj', e.target.value))}/>
+                    }
                     <div className='flex columns-2 gap-x-5'>
                         {formData.tipo_usuario === 'profissional'
                             ? <LabelInput   label="Data de Nascimento:"         theme='white' 
