@@ -6,6 +6,7 @@ import { companyJobPostings, companyJobPostingDetail, deactivateJobPosting } fro
 import { House, MapPin, CalendarDays } from 'lucide-react'
 import { maskField } from "../../components/form/Label/maskField";
 import { useNavigate } from "react-router-dom"
+import LoadingSpinner from "../../components/LoadingSpinner/LoadingSpinner"
 
 export default function CompanyJobsListing(){
     const [manageJobModal, setManageJobModal] = useState('')
@@ -23,22 +24,41 @@ export default function CompanyJobsListing(){
         applicationDeadline: ''
     }
     const [jobFormData, setJobFormData] = useState(emptyJobFormData)
+    const [loading, setLoading] = useState(true)
+    const [error, setError] = useState(null);
+    const [errorMessage, setErrorMessage] = useState('')
 
     const fetchMyJobs = async () => {
-        const response = await companyJobPostings()
-        setJobs(response)
+        try{
+            const response = await companyJobPostings()
+            setJobs(response)
+        }catch(err){
+            setError('Erro ao carregar vagas de emprego.');
+            console.error(err);
+        }finally{
+            setLoading(false)
+        }
+        
     }
 
     useEffect(() => {
         fetchMyJobs()
     }, [])
 
-    const handleDeactivate = async (id) => {
-        setJobs((prev) => prev.map(j => j.id === id ? {...j, isActive: false} : j))
-        await deactivateJobPosting(id)
-        fetchMyJobs()
-    }
+   const handleDeactivate = async (id) => {
+        try {
+            await deactivateJobPosting(id);
+            setJobs(prev => prev.map(j => j.id === id ? { ...j, isActive: false } : j));
+            fetchMyJobs();
+        } catch (err) {
+            setErrorMessage(err.message || 'Erro ao desativar a vaga de emprego');
+            setTimeout(() => setErrorMessage(null), 4000);
+        }
+    };
 
+
+    if (loading) return ( <LoadingSpinner /> )
+    if (error) return <main className="pt-34"><p className="text-red-600">{error}</p></main>;
 
     return(
         <main className='flex flex-col bg-(--gray) pt-34 pb-6'>
@@ -56,7 +76,7 @@ export default function CompanyJobsListing(){
                 <section className="flex flex-col my-3 gap-y-3">
                     {jobs.length > 0 
                     ? jobs.map((job) => <CompanyJobDetails key={job.id} job={job} handleDeactivate={handleDeactivate} 
-                    setManageJobModal={setManageJobModal} setJobFormData={setJobFormData}/>)
+                    setManageJobModal={setManageJobModal} setJobFormData={setJobFormData} errorMessage={errorMessage}/>)
                     : <p className="mx-auto mt-4">Sua empresa ainda não publicou nenhuma vaga de emprego</p>}
                 </section>
             </div>
@@ -75,7 +95,7 @@ export default function CompanyJobsListing(){
     )
 }
 
-function CompanyJobDetails({job, setManageJobModal, setJobFormData, handleDeactivate}){
+function CompanyJobDetails({job, setManageJobModal, setJobFormData, handleDeactivate, errorMessage}){
     const contractTypes = {
         CLT: "CLT", PJ: "PJ",
         APRENDIZ: "Aprendiz", ESTAGIO: "Estágio",
@@ -155,6 +175,13 @@ function CompanyJobDetails({job, setManageJobModal, setJobFormData, handleDeacti
                     </button></div>}
                 </div>
             </div>
+            {errorMessage && (
+            <div className="fixed top-1/12 left-1/2 transform -translate-x-1/2 -translate-y-1/2 
+                            z-50 bg-red-600 text-white px-6 py-3 rounded-lg shadow-lg 
+                           transition-opacity duration-300">
+                {errorMessage}
+            </div>
+            )}
         </div>
     )
 } 

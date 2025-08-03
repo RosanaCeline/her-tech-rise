@@ -3,22 +3,35 @@ import { applicationsById } from '../../services/applicationService'
 import { useNavigate, useParams } from 'react-router-dom';
 import { Undo2, CircleX, CircleCheck } from 'lucide-react';
 import ApplicationDetail from './components/ApplicationDetail'
+import LoadingSpinner from '../../components/LoadingSpinner/LoadingSpinner'
 
 export default function CompanyApplications(){
     const { id } = useParams()
     const navigate = useNavigate()
     const [jobApplications, setJobApplications] = useState([])
     const [applicationDetail, setApplicationDetail] = useState('')
+    const [loading, setLoading] = useState(true)
+    const [error, setError] = useState(null);
 
     const fetchApplications = async () =>{
-        const response = await applicationsById(id)
-        setJobApplications(response)
+        try{
+            const response = await applicationsById(id)
+            setJobApplications(response)
+        }catch(err){
+            setError('Erro ao carregar detalhes de candidatura.');
+            console.error(err);
+        }finally{
+            setLoading(false)
+        }
     }
 
     useEffect(() => {
         fetchApplications()
     }, [])
 
+    if (loading) return ( <LoadingSpinner /> )
+    if (error) return <main className="pt-34"><p className="text-red-600">{error}</p></main>;
+    
     return(
         <main className='flex flex-col min-h-[83vh] bg-(--gray) pt-34 pb-6'>
             <div className="flex flex-col mb-6 w-5/6 p-8 bg-white mx-auto rounded-xl">
@@ -69,6 +82,11 @@ export default function CompanyApplications(){
                                 <p className="font-bold">Biografia:  
                                     <span className='font-normal'> {application.applicantTechnology || 'Não informada'}</span>
                                 </p>
+
+                                {(application.gender === 'MULHER' || application.gender === 'PESSOA_NAO_BINARIA') &&
+                                <p className="font-bold">Gênero:  
+                                    <span className='font-normal'> {application.gender === 'MULHER' ? 'Mulher' : 'Pessoa não binária'}</span>
+                                </p>}
                             </div>
 
                             <div className='lg:w-2/9 text-sm flex flex-col md:flex-row lg:flex-col gap-y-3 items-end justify-around mt-4 lg:mt-0'>
