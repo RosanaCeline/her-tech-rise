@@ -458,8 +458,7 @@ class PostServiceTest extends AbstractIntegrationTest {
         MultipartFile image = new MockMultipartFile(
                 "file", "imageTestPosts.jpg", "text/plain", "Olá mundo".getBytes());
 
-        MediaEditRequestDTO mediaDTO = new MediaEditRequestDTO(
-                null, image, MediaType.IMAGE, "text/plain", null);
+        List<MultipartFile> images = List.of(image);
 
         Post post = new Post();
         post.setAuthor(loggedUser);
@@ -468,10 +467,10 @@ class PostServiceTest extends AbstractIntegrationTest {
         postRepository.save(post);
 
         PostEditRequestDTO request = new PostEditRequestDTO("Essa é minha postagem", PostVisibility.PRIVADO,
-                List.of(mediaDTO));
+                List.of());
 
         IllegalArgumentException exception = assertThrows(IllegalArgumentException.class, () -> {
-            postService.editPost(post.getId(), request);
+            postService.editPost(post.getId(), request, images);
         });
         assertEquals("MIME inválido para arquivo: text/plain", exception.getMessage());
     }
@@ -498,16 +497,18 @@ class PostServiceTest extends AbstractIntegrationTest {
         post.getMedia().add(media);
         mediaRepository.save(media);
 
+        post.setMedia(new ArrayList<>(List.of(media)));
+        postRepository.save(post);
+
         InputStream imageInput = getClass().getResourceAsStream("/imageTestPosts.jpg");
         MultipartFile image = new MockMultipartFile(
                 "file", "imageTestPosts.jpg", "image/jpg", imageInput);
 
-        MediaEditRequestDTO mediaDTO = new MediaEditRequestDTO(
-                null, image, MediaType.IMAGE, "image/jpg", null);
+        List<MultipartFile> images = List.of(image);
 
         PostEditRequestDTO request = new PostEditRequestDTO("Essa é minha postagem", PostVisibility.PRIVADO,
-                List.of(mediaDTO));
-        PostResponseDTO response = postService.editPost(post.getId(), request);
+                List.of());
+        PostResponseDTO response = postService.editPost(post.getId(), request, images);
 
         assertNotNull(response);
         assertEquals(1, response.media().size());
