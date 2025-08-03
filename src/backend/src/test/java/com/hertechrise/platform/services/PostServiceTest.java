@@ -558,7 +558,8 @@ class PostServiceTest extends AbstractIntegrationTest {
         Post post_4 = new Post();
         post_4.setAuthor(loggedUser);
         post_4.setContent("Postando a 7 dias");
-        post_4.setCreatedAt(LocalDateTime.now().minusDays(7));
+        post_4.setCreatedAt(LocalDateTime.now().minusDays(8));
+
         post_4.setMedia(null);
         postRepository.save(post_4);
 
