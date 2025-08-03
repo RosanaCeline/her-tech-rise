@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { Heart, MessageCircle, Share, Earth, Lock } from "lucide-react";
+import { Heart, MessageCircle, Share, Earth, Lock, Trash2 } from "lucide-react";
 
 import PopUpBlurProfile from "../../../components/Cards/Profile/PopUpBlurProfile";
 import CardPostProfile from "../../Cards/Posts/CardPostProfile";
@@ -8,26 +8,31 @@ import LabelInput from "../../form/Label/LabelInput";
 import ConfirmModal from "../../ConfirmModal/ConfirmModal";
 
 import { getCurrentUser } from "../../../services/authService";
-import { getCountInteractionsPost, sendLikePost, sendCommentPost, 
-        sendSharePost, getLikesPost, getCommentsPost,  } from "../../../services/interactionsService";
+import { sendLikePost, sendCommentPost, sendSharePost, getLikesPost, getCommentsPost,  
+            sendLikeShare, sendCommentShare, getLikesShare, getCommentsShare,
+            deleteCommentsPost, 
+        } from "../../../services/interactionsService";
 
-export default function InteractionBar({ post, cardWidth }) {
+export default function InteractionBar({ idAuthor, post, photo, name, cardWidth }) {
     const currentUser = getCurrentUser();
     const isCompact = cardWidth < 600;
+
     const [hasLiked, setHasLiked] = useState(false);
-
     const [likesCount, setLikesCount] = useState(0);
-    const [commentsCount, setCommentsCount] = useState(0);
-    const [shareCount, setShareCount] = useState(0);
-
     const [listLikes, setListLikes] = useState([]);
     const [showLikesModal, setShowLikesModal] = useState(false);
 
+    const [commentsCount, setCommentsCount] = useState(0);
     const [listComments, setListComments] = useState([]);
     const [showCommentsModal, setShowCommentsModal] = useState(false);
     const [showCommentsInput, setShowCommentsInput] = useState(false);
     const [newComment, setNewComment] = useState("");
     const [commentsToShow, setCommentsToShow] = useState(2);
+
+    const [shareCount, setShareCount] = useState(0);
+
+    const [showDeleteModal, setShowDeleteModal] = useState(false);
+    const [selectedCommentId, setSelectedCommentId] = useState(null);
 
     const [showConfirmCancel, setShowConfirmCancel] = useState(false);
     const [showShareModal, setShareModal] = useState(false);
@@ -42,52 +47,40 @@ export default function InteractionBar({ post, cardWidth }) {
     }
     const [changeVisibilityPopup, setChangeVisibilityPopup] = useState(false);
     const changeVisibility = (visibility) => {
-    setFormData((prev) => ({ ...prev, visibility }));
-    setChangeVisibilityPopup(false);
+        setFormData((prev) => ({ ...prev, visibility }));
+        setChangeVisibilityPopup(false);
     };
-
-    useEffect(() => {
-        const fetchCounts = async () => {
-            try {
-                const { likes, comments, shares } = await getCountInteractionsPost(post.id);
-                console.log(post.content, likes, comments, shares);
-                setLikesCount(likes);
-                setCommentsCount(comments);
-                setShareCount(shares);
-
-                const likesList = await getLikesPost(post.id);
-                setListLikes(likesList);
-                const userAlreadyLiked = likesList.some(like => like.userId === currentUser.id);
-                setHasLiked(userAlreadyLiked);
-            } catch (error) {
-                console.error("Erro ao buscar contagens de interações:", error);
-            }
-        };
-        fetchCounts();
-    }, [post.id]);
 
     const sendLike = async () => {
         try {
-            await sendLikePost(post.id);
-            setHasLiked((prev) => {
-                const newLiked = !prev;
-                setLikesCount((prevCount) => {
-                    if (newLiked) return prevCount + 1; 
-                    return Math.max(prevCount - 1, 0); 
-                });
-                return newLiked;
-            });
+            if(post.type === 'POSTAGEM') await sendLikePost(post.id);
+            if(post.type === 'COMPARTILHAMENTO') await sendLikeShare(post.id);
+            const willLike = !hasLiked;
+            setHasLiked(willLike);
+            setLikesCount((prevCount) =>
+                willLike ? prevCount + 1 : Math.max(prevCount - 1, 0)
+            );
         } catch (error) {
             console.error("Erro ao curtir:", error);
         }
     };
 
-    // Problem
     const sendComment = async () => {
+        if (!newComment.trim()) return;
         try {
-            await sendCommentPost(post.id, { content: newComment });
+            if(post.type === 'POSTAGEM'){
+                await sendCommentPost(post.id, {
+                    content: newComment,
+                    parentCommentId: null,
+                });
+            }
+            if(post.type === 'COMPARTILHAMENTO'){
+                await sendCommentShare(post.id, {
+                    content: newComment,
+                    parentCommentId: null,
+                });
+            }
             setNewComment("");
-            await fetchComments();
             setCommentsCount((prev) => prev + 1);
         } catch (error) {
             console.error("Erro ao enviar comentário:", error);
@@ -95,41 +88,77 @@ export default function InteractionBar({ post, cardWidth }) {
     };
 
     const sendShare = async (content) => {
+        if (post.type !== "POSTAGEM") return;
         try {
             await sendSharePost(post.id, content);
             setShareModal(false);
             setFormData({ content: "", media: [], visibility: "PUBLICO" });
             setShareCount((prev) => prev + 1);
-            console.log("Compartilhado com sucesso!");
         } catch (error) {
             console.error("Erro ao compartilhar:", error);
         }
     };
 
-    // Problem
-    const getListLikes = async () => {
+    const getListLikes = async (modal = true) => {
         try {
-            const list = await getLikesPost(post.id);
-            console.log(post.id);
-            console.log("🔍 Resposta bruta da API:", list);
+            let list = [];
+            if (post.type === "POSTAGEM") list = await getLikesPost(post.id);
+            else if (post.type === "COMPARTILHAMENTO")  list = await getLikesShare(post.id);
             setListLikes(list);
-            setShowLikesModal(true);
+            setLikesCount(list.length);
+            if (modal) setShowLikesModal(true);
+            return list;
         } catch (error) {
             console.error("Erro ao pegar lista de curtidas:", error);
+            return [];
         }
     };
 
-    // Problem
     const getListComments = async () => {
         try {
-            const list = await getCommentsPost(post.id);
-            console.log("🔍 Resposta bruta da API:", list);
+            let list = [];
+            if (post.type === "POSTAGEM") list = await getCommentsPost(post.id);
+            else if (post.type === "COMPARTILHAMENTO") list = await getCommentsShare(post.id);
             setListComments(list);
             setShowCommentsModal(true);
         } catch (error) {
             console.error("Erro ao buscar comentários:", error);
         }
     };
+
+    const handleDeleteComment = async () => {
+        try {
+            await deleteCommentsPost(selectedCommentId);
+            setListComments((prev) =>
+                prev.filter((c) => c.id !== selectedCommentId)
+            );
+            setCommentsCount((prev) => prev - 1);
+            setShowDeleteModal(false);
+            setSelectedCommentId(null);
+        } catch (error) {
+            console.error("Erro ao excluir comentário:", error);
+        }
+    };
+
+    useEffect(() => {
+        setLikesCount(post.countLike || 0);
+        setCommentsCount(post.countComment || 0);
+        setShareCount(post.countShares || 0);
+    }, [post]);
+
+    useEffect(() => {
+        if (!post?.id) return;
+        const fetchLikes = async () => {
+            try {
+                const list = await getListLikes(false); 
+                const userLiked = list.some(like => like.userId === currentUser.id);
+                setHasLiked(userLiked);
+            } catch (error) {
+            console.error("Erro ao buscar curtidas:", error);
+            }
+        };
+        fetchLikes();
+    }, [post?.id, currentUser.id]);
 
     // console.log("InteractionBar - post:", post);
 
@@ -141,25 +170,31 @@ export default function InteractionBar({ post, cardWidth }) {
                     onClick={getListLikes}
                 >
                     <Heart className="purple-primary" size={15} />
-                    <span>{likesCount}</span>
+                    <span>{post.countLike}</span>
                     {!isCompact && <span className="text-xs">curtidas</span>}
                 </button>
 
                 <div className="flex items-center gap-3">
                     <button className="flex items-center gap-1 cursor-pointer hover:opacity-80"
-                            onClick={getListComments}>
+                            onClick={() => {
+                                if (!showCommentsInput) getListComments();
+                                setShowCommentsInput((prev) => !prev);
+                            }}>
                         {isCompact && <MessageCircle className="purple-primary" size={15} />}
-                        <span>{commentsCount}</span>
+                        <span>{post.countComment}</span>
                         {!isCompact && <span className="text-xs">comentários</span>}
                     </button>
 
-                    <span>|</span>
-
-                    <button className="flex items-center gap-1 cursor-pointer hover:opacity-80">
-                        {isCompact && <Share className="purple-primary" size={15} />}
-                        <span>{shareCount}</span>
-                        {!isCompact && <span className="text-xs">compartilhamentos</span>}
-                    </button>
+                    {post.type !== "COMPARTILHAMENTO" && (
+                        <>
+                            <span>|</span>
+                            <button className="flex items-center gap-1 cursor-pointer hover:opacity-80">
+                            {isCompact && <Share className="purple-primary" size={15} />}
+                            <span>{post.countShares}</span>
+                            {!isCompact && <span className="text-xs">compartilhamentos</span>}
+                            </button>
+                        </>
+                    )}
                 </div>
             </div>
 
@@ -167,8 +202,8 @@ export default function InteractionBar({ post, cardWidth }) {
 
             <div className="flex justify-between text-(--purple-primary) border-(--purple-primary) font-semibold text-lg">
                 <button
-                onClick={sendLike}
-                className="flex items-center gap-2 cursor-pointer transition duration-300 hover:scale-105"
+                    onClick={sendLike}
+                    className="flex items-center gap-2 cursor-pointer transition duration-300 hover:scale-105"
                 >
                     <Heart
                         fill={hasLiked ? "var(--purple-primary)" : "transparent"}
@@ -178,19 +213,31 @@ export default function InteractionBar({ post, cardWidth }) {
                 </button>
 
                 <button
-                onClick={() => {
-                    if (!showCommentsInput) getListComments();
-                    setShowCommentsInput((prev) => !prev);
-                }}
-                className="flex items-center gap-2 cursor-pointer transition duration-300 hover:scale-105"
+                    onClick={() => {
+                        if (!showCommentsInput) getListComments();
+                        setShowCommentsInput((prev) => !prev);
+                    }}
+                    className="flex items-center gap-2 cursor-pointer transition duration-300 hover:scale-105"
                 >
                     <MessageCircle />
                     {!isCompact && "Comentar"}
                 </button>
-
+                        
                 <button
-                onClick={() => setShareModal(true)}
-                className="flex items-center gap-2 cursor-pointer transition duration-300 hover:scale-105"
+                    onClick={() => {
+                        if (post.type === "POSTAGEM") setShareModal(true);
+                    }}
+                    disabled={post.type !== "POSTAGEM"}
+                    title={
+                        post.type !== "POSTAGEM"
+                        ? "Não é possível compartilhar porque isso já é um compartilhamento."
+                        : "Compartilhar esta postagem"
+                    }
+                    className={`flex items-center gap-2 transition duration-300 ${
+                        post.type !== "POSTAGEM"
+                        ? "opacity-50 cursor-not-allowed"
+                        : "cursor-pointer hover:scale-105"
+                    }`}
                 >
                     <Share />
                     {!isCompact && "Compartilhar"}
@@ -226,8 +273,8 @@ export default function InteractionBar({ post, cardWidth }) {
                     {listComments.slice(0, commentsToShow).map((comment) => (
                     <div key={comment.id} className="pt-3 flex gap-3">
                         <img
-                        src={comment.userAvatarUrl || "/default-avatar.png"}
-                        className="w-8 h-8 rounded-full object-cover"
+                            src={comment.userAvatarUrl || "/default-avatar.png"}
+                            className="w-8 h-8 rounded-full object-cover"
                         />
                         <div>
                             <p className="font-semibold">{comment.userName}</p>
@@ -239,17 +286,27 @@ export default function InteractionBar({ post, cardWidth }) {
                                 }).format(new Date(comment.createdAt))}
                             </p>
                         </div>
+                        {comment.userId === currentUser.id && (
+                            <button
+                                className="text-red-500 hover:text-red-700"
+                                onClick={() => {
+                                    setSelectedCommentId(comment.id);
+                                    setShowDeleteModal(true);
+                                }}
+                            >
+                                <Trash2 size={18} />
+                            </button>
+                        )}
                     </div>
                     ))}
 
-                    {/* Botão Ver mais */}
                     {listComments.length > commentsToShow && (
-                    <button
-                        onClick={() => setCommentsToShow((prev) => prev + 2)}
-                        className="text-sm text-blue-600 hover:underline mt-2 self-start"
-                    >
-                        Ver mais comentários
-                    </button>
+                        <button
+                            onClick={() => setCommentsToShow((prev) => prev + 2)}
+                            className="text-sm text-blue-600 hover:underline mt-2 self-start"
+                        >
+                            Ver mais comentários
+                        </button>
                     )}
                 </div>
             )}
@@ -343,14 +400,14 @@ export default function InteractionBar({ post, cardWidth }) {
                         />
 
                         <div className="scale-80 origin-center">
-                            <CardPostProfile
+                            <CardPostProfile 
                                 key={post.id}
                                 post={post}
-                                photo={post.author?.profilePic}
-                                name={post.author?.name}
-                                idAuthor={post.author?.id}
-                                handle={post.author?.handle}
+                                photo={photo}
+                                name={name}
+                                idAuthor={idAuthor}
                                 isOwner={post.isOwner}
+                                hideInteractions={true}
                                 isShare={true}
                                 isFollowing={post.isOwner ? false : (post.author?.isFollowed ?? false)}
                                 onFollowToggle={() => handleToggleFollow(post.author.id)}
@@ -381,6 +438,16 @@ export default function InteractionBar({ post, cardWidth }) {
                 }}
                 onCancel={() => setShowConfirmCancel(false)}
             />
+            <ConfirmModal
+                open={showDeleteModal}
+                title="Excluir comentário"
+                message="Tem certeza de que deseja excluir este comentário? Essa ação não pode ser desfeita."
+                confirmText="Sim"
+                cancelText="Não"
+                onCancel={() => setShowDeleteModal(false)}
+                onConfirm={handleDeleteComment}
+            />
+
         </div>
     );
 }

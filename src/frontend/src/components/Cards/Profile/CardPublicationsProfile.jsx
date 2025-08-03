@@ -1,9 +1,11 @@
 import { useState, useEffect } from 'react'
+import { getCurrentUser } from '../../../services/authService'
 import BtnCallToAction from '../../btn/BtnCallToAction/BtnCallToAction'
 import CardPostProfile from '../Posts/CardPostProfile'
 import PopUpBlurProfile from '../Profile/PopUpBlurProfile'
 
 export default function CardPublicationsProfile({ title, posts, onPostsUpdated, setActivePopUp, isCurrentUser }) {
+  const userData = getCurrentUser();
   const [visiblePosts, setVisiblePosts] = useState([]);
   const normalizePost = (post) => post.type === "POSTAGEM" ? post.post : post.share.originalPost;
   const [limit, setLimit] = useState(3);
@@ -53,38 +55,49 @@ export default function CardPublicationsProfile({ title, posts, onPostsUpdated, 
   const buildPostData = (item) => {
     if (item.type === "COMPARTILHAMENTO") {
       return {
-        photo: item.share.sharingUser.profilePic,
-        name: item.share.sharingUser.name,
-        handle: item.share.sharingUser.handle,
-        idAuthor: item.share.sharingUser.id,
-        post: {
-          id: item.share.id,
-          content: item.share.sharedContent,
-          createdAt: item.createdAt,
-          visibility: "PUBLICO",
-        },
-        isShare: true,
-        postShare: item.share.originalPost, 
+          idUserLogged: userData.id,
+          photo: item.share.sharingUser.profilePic,
+          name: item.share.sharingUser.name,
+          handle: item.share.sharingUser.handle,
+          idAuthor: item.share.sharingUser.id,
+          post: {
+              id: item.share.sharedId,
+              isOwner: (item.share.sharingUser.id === userData.id),
+              type: item.type,
+              content: item.share.sharedContent,
+              createdAt: item.createdAt,
+              visibility: "PUBLICO",
+              countLike: item.share.countShareLikes,
+              countComment: item.share.countShareComments,
+          },
+          isShare: true,
+          postShare: item.share.originalPost, 
       };
     }
-    return {
-      photo: item.post.author.profilePic,
-      name: item.post.author.name,
-      handle: item.post.author.handle,
-      idAuthor: item.post.author.id,
-      post: {
-        id: item.post.id,
-        content: item.post.content,
-        edited: item.post.edited,
-        editedAt: item.post.editedAt,
-        isOwner: item.post.isOwner,
-        createdAt: item.createdAt,
-        media: item.post.media || [],
-        visibility: item.post.visibility,
-      },
-      isShare: false,
-      postShare: null,
-    };
+      return {
+        idUserLogged: userData.id,
+        photo: item.post.author.profilePic,
+        name: item.post.author.name,
+        handle: item.post.author.handle,
+        idAuthor: item.post.author.id,
+        isFollowed: item.post.author.isFollowed,
+        post: {
+            id: item.post.id,
+            type: item.type,
+            content: item.post.content,
+            edited: item.post.edited,
+            editedAt: item.post.editedAt,
+            isOwner: item.post.isOwner,
+            createdAt: item.createdAt,
+            media: item.post.media || [],
+            visibility: item.post.visibility,
+            countLike: item.post.countLikes,
+            countComment: item.post.countComments,
+            countShares: item.post.countShares,
+        },
+        isShare: false,
+        postShare: null,
+      };
   };
 
   return (
@@ -107,10 +120,12 @@ export default function CardPublicationsProfile({ title, posts, onPostsUpdated, 
                 <div key={data.post?.id ?? `post-${idx}`} className="cursor-pointer" onClick={() => openUniquePostPopup(item.type === "COMPARTILHAMENTO" ? item.share.originalPost.id : item.post.id)}
 >
                   <CardPostProfile
+                    idUserLogged={data.idUserLogged}
                     photo={data.photo}
                     name={data.name}
                     handle={data.handle}
                     idAuthor={data.idAuthor}
+                    isOwner={true}
                     post={data.post}
                     isShare={data.isShare}
                     postShare={data.postShare} 
@@ -157,10 +172,12 @@ export default function CardPublicationsProfile({ title, posts, onPostsUpdated, 
                   <div key={data.post?.id ?? `post-${idx}`} className="cursor-pointer" onClick={() => openUniquePostPopup(item.type === "COMPARTILHAMENTO" ? item.share.originalPost.id : item.post.id)}
 >
                     <CardPostProfile
+                      idUserLogged={data.idUserLogged}
                       photo={data.photo}
                       name={data.name}
                       handle={data.handle}
                       idAuthor={data.idAuthor}
+                      isOwner={true}
                       post={data.post}
                       isShare={data.isShare}
                       postShare={data.postShare} 

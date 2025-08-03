@@ -11,9 +11,11 @@ export const getProfileById = async (user_id, role) => {
   try {
     if (!role) {
       try {
-        return await requestService.apiRequest(`/profiles/professionals/${user_id}`, 'GET');
+        const data = await requestService.apiRequest(`/profiles/professionals/${user_id}`, 'GET');
+        return { ...data, role: "professional" };
       } catch (err) {
-        return await requestService.apiRequest(`/profiles/companies/${user_id}`, 'GET');
+        const data = await requestService.apiRequest(`/profiles/companies/${user_id}`, 'GET');
+        return { ...data, role: "company" };
       }
     }
     if (role === 'company')  return await requestService.apiRequest(`/profiles/companies/${user_id}`, 'GET'); 
