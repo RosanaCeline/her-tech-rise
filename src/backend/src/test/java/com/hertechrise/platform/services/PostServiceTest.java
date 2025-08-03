@@ -324,8 +324,7 @@ class PostServiceTest extends AbstractIntegrationTest {
         MultipartFile image = new MockMultipartFile(
                 "file", "imageTestPosts.jpg", "image/jpg", imageInput);
 
-        MediaEditRequestDTO mediaDTO = new MediaEditRequestDTO(
-                null, image, MediaType.IMAGE, "image/jpg", null);
+        List<MultipartFile> images = List.of(image);
 
         Post post = new Post();
         post.setAuthor(loggedUser);
@@ -334,8 +333,8 @@ class PostServiceTest extends AbstractIntegrationTest {
         postRepository.save(post);
 
         PostEditRequestDTO request = new PostEditRequestDTO("Essa é minha postagem", PostVisibility.PRIVADO,
-                List.of(mediaDTO));
-        PostResponseDTO response = postService.editPost(post.getId(), request);
+                List.of());
+        PostResponseDTO response = postService.editPost(post.getId(), request, images);
 
         assertNotNull(response);
         assertEquals("Essa é minha postagem", response.content());
@@ -355,7 +354,7 @@ class PostServiceTest extends AbstractIntegrationTest {
                 "Essa é minha postagem", PostVisibility.PRIVADO, List.of());
 
         EntityNotFoundException exception = assertThrows(EntityNotFoundException.class, () -> {
-            postService.editPost(1L,  request);
+            postService.editPost(1L,  request, List.of());
         });
         assertEquals("Postagem não encontrada.", exception.getMessage());
     }
@@ -379,7 +378,7 @@ class PostServiceTest extends AbstractIntegrationTest {
                 "Essa é minha postagem", PostVisibility.PRIVADO, List.of());
 
         AccessDeniedException exception = assertThrows(AccessDeniedException.class, () -> {
-            postService.editPost(post.getId(), request);
+            postService.editPost(post.getId(), request, List.of());
         });
         assertEquals("Você não tem permissão para editar esta postagem.", exception.getMessage());
     }
@@ -410,10 +409,10 @@ class PostServiceTest extends AbstractIntegrationTest {
                 List.of());
 
         assertDoesNotThrow(() -> {
-            postService.editPost(post_1.getId(), request);
+            postService.editPost(post_1.getId(), request, List.of());
         });
         IllegalStateException exception = assertThrows(IllegalStateException.class, () -> {
-            postService.editPost(post_2.getId(), request);
+            postService.editPost(post_2.getId(), request, List.of());
         });
         assertEquals("Você só pode editar postagens feitas nos últimos 7 dias.", exception.getMessage());
     }
@@ -430,10 +429,8 @@ class PostServiceTest extends AbstractIntegrationTest {
         MultipartFile image = new MockMultipartFile(
                 "file", "imageTestPosts.jpg", "image/jpg", imageInput);
 
-        MediaEditRequestDTO mediaDTO = new MediaEditRequestDTO(
-                null, image, MediaType.IMAGE, "application/pdf", null);
-        ArrayList<MediaEditRequestDTO> medias = new ArrayList<>();
-        for(int i = 0; i < 11; i++){medias.add(mediaDTO);}
+        ArrayList<MultipartFile> medias = new ArrayList<>();
+        for(int i = 0; i < 11; i++){medias.add(image);}
 
         Post post = new Post();
         post.setAuthor(loggedUser);
@@ -442,10 +439,10 @@ class PostServiceTest extends AbstractIntegrationTest {
         postRepository.save(post);
 
         PostEditRequestDTO request = new PostEditRequestDTO("Essa é minha postagem", PostVisibility.PRIVADO,
-                medias);
+                List.of());
 
         MaxMediaLimitExceededException exception = assertThrows(MaxMediaLimitExceededException.class, () -> {
-            postService.editPost(post.getId(), request);
+            postService.editPost(post.getId(), request, medias);
         });
         assertEquals("Máximo de 10 mídias por postagem.",  exception.getMessage());
     }

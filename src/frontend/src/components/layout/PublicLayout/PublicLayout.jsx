@@ -3,13 +3,22 @@ import React from 'react';
 import PublicHeader from "../Header/Public/PublicHeader";
 import Footer from "../Footer/Footer";
 import { useAuth } from "../../../context/AuthContext"; 
+import { useEffect } from 'react'
 
-import { Outlet, Navigate } from "react-router-dom";
+import { Outlet, useNavigate } from "react-router-dom";
 
 export default function PublicLayout() {
   const { user } = useAuth();
+  const navigate = useNavigate()
 
-  if (user) return <Navigate to="/timeline" replace />;
+   useEffect(() => {
+    if (user) {
+      navigate('/timeline');
+    }
+  }, [user, navigate]);
+
+  // Enquanto redireciona, pode mostrar algo leve
+  if (user) return <div>Redirecionando...</div>;
 
   return (
     <div className="min-h-screen flex flex-col">

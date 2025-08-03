@@ -27,6 +27,8 @@ export const register = async (formData) => {
         neighborhood: formData.bairro,
         email: formData.email,
         password: formData.senha,
+        consentGenderSharing: formData.consentGenderSharing,
+        gender: formData.gender
       }
     : {
         name: formData.nome,
@@ -80,4 +82,22 @@ export const verifyCPF = async (cpf) => {
 export const verifyCNPJ = async (cnpj) => {
   const response = await axios.get(`${API_URL}/cnpj?cnpj=${cnpj}`, {validateStatus: (status) => status < 500})
   return response.status === 204 ? true : response.status === 409 ? false : null
+}
+
+export const getGender = () => {
+  const saved = localStorage.getItem('user');
+  const parsed = JSON.parse(saved)
+  return parsed.gender
+}
+
+export const updateGender = (gender, consentGenderSharing) => {
+  const saved = localStorage.getItem('user');
+  if (!saved) return;
+
+  const user = JSON.parse(saved);
+  if (consentGenderSharing === false) user.gender = null
+  else user.gender = gender
+  user.consentGenderSharing = consentGenderSharing
+
+  localStorage.setItem('user', JSON.stringify(user));
 }

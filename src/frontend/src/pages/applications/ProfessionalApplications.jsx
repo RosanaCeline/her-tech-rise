@@ -4,21 +4,33 @@ import { myApplications } from "../../services/applicationService"
 import ApplicationDetail from "./components/ApplicationDetail"
 import { useEffect, useState } from "react"
 import BtnCallToAction from "../../components/btn/BtnCallToAction/BtnCallToAction"
-import PopUp from "../../components/PopUp"
+import LoadingSpinner from "../../components/LoadingSpinner/LoadingSpinner"
 
 export default function ProfessionalApplications(){
     const navigate = useNavigate()
     const [applications, setApplications] = useState([])
     const [applicationDetail, setApplicationDetail] = useState('')
+    const [loading, setLoading] = useState(true)
+    const [error, setError] = useState(null);
 
     const fetchMyApplications = async () => {
-        const response = await myApplications()
-        setApplications(response)
+        try{
+            const response = await myApplications()
+            setApplications(response)
+        }catch(err){
+            setError('Erro ao carregar candidaturas.');
+            console.error(err);
+        }finally{
+            setLoading(false)
+        }
     }
 
     useEffect(() => {
         fetchMyApplications()
     }, [])
+
+    if (loading) return ( <LoadingSpinner /> )
+    if (error) return <main className="pt-34"><p className="text-red-600">{error}</p></main>;
 
     return(
         <main className='flex flex-col min-h-[83vh] bg-(--gray) pt-34 pb-6'>

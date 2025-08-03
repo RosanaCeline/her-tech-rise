@@ -26,6 +26,8 @@ export default function RegisterForm(){
         data_nascimento: '',
         cnpj: '',
         tipo_empresa: '',
+        gender: '',
+        consentGenderSharing: '',
         telefone: '',
         cep: '',
         rua: '',
