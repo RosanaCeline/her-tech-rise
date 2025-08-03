@@ -69,6 +69,11 @@ export default function CompanyApplications(){
                                 <p className="font-bold">Biografia:  
                                     <span className='font-normal'> {application.applicantTechnology || 'Não informada'}</span>
                                 </p>
+
+                                {(application.gender === 'MULHER' || application.gender === 'PESSOA_NAO_BINARIA') &&
+                                <p className="font-bold">Gênero:  
+                                    <span className='font-normal'> {application.gender === 'MULHER' ? 'Mulher' : 'Pessoa não binária'}</span>
+                                </p>}
                             </div>
 
                             <div className='lg:w-2/9 text-sm flex flex-col md:flex-row lg:flex-col gap-y-3 items-end justify-around mt-4 lg:mt-0'>
