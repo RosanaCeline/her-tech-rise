@@ -10,6 +10,7 @@ import java.time.LocalDateTime;
 @Table(name = "post_comment",
         indexes = {
                 @Index(name = "idx_post_comment_post", columnList = "post_id"),
+                @Index(name = "idx_post_comment_share", columnList = "share_id"),
                 @Index(name = "idx_post_comment_user", columnList = "user_id"),
                 @Index(name = "idx_post_comment_parent", columnList = "parent_comment_id")
         })
@@ -28,6 +29,10 @@ public class PostComment {
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
     @JoinColumn(name = "post_id", foreignKey = @ForeignKey(name = "fk_post_comment_post"))
     private Post post;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "share_id", foreignKey = @ForeignKey(name = "fk_post_comment_share"))
+    private PostShare share;
 
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
     @JoinColumn(name = "user_id", foreignKey = @ForeignKey(name = "fk_post_comment_user"))

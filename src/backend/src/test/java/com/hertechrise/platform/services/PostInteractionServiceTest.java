@@ -532,5 +532,91 @@ class PostInteractionServiceTest extends AbstractIntegrationTest {
 
         assertEquals("Postagem não encontrada", exception.getMessage());
     }
+    @DisplayName("Deve curtir e descurtir comentário de um post")
+   @Test
+    void toggleCommentLike() {
+        User loggedUser = createTestUser("Thalyta", "thalyta@email.com", "@thalyta");
+        UsernamePasswordAuthenticationToken auth =
+                new UsernamePasswordAuthenticationToken(loggedUser, null, List.of());
+        SecurityContextHolder.getContext().setAuthentication(auth);
+
+        Post post = new Post();
+        post.setAuthor(loggedUser);
+        post.setContent("Post para curtir e comentar");
+        post.setCreatedAt(LocalDateTime.now());
+        postRepository.save(post);
+
+        PostCommentRequestDTO request = new PostCommentRequestDTO(
+                "comentario teste",
+                null
+        );
+
+        PostCommentResponseDTO comment = postInteractionService.comment(post.getId(), request);
+        Long comId = comment.id();
+        postInteractionService.toggleCommentLike(comId);
+        assertEquals(1L, postInteractionService.countCommentLikes(comId));
+
+        postInteractionService.toggleCommentLike(comId);
+        assertEquals(0L, postInteractionService.countCommentLikes(comId));
+    }
+
+
+    @DisplayName("Deve curtir e descurtir um compartilhamento")
+    @Test
+    void toggleShareLike() {
+        User user = createTestUser("Cláudia", "claudia@email.com", "@claudia");
+        SecurityContextHolder.getContext().setAuthentication(
+                new UsernamePasswordAuthenticationToken(user, null, List.of())
+        );
+
+        Post post = new Post();
+        post.setAuthor(user);
+        post.setContent("Post para compartilhar");
+        post.setCreatedAt(LocalDateTime.now());
+        postRepository.save(post);
+
+        postInteractionService.share(post.getId(), new PostShareRequestDTO("Compartilhando para curtir"));
+
+        PostShare share = shareRepository.findAll().get(0);
+
+        postInteractionService.toggleShareLike(share.getId());
+        assertEquals(1L, postInteractionService.countShareLikes(share.getId()));
+
+        postInteractionService.toggleShareLike(share.getId());
+        assertEquals(0L, postInteractionService.countShareLikes(share.getId()));
+    }
+    @DisplayName("Deve listar curtidas de um comentário")
+    @Test
+    void listCommentLikes() {
+
+    }
+    @DisplayName("Deve lançar  EntityNotFoundException ao comentar com parentCommentId inexistente")
+    @Test
+    void commentShouldThrowWhenParentCommentNotFound() {
+        User loggedUser = createTestUser("Thalyta", "thalyta@email.com", "@thalyta");
+        UsernamePasswordAuthenticationToken auth =
+                new UsernamePasswordAuthenticationToken(loggedUser, null, List.of());
+        SecurityContextHolder.getContext().setAuthentication(auth);
+
+        Post post = new Post();
+        post.setAuthor(loggedUser);
+        post.setContent("Olá mundo");
+        post.setCreatedAt(LocalDateTime.now());
+        postRepository.save(post);
+
+        PostCommentRequestDTO request = new PostCommentRequestDTO("comentário inexistente", 999L);
+
+        EntityNotFoundException exception = assertThrows(EntityNotFoundException.class, () -> {
+            postInteractionService.comment(post.getId(), request);
+        });
+
+        assertEquals("Comentário pai não encontrado", exception.getMessage());
+
+
+    }
+
+
+
+
 
 }
