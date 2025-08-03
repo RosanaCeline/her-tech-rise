@@ -3,9 +3,7 @@ import BtnCallToAction from '../../btn/BtnCallToAction/BtnCallToAction'
 import CardPostProfile from '../Posts/CardPostProfile'
 import PopUpBlurProfile from '../Profile/PopUpBlurProfile'
 
-export default function CardPublicationsProfile({ title, posts, photo, name, onPostsUpdated, setActivePopUp, isCurrentUser }) {
-  console.log('CardPublicationsProfile', posts);
-
+export default function CardPublicationsProfile({ title, posts, onPostsUpdated, setActivePopUp, isCurrentUser }) {
   const [visiblePosts, setVisiblePosts] = useState([]);
   const normalizePost = (post) => post.type === "POSTAGEM" ? post.post : post.share.originalPost;
   const [limit, setLimit] = useState(3);
@@ -14,9 +12,8 @@ export default function CardPublicationsProfile({ title, posts, photo, name, onP
 
   const [isUniquePostPopup, setIsUniquePostPopup] = useState(false);
   const [selectedPostId, setSelectedPostId] = useState(null);
-  const selectedPost = posts
-    .map(normalizePost)
-    .find(p => p?.id === selectedPostId);
+  const selectedPostItem = posts.find((item) => normalizePost(item)?.id === selectedPostId);
+  const selectedRealPost = selectedPostItem ? normalizePost(selectedPostItem) : null;
   
   const [filter, setFilter] = useState("TODOS");
   const filteredPosts = posts
@@ -53,6 +50,43 @@ export default function CardPublicationsProfile({ title, posts, photo, name, onP
     setSelectedPostId(null);
   }
 
+  const buildPostData = (item) => {
+    if (item.type === "COMPARTILHAMENTO") {
+      return {
+        photo: item.share.sharingUser.profilePic,
+        name: item.share.sharingUser.name,
+        handle: item.share.sharingUser.handle,
+        idAuthor: item.share.sharingUser.id,
+        post: {
+          id: item.share.id,
+          content: item.share.sharedContent,
+          createdAt: item.createdAt,
+          visibility: "PUBLICO",
+        },
+        isShare: true,
+        postShare: item.share.originalPost, 
+      };
+    }
+    return {
+      photo: item.post.author.profilePic,
+      name: item.post.author.name,
+      handle: item.post.author.handle,
+      idAuthor: item.post.author.id,
+      post: {
+        id: item.post.id,
+        content: item.post.content,
+        edited: item.post.edited,
+        editedAt: item.post.editedAt,
+        isOwner: item.post.isOwner,
+        createdAt: item.createdAt,
+        media: item.post.media || [],
+        visibility: item.post.visibility,
+      },
+      isShare: false,
+      postShare: null,
+    };
+  };
+
   return (
     <>
       <article className="bg-white text-[var(--purple-secundary)] drop-shadow-md rounded-xl p-8 flex flex-col w-full max-w-8xl z-0">
@@ -67,11 +101,20 @@ export default function CardPublicationsProfile({ title, posts, photo, name, onP
 
         {visiblePosts.length > 0 ? (
           <div className="grid gap-6 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3">
-            {visiblePosts.map((post, idx) => {
-              const realPost = normalizePost(post);
+            {visiblePosts.map((item, idx) => {
+              const data = buildPostData(item);
               return (
-                <div key={realPost?.id ?? `post-${idx}`} className="cursor-pointer" onClick={() => openUniquePostPopup(realPost?.id)} >
-                  <CardPostProfile post={realPost} photo={photo} name={name} />
+                <div key={data.post?.id ?? `post-${idx}`} className="cursor-pointer" onClick={() => openUniquePostPopup(item.type === "COMPARTILHAMENTO" ? item.share.originalPost.id : item.post.id)}
+>
+                  <CardPostProfile
+                    photo={data.photo}
+                    name={data.name}
+                    handle={data.handle}
+                    idAuthor={data.idAuthor}
+                    post={data.post}
+                    isShare={data.isShare}
+                    postShare={data.postShare} 
+                  />
                 </div>
               );
             })}
@@ -108,41 +151,51 @@ export default function CardPublicationsProfile({ title, posts, photo, name, onP
                 </select>
               </div>
 
-              {filteredPosts.map((post, idx) => {
-                const realPost = normalizePost(post);
+              {filteredPosts.map((item, idx) => {
+                const data = buildPostData(item);
                 return (
-                <div
-                  key={realPost?.id ?? `post-${idx}`}
-                  className="cursor-pointer"
-                  onClick={() => openUniquePostPopup(post.id)}
-                >
-                  <CardPostProfile
-                    post={realPost}
-                    photo={photo}
-                    name={name}
-                    onPostsUpdated={onPostsUpdated}
-                    isPopupView={true}
-                  />
-                </div>
-              )
+                  <div key={data.post?.id ?? `post-${idx}`} className="cursor-pointer" onClick={() => openUniquePostPopup(item.type === "COMPARTILHAMENTO" ? item.share.originalPost.id : item.post.id)}
+>
+                    <CardPostProfile
+                      photo={data.photo}
+                      name={data.name}
+                      handle={data.handle}
+                      idAuthor={data.idAuthor}
+                      post={data.post}
+                      isShare={data.isShare}
+                      postShare={data.postShare} 
+                      onPostsUpdated={onPostsUpdated}
+                      isPopupView={true}
+                    />
+                  </div>
+                );
               })}
             </div>
           }
         />
       )}
-      {isUniquePostPopup && selectedPost && (
+      {isUniquePostPopup && selectedRealPost && (
         <PopUpBlurProfile
           isOpen={isUniquePostPopup}
           onClose={closeUniquePostPopup}
           content={
-            <CardPostProfile
-              post={selectedPost}
-              photo={photo}
-              name={name}
-              isPopupView={true}
-              isOpen={true}
-              isOwner={selectedPost?.isOwner}
-            />
+            (() => {
+              const data = buildPostData(selectedPostItem);
+              return (
+                <CardPostProfile
+                  photo={data.photo}
+                  name={data.name}
+                  handle={data.handle}
+                  idAuthor={data.idAuthor}
+                  post={data.post}
+                  isShare={data.isShare}
+                  postShare={data.postShare}
+                  isPopupView={true}
+                  isOpen={true}
+                  isOwner={data.post?.isOwner}
+                />
+              );
+            })()
           }
         />
       )}

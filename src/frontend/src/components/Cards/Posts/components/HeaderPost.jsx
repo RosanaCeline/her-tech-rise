@@ -7,7 +7,7 @@ import BtnCallToAction from '../../../btn/BtnCallToAction/BtnCallToAction';
 
 const baseUrl = import.meta.env.VITE_API_URL;
 
-export default function HeaderPost({ photo, name, post, date, isOpen = false, onPostsUpdated = false, isShare = false,
+export default function HeaderPost({ photo, name, post, date, isOpen = false, onPostsUpdated = false, 
                                       isFollowing = null, onFollowToggle = null, handle = null, idAuthor = null, isOwner = false, onEdit = false }) {
   const navigate = useNavigate();
   const [showVisibilityOptions, setShowVisibilityOptions] = useState(false);
@@ -24,6 +24,7 @@ export default function HeaderPost({ photo, name, post, date, isOpen = false, on
     try {
       await updatePostVisibility(post.id, value);
       setShowVisibilityOptions(false);
+      console.log("Visibilidade do Post alterado com sucesso.");
     } catch (err) {
       console.error('Erro ao alterar visibilidade:', err);
       setError('Erro ao atualizar a visibilidade. Tente novamente.');
@@ -72,21 +73,21 @@ export default function HeaderPost({ photo, name, post, date, isOpen = false, on
 
   const handleNavigateProfile = async () => {
     if (isFollowing !== null) {
-      const professionalPath = `/profile/professional/${idAuthor}-${handle}`;
-      const companyPath = `/profile/company/${idAuthor}-${handle}`;
+        const professionalPath = `/profile/professional/${idAuthor}-${handle}`;
+        const companyPath = `/profile/company/${idAuthor}-${handle}`;
 
-      try {
-        const response = await fetch(`${baseUrl}/profile/professional/${idAuthor}`);
-        if (response.ok) {
-          navigate(professionalPath);
-        } else {
+        try {
+          const response = await fetch(`${baseUrl}/profile/professional/${idAuthor}`);
+          if (response.ok) {
+            navigate(professionalPath);
+          } else {
+            navigate(companyPath);
+          }
+        } catch (err) {
           navigate(companyPath);
         }
-      } catch (err) {
-        navigate(companyPath);
       }
-    }
-  };
+    };
 
   return (
     <div className="relative flex flex-col gap-2 mb-4">
@@ -129,13 +130,7 @@ export default function HeaderPost({ photo, name, post, date, isOpen = false, on
           </div>
         )}
 
-        {isShare && (
-          <p className="text-sm text-gray-500">
-            Compartilhou uma publicação de <span className="font-semibold">{post.author.name}</span>
-          </p>
-        )}
-
-        {isFollowing !== null && onFollowToggle && (
+        {!isOwner && isFollowing !== null && onFollowToggle && (
           <BtnCallToAction
             onClick={onFollowToggle}
             variant={isFollowing ? 'white' : 'purple'}
