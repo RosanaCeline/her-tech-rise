@@ -19,17 +19,17 @@ export default function ApplyJob({applyJobModal, setApplyJobModal}){
         setApplyFormData(prev => ({ ...prev, [field]: value }));
     }
 
-    const handleSubmit = () => {
+    const handleSubmit = async () => {
         if(applyFormData.resumeFile === ''){
             setErrorMessage('Anexe um currículo antes de continuar')
             setTimeout(() => setErrorMessage(null), 4000)
         }else{
             setErrorMessage('')
             try{
-                postApplication(applyFormData)
+                await postApplication(applyFormData)
                 navigate("/profissional/vagas/candidaturas")
             }catch(err){
-                setErrorMessage(err.response?.data?.message || `Erro ao se candidatar à vaga de emprego`)
+                setErrorMessage(err.message || `Erro ao se candidatar à vaga de emprego`)
                 setTimeout(() => setErrorMessage(null), 4000)
             }
         }
