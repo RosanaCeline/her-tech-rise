@@ -7,8 +7,8 @@ import ManagePost from '../../posts/ManagePost';
 import AttachFile from '../../posts/AttachFile';
 import InteractionBar from '../../posts/Interactions/InteractionBar';
 
-export default function CardPostProfile({ post, photo, name, isPopupView = false, isOpen = false, onPostsUpdated = false, isShare = false,
-                                          isFollowing = null, onFollowToggle = null, handle = null, idAuthor = null, isOwner = false }) {
+export default function CardPostProfile({ post, photo, name, handle = null, idAuthor = null, isOwner = false, isShare = false, postShare = null,
+                                          isPopupView = false, isOpen = false, onPostsUpdated = false, isFollowing = null, onFollowToggle = null,   }) {
   const [showPopup, setShowPopup] = useState(false);
   const [activePopUp, setActivePopUp] = useState("post");
   const [editingPost, setEditingPost] = useState(null);
@@ -80,16 +80,19 @@ export default function CardPostProfile({ post, photo, name, isPopupView = false
         
         <ContentPost 
           post={post} 
+          isShare={isShare}
+          postShare={postShare}
           isOpen={isOpen} 
           onExpand={openPopup}
+          cardWidth={cardWidth}
         />
 
-        {/* {!isShare && (
+        {!isShare && (
           <InteractionBar
             post={post}
             cardWidth={cardWidth}
           />
-        )} */}
+        )}
 
         {editingPost && (
           <PopUpBlurProfile
@@ -120,78 +123,3 @@ export default function CardPostProfile({ post, photo, name, isPopupView = false
       </div>
   )
 }
-
-// [
-//     {
-//         "type": "COMPARTILHAMENTO",
-//         "post": null,
-//         "share": {
-//             "id": 38,
-//             "sharedContent": "compartilhando",
-//             "sharedAt": "2025-08-01T15:18:33.542021",
-//             "sharingUser": {
-//                 "id": 4,
-//                 "name": "Lais Carvalho Coutinho",
-//                 "handle": "@laiscarvalhoco",
-//                 "profilePic": "https://res.cloudinary.com/dl63ih00u/image/upload/v1753555946/profile_pics/user_4.png",
-//                 "isFollowed": null
-//             },
-//             "originalPost": {
-//                 "id": 38,
-//                 "author": {
-//                     "id": 1,
-//                     "name": "Rosana Celine Pinheiro Damaceno",
-//                     "handle": "@rosanacelinepi",
-//                     "profilePic": "https://res.cloudinary.com/dl63ih00u/image/upload/v1752625413/default_profile_professional_yij7n0.png",
-//                     "isFollowed": false
-//                 },
-//                 "content": "Esta sou eu jogando PEAK!!!",
-//                 "createdAt": "2025-08-01T14:24:26.944795",
-//                 "idCommunity": null,
-//                 "media": [
-//                     {
-//                         "id": 23,
-//                         "mediaType": "IMAGE",
-//                         "url": "https://res.cloudinary.com/dl63ih00u/image/upload/v1754069066/posts/txb1eggpwnyje8fyf7xf.jpg"
-//                     }
-//                 ],
-//                 "visibility": "PUBLICO",
-//                 "edited": false,
-//                 "editedAt": null,
-//                 "isOwner": false,
-//                 "canEdit": false
-//             }
-//         },
-//         "createdAt": "2025-08-01T15:18:33.542021"
-//     },
-//     {
-//         "type": "POSTAGEM",
-//         "post": {
-//             "id": 34,
-//             "author": {
-//                 "id": 4,
-//                 "name": "Lais Carvalho Coutinho",
-//                 "handle": "@laiscarvalhoco",
-//                 "profilePic": "https://res.cloudinary.com/dl63ih00u/image/upload/v1753555946/profile_pics/user_4.png",
-//                 "isFollowed": false
-//             },
-//             "content": "novo post com media publica",
-//             "createdAt": "2025-07-31T23:32:33.673715",
-//             "idCommunity": null,
-//             "media": [
-//                 {
-//                     "id": 22,
-//                     "mediaType": "IMAGE",
-//                     "url": "https://res.cloudinary.com/dl63ih00u/image/upload/v1754015552/posts/etldgejc7itl5vxlqni7.jpg"
-//                 }
-//             ],
-//             "visibility": "PUBLICO",
-//             "edited": false,
-//             "editedAt": null,
-//             "isOwner": true,
-//             "canEdit": true
-//         },
-//         "share": null,
-//         "createdAt": "2025-07-31T23:32:33.673715"
-//     },
-// ]

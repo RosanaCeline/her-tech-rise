@@ -2,16 +2,55 @@ import { useState } from 'react';
 import { Files } from 'lucide-react';
 
 import BtnCallToAction from '../../../btn/BtnCallToAction/BtnCallToAction';
+import CardPostProfile from '../CardPostProfile';
 
-export default function ContentPost({ post, isOpen, onExpand }) {
+export default function ContentPost({ post, isShare = false, postShare = null, isOpen, onExpand, cardWidth }) {
+  const isCompact = cardWidth < 600;
   const media = post.media ?? [];
   const firstMedia = media[0];
   const hasMultipleMedia = media.length > 1;
+
+  const postViewShare = isShare && postShare
+    ? {
+        id: postShare.id,
+        content: postShare.content,
+        media: postShare.media || [],
+        createdAt: postShare.createdAt,
+      }
+    : null;
 
   return (
     <div className="flex flex-col gap-2 overflow-auto max-h-[40vh] p-1">
       <p className="text-sm text-gray-700 break-words">{post.content}</p>
 
+      {isShare && (
+        <>
+          {isCompact ? (
+            <div className="mt-2 p-3 border border-gray-300 rounded-lg bg-gray-50">
+              <p className="text-xs text-gray-500"> 📌 Compartilhando um post de{" "}
+                <span className="font-semibold">{postShare.author.name}</span>
+              </p>
+            </div>
+          ) : (
+            <div className="mt-2 p-3 border border-gray-300 rounded-lg bg-gray-50">
+              <p className="text-xs text-gray-500 mb-2"> 📌 Compartilhando um post de{" "}
+                <span className="font-semibold">{postShare.author.name}</span>. Clique para ver o post completo.
+              </p>
+
+              <CardPostProfile
+                photo={postShare.author.profilePic}
+                name={postShare.author.name}
+                handle={postShare.author.handle}
+                idAuthor={postShare.author.id}
+                post={postShare}
+                isShare={false}
+                isOwner={false}
+                isPopupView={true}
+              />
+            </div>
+          )}
+        </>
+      )}
       {isOpen ? (
         media.map((m, i) => {
           if (m.mediaType === 'IMAGE')

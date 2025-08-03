@@ -1,9 +1,11 @@
 import React, { useEffect, useState } from 'react';
+
 import TimelineCard from './components/TimelineCard';
 import NewPost from './components/NewPost';
 import LoadingSpinner from '../../components/LoadingSpinner/LoadingSpinner';
 import CardPostProfile from '../../components/Cards/Posts/CardPostProfile';
 import PopUpBlurProfile from '../../components/Cards/Profile/PopUpBlurProfile';
+
 import { getTimelinePosts } from '../../services/timelineService';
 import { getCurrentUser } from '../../services/authService';
 import { useError } from "../../context/ErrorContext";
@@ -12,7 +14,6 @@ export default function Timeline() {
     const userData = getCurrentUser();
     const { showError } = useError();
     const [posts, setPosts] = useState([]);
-    console.log('Timeline', posts);
     const [loading, setLoading] = useState(true);
     const [hasMore, setHasMore] = useState(true);
     const [loadingMore, setLoadingMore] = useState(false);
@@ -32,6 +33,44 @@ export default function Timeline() {
         setSelectedPostId(null);
     };
 
+    const normalizePost = (item) => {
+        if (item.type === "COMPARTILHAMENTO") {
+            return {
+                photo: item.share.sharingUser.profilePic,
+                name: item.share.sharingUser.name,
+                handle: item.share.sharingUser.handle,
+                idAuthor: item.share.sharingUser.id,
+                post: {
+                    id: item.share.id,
+                    content: item.share.sharedContent,
+                    createdAt: item.createdAt,
+                    visibility: "PUBLICO",
+                    isOwner: item.share.sharingUser.id === userData.id
+                },
+                isShare: true,
+                postShare: item.share.originalPost, 
+            };
+        }
+        return {
+            photo: item.post.author.profilePic,
+            name: item.post.author.name,
+            handle: item.post.author.handle,
+            idAuthor: item.post.author.id,
+            post: {
+                id: item.post.id,
+                content: item.post.content,
+                edited: item.post.edited,
+                editedAt: item.post.editedAt,
+                isOwner: item.post.isOwner,
+                createdAt: item.createdAt,
+                media: item.post.media || [],
+                visibility: item.post.visibility,
+            },
+            isShare: false,
+            postShare: null,
+        };
+    };
+
     useEffect(() => {
         async function fetchTimeline() {
             try {
@@ -40,26 +79,22 @@ export default function Timeline() {
 
                 const response = await getTimelinePosts(page);
                 let rawPosts = response.content || response;
-                rawPosts = rawPosts.filter((post) => post.visibility === "PUBLICO");
+                rawPosts = rawPosts.filter((item) => {
+                    if (item.type === "POSTAGEM") {
+                        return item.post?.visibility === "PUBLICO";
+                    }
+                    if (item.type === "COMPARTILHAMENTO") {
+                        return item.share?.originalPost?.visibility === "PUBLICO";
+                    }
+                    return false;
+                });
 
                 if (rawPosts.length === 0) {
                     setHasMore(false); 
                     return;
                 }
 
-                const finalPosts = rawPosts.map((post) =>
-                    post.isOwner
-                        ? {
-                            ...post,
-                            author: {
-                            ...post.author,
-                            name: userData.name,
-                            profilePic: userData.profilePicture,
-                            },
-                        }
-                        : post
-                );
-                setPosts(prevPosts => (page === 0 ? finalPosts : [...prevPosts, ...finalPosts]));
+                setPosts((prev) => (page === 0 ? rawPosts : [...prev, ...rawPosts]));
             } catch (err) {
                 showError("Erro ao carregar a timeline. Tente novamente.");
             } finally {
@@ -108,23 +143,28 @@ export default function Timeline() {
 
             {posts.length > 0 ? (
                 <div className="flex flex-col gap-8 w-full mx-auto mt-6">
-                    {posts.map((post) => (
-                        <div key={post.id} 
-                            className="w-4/5 mx-auto bg-white p-8 rounded-xl shadow-md"
-                            onClick={() => openUniquePostPopup(post.id)}>
+                    {posts.map((post) => {
+                        const data = normalizePost(post);
+                        return (
+                            <div key={`${data.post.id}-${data.post.createdAt}`}
+                                className="w-4/5 mx-auto bg-white p-8 rounded-xl shadow-md"
+                                onClick={() => openUniquePostPopup(data.post.id)}
+                            >
                             <CardPostProfile
-                                key={post.id}
-                                post={post}
-                                photo={post.author?.profilePic}
-                                name={post.author?.name}
-                                idAuthor={post.author?.id}
-                                handle={post.author?.handle}
-                                isOwner={post.isOwner}
-                                isFollowing={ post.isOwner ? null : post.author.isFollowed }
-                                onFollowToggle={() => handleToggleFollow(post.author.id)}
+                                post={data.post}
+                                photo={data.photo}
+                                name={data.name}
+                                idAuthor={data.idAuthor}
+                                handle={data.handle}
+                                isOwner={data.post.isOwner}
+                                isShare={data.isShare}
+                                postShare={data.postShare}
+                                isFollowing={data.post.isOwner ? false : (data.post.author?.isFollowed ?? false)}
+                                onFollowToggle={() => handleToggleFollow(data.idAuthor)}
                             />
-                        </div>
-                    ))}
+                            </div>
+                        );
+                    })}
                 </div>
             ) : (
                 <p className="text-center text-gray-500 mt-10"> Nenhuma publicação encontrada </p>
@@ -137,18 +177,27 @@ export default function Timeline() {
                 <PopUpBlurProfile
                     isOpen={isUniquePostPopup}
                     onClose={closeUniquePostPopup}
-                    content={
-                    <CardPostProfile
-                        post={selectedPost}
-                        photo={selectedPost.author?.profilePic}
-                        name={selectedPost.author?.name}
-                        isPopupView={true}
-                        isOpen={true}
-                        isOwner={selectedPost.isOwner}  
-                    />
-                    }
+                    content={() => {
+                        const data = normalizePost(selectedPost);
+                        console.log("Timeline:", data.post);
+                        return (
+                            <CardPostProfile
+                                post={data.post}
+                                photo={data.photo}
+                                name={data.name}
+                                handle={data.handle}
+                                idAuthor={data.idAuthor}
+                                isPopupView={true}
+                                isOpen={true}
+                                isOwner={data.post.isOwner}
+                                isFollowing={data.post.isOwner ? false : (data.post.author?.isFollowed ?? false)}
+                                isShare={data.isShare}
+                                postShare={data.postShare}
+                            />
+                        );
+                    }}
                 />
-                )}
+            )}
         </main>
     );
 }
