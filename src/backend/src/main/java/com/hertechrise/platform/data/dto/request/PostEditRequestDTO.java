@@ -1,7 +1,6 @@
 package com.hertechrise.platform.data.dto.request;
 
 import com.hertechrise.platform.model.PostVisibility;
-import com.hertechrise.platform.validation.annotations.ContentOrMediaRequired;
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotNull;
@@ -9,7 +8,6 @@ import jakarta.validation.constraints.Size;
 
 import java.util.List;
 
-@ContentOrMediaRequired
 @Schema(name = "PostEditRequestDTO", description = "DTO para edição de postagens na plataforma")
 public record PostEditRequestDTO(
 
@@ -21,8 +19,7 @@ public record PostEditRequestDTO(
         @NotNull(message = "Visibilidade é obrigatória.")
         PostVisibility visibility,
 
-        @Schema(description = "Lista de mídias antigas e novas associadas à postagem (máximo 10 itens)")
-        @Size(max = 10, message = "Máx. 10 itens de mídia.")
+        @Schema(description = "Lista de mídias antigas associadas à postagem")
         @Valid
         List<MediaEditRequestDTO> medias
 ) {}

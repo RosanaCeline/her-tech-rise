@@ -1,14 +1,12 @@
 package com.hertechrise.platform.data.dto.request;
 
 import com.hertechrise.platform.model.PostVisibility;
-import com.hertechrise.platform.validation.annotations.ContentOrMediaRequired;
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 
 import java.util.List;
 
-@ContentOrMediaRequired
 @Schema(name = "PostRequestDTO", description = "DTO para fazer uma postagem na plataforma")
 public record PostRequestDTO(
 
