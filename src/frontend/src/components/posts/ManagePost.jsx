@@ -26,24 +26,21 @@ export default function ManagePost({user, setActivePopUp, formData, setFormData,
             setErrorMessage('');
             try {
                 if (isEdit && formData.postId) {
-                    const formDataToSend = new FormData();
-
                     const mediasFormatted = formData.media.map(media => ({
-                        id: media.id,                 // pode ser undefined para mídias novas
-                        file: media.file || media, // garante que seja um objeto File
+                        id: media.id || null,
+                        file: media.file || media,
                         mediaType: getMediaType(media.mimeType || media.type),
                         mimeType: media.mimeType || media.type,
                         url: media.url || '',
-                        validNewMedia: media instanceof File,  // true se é novo upload
-                        validOldMedia: !(media instanceof File) // true se já existe no backend
                     }));
 
                     const formDataUpdated = {
                         content: formData.content,
                         visibility: formData.visibility,
-                        medias: mediasFormatted
+                        medias: mediasFormatted,
                     };
-                    await updatePost(formData.postId, formDataUpdated) 
+                    await updatePost(formData.postId, formDataUpdated);
+                    window.location.reload(); 
                 } else {
                     await newPost(formData) 
                 }

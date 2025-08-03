@@ -1,6 +1,5 @@
 import { requestService } from "./requestService";
 
-
 // ================= POSTAGEM =================
 export const sendLikePost = async (postId) => {
   return await requestService.apiRequest(`/post/${postId}/like`, 'POST');
@@ -10,9 +9,7 @@ export const sendCommentPost = async (postId, { content, parentCommentId = null 
   return await requestService.apiRequest(`/post/${postId}/comment`, 'POST', { content, parentCommentId });
 }
 
-// Tentando
 export const sendSharePost = async (postId, content) => {
-  console.log("sendSharePost chamado:", postId, content);
   return await requestService.apiRequest(`/post/${postId}/share`, 'POST', {content});
 }
 
@@ -43,22 +40,22 @@ export const getCommentsShare = async (shareId) => {
   return await requestService.apiRequest(`/post/share/${shareId}/comments`, 'GET');
 }
 
-// Tentando
 export const deleteShare = async (shareId) => {
   return await requestService.apiRequest(`/post/share/${shareId}`, 'DELETE');
 }
 
 
 // ================= COMENTÁRIO =================
+// Nao implementado
 export const sendLikeComment = async (commentId) => {
   return await requestService.apiRequest(`/post/comment/${commentId}/like`, 'POST');
 }
 
+// Nao implementado
 export const getLikesComment = async (commentId) => {
   return await requestService.apiRequest(`/post/comment/${commentId}/likes`, 'GET');
 }
 
-// Tentando
 export const deleteCommentsPost = async (commentId) => {
   return await requestService.apiRequest(`/post/comment/${commentId}`, 'DELETE');
 }
