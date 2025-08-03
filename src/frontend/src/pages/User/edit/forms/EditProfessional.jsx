@@ -15,6 +15,8 @@ import { maskField } from "../../../../components/form/Label/maskField";
 import { useCepAutoComplete } from '../../../../services/hooks/useCepAutoComplete'
 import { useAuth } from "../../../../context/AuthContext";
 import { getAllProfile, updateProfile } from "../../../../services/userService";
+import { updateGender } from "../../../../services/authService";
+import ConfirmModal from "../../../../components/ConfirmModal/ConfirmModal";
 
 export default function EditProfessional() {
   const [formData, setFormData] = useState({
@@ -48,6 +50,10 @@ export default function EditProfessional() {
   const [errorModalOpen, setErrorModalOpen] = useState(false);
   const [errorMessage, setErrorMessage] = useState('');
 
+  const [oldGenderData, setOldGenderData] = useState('')
+  const [oldConsentData, setOldConsentData] = useState('')
+  const [genderChangeWarning, setGenderChangeWarning] = useState(false)
+
   const ruaInput = useRef(null)
   const cidadeInput = useRef(null)
   const bairroInput = useRef(null)
@@ -71,6 +77,8 @@ export default function EditProfessional() {
         const user = await getAllProfile();
         if (!user) throw new Error('Perfil não encontrado')
 
+        console.log(user)
+
         const mappedForm = {
           nome: user.name || '',
           handle: user.handle || '',
@@ -83,6 +91,8 @@ export default function EditProfessional() {
           estado: user.uf || '',
           cep: user.cep || '',
           email: user.email || '',
+          gender: user.gender || '',
+          consentGenderSharing: user.consentGenderSharing,
           tecnologias: user.technology || '',
           biografia: user.biography || '',
           link: user.externalLink || '',
@@ -93,8 +103,11 @@ export default function EditProfessional() {
           posts: user.posts || [],
           experiences: user.experiences || [],
         };
+        console.log(mappedForm)
         setFormData(mappedForm)
         setOriginalUser(mappedForm)
+        setOldGenderData(mappedForm.gender)
+        setOldConsentData(mappedForm.consentGenderSharing)
       } catch (err) {
           console.error("Erro ao carregar dados do profissional:", err)
       } finally {
@@ -113,6 +126,7 @@ export default function EditProfessional() {
     if (name === 'telefone') maskedValue = maskField('telefone', value);
     if (name === 'cep') maskedValue = maskField('cep', value);
     if (name === 'data_nascimento') maskedValue = maskField('data', value);
+    if (name === 'consentGenderSharing') maskedValue = e.target.checked
 
     setFormData((prev) => ({ ...prev, [name]: maskedValue }));
   };
@@ -155,8 +169,17 @@ export default function EditProfessional() {
 
 
   const handleSubmit = async (e) => {
-    e.preventDefault();
+    if(e) e.preventDefault();
     if (!validateAllFields()) return;
+
+    if(oldGenderData !== formData.gender){
+      if(!genderChangeWarning){
+        setGenderChangeWarning(true)
+        return
+      }else updateGender(formData.gender, formData.consentGenderSharing)
+    }
+
+    if(oldConsentData !== formData.consentGenderSharing) updateGender(formData.gender, formData.consentGenderSharing)
 
     try {
       const finalData = {
@@ -179,6 +202,8 @@ export default function EditProfessional() {
         experiences: formData.experiences ?? [],
         externalLink: formData.link?.trim() || null,
         posts: formData.posts ?? [],
+        gender: formData.gender ?? null,
+        consentGenderSharing: formData.consentGenderSharing ?? null
       };
 
       const updatedUser = await updateProfile(finalData)
@@ -191,9 +216,7 @@ export default function EditProfessional() {
     }
   };
 
-  if (loading) {
-    <LoadingSpinner />
-  }
+  if (loading) return <LoadingSpinner />
 
   return (
     <>
@@ -233,6 +256,21 @@ export default function EditProfessional() {
             validation="data"
             placeholder="dd/mm/aaaa"
           />
+
+          <LabelInput label="Você se identifica como:" 
+          required={true}         type="select"    name='gender'
+          options={[
+              {value: 'MULHER', label: 'Mulher'}, 
+              {value: 'HOMEM', label: 'Homem'},
+              {value: 'PESSOA_NAO_BINARIA', label: 'Pessoa não binária'},
+              {value: 'OUTRO', label: 'Outro'},
+              {value: 'PREFIRO_NAO_INFORMAR', label: 'Prefiro não informar'}]}
+          value={formData.gender}    onChange={handleChange}/>
+
+          <LabelInput type="checkbox" value={formData.consentGenderSharing} 
+            name='consentGenderSharing' onChange={handleChange}
+            label="Autorizo que meu gênero seja compartilhado com empresas nas candidaturas a vagas, 
+            para apoiar ações afirmativas e promover diversidade. "/>
 
           <LabelInput
             label="Telefone:"
@@ -495,6 +533,18 @@ export default function EditProfessional() {
             {error}
         </div>
       )}
+      {genderChangeWarning === true &&
+      <ConfirmModal open={genderChangeWarning} title="Alteração de dados de identidade de gênero"
+      message="Esta plataforma é dedicada a mulheres na tecnologia. 
+      Por favor, edite sua identidade de gênero apenas se você realmente se identifica como mulher. 
+      Isso nos ajuda a manter um espaço seguro e coerente com nossa missão."
+      confirmText="Desejo alterar minha identidade de gênero"
+      cancelText="Voltar"
+      onConfirm={() => {
+        setGenderChangeWarning(false)
+        handleSubmit()
+      }}
+      onCancel={() => setGenderChangeWarning(false)}/>}
     </>
   );
 }

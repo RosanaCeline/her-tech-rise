@@ -123,7 +123,10 @@ public interface PostControllerDocs {
             @PathVariable Long postId,
 
             @Parameter(description = "Dados para edição do post")
-            @Valid @ModelAttribute PostEditRequestDTO request
+            @RequestPart("data") @Valid PostEditRequestDTO data,
+
+            @Parameter(description = "Novos arquivos adicionados no post", required = false, example = "15")
+            @RequestPart(name = "newFiles", required = false) List<MultipartFile> newFiles
     );
 
     @Operation(
