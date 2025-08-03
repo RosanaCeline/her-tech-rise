@@ -58,15 +58,15 @@ public class PostController implements PostControllerDocs {
         return ResponseEntity.ok(new MessageResponseDTO("Visibilidade atualizada com sucesso."));
     }
 
-    @PutMapping("/{postId}")
+    @PutMapping(value = "/{postId}", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ResponseEntity<PostMessageResponseDTO> editPost(
             @PathVariable Long postId,
-            @Valid @ModelAttribute PostEditRequestDTO request  // @ModelAttribute para multipart/form-data com campos + arquivos
+            @Valid PostEditRequestDTO data,
+            @RequestPart(name = "newFiles", required = false) List<MultipartFile> newFiles
     ) {
-        PostResponseDTO postResponse = postService.editPost(postId, request);
+        PostResponseDTO postResponse = postService.editPost(postId, data, newFiles);
 
         PostMessageResponseDTO response = new PostMessageResponseDTO("Postagem editada com sucesso.", postResponse);
-
         return ResponseEntity.status(HttpStatus.CREATED).body(response);
     }
 
