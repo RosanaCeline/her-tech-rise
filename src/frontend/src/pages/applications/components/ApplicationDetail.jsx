@@ -4,6 +4,7 @@ import { X, File, CircleX, CircleCheck } from 'lucide-react'
 import { useNavigate } from 'react-router-dom'
 import PopUp from '../../../components/PopUp'
 import BtnCallToAction from '../../../components/btn/BtnCallToAction/BtnCallToAction'
+import ConfirmModal from '../../../components/ConfirmModal/ConfirmModal'
 
 export default function ApplicationDetail({applicationDetail, setApplicationDetail, fetchMyApplications, user = 'professional'}){
     const navigate = useNavigate()
@@ -92,26 +93,11 @@ export default function ApplicationDetail({applicationDetail, setApplicationDeta
                 <BtnCallToAction onClick={() => setCancelModalOpen(true)}>Cancelar candidatura</BtnCallToAction>
             </div>
             {cancelModalOpen && (
-            <div className="fixed inset-0 z-50 bg-black/40 backdrop-blur-sm flex items-center justify-center">
-            <div className="bg-white p-8 rounded-2xl shadow-lg text-center max-w-sm">
-                <h2 className="text-2xl font-bold mb-4 text-[var(--purple-primary)]">
-                Confirmar Cancelamento
-                </h2>
-                <p className="mb-6 text-gray-700">Tem certeza que deseja cancelar candidatura?</p>
-                <div className="flex justify-center gap-6">
-                <button
-                    onClick={() => setCancelModalOpen(false)}
-                    className="bg-gray-300 text-gray-800 px-6 py-2 rounded-xl hover:bg-gray-400 transition">
-                    Não
-                </button>
-                <button
-                    onClick={() => handleCancelApplication()}
-                    className="bg-purple-600 text-white px-6 py-2 rounded-xl hover:bg-purple-700 transition">
-                    Sim
-                </button>
-                </div>
-            </div>
-            </div>
+            <ConfirmModal open={cancelModalOpen} title="Confirmar cancelamento"
+                message="Tem certeza que deseja cancelar candidatura?" 
+                confirmText="Sim" cancelText="Não"  
+                onConfirm={() => handleCancelApplication()}
+                onCancel={() => setCancelModalOpen(false)}/>
             )}</>
             :
             <div className="mt-5">

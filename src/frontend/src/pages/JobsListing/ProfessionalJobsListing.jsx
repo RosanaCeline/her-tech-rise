@@ -5,6 +5,8 @@ import BtnCallToAction from "../../components/btn/BtnCallToAction/BtnCallToActio
 import PopUp from "../../components/PopUp"
 import ApplyJob from "./components/ApplyJob"
 import { useNavigate } from "react-router-dom"
+import { getGender } from "../../services/authService"
+import ConfirmModal from "../../components/ConfirmModal/ConfirmModal"
 
 export default function ProfessionalJobsListing(){
     const navigate = useNavigate()
@@ -95,6 +97,9 @@ function JobDetails({job, setApplyJobModal}){
         REMOTO: 'Remoto', HIBRIDO: 'Híbrido', PRESENCIAL: 'Presencial'
     }
 
+    const [genderWarning, setGenderWarning] = useState(false)
+    const gender = getGender()
+
     return(
         <div className="p-4 bg-white w-full">
             <div className="flex justify-center gap-x-8 border-b-1 border-slate-200 pb-4">
@@ -126,10 +131,29 @@ function JobDetails({job, setApplyJobModal}){
                 </div>
             </div>
             <div className={`flex justify-center mt-7 ${job.hasApplied && 'grayscale opacity-60'}`}>
-                <BtnCallToAction onClick={() => !job.hasApplied && setApplyJobModal(job)}>
-                    {job.hasApplied ? 'JÁ CANDIDATADO' : 'CANDIDATAR-SE'}
-                </BtnCallToAction>
+                {job.hasApplied
+                ? <BtnCallToAction>JÁ CANDIDATADO</BtnCallToAction>
+                : <BtnCallToAction onClick={() => {
+                    if(gender !== 'MULHER' && gender !== 'PESSOA_NAO_BINARIA') setGenderWarning(true)
+                    else setApplyJobModal(job)
+                }}>CANDIDATAR-SE</BtnCallToAction>}
             </div>
+            {genderWarning &&
+            gender === null
+            ? <ConfirmModal open={genderWarning} title="Alerta de vaga afirmativa"
+                            message="Esta vaga tem foco em mulheres e, para garantir que você possa participar plenamente das vagas afirmativas,
+                             recomendamos que habilite o compartilhamento do seu gênero nas configurações do perfil. 
+                             Isso ajuda as empresas a entenderem seu perfil e a promoverem a inclusão." 
+                            confirmText="Continuar candidatura" cancelText="Voltar"  
+                            onConfirm={() => setApplyJobModal(job)}
+                            onCancel={() => setGenderWarning(false)}/> 
+            : <ConfirmModal open={genderWarning} title="Alerta de vaga afirmativa"
+                            message="Essa vaga tem foco em mulheres e identidades de gênero diversas, 
+                            como pessoas não-binárias. Seu perfil não se enquadra no público-alvo desta oportunidade. 
+                            Deseja prosseguir mesmo assim? "
+                            confirmText="Continuar candidatura" cancelText="Não"  
+                            onConfirm={() => setApplyJobModal(job)}
+                            onCancel={() => setGenderWarning(false)}/>}
         </div>
     )
 }

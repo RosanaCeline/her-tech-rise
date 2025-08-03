@@ -53,13 +53,35 @@ export default function LabelInput ({    name,
 
     return (
         <div className="w-full">
-        {label && (
+        {(label && type !== 'checkbox')&& (
             <label htmlFor={name} className={baseLabelClasses}>
             {label} {required && <span className="text-$[theme]">*</span>}
             </label>
         )}
 
-        {type === 'select' ? (
+        {type === 'checkbox' ? (
+            <label className="inline-flex items-center gap-2 cursor-pointer">
+                <input
+                    id={name}
+                    name={name}
+                    type="checkbox"
+                    checked={value}
+                    onChange={onChange}
+                    className=" w-9 h-9
+                        rounded-md
+                        border-2
+                        border-[#55618C]
+                        checked:bg-[#55618C]
+                        checked:border-transparent
+                        transition-all
+                        duration-200
+                        cursor-pointer"
+                    ref={ref}
+                    disabled={disabled}
+                />
+                <span className={`text-${theme} pl-4 text-base text-justify`}>{label} {required && <span className={`text-${theme}`}>*</span>}</span>
+            </label>
+        ) : type === 'select' ? (
             <div className='relative'>
                 <select
                 id={name}

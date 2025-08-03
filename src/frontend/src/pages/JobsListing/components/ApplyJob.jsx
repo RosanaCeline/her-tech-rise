@@ -27,7 +27,7 @@ export default function ApplyJob({applyJobModal, setApplyJobModal}){
             setErrorMessage('')
             try{
                 postApplication(applyFormData)
-                navigate("/candidaturas")
+                navigate("/profissional/vagas/candidaturas")
             }catch(err){
                 setErrorMessage(err.response?.data?.message || `Erro ao se candidatar à vaga de emprego`)
                 setTimeout(() => setErrorMessage(null), 4000)
