@@ -52,7 +52,7 @@ export default function LabelInput ({    name,
     `
 
     return (
-        <div className="w-full">
+        <div className="w-full mt-auto">
         {(label && type !== 'checkbox')&& (
             <label htmlFor={name} className={baseLabelClasses}>
             {label} {required && <span className="text-$[theme]">*</span>}

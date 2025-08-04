@@ -57,9 +57,9 @@ export default function ApplyJob({applyJobModal, setApplyJobModal}){
                         hover:file:bg-(--purple-action)"
                 />
                 <LabelInput label="Link do GitHub:" placeholder="Insira o link do seu portifólio no GitHub"
-                maxLength="100" value={applyFormData.title} onChange={(e) => handleChange('title', e.target.value)}/>
+                maxLength="100" value={applyFormData.githubLink} onChange={(e) => handleChange('githubLink', e.target.value)}/>
                 <LabelInput label="Link do portifólio:" placeholder="Insira o link do seu portifólio pessoal"
-                maxLength="2000" value={applyFormData.description} onChange={(e) => handleChange('description', e.target.value)}/>
+                maxLength="2000" value={applyFormData.portfolioLink} onChange={(e) => handleChange('portfolioLink', e.target.value)}/>
             </div>
             <div className='mt-5'>
                 <BtnCallToAction onClick={() => handleSubmit()}>ENVIAR</BtnCallToAction>
