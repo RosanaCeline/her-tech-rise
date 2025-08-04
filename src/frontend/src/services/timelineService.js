@@ -45,21 +45,35 @@ export const newPost = async (formData) => {
   }
 }
 
-// Erro por enquanto - por causa do PATCH
 export const updatePostVisibility = async (postId, visibility) => {
   const visibilityUpper = visibility.toUpperCase();
   return await requestService.apiRequest(`/post/${postId}/visibility?visibility=${visibilityUpper}`, 'PATCH');
 }
 
-// Funcionando
 export const deletePost = async (postId) => {
   return await requestService.apiRequest(`/post/${postId}`, 'DELETE');
 }
 
-// Nao implementado
-export const updatePost = async (postId) => {
-  return await requestService.apiRequest(`/post/${postId}`, 'PUT');
-}
+// Erro
+export const updatePost = async (postId, data) => {
+  console.log(getCurrentUser().token, postId, data)
+  const formData = new FormData();
+
+  formData.append('data', JSON.stringify({
+    content: data.content,
+    visibility: data.visibility,
+    medias: data.medias,
+  }));
+
+  if (data.newFiles && data.newFiles.length) {
+    data.newFiles.forEach(file => {
+      formData.append('newFiles', file);
+    });
+  }
+
+  return await requestService.apiRequest(`/post/${postId}`, 'PUT', formData);
+};
+
 
 export const getTimelinePosts = async (page = 0, size = 20) => {
   return await requestService.apiRequest(`/post/timeline?page=${page}&size=${size}&orderBy=createdAt&direction=DESC`,'GET');

@@ -2,32 +2,58 @@ import { useState, useEffect } from 'react'
 import BtnCallToAction from '../btn/BtnCallToAction/BtnCallToAction'
 import LabelInput from "../form/Label/LabelInput"
 import { Earth, Lock, X, Video, Image, Files, Trash2} from 'lucide-react'
-import { newPost } from '../../services/timelineService'
+import { newPost, updatePost } from '../../services/timelineService'
 
-export default function ManagePost({user, setActivePopUp, formData, setFormData}){
+export default function ManagePost({user, setActivePopUp, formData, setFormData, isEdit, onSuccess }){
     const [changeVisibilityPopup, setChangeVisibilityPopup] = useState(false)
     const [postErrorMessage, setPostErrorMessage] = useState('')
     const [errorMessage, setErrorMessage] = useState('')
     const [cancelModalOpen, setCancelModalOpen] = useState(false)
-    
     const changeVisibility = (visibility) => {
         setFormData(prev => ({ ...prev, visibility: visibility }));
         setChangeVisibilityPopup(false)
     }
 
+    const getMediaType = (mimeType) => {
+        if (!mimeType) return undefined;
+        if (mimeType.startsWith("image/")) return "IMAGE";
+        if (mimeType.startsWith("video/")) return "VIDEO";
+        return "OTHER";
+    };
+
     const handleSubmit = async () => {
-        if(formData.content !== '' || formData.media.length > 0){
-            setErrorMessage('')
-            try{
-                await newPost(formData)
+        if (formData.content !== '' || formData.media.length > 0) {
+            setErrorMessage('');
+            try {
+                if (isEdit && formData.postId) {
+                    const mediasFormatted = formData.media.map(media => ({
+                        id: media.id || null,
+                        file: media.file || media,
+                        mediaType: getMediaType(media.mimeType || media.type),
+                        mimeType: media.mimeType || media.type,
+                        url: media.url || '',
+                    }));
+
+                    const formDataUpdated = {
+                        content: formData.content,
+                        visibility: formData.visibility,
+                        medias: mediasFormatted,
+                    };
+                    await updatePost(formData.postId, formDataUpdated);
+                    window.location.reload(); 
+                } else {
+                    await newPost(formData) 
+                }
+
+                if (onSuccess) onSuccess();  
+                else window.location.reload(); 
                 setActivePopUp('')
-                window.location.reload()
-            }catch(err){
-                setPostErrorMessage(err.response?.data?.message || 'Erro ao registrar');
+            } catch (err) {
+                setPostErrorMessage(err.response?.data?.message || 'Erro ao salvar')
                 setTimeout(() => setPostErrorMessage(null), 4000)
             }
-        }else{
-            setErrorMessage("Insira pelo menos um texto ou anexo para realizar uma publicação");
+        } else {
+            setErrorMessage("Insira pelo menos um texto ou anexo para publicar.")
         }
     }
 
@@ -35,22 +61,36 @@ export default function ManagePost({user, setActivePopUp, formData, setFormData}
 
     useEffect(() => {
         const urls = formData.media
-            .filter(file => file.type.startsWith('image/') || file.type === 'video/mp4')
-            .map(file => ({
-                file,
-                url: URL.createObjectURL(file)
-            }));
-
+            .map(item => {
+                if (item.url) {
+                    return { file: item, url: item.url };
+                }
+                if (item instanceof File) {
+                    if (item.type.startsWith('image/') || item.type === 'video/mp4') {
+                    return { file: item, url: URL.createObjectURL(item) };
+                    }
+                }
+                return null;
+            })
+            .filter(Boolean);
         setMediaUrls(urls);
-
-        return () => urls.forEach(({ url }) => URL.revokeObjectURL(url));
+        return () => {
+            urls.forEach(({ url, file }) => {
+                if (file instanceof File) {
+                    URL.revokeObjectURL(url);
+                }
+            });
+        };
     }, [formData.media]);
 
 
     const handleRemove = (fileToRemove) => {
         setFormData(prev => ({
             ...prev,
-            media: prev.media.filter(file => file !== fileToRemove)
+            media: prev.media.filter(file => {
+                if (file.id) return file.id !== fileToRemove.id;
+                return file !== fileToRemove;
+            })
         }));
     };
 
@@ -88,21 +128,22 @@ export default function ManagePost({user, setActivePopUp, formData, setFormData}
         <LabelInput placeholder="Digite sua nova publicação" type="mensagem" value={formData.content} required={!formData.media.length}
             onChange={(e) => setFormData(prev => ({ ...prev, content: e.target.value }))}/></div>
 
-        {formData.media.some(file => file.type.startsWith('image/') || file.type === 'video/mp4') && (
-        <div className="mt-4 flex gap-4 overflow-x-auto overflow-y-hidden max-w-full h-37">
-            {mediaUrls.map(({file, url}, index) => {
-                return(
-                    <div key={index} className='relative inline-block mr-4 min-w-[8rem]'>
-                        {file.type.startsWith('image/') && <img src={url} alt="Preview" className="w-full h-32 object-cover rounded shadow"/>}
-                        {file.type === 'video/mp4' && <video key={index} src={url} controls className="w-full h-32 rounded shadow object-cover"/>}
-                        <button onClick={() => handleRemove(file)} 
-                        className='absolute top-1 right-1 bg-(--purple-primary) text-white rounded-full w-9 h-9 flex items-center justify-center hover:bg-(--purple-action)'>
-                            <Trash2 />
-                        </button>
-                    </div>
-                )
-            })}
-        </div>
+        {formData.media.some(file => (file.type?.startsWith?.('image/') || file.mediaType === 'IMAGE') || (file.type?.startsWith?.('video/mp4') || file.mediaType === 'VIDEO')
+        ) && (
+            <div className="mt-4 flex gap-4 overflow-x-auto overflow-y-hidden max-w-full h-37">
+                {mediaUrls.map(({file, url}, index) => {
+                    return(
+                        <div key={index} className='relative inline-block mr-4 min-w-[8rem]'>
+                            {(file.type?.startsWith?.('image/') || file.mediaType === 'IMAGE') && <img src={url} alt="Preview" className="w-full h-32 object-cover rounded shadow"/>}
+                            {(file.type?.startsWith?.('video/mp4') || file.mediaType === 'VIDEO') && <video key={index} src={url} controls className="w-full h-32 rounded shadow object-cover"/>}
+                            <button onClick={() => handleRemove(file)} 
+                            className='absolute top-1 right-1 bg-(--purple-primary) text-white rounded-full w-9 h-9 flex items-center justify-center hover:bg-(--purple-action)'>
+                                <Trash2 />
+                            </button>
+                        </div>
+                    )
+                })}
+            </div>
         )}
 
         <div>
@@ -134,7 +175,7 @@ export default function ManagePost({user, setActivePopUp, formData, setFormData}
                 <Files className="transition duration-300 hover:scale-110 cursor-pointer text-(--purple-primary) h-8 w-8"
                 onClick={() => setActivePopUp('docs')}/>
             </div>
-            <BtnCallToAction variant="purple" onClick={() => handleSubmit()}>Publicar</BtnCallToAction>
+            <BtnCallToAction variant="purple" onClick={() => handleSubmit()}>{isEdit ? "Salvar Alterações" : "Publicar"}</BtnCallToAction>
         </div>
         {errorMessage && <p className='text-center mt-2'>{errorMessage}</p>}
         {postErrorMessage && (
@@ -160,12 +201,13 @@ export default function ManagePost({user, setActivePopUp, formData, setFormData}
                 </button>
                 <button
                     onClick={() => {
-                    setActivePopUp('');
-                    setFormData({
-                        content: '',
-                        media: [],
-                        visibility: 'PUBLICO'
-                    })
+                        setActivePopUp('');
+                        setFormData({
+                            content: '',
+                            media: [],
+                            visibility: 'PUBLICO'
+                        })
+                        window.location.reload(); 
                     }}
                     className="bg-purple-600 text-white px-6 py-2 rounded-xl hover:bg-purple-700 transition"
                 >
