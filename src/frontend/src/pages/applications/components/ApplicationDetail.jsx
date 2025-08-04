@@ -5,15 +5,25 @@ import { useNavigate } from 'react-router-dom'
 import PopUp from '../../../components/PopUp'
 import BtnCallToAction from '../../../components/btn/BtnCallToAction/BtnCallToAction'
 import ConfirmModal from '../../../components/ConfirmModal/ConfirmModal'
+import LoadingSpinner from '../../../components/LoadingSpinner/LoadingSpinner'
 
 export default function ApplicationDetail({applicationDetail, setApplicationDetail, fetchMyApplications, user = 'professional'}){
     const navigate = useNavigate()
     const [data, setData] = useState('')
     const [cancelModalOpen, setCancelModalOpen] = useState(false)
+    const [loading, setLoading] = useState(true)
+    const [error, setError] = useState(null);
 
     const fetchApplicationDetail = async (id) => {
-        const response = user === 'professional' ? await myApplicationDetail(id) : await myCompanyApplicationDetail(id)
-        setData(response)
+        try{
+            const response = user === 'professional' ? await myApplicationDetail(id) : await myCompanyApplicationDetail(id)
+            setData(response)
+        }catch(err){
+            setError('Erro ao carregar detalhes de candidatura.');
+            console.error(err);
+        }finally{
+            setLoading(false)
+        }
     }
 
     useEffect(() => {
@@ -25,8 +35,10 @@ export default function ApplicationDetail({applicationDetail, setApplicationDeta
         setCancelModalOpen(false)
         setApplicationDetail('')
         await fetchMyApplications()
-        console.log("Fechando o PopUp!")
     }
+
+    if (loading) return ( <LoadingSpinner /> )
+    if (error) return <main className="pt-34"><p className="text-red-600">{error}</p></main>;
 
     return(
         <PopUp>
