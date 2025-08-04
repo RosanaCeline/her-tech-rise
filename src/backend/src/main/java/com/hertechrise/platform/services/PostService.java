@@ -11,6 +11,7 @@ import com.hertechrise.platform.repository.PostRepository;
 import com.hertechrise.platform.repository.PostShareRepository;
 import jakarta.persistence.EntityNotFoundException;
 import jakarta.persistence.criteria.Predicate;
+import jakarta.validation.ValidationException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.*;
 import org.springframework.data.jpa.domain.Specification;
@@ -21,6 +22,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.net.URLConnection;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Comparator;
@@ -42,6 +44,10 @@ public class PostService {
     private final PostInteractionService postInteractionService;
 
     public PostRequestDTO processPostData(String content, Long idCommunity, PostVisibility visibility, List<MultipartFile> mediaFiles) {
+        if ((content == null || content.trim().isEmpty()) && (mediaFiles == null || mediaFiles.isEmpty())) {
+            throw new ValidationException("Informe o conteúdo ou adicione uma mídia.");
+        }
+
         List<MediaRequestDTO> media = mediaFiles != null
                 ? mediaFiles.stream()
                 .map(this::toMediaRequestDTO)
@@ -161,7 +167,12 @@ public class PostService {
     }
 
     @Transactional
-    public PostResponseDTO editPost(Long postId, PostEditRequestDTO request) {
+    public PostResponseDTO editPost(Long postId, PostEditRequestDTO request, List<MultipartFile> newFiles) {
+        if ((request.content() == null || request.content().trim().isEmpty()) && (request.medias() == null ||
+                request.medias().isEmpty()) && (newFiles == null || newFiles.isEmpty())) {
+            throw new ValidationException("Informe o conteúdo ou adicione uma mídia.");
+        }
+
         Post post = postRepository.findById(postId)
                 .orElseThrow(() -> new EntityNotFoundException("Postagem não encontrada."));
 
@@ -178,7 +189,12 @@ public class PostService {
 
         List<MediaEditRequestDTO> medias = request.medias() != null ? request.medias() : List.of();
 
-        if (medias.size() > 10) {
+        List<MultipartFile> arquivosNovos = (newFiles != null)
+                ? newFiles.stream().filter(f -> f != null && !f.isEmpty()).toList()
+                : List.of();
+
+        int totalMidias = medias.size() + arquivosNovos.size();
+        if (totalMidias > 10) {
             throw new MaxMediaLimitExceededException();
         }
 
@@ -192,25 +208,47 @@ public class PostService {
 
         post.getMedia().removeIf(m -> !mediaIdsToKeep.contains(m.getId()));
 
-        List<Media> novasMedias = medias.stream()
-                .filter(m -> m.id() == null && m.file() != null)
+        List<Media> novasDoDTO = medias.stream()
+                .filter(m -> m.id() == null && m.url() != null)
                 .map(m -> {
-                    String mimeType = m.mimeType();
+                    String mimeType = URLConnection.guessContentTypeFromName(m.url());
+
+                    Media media = new Media();
+                    media.setPost(post);
+                    media.setMediaType(m.mediaType());
+                    media.setMimeType(mimeType);
+                    media.setUrl(m.url());
+                    return media;
+                })
+                .toList();
+
+        List<Media> novasDosArquivos = arquivosNovos.isEmpty() ? List.of() : arquivosNovos.stream()
+                .map(file -> {
+                    String mimeType = file.getContentType();
                     if (mimeType == null || !mimeType.matches("^(image|video|application)/.+$")) {
                         throw new IllegalArgumentException("MIME inválido para arquivo: " + mimeType);
                     }
 
-                    String url = cloudinaryService.uploadFile(m.file());
+                    MediaType mediaType = switch (mimeType) {
+                        case String mt when mt.startsWith("image/")       -> MediaType.IMAGE;
+                        case String mt when mt.startsWith("video/")       -> MediaType.VIDEO;
+                        case String mt when mt.startsWith("application/") -> MediaType.DOCUMENT;
+                        default -> throw new IllegalArgumentException("Tipo não suportado: " + mimeType);
+                    };
+
+                    String url = cloudinaryService.uploadFile(file);
+
                     Media media = new Media();
                     media.setPost(post);
-                    media.setMediaType(m.mediaType());
+                    media.setMediaType(mediaType);
                     media.setMimeType(mimeType);
                     media.setUrl(url);
                     return media;
                 })
                 .toList();
 
-        post.getMedia().addAll(novasMedias);
+        post.getMedia().addAll(novasDoDTO);
+        post.getMedia().addAll(novasDosArquivos);
 
         post.setEdited(true);
         post.setEditedAt(LocalDateTime.now());
