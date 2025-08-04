@@ -1,23 +1,21 @@
 import { useState } from 'react';
+import { useNavigate } from "react-router-dom";
 import { Edit, Trash2, Eye, Globe, Users, Lock, AlertCircle } from 'lucide-react';
-import { updatePostVisibility, deletePost, updatePost } from '../../../../services/timelineService';
+import { updatePostVisibility, deletePost } from '../../../../services/timelineService';
+import { deleteShare } from '../../../../services/interactionsService';
+import { getProfileById } from '../../../../services/userService';
 import ConfirmModal from '../../../ConfirmModal/ConfirmModal';
+import BtnCallToAction from '../../../btn/BtnCallToAction/BtnCallToAction';
 
-export default function HeaderPost({ photo, name, visibility, communityId, postId, date, isOpen = false, onPostsUpdated }) {
+const baseUrl = import.meta.env.VITE_API_URL;
+
+export default function HeaderPost({ photo, name, post, date, isOpen = false, onPostsUpdated = false, 
+                                      isFollowing = null, onFollowToggle = null, handle = null, idAuthor = null, isOwner = false, onEdit = false }) {
+  const navigate = useNavigate();
   const [showVisibilityOptions, setShowVisibilityOptions] = useState(false);
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [error, setError] = useState('');
   const size = 18;
-
-  const onEdit = (e) => {
-    e.stopPropagation();
-    console.log('Edit');
-  };
-
-  const onDelete = (e) => {
-    e.stopPropagation();
-    setShowDeleteModal(true);
-  };
 
   const toggleVisibilityDropdown = (e) => {
     e.stopPropagation();
@@ -26,18 +24,27 @@ export default function HeaderPost({ photo, name, visibility, communityId, postI
 
   const changeVisibility = async (value) => {
     try {
-      await updatePostVisibility(postId, value);
+      await updatePostVisibility(post.id, value);
       setShowVisibilityOptions(false);
-      console.log('Visibilidade alterada para:', value);
+      console.log("Visibilidade do Post alterado com sucesso.");
     } catch (err) {
       console.error('Erro ao alterar visibilidade:', err);
       setError('Erro ao atualizar a visibilidade. Tente novamente.');
     }
   };
 
+  const onDelete = (e) => {
+    e.stopPropagation();
+    setShowDeleteModal(true);
+  };
+
   const handleConfirmDelete = async (postId) => {
     try {
-      await deletePost(postId);
+      if (post.type === "COMPARTILHAMENTO") {
+        await deleteShare(postId); 
+      } else {
+        await deletePost(postId); 
+      }
       setShowDeleteModal(false);
       console.log("Post excluído com sucesso.");
       if(onPostsUpdated) {
@@ -45,9 +52,43 @@ export default function HeaderPost({ photo, name, visibility, communityId, postI
       }
       window.location.reload();
     } catch (err) {
-      console.error("Erro ao excluir o post:", err);
-      setShowDeleteModal(false);
-      setError(err.message || "Erro ao excluir o post. Tente novamente.");
+        console.error("Erro ao excluir o post:", err);
+        setShowDeleteModal(false);
+        setError(err.message || "Erro ao excluir o post. Tente novamente.");
+    }
+  };
+
+  const canEditPost = () => {
+    if (!isOwner) return false;
+    const createdAt = new Date(post.createdAt);
+    const now = new Date();
+    const diffDays = (now - createdAt) / (1000 * 60 * 60 * 24); 
+    return diffDays <= 7;
+  };
+
+  const handleEditClick = (e) => {
+    e.stopPropagation();
+    if (!canEditPost()) {
+      setError("Você só pode editar publicações feitas nos últimos 7 dias.");
+      return;
+    }
+    if (onEdit) {
+      onEdit(post);
+    }
+  };
+
+  const handleNavigateProfile = async () => {
+    if (isFollowing !== null) {
+      try {
+        const res = await getProfileById(idAuthor)
+        if (res.role === "PROFESSIONAL" || res.role === "professional") {
+          navigate(`/profile/professional/${idAuthor}-${handle}`);
+        } else {
+          navigate(`/profile/company/${idAuthor}-${handle}`);
+        }
+      } catch (err) {
+        console.log('Erro ao buscar profissional.')
+      }
     }
   };
 
@@ -60,13 +101,19 @@ export default function HeaderPost({ photo, name, visibility, communityId, postI
           </div>
 
           <div className="flex flex-col justify-start">
-            <p className="font-semibold text-base">{name}</p>
+            <p className={`font-semibold text-base ${
+                isFollowing !== null ? "text-[var(--purple-primary)] cursor-pointer hover:underline" : ""
+              }`}
+              onClick={handleNavigateProfile}
+            >
+              {name}
+            </p>
             <p className="text-xs text-[var(--purple-primary)] capitalize flex items-center gap-1">
-              {communityId ? (
+              {post.communityId ? (
               <>
                 <Users size={14} /> Comunidade
               </>
-            ) : visibility === 'PRIVADO' ? (
+            ) : post.visibility === 'PRIVADO' ? (
               <>
                 <Lock size={14} /> Privado
               </>
@@ -80,9 +127,24 @@ export default function HeaderPost({ photo, name, visibility, communityId, postI
           </div>
         </div>
 
-        {isOpen && (
+        {onPostsUpdated === true && (
+          <div className="flex justify-end text-xs text-gray-500 italic">
+            Editado
+          </div>
+        )}
+
+        {!isOwner && isFollowing !== null && onFollowToggle && (
+          <BtnCallToAction
+            onClick={onFollowToggle}
+            variant={isFollowing ? 'white' : 'purple'}
+          >
+            {isFollowing ? 'Seguindo' : 'Seguir'}
+          </BtnCallToAction>
+        )}
+
+        {isOpen && isOwner && (
           <div className="relative flex items-center gap-3">
-            <button onClick={onEdit} title="Editar">
+            <button onClick={handleEditClick} title="Editar">
               <Edit size={size} className="cursor-pointer hover:text-gray-700" />
             </button>
 
@@ -129,7 +191,7 @@ export default function HeaderPost({ photo, name, visibility, communityId, postI
           message="Tem certeza que deseja excluir esta publicação?"
           confirmText="Excluir"
           cancelText="Cancelar"
-          onConfirm={() => handleConfirmDelete(postId)}
+          onConfirm={() => handleConfirmDelete(post.id)}
           onCancel={() => setShowDeleteModal(false)}
         />
       )}
