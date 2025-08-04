@@ -3,15 +3,31 @@ import { getCurrentUser } from './authService';
 
 const baseUrl = import.meta.env.VITE_API_URL;
 
+export const deactivateAccount = async() => {
+    return await requestService.apiRequest(`/users/deactivate`, 'DELETE');
+}
+
 export const getProfileById = async (user_id, role) => {
-  if (role === 'company') {
-    return await requestService.apiRequest(`/profiles/companies/${user_id}`, 'GET');
+  try {
+    if (!role) {
+      try {
+        const data = await requestService.apiRequest(`/profiles/professionals/${user_id}`, 'GET');
+        return { ...data, role: "professional" };
+      } catch (err) {
+        const data = await requestService.apiRequest(`/profiles/companies/${user_id}`, 'GET');
+        return { ...data, role: "company" };
+      }
+    }
+    if (role === 'company')  return await requestService.apiRequest(`/profiles/companies/${user_id}`, 'GET'); 
+    else if (role === 'professional')  return await requestService.apiRequest(`/profiles/professionals/${user_id}`, 'GET'); 
+
+    console.warn('getProfileById: role inválido ou ausente.');
+    return null;
+  } catch (error) {
+      console.error('Erro ao buscar perfil por ID:', error);
+      return null;
   }
-  else if (role === 'professional') {
-    return await requestService.apiRequest(`/profiles/professionals/${user_id}`, 'GET');
-  }
-  return console.log('ById: Sem user no local-storage.')
-};
+}
 
 export const getAllProfile = async () => {
   const user = getCurrentUser();

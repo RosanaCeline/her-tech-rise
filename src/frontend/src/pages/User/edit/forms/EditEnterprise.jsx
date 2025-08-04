@@ -329,7 +329,6 @@ export default function EditEnterprise() {
             value={formData.sobrenos ?? ''}
             placeholder={originalData.sobrenos ? '' : formData.sobrenos ? originalData.sobrenos : 'Descreva um pouco sobre sua empresa'}
             onChange={handleChange}
-            required
             validation="texto"
           />
 
@@ -357,7 +356,7 @@ export default function EditEnterprise() {
         <div className="fixed inset-0 z-50 bg-black/40 backdrop-blur-sm flex items-center justify-center">
           <div className="bg-white p-8 rounded-2xl shadow-lg text-center max-w-sm">
             <h2 className="text-2xl font-bold mb-4 text-[var(--purple-primary)]">
-              Cadastro concluído!
+              Atualização concluída!
             </h2>
             <p className="mb-6 text-gray-700">Sua conta foi atualizada com sucesso.</p>
             <button
