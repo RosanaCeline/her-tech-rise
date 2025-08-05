@@ -100,7 +100,7 @@ export default function HeaderPost({ photo, name, post, date, isOpen = false, on
             <img src={photo} alt={name} className="w-full h-full object-cover" />
           </div>
 
-          <div className="flex flex-col justify-start max-w-1/3">
+          <div className="flex flex-col justify-start max-w-1/3 md:min-w-fit">
             <p className={`font-semibold text-sm sm:text-base truncate ${
                 isFollowing !== null ? "text-[var(--purple-primary)] cursor-pointer hover:underline" : ""
               }`}
