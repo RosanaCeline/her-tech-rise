@@ -103,8 +103,8 @@ export default function CardPublicationsProfile({ title, posts, onPostsUpdated, 
   return (
     <>
       <article className="bg-white text-[var(--purple-secundary)] drop-shadow-md rounded-xl p-8 flex flex-col w-full max-w-8xl z-0">
-        <div className="flex justify-between items-center mb-6">
-          <h2 className="text-4xl font-semibold text-[var(--purple-secundary)]">{title}</h2>
+        <div className="flex flex-col sm:flex-row justify-between items-center mb-6">
+          <h2 className="text-4xl font-semibold text-[var(--purple-secundary)] mb-3 md:mb-0">{title}</h2>
           {isCurrentUser && (
             <BtnCallToAction onClick={() => setActivePopUp('post')}>
               CRIAR PUBLICAÇÃO

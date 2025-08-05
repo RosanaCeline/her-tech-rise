@@ -161,7 +161,7 @@ export default function Timeline() {
                         // console.log(data)
                         return (
                             <div key={`${data.post.id}-${data.post.createdAt}`}
-                                className="w/4-5 lg:w-1/2 mx-auto bg-white p-8 rounded-xl shadow-md"
+                                className="w-4/5 lg:w-1/2 mx-auto bg-white p-8 rounded-xl shadow-md"
                                 onClick={() => openUniquePostPopup(data.post.id)}
                             >
                             <CardPostProfile
