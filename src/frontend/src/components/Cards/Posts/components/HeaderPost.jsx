@@ -95,20 +95,20 @@ export default function HeaderPost({ photo, name, post, date, isOpen = false, on
   return (
     <div className="relative flex flex-col gap-2 mb-4">
       <div className="flex justify-between items-start">
-        <div className="flex items-start">
+        <div className="flex items-start flex-wrap max-w-full overflow-hidden mr-2">
           <div className="w-[60px] h-[60px] rounded-full overflow-hidden mr-4">
             <img src={photo} alt={name} className="w-full h-full object-cover" />
           </div>
 
-          <div className="flex flex-col justify-start">
-            <p className={`font-semibold text-base ${
+          <div className="flex flex-col justify-start max-w-1/3">
+            <p className={`font-semibold text-sm sm:text-base truncate ${
                 isFollowing !== null ? "text-[var(--purple-primary)] cursor-pointer hover:underline" : ""
               }`}
               onClick={handleNavigateProfile}
             >
               {name}
             </p>
-            <p className="text-xs text-[var(--purple-primary)] capitalize flex items-center gap-1">
+            <p className="text-xs text-[var(--purple-primary)] capitalize flex items-center gap-y-1">
               {post.communityId ? (
               <>
                 <Users size={14} /> Comunidade

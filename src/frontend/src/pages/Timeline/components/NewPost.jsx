@@ -32,17 +32,17 @@ export default function NewPost(){
                 <button className="flex items-center gap-3 justify-center cursor-pointer transition duration-300 hover:scale-105"
                 onClick={() => setActivePopUp('video')}>
                     <Video />
-                    Vídeo
+                    <p className="hidden sm:block">Vídeo</p>
                 </button>
                 <button className="flex items-center gap-3 content-center justify-center cursor-pointer transition duration-300 hover:scale-105"
                 onClick={() => setActivePopUp('image')}>
                     <Image />
-                    Foto
+                    <p className="hidden sm:block">Foto</p>
                 </button>
                 <button className="flex items-center gap-3 content-center justify-center cursor-pointer transition duration-300 hover:scale-105"
                 onClick={() => setActivePopUp('docs')}>
                     <Files />
-                    Documento
+                    <p className="hidden sm:block">Documento</p>
                 </button>
             </div>
             {activePopUp && (

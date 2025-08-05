@@ -20,7 +20,7 @@ export default function RegisterStep1({formData, handleChange }){
     
     return(
         <section>
-                <p className='text-center text-4xl mb-2'>
+                <p className='text-center text-3xl md:text-4xl mb-2'>
                     Quase lá. Agora, seu endereço.
                 </p>
                 <p className='text-center text-lg'>
@@ -37,7 +37,7 @@ export default function RegisterStep1({formData, handleChange }){
                                     value={formData.cep} 
                                     onChange={(e) => handleChange('cep', maskField('cep', maskField('cep', e.target.value)))}
                         />
-                        <div className="col-span-2">
+                        <div className="sm:col-span-2">
                         <LabelInput label="Rua:" 
                                     theme='white' 
                                     required={true} 

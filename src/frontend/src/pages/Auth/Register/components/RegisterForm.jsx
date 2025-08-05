@@ -226,7 +226,7 @@ function StepWrapper({ children, goBackTo, validateFields, errorMessage, registe
                 <button className='flex gap-x-3 cursor-pointer transition duration-300  hover:-translate-x-1 will-change-transform' 
                         onClick={goBackTo}>
                             <Undo2/>
-                            Voltar
+                            <p className="hidden sm:block sm:mr-4">Voltar</p>
                 </button>
                 <button className='text-lg text-md w-fit ml-auto transition duration-300 hover:-translate-y-0.75' 
                         onClick={() => navigate('/login')}>

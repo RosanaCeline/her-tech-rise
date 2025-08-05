@@ -1,7 +1,7 @@
 export default function PopUp({children}){
     return(
-         <div className="fixed inset-0 z-50 bg-black/40 backdrop-blur-sm flex items-center justify-center">
-            <div className="bg-white p-8 rounded-2xl shadow-lg text-center w-4/5 xl:w-1/2 flex flex-col gap-4">
+         <div class="fixed inset-0 z-50 bg-black/40 backdrop-blur-sm flex items-center justify-center p-4">
+            <div class="bg-white rounded-2xl shadow-lg w-full text-center max-w-lg overflow-auto max-h-[90vh] p-6">
                 {children}
             </div>
         </div>

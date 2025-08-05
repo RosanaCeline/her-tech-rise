@@ -10,7 +10,7 @@ export default function RegisterStep1({formData, handleChange }){
 
     return(
         <section>
-                <p className='text-center text-4xl mb-2'>
+                <p className='text-center text-3xl sm:text-4xl mb-2'>
                     Pronto para começar?
                 </p>
                 <p className='text-center text-lg'>
