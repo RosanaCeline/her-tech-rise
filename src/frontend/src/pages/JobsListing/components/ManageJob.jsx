@@ -5,15 +5,18 @@ import {X} from 'lucide-react'
 import { useState } from "react";
 import { postJob, editPostJob } from '../../../services/jobsService'
 import { validateField } from "../../../components/form/Label/validationField";
+import LoadingSpinner from '../../../components/LoadingSpinner/LoadingSpinner'
 
 export default function ManageJob({jobFormData, setJobFormData, setManageJobModal, fetchMyJobs, action = 'new'}){
     const [errorMessage, setErrorMessage] = useState('')
+    const [loading, setLoading] = useState(false)
     const handleChange = (field, value) => {
         setJobFormData(prev => ({ ...prev, [field]: value }));
     }
 
     const handleSubmit = async () => {
         try{
+            setLoading(true)
             const payload = {
                 ...jobFormData,
                 salaryMin: jobFormData.salaryMin.replace(/\s/g, '').replace('R$', '').replace(/\./g, '').replace(',', '.'),
@@ -25,6 +28,8 @@ export default function ManageJob({jobFormData, setJobFormData, setManageJobModa
         }catch(err){
             setErrorMessage(err.response?.data?.message || `Erro ao ${action === 'new' ? 'cadastrar nova' : 'editar'} vaga de emprego`)
             setTimeout(() => setErrorMessage(null), 4000)
+        }finally{
+            setLoading(false)
         }
     }
 
@@ -41,6 +46,8 @@ export default function ManageJob({jobFormData, setJobFormData, setManageJobModa
             handleSubmit(); 
         }
     }
+
+    if (loading) return ( <LoadingSpinner /> )
 
     return(
         <main className='flex flex-col'>
