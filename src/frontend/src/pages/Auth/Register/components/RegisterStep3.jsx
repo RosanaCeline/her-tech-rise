@@ -27,7 +27,7 @@ export default function RegisterStep1({formData, handleChange }){
                     Informe os dados de localização para completar seu perfil.
                 </p>
                 <div className='flex flex-col gap-y-2 mt-4'>
-                    <div className='grid grid-cols-3 gap-x-5'>
+                    <div className='grid grid-cols-1 sm:grid-cols-3 gap-x-5 gap-y-2'>
                         <LabelInput label="CEP:" 
                                     theme='white' 
                                     required={true} 
@@ -59,7 +59,7 @@ export default function RegisterStep1({formData, handleChange }){
                                 ref={bairroInput}
                                 onChange={(e) => handleChange('bairro', e.target.value)}
                     />
-                    <div className="grid grid-cols-2 gap-x-5">
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-5 gap-y-2">
                         <LabelInput label="Cidade:"    
                                     theme='white' 
                                     required={true} 
