@@ -5,22 +5,37 @@ import BtnCallToAction from "../../components/btn/BtnCallToAction/BtnCallToActio
 
 import UserPreview from "./components/UserPreview"
 import DetailedList from "./components/DetailedList"
+import LoadingSpinner from '../../components/LoadingSpinner/LoadingSpinner'
 
 export default function SearchUser(){
     const query = useQueryParams()
     const [profissionais, setProfissionais] = useState([])
     const [empresas, setEmpresas] = useState([])
     const [currentList, setCurrentList] = useState('all')
+    const [loading, setLoading] = useState(true)
+    const [error, setError] = useState(null);
     const s = query.get('s')
 
     useEffect(() => {
         async function fetchUsers(){
-            const response = await searchUsers(s)
-            setProfissionais(response.professionals)
-            setEmpresas(response.companies)
+            try{
+                setLoading(true)
+                const response = await searchUsers(s)
+                setProfissionais(response.professionals)
+                setEmpresas(response.companies)
+            }catch(err){
+                setError('Erro ao carregar detalhes de candidatura.');
+                console.error(err);
+            }finally{
+                setLoading(false)
+            }
+            
         }
         fetchUsers()
     }, [s])
+
+    if (loading) return ( <LoadingSpinner /> )
+    if (error) return <main className="pt-34"><p className="text-red-600">{error}</p></main>;
 
     return(
         <main className='flex flex-col bg-(--gray) pt-34 pb-6'>

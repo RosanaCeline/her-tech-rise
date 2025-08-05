@@ -7,6 +7,7 @@ import { House, MapPin, CalendarDays } from 'lucide-react'
 import { maskField } from "../../components/form/Label/maskField";
 import { useNavigate } from "react-router-dom"
 import LoadingSpinner from "../../components/LoadingSpinner/LoadingSpinner"
+import ConfirmModal from '../../components/ConfirmModal/ConfirmModal'
 
 export default function CompanyJobsListing(){
     const [manageJobModal, setManageJobModal] = useState('')
@@ -109,6 +110,8 @@ function CompanyJobDetails({job, setManageJobModal, setJobFormData, handleDeacti
 
     const navigate = useNavigate()
 
+    const [deactivateWarning, setDeactivateWarnig] = useState(false)
+
     return(
         <div className={`flex grid grid-cols-10 border rounded-xl hover:bg-slate-50 border-(--gray) p-3 ${!job.isActive ? 'grayscale opacity-60' : ''}`}>
             <div className="">
@@ -170,7 +173,7 @@ function CompanyJobDetails({job, setManageJobModal, setJobFormData, handleDeacti
                     {job.isActive && <div className="lg:ml-auto"> 
                     <button className="bg-(--purple-action) text-white cursor-pointer rounded-2xl py-2 px-6
                     transition duration-300 hover:bg-(--purple-primary) hover:text-white hover:scale-110"
-                    onClick={() => handleDeactivate(job.id)}>
+                    onClick={() => setDeactivateWarnig(true)}>
                         Desativar
                     </button></div>}
                 </div>
@@ -182,6 +185,13 @@ function CompanyJobDetails({job, setManageJobModal, setJobFormData, handleDeacti
                 {errorMessage}
             </div>
             )}
+            {deactivateWarning &&
+            <ConfirmModal open={deactivateWarning} title="Desativar vaga"
+            message="Tem certeza que deseja desativar vaga?"
+            confirmText="Sim" cancelText="Não"
+            onConfirm={() => handleDeactivate(job.id)}
+            onCancel={() => setDeactivateWarnig(false)}/>
+            }
         </div>
     )
 } 

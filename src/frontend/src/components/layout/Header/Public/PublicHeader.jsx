@@ -13,7 +13,7 @@ export default function PublicHeader() {
        
       <div className="flex items-center gap-4">
         <img src={logo} alt="Logo Her Tech Rise" className="w-auto max-w-30" />
-        <span className="text-4xl font-semibold">Her Tech Rise</span>
+        <span className="md:text-4xl text-xl font-semibold">Her Tech Rise</span>
       </div>
 
       {/* BOTÃO HAMBURGUER MOBILE */}

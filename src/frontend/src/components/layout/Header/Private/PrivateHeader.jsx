@@ -13,7 +13,7 @@ export default function PrivateHeader({ routes }) {
        
         <div className="flex items-center gap-4">
         <img src={logo} alt="Logo Her Tech Rise" className="w-auto max-w-30" />
-        <span className="text-4xl font-semibold">Her Tech Rise</span>
+        <span className="xl:text-4xl text-xl font-semibold">Her Tech Rise</span>
         </div>
 
         <div className="hidden lg:block w-2/5">

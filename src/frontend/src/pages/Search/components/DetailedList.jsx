@@ -2,23 +2,37 @@ import { useEffect, useState } from "react"
 import { searchProfessionals, searchCompanies } from "../../../services/searchService"
 import { ChevronLeft, ChevronRight, Undo2, Ellipsis } from "lucide-react"
 import UserPreview from './UserPreview'
+import LoadingSpinner from '../../../components/LoadingSpinner/LoadingSpinner'
 
 export default function DetailedList({type, query, setCurrentList}){
     const [usersList, setUsersList] = useState([])
     const [countPages, setCountPages] = useState(0)
     const [currentPage, setCurrentPage] = useState(1)
+    const [loading, setLoading] = useState(true)
+    const [error, setError] = useState(null);
 
     useEffect(() => {
         async function fetchUsers(){
-            const response = (type === 'Profissionais') 
+            try{
+                setLoading(true)
+                const response = (type === 'Profissionais') 
                 ? await searchProfessionals(query, currentPage - 1) 
                 : await searchCompanies(query, currentPage - 1)
-            setUsersList(response.content)
-            setCountPages(response.totalPages)
-            console.log(response)
+                setUsersList(response.content)
+                setCountPages(response.totalPages)
+            }catch(err){
+                setError('Erro ao carregar detalhes de candidatura.');
+                console.error(err);
+            }finally{
+                setLoading(false)
+            }
+            
         }
         fetchUsers()
     }, [currentPage, query])
+
+    if (loading) return ( <LoadingSpinner /> )
+    if (error) return <main className="pt-34"><p className="text-red-600">{error}</p></main>;
 
     return(
         <>
