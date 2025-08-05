@@ -61,7 +61,7 @@ public class PostController implements PostControllerDocs {
     @PutMapping(value = "/{postId}", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ResponseEntity<PostMessageResponseDTO> editPost(
             @PathVariable Long postId,
-            @Valid PostEditRequestDTO data,
+            @RequestPart("data") @Valid PostEditRequestDTO data,
             @RequestPart(name = "newFiles", required = false) List<MultipartFile> newFiles
     ) {
         PostResponseDTO postResponse = postService.editPost(postId, data, newFiles);
