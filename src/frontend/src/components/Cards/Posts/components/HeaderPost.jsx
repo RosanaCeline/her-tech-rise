@@ -13,6 +13,7 @@ export default function HeaderPost({ photo, name, post, date, isOpen = false, on
                                       isFollowing = null, onFollowToggle = null, handle = null, idAuthor = null, isOwner = false, onEdit = false }) {
   const navigate = useNavigate();
   const [showVisibilityOptions, setShowVisibilityOptions] = useState(false);
+  const [showVisibilityDropdown, setShowVisibilityDropdown] = useState(false);
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [error, setError] = useState('');
   const size = 18;
@@ -140,6 +141,71 @@ export default function HeaderPost({ photo, name, post, date, isOpen = false, on
           >
             {isFollowing ? 'Seguindo' : 'Seguir'}
           </BtnCallToAction>
+        )}
+
+        {isOwner && (
+          <div className="relative">
+            <button
+              onClick={() => {
+                setShowVisibilityOptions(prev => !prev)
+                setShowVisibilityDropdown(false);
+              }}
+              title="Mais opções"
+              className="text-gray-600 hover:text-black text-xl px-2"
+            >
+              ⋯
+            </button>
+
+            {showVisibilityOptions && (
+              <div className="absolute right-0 mt-2 w-56 bg-white border rounded-xl shadow-lg z-20 py-2">
+                <p
+                  className="flex items-center gap-2 px-4 py-2 text-sm hover:bg-gray-100 cursor-pointer"
+                  onClick={handleEditClick}
+                >
+                  Editar postagem
+                </p>
+
+                {post.type !== "COMPARTILHAMENTO" && (
+                  <div className="relative">
+                    <p
+                      className="flex items-center gap-2 px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 cursor-pointer"
+                      onClick={() => setShowVisibilityDropdown(prev => !prev)}
+                    >
+                      <Eye size={size} className="text-blue-600" /> Alterar visibilidade
+                    </p>
+
+                    {showVisibilityDropdown && (
+                      <div className="absolute left-full top-0 ml-2 w-48 bg-white shadow-xl border rounded-xl z-30 p-2">
+                        {post.visibility === "PRIVADO" && (
+                          <p
+                            className="flex items-center gap-2 text-sm p-2 hover:bg-gray-100 cursor-pointer rounded-lg"
+                            onClick={() => changeVisibility('PUBLICO')}
+                          >
+                            <Globe size={14} /> Visível para todos
+                          </p>
+                        )}
+                        {post.visibility === "PUBLICO" && (
+                          <p
+                            className="flex items-center gap-2 text-sm p-2 hover:bg-gray-100 cursor-pointer rounded-lg"
+                            onClick={() => changeVisibility('PRIVADO')}
+                          >
+                            <Lock size={14} /> Apenas você pode ver isso
+                          </p>
+                        )}
+                      </div>
+                    )}
+                  </div>
+                )}
+
+                <p
+                  className="flex items-center gap-2 px-4 py-2 text-sm text-red-600 hover:bg-gray-100 cursor-pointer"
+                  onClick={onDelete}
+                >
+                  Excluir postagem
+                </p>
+              </div>
+            )}
+          </div>
         )}
 
         {isOpen && isOwner && (

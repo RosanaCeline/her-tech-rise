@@ -360,35 +360,12 @@ export default function InteractionBar({ idAuthor, post, photo, name, cardWidth 
                                 </div>
                                 <div className="flex flex-col">
                                     <p>{user.userName}</p>
-                                    <div className="flex items-center gap-2 text-(--purple-primary) cursor-pointer"
-                                        onClick={() =>
-                                            setChangeVisibilityPopup((prev) => !prev)
-                                        }
-                                    >
-                                    {formData.visibility === "PUBLICO" ? (
-                                        <> <Earth size={18} /> Pública  </>
-                                    ) : (
-                                        <> <Lock size={18} /> Privada </>
-                                    )}
+                                    <div className="flex items-center gap-2 text-(--purple-primary) cursor-pointer">
+                                        <Earth size={18} /> Pública
                                     </div>
                                 </div>
                             </div>
                         </div>
-
-                        {changeVisibilityPopup && (
-                            <div className="flex flex-col gap-1 bg-gray-50 p-2 rounded-xl w-fit">
-                            <p className="cursor-pointer p-2 rounded-lg hover:bg-gray-200 text-xs"
-                                onClick={() => changeVisibility("PUBLICO")}
-                            >
-                                Visível para todos
-                            </p>
-                            <p className="cursor-pointer p-2 rounded-lg hover:bg-gray-200 text-xs"
-                                onClick={() => changeVisibility("PRIVADO")}
-                            >
-                                Apenas você pode ver isso
-                            </p>
-                            </div>
-                        )}
 
                         <LabelInput
                             placeholder="Digite sua nova publicação"
