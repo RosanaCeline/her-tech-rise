@@ -7,7 +7,7 @@ import ManagePost from '../../posts/ManagePost';
 import AttachFile from '../../posts/AttachFile';
 import InteractionBar from '../../posts/Interactions/InteractionBar';
 
-export default function CardPostProfile({ idUserLogged, post, photo, name, handle = null, idAuthor = null, isOwner = false, isShare = false, postShare = null, hideInteractions = false,
+export default function CardPostProfile({ post, photo, name, handle = null, idAuthor = null, isOwner = false, isShare = false, postShare = null, hideInteractions = false,
                                           isPopupView = false, isOpen = false, onPostsUpdated = false, isFollowing = null, onFollowToggle = null, }) {
   const [showPopup, setShowPopup] = useState(false);
   const [activePopUp, setActivePopUp] = useState("post");

@@ -19,6 +19,7 @@ export default function Timeline() {
     const [hasMore, setHasMore] = useState(true);
     const [loadingMore, setLoadingMore] = useState(false);
     const [page, setPage] = useState(0);
+    const [followStatusMap, setFollowStatusMap] = useState({});
 
     const [isUniquePostPopup, setIsUniquePostPopup] = useState(false);
     const [selectedPostId, setSelectedPostId] = useState(null);
@@ -133,15 +134,19 @@ export default function Timeline() {
         return () => window.removeEventListener('scroll', handleScroll);
     }, [loadingMore, loading]);
 
-    const handleToggleFollow = async (userId) => {
+    const handleToggleFollow = async (userId, isFollowing) => {
+        if (!userId) {
+            console.error("ID do perfil é inválido");
+            return;
+        }
         try {
-          if (isFollowing) {
-            await unfollowUser(userId);
-            setIsFollowing(false);
-          } else {
-            await followUser(userId);
-            setIsFollowing(true);
-          }
+            if (isFollowing) {
+                await unfollowUser(userId);
+                setFollowStatusMap((prev) => ({ ...prev, [userId]: false }));
+            } else {
+                await followUser(userId);
+                setFollowStatusMap((prev) => ({ ...prev, [userId]: true }));
+            }
         } catch (err) {
           showError("Erro ao atualizar o status de seguir.");
         }
@@ -158,6 +163,11 @@ export default function Timeline() {
                 <div className="flex flex-col gap-8 w-full mx-auto mt-6">
                     {posts.map((post) => {
                         const data = normalizePost(post);
+                        const isFollowing = data.post.isOwner
+                            ? null
+                            : followStatusMap.hasOwnProperty(data.idAuthor)
+                                ? followStatusMap[data.idAuthor]
+                                : data.isFollowed;
                         // console.log(data)
                         return (
                             <div key={`${data.post.id}-${data.post.createdAt}`}
@@ -174,8 +184,9 @@ export default function Timeline() {
                                 isOwner={data.idUserLogged === data.idAuthor}
                                 isShare={data.isShare}
                                 postShare={data.postShare}
-                                isFollowing={data.post.isOwner ? null : data.isFollowed}
-                                onFollowToggle={() => handleToggleFollow(data.idAuthor)}
+                                // isFollowing={data.post.isOwner ? null : data.isFollowed}
+                                isFollowing={isFollowing}
+                                onFollowToggle={() => handleToggleFollow(data.idAuthor, isFollowing)}
                                 onCardClick={() => openUniquePostPopup(data.post.id)}
                             />
                             </div>

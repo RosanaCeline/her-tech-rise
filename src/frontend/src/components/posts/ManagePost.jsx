@@ -4,7 +4,7 @@ import LabelInput from "../form/Label/LabelInput"
 import { Earth, Lock, X, Video, Image, Files, Trash2} from 'lucide-react'
 import { newPost, updatePost } from '../../services/timelineService'
 
-export default function ManagePost({user, setActivePopUp, formData, setFormData, isEdit, onSuccess }){
+export default function ManagePost({user, setActivePopUp, formData, setFormData, isEdit, onSuccess, isShare = false }){
     const [changeVisibilityPopup, setChangeVisibilityPopup] = useState(false)
     const [postErrorMessage, setPostErrorMessage] = useState('')
     const [errorMessage, setErrorMessage] = useState('')
