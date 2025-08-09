@@ -1,10 +1,59 @@
-# Her Tech Rise
+# Her Tech Rise 
 
-Her Tech Rise é um sistema web desenvolvido no contexto da disciplina de **Engenharia de Software**, seguindo rigorosamente as etapas metodológicas para construção de um software real e profissional.
+Repositório completo do sistema [**Her Tech Rise**](https://her-tech-rise.onrender.com), incluindo **frontend** em React e **backend** em Spring Boot.
 
-## Visão Geral
+## Sobre o projeto
+O [Her Tech Rise](https://her-tech-rise.onrender.com) é uma plataforma desenvolvida como projeto acadêmico para a disciplina de Engenharia de Software, com o objetivo de fomentar a inclusão, o networking e o empoderamento de mulheres na área de tecnologia.
 
-O projeto visa criar uma rede social profissional voltada para mulheres na área de tecnologia, promovendo acolhimento, conexão, compartilhamento de experiências, oportunidades de carreira e desenvolvimento de comunidade.
+## Nosso foco
+Criar um ambiente seguro e colaborativo onde:
+- Empresas podem se cadastrar e divulgar vagas de emprego, ampliando o alcance das oportunidades para mulheres na tecnologia;
+- Profissionais podem construir redes de apoio, trocar experiências, publicar conteúdos e fortalecer a comunidade tech feminina.
+
+## Funcionalidades principais
+
+- Cadastro e autenticação seguros com controle de acesso via JWT.
+- Feed personalizado com publicações, compartilhamentos e comentários para promover interação.
+- Sistema de comentários aninhados, possibilitando respostas diretas e discussão organizada.
+- Curtições e interações sociais para engajamento dentro da comunidade.
+- Configuração de pefil completo para poder compartilhar suas experiências e ideias.
+- Design responsivo baseado em protótipos validados no Figma, garantindo boa experiência em dispositivos móveis e desktop.
+
+## Objetivo final
+
+Promover a representatividade feminina no setor de tecnologia, oferecendo uma rede de apoio que conecta talentos, facilita a divulgação de oportunidades e fortalece a comunidade tech de forma inclusiva e colaborativa.
+
+## Tecnologias Utilizadas
+
+### Frontend
+
+* React (Componentes funcionais e arquitetura responsiva)
+* React Router DOM
+* Tailwind CSS
+
+### Backend
+
+* Spring Boot (Java)
+* Segurança via JWT (JSON Web Token)
+* Testes automatizados com alta cobertura de código
+* Autenticação e autorização via JWT, garantindo sessões seguras e controle de acesso baseado em roles.
+
+### Infraestrutura
+
+* Deploy frontend com [Render](https://her-tech-rise.onrender.com)
+* Banco de dados hospedado no Neon (PostgreSQL gerenciado)
+
+## Design & Prototipagem
+
+O frontend segue o protótipo definido no [Figma](https://www.figma.com/design/irB4b6jVhhuOIBOMXyxxrX/ES-HerTechRise-Prototipa%C3%A7%C3%A3o?node-id=1-11&t=RhR1GeOBXv4F9vxX-1) para garantir a melhor experiência do usuário.
+
+## Estrutura do Projeto
+
+```
+/src
+  /backend       # Código backend (Spring Boot)
+  /frontend       # Código frontend (React + Tailwind)
+```
 
 ## Metodologia Aplicada
 
@@ -17,30 +66,47 @@ Este projeto está sendo construído com base nas melhores práticas de Engenhar
 * Desenvolvimento iterativo;
 * Testes automatizados completos;
 
-## Protótipo (Figma)
+## Como rodar localmente (para acessar na nuvem basta clicar [aqui](https://her-tech-rise.onrender.com))
 
-O protótipo interativo foi desenvolvido no [Figma](https://www.figma.com/design/irB4b6jVhhuOIBOMXyxxrX/ES-HerTechRise-Prototipa%C3%A7%C3%A3o?node-id=0-1&t=VMC4tWx2S8mlTJhS-1) e representa a interface e os fluxos de navegação do sistema:
+### Pré-requisitos
 
-## Tecnologias Utilizadas
+* Java 17+
+* PostgreSQL 
+* React
+* Tailwind
 
-### Frontend
+### Passos
 
-* **React.js** (biblioteca principal de interface)
-* **Tailwind CSS** (estilização moderna e responsiva)
+1. Clone o repositório:
 
-## Estrutura do Sistema
+```bash
+git clone https://github.com/RosanaCeline/her-tech-rise.git
+```
 
-* Cadastro e autenticação de usuárias
-* Perfis profissionais com informações detalhadas
-* Publicações e compartilhamento de conteúdo
-* Busca e conexão entre usuárias
-* Vagas e oportunidades profissionais
-* Espaços de discussão e suporte
+2. Backend:
 
-## Público-Alvo
+```bash
+cd her-tech-rise/src/backend
+./mvnw spring-boot:run
+```
 
-O sistema é destinado a estudantes, profissionais e empresas do ecossistema de tecnologia, com foco em promover diversidade, inclusão e formação de redes de apoio.
+3. Frontend:
 
-## Equipe
+```bash
+cd her-tech-rise/src/frontend
+npm install
+npm run dev
+```
 
-Projeto desenvolvido por estudantes de **Ciências da Computação** como aplicação prática de conceitos de Engenharia de Software.
+## Testes Backend
+
+O backend conta com testes automatizados com alta cobertura, garantindo qualidade e confiabilidade do sistema. Para rodar os testes:
+
+```bash
+cd src/backend
+./mvnw test
+```
+
+## Contribuição
+
+Contribuições são bem-vindas! Antes de enviar PRs, verifique se os testes estão passando no backend e que o frontend está responsivo e funcional.
