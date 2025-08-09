@@ -1,17 +1,48 @@
-import logo from "../../assets/logo/LogoSimbol.png";
+import logo from "../../assets/logo/LogoNamePurple.png";
 
 export default function LoadingSpinner() {
   return (
-    <div className="fixed inset-0 bg-black/20 backdrop-blur-sm flex justify-center items-center z-50">
-      <div className="relative w-24 h-24">
-        <div className="absolute inset-0 rounded-full border-4 border-purple-600 border-t-transparent animate-spin shadow-[0_0_20px_rgba(155,81,224,0.5)]"></div>
+    <>
+      <style>{`
+        @keyframes loading-bar {
+          0% {
+            left: -20%;
+            width: 20%;
+            opacity: 1;
+          }
+          50% {
+            left: 50%;
+            width: 30%;
+            opacity: 0.7;
+          }
+          100% {
+            left: 100%;
+            width: 20%;
+            opacity: 0;
+          }
+        }
+      `}</style>
+
+      <div className="fixed inset-0 flex flex-col justify-center items-center z-50 p-6" 
+           style={{ backgroundColor: 'rgba(255, 255, 255, 0.9)' }}>
         <img
           src={logo}
           alt="Loading Logo"
-          className="absolute top-1/2 left-1/2 w-16 h-16 rounded-full -translate-x-1/2 -translate-y-1/2 animate-pulse-slow"
-          style={{ filter: "drop-shadow(0 0 8px rgba(155, 81, 224, 0.9))" }}
+          className="w-130 h-auto rounded-lg mb-8"
+          // removei a sombra
         />
+
+        <div className="relative w-72 h-4 bg-gray-200 rounded-full overflow-hidden">
+          <div
+            className="absolute top-0 h-4 bg-purple-600 rounded-full"
+            style={{
+              animation: "loading-bar 2s infinite ease-in-out",
+              left: "-20%",
+              width: "20%",
+            }}
+          />
+        </div>
       </div>
-    </div>
-  )
+    </>
+  );
 }
