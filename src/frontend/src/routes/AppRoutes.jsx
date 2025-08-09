@@ -7,6 +7,7 @@ import { getRoutesByRole
 
 import PublicLayout from "../components/layout/PublicLayout/PublicLayout"
 import PrivateLayout from "../components/layout/PrivateLayout/PrivateLayout"
+import NotFound from '../pages/NotFound/NotFound'
 
 export default function AppRoutes() {
   const { user } = useAuth()
@@ -35,7 +36,7 @@ export default function AppRoutes() {
         ))}
       </Route>
 
-      <Route path="*" element={<PrivateLayout routes={privateRoutes} />} />
+      <Route path="*" element={<NotFound />} />
 
     </Routes>
   )
