@@ -112,15 +112,15 @@ export default function HeaderPost({ photo, name, post, date, isOpen = false, on
             <p className="text-xs text-[var(--purple-primary)] capitalize flex items-center gap-y-1">
               {post.communityId ? (
               <>
-                <Users size={14} /> Comunidade
+                <Users size={14} className='mr-2'/> Comunidade
               </>
             ) : post.visibility === 'PRIVADO' ? (
               <>
-                <Lock size={14} /> Privado
+                <Lock size={14} className='mr-2'/> Privado
               </>
             ) : (
               <>
-                <Globe size={14} /> Público
+                <Globe size={14} className='mr-2'/> Público
               </>
             )}
             </p>
@@ -143,7 +143,7 @@ export default function HeaderPost({ photo, name, post, date, isOpen = false, on
           </BtnCallToAction>
         )}
 
-        {isOwner && (
+        {isOwner && !isOpen && (
           <div className="relative">
             <button
               onClick={() => {
@@ -209,7 +209,7 @@ export default function HeaderPost({ photo, name, post, date, isOpen = false, on
         )}
 
         {isOpen && isOwner && (
-          <div className="relative flex items-center gap-3">
+          <div className="relative flex items-center gap-3 mr-6">
             <button onClick={handleEditClick} title="Editar">
               <Edit size={size} className="cursor-pointer hover:text-gray-700" />
             </button>
@@ -218,7 +218,7 @@ export default function HeaderPost({ photo, name, post, date, isOpen = false, on
               <Trash2 size={size} className="cursor-pointer hover:text-red-500" />
             </button>
 
-            <div className="relative">
+            <div className="relative mt-1">
               <button onClick={toggleVisibilityDropdown} title="Alterar visibilidade">
                 <Eye size={size} className="cursor-pointer hover:text-blue-600" />
               </button>
