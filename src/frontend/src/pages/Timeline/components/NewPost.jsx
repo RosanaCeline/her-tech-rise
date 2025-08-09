@@ -10,7 +10,7 @@ export default function NewPost(){
     const [formData, setFormData] = useState({
         content: '',
         media: [],
-        visibility: ''
+        visibility: 'PUBLICO'
     })
     const [activePopUp, setActivePopUp] = useState(null)
     const user = {
