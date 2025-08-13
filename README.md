@@ -89,6 +89,7 @@ git clone https://github.com/RosanaCeline/her-tech-rise.git
 cd her-tech-rise/src/backend
 ./mvnw spring-boot:run
 ```
+* Adicionar a variavel de ambiente "SPRING_PROFILES_ACTIVE=prod"
 
 3. Frontend:
 
