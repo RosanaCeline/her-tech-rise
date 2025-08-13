@@ -4,7 +4,7 @@ import LabelInput from "../form/Label/LabelInput"
 import { Earth, Lock, X, Video, Image, Files, Trash2} from 'lucide-react'
 import { newPost, updatePost } from '../../services/timelineService'
 
-export default function ManagePost({user, setActivePopUp, formData, setFormData, isEdit, onSuccess }){
+export default function ManagePost({user, setActivePopUp, formData, setFormData, isEdit, onSuccess, isShare = false }){
     const [changeVisibilityPopup, setChangeVisibilityPopup] = useState(false)
     const [postErrorMessage, setPostErrorMessage] = useState('')
     const [errorMessage, setErrorMessage] = useState('')
@@ -19,19 +19,24 @@ export default function ManagePost({user, setActivePopUp, formData, setFormData,
             setErrorMessage('');
             try {
                 if (isEdit && formData.postId) {
-                    const mediasFormatted = formData.media.map(media => ({
-                        id: media.id || null,
-                        mediaType: media.mediaType,
-                        url: media.url || '',
+                    const mediasFormatted = formData.media
+                        .filter(media => media.id)
+                        .map(media => ({
+                            id: media.id,
+                            mediaType: media.mediaType,
+                            url: media.url,
                     }));
+
+                    const newFiles = formData.media.filter(file => file instanceof File);
 
                     const formDataUpdated = {
                         content: formData.content,
-                        visibility: formData.visibility,
+                        visibility: (formData.visibility || 'PUBLICO').toUpperCase(),
                         medias: mediasFormatted,
+                        ...(newFiles.length > 0 && { newFiles }), 
                     };
+
                     await updatePost(formData.postId, formDataUpdated);
-                    window.location.reload(); 
                 } else {
                     await newPost(formData) 
                 }
@@ -40,7 +45,7 @@ export default function ManagePost({user, setActivePopUp, formData, setFormData,
                 else window.location.reload(); 
                 setActivePopUp('')
             } catch (err) {
-                setPostErrorMessage(err.response?.data?.message || 'Erro ao salvar')
+                setPostErrorMessage(err.response || 'Erro ao salvar')
                 setTimeout(() => setPostErrorMessage(null), 4000)
             }
         } else {
@@ -73,6 +78,20 @@ export default function ManagePost({user, setActivePopUp, formData, setFormData,
             });
         };
     }, [formData.media]);
+
+    useEffect(() => {
+    if (!formData?.visibility) {
+        setFormData(prev => ({ ...prev, visibility: 'PUBLICO' }));
+    } else {
+        const v = String(formData.visibility).toUpperCase();
+        if (v === 'PUBLIC' || v === 'PUBLICO') {
+        setFormData(prev => ({ ...prev, visibility: 'PUBLICO' }));
+        } else if (v === 'PRIVATE' || v === 'PRIVADO') {
+        setFormData(prev => ({ ...prev, visibility: 'PRIVADO' }));
+        }
+    }
+    }, []); 
+
 
 
     const handleRemove = (fileToRemove) => {

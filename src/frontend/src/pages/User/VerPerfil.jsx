@@ -114,6 +114,7 @@ export default function VerPerfil() {
 
     const handleFollow = async (id = userId, isFollowing = followedUser) => {
         try {
+            setLoading(true)
             if (id === userId) {
                 if (followedUser) {
                     await unfollowUser(userId);

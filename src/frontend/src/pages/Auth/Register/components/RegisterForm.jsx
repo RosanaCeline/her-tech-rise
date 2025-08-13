@@ -214,7 +214,7 @@ function StepWrapper({ children, goBackTo, validateFields, errorMessage, registe
     const navigate = useNavigate();
 
     return (
-        <div className="text-white w-full md:w-1/2 h-screen flex flex-col justify-between bg-(--purple-action) p-12 md:pl-25 mx-6 md:mx-0 md:rounded-l-[130px]">
+        <div className="text-white w-full md:w-1/2 min-h-screen flex flex-col justify-between bg-(--purple-action) p-12 md:pl-25 mx-6 md:mx-0 md:rounded-l-[130px]">
             {registerErrorMessage && (
             <div className="fixed top-1/12 left-1/2 transform -translate-x-1/2 -translate-y-1/2 
                             z-50 bg-red-600 text-white px-6 py-3 rounded-lg shadow-lg 
@@ -226,7 +226,7 @@ function StepWrapper({ children, goBackTo, validateFields, errorMessage, registe
                 <button className='flex gap-x-3 cursor-pointer transition duration-300  hover:-translate-x-1 will-change-transform' 
                         onClick={goBackTo}>
                             <Undo2/>
-                            Voltar
+                            <p className="hidden sm:block sm:mr-4">Voltar</p>
                 </button>
                 <button className='text-lg text-md w-fit ml-auto transition duration-300 hover:-translate-y-0.75' 
                         onClick={() => navigate('/login')}>
@@ -234,7 +234,7 @@ function StepWrapper({ children, goBackTo, validateFields, errorMessage, registe
                 </button>
             </div>
 
-            <section className="flex-1 flex flex-col justify-center">{children}</section>
+            <section className="flex-1 flex flex-col justify-center py-3">{children}</section>
 
             <div>
                 <p className='text-center mb-3'>Preencha <strong>todas</strong> as fases para concluir seu cadastro. *</p>
