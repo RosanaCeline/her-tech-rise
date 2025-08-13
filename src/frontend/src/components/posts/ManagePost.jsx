@@ -14,13 +14,6 @@ export default function ManagePost({user, setActivePopUp, formData, setFormData,
         setChangeVisibilityPopup(false)
     }
 
-    const getMediaType = (mimeType) => {
-        if (!mimeType) return undefined;
-        if (mimeType.startsWith("image/")) return "IMAGE";
-        if (mimeType.startsWith("video/")) return "VIDEO";
-        return "OTHER";
-    };
-
     const handleSubmit = async () => {
         if (formData.content !== '' || formData.media.length > 0) {
             setErrorMessage('');
@@ -28,9 +21,7 @@ export default function ManagePost({user, setActivePopUp, formData, setFormData,
                 if (isEdit && formData.postId) {
                     const mediasFormatted = formData.media.map(media => ({
                         id: media.id || null,
-                        file: media.file || media,
-                        mediaType: getMediaType(media.mimeType || media.type),
-                        mimeType: media.mimeType || media.type,
+                        mediaType: media.mediaType,
                         url: media.url || '',
                     }));
 

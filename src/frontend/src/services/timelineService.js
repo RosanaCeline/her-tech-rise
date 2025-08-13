@@ -54,16 +54,19 @@ export const deletePost = async (postId) => {
   return await requestService.apiRequest(`/post/${postId}`, 'DELETE');
 }
 
-// Erro
 export const updatePost = async (postId, data) => {
-  console.log(getCurrentUser().token, postId, data)
   const formData = new FormData();
 
-  formData.append('data', JSON.stringify({
-    content: data.content,
-    visibility: data.visibility,
-    medias: data.medias,
-  }));
+  const jsonBlob = new Blob(
+    [JSON.stringify({
+      content: data.content,
+      visibility: data.visibility,
+      medias: data.medias,
+    })],
+    { type: 'application/json' }
+  );
+
+  formData.append('data', jsonBlob);
 
   if (data.newFiles && data.newFiles.length) {
     data.newFiles.forEach(file => {
