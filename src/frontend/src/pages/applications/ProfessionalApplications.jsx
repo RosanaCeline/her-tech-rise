@@ -44,7 +44,7 @@ export default function ProfessionalApplications(){
                 <h1 className="text-3xl font-semibold text-[var(--purple-secundary)] pt-2 mx-auto mb-4">Minhas candidaturas</h1>
 
                 {applications.length > 0
-                ? <div className="grid lg:grid-cols-2 gap-x-10 px-10 gap-y-5">
+                ? <div className="grid lg:grid-cols-2 gap-x-10 lg:px-10 gap-y-5">
                     {applications.map((application) => <ApplicationItem application={application} setApplicationDetail={setApplicationDetail}/>)}
                 </div>
                 : <p className="mx-auto my-4">Nenhuma candidatura realizada.</p>}

@@ -60,6 +60,10 @@ const formatMesAnoComDuracao = (inicio, fim, atual) => {
     meses += 12;
   }
 
+  if (anos === 0 && meses === 0) {
+    meses = 1;
+  }
+
   const duracao = [
     anos > 0 ? `${anos} ano${anos > 1 ? 's' : ''}` : '',
     meses > 0 ? `${meses} mês${meses > 1 ? 'es' : ''}` : '',

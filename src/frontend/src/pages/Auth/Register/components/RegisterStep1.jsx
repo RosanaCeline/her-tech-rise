@@ -3,7 +3,7 @@ import React from 'react'
 export default function RegisterStep1({formData, handleChange, }){
     return(
         <section>
-            <p className='text-center text-4xl mb-2'>
+            <p className='text-center text-3xl md:text-4xl mb-2'>
                 Antes de começar, nos conte quem é você.
             </p>
             <p className='text-center text-lg'>

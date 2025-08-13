@@ -10,7 +10,7 @@ export default function RegisterStep1({formData, handleChange, fetchCPF, fetchCN
 
     return(
         <section>
-                <p className='text-center text-4xl mb-2'>
+                <p className='text-center text-3xl md:text-4xl mb-2'>
                     Agora, nos conte um pouco mais sobre você.
                 </p>
                 <p className='text-center text-lg'>
@@ -25,7 +25,7 @@ export default function RegisterStep1({formData, handleChange, fetchCPF, fetchCN
                                 value={formData.nome} 
                                 onChange={(e) => handleChange('nome', e.target.value)}/>
                     {formData.tipo_usuario === 'profissional'
-                        ?   <div className='flex columns-2 gap-x-5'>
+                        ?   <div className='grid grid-cols-1 sm:grid-cols-2 gap-x-5 gap-y-2'>
                                 <LabelInput   label="CPF:"            theme='white' 
                                     required={true}         validation='cpf' 
                                     maxLength='14'          placeholder='Digite seu CPF'
@@ -45,7 +45,7 @@ export default function RegisterStep1({formData, handleChange, fetchCPF, fetchCN
                                         maxLength='18'          placeholder='Digite seu CNPJ'
                                         value={formData.cnpj}   onChange={(e) => handleChange('cnpj', maskField('cnpj', e.target.value))}/>
                     }
-                    <div className='flex columns-2 gap-x-5'>
+                    <div className='grid grid-cols-1 sm:grid-cols-2 gap-x-5 gap-y-2'>
                         {formData.tipo_usuario === 'profissional'
                             ? <LabelInput   label="Data de Nascimento:"         theme='white' 
                                             required={true}                     validation='data' 

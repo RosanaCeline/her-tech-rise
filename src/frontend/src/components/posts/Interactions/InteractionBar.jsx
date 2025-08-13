@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { Heart, MessageCircle, Share, Earth, Lock, Trash2 } from "lucide-react";
+import { Heart, MessageCircle, Share, Earth, Lock, Trash2, CornerUpLeft } from "lucide-react";
 
 import PopUpBlurProfile from "../../../components/Cards/Profile/PopUpBlurProfile";
 import CardPostProfile from "../../Cards/Posts/CardPostProfile";
@@ -8,9 +8,9 @@ import LabelInput from "../../form/Label/LabelInput";
 import ConfirmModal from "../../ConfirmModal/ConfirmModal";
 
 import { getCurrentUser } from "../../../services/authService";
-import { sendLikePost, sendCommentPost, sendSharePost, getLikesPost, getCommentsPost,  
-            sendLikeShare, sendCommentShare, getLikesShare, getCommentsShare,
-            deleteCommentsPost, 
+import { sendLikePost, getLikesPost,
+            sendCommentPost, getCommentsPost, sendLikeComment, getLikesComment, deleteCommentsPost, 
+            sendSharePost, sendLikeShare, getLikesShare, sendCommentShare, getCommentsShare,
         } from "../../../services/interactionsService";
 
 export default function InteractionBar({ idAuthor, post, photo, name, cardWidth }) {
@@ -21,6 +21,8 @@ export default function InteractionBar({ idAuthor, post, photo, name, cardWidth 
     const [likesCount, setLikesCount] = useState(0);
     const [listLikes, setListLikes] = useState([]);
     const [showLikesModal, setShowLikesModal] = useState(false);
+    const [listLikesComment, setListLikesComment] = useState([]);
+    const [showLikesCommentModal, setShowLikesCommentModal] = useState(false);
 
     const [commentsCount, setCommentsCount] = useState(0);
     const [listComments, setListComments] = useState([]);
@@ -28,6 +30,10 @@ export default function InteractionBar({ idAuthor, post, photo, name, cardWidth 
     const [showCommentsInput, setShowCommentsInput] = useState(false);
     const [newComment, setNewComment] = useState("");
     const [commentsToShow, setCommentsToShow] = useState(2);
+    const [likedComments, setLikedComments] = useState(new Set());
+
+    const [replyingToCommentId, setReplyingToCommentId] = useState(null);
+    const [replyContent, setReplyContent] = useState("");
 
     const [shareCount, setShareCount] = useState(0);
 
@@ -60,30 +66,80 @@ export default function InteractionBar({ idAuthor, post, photo, name, cardWidth 
             setLikesCount((prevCount) =>
                 willLike ? prevCount + 1 : Math.max(prevCount - 1, 0)
             );
+            if(willLike) {
+                setListLikes(prev => [
+                    ...prev,
+                    {
+                    id: currentUser.id,
+                    userName: currentUser.name,
+                    userAvatarUrl: currentUser.profilePicture,
+                    createdAt: new Date().toISOString(),
+                    }
+                ]);
+            } else {
+                setListLikes(prev => prev.filter(user => user.id !== currentUser.id));
+            }
         } catch (error) {
-            console.error("Erro ao curtir:", error);
+            console.error("Erro ao curtir post:", error);
         }
     };
 
-    const sendComment = async () => {
-        if (!newComment.trim()) return;
+    const sendComment = async (isReply = false, parentComment = null) => {
+        const contentToSend = isReply ? replyContent.trim() : newComment.trim();
+        if (!contentToSend) return;
         try {
+            const payload = { content: contentToSend };
+            if (isReply && parentComment) {
+                payload.parentCommentId = Number(parentComment);
+            }
+            console.log("Payload do comentário:", payload);
+
+            let createdComment;
             if(post.type === 'POSTAGEM'){
-                await sendCommentPost(post.id, {
-                    content: newComment,
-                    parentCommentId: null,
-                });
+                createdComment = await sendCommentPost(post.id, payload)
+            } else if(post.type === 'COMPARTILHAMENTO'){
+                createdComment = await sendCommentShare(post.id, payload)
             }
-            if(post.type === 'COMPARTILHAMENTO'){
-                await sendCommentShare(post.id, {
+            setListComments(prev => [
+                {
+                    id: createdComment.id, 
                     content: newComment,
-                    parentCommentId: null,
-                });
+                    userId: currentUser.id,
+                    userName: currentUser.name,
+                    userAvatarUrl: currentUser.profilePicture,
+                    createdAt: new Date().toISOString(),
+                    parentCommentId: isReply ? parentComment : null,
+                },
+                ...prev
+            ]);
+            setCommentsCount(prev => prev + 1);
+            if (isReply) {
+                setReplyContent("");
+                setReplyingToCommentId(null);
+            } else {
+                setNewComment("");
             }
-            setNewComment("");
-            setCommentsCount((prev) => prev + 1);
         } catch (error) {
             console.error("Erro ao enviar comentário:", error);
+        }
+    };
+
+    const sendLikeToComment = async (commentId) => {
+        try {
+            const alreadyLiked = likedComments.has(commentId);
+            await sendLikeComment(commentId)
+            console.log('Curtindo o comentário ', commentId)
+            setLikedComments(prev => {
+                const newSet = new Set(prev);
+                if (alreadyLiked){
+                    newSet.delete(commentId);
+                    console.log('Descurtindo o comentário ', commentId)
+                }
+                else newSet.add(commentId);
+                return newSet;
+            });
+        } catch (error) {
+            console.error("Erro ao curtir comentário:", error);
         }
     };
 
@@ -120,9 +176,29 @@ export default function InteractionBar({ idAuthor, post, photo, name, cardWidth 
             if (post.type === "POSTAGEM") list = await getCommentsPost(post.id);
             else if (post.type === "COMPARTILHAMENTO") list = await getCommentsShare(post.id);
             setListComments(list);
+            console.log(list)
+
+            const likedIds = new Set();
+            for (const comment of list) {
+                const likes = await getLikesComment(comment.id);
+                if (likes.some(like => like.userId === currentUser.id)) {
+                    likedIds.add(comment.id);
+                }
+            }
+            setLikedComments(likedIds);
             setShowCommentsModal(true);
         } catch (error) {
             console.error("Erro ao buscar comentários:", error);
+        }
+    };
+
+    const getListLikesComment = async (idComment) => {
+        try {
+            let likes = await getLikesComment(idComment);
+            setListLikesComment(likes);
+            setShowLikesCommentModal(true);
+        } catch (error) {
+            console.error("Erro ao buscar curtidas do comentário:", error);
         }
     };
 
@@ -170,7 +246,7 @@ export default function InteractionBar({ idAuthor, post, photo, name, cardWidth 
                     onClick={getListLikes}
                 >
                     <Heart className="purple-primary" size={15} />
-                    <span>{post.countLike}</span>
+                    <span>{likesCount}</span>
                     {!isCompact && <span className="text-xs">curtidas</span>}
                 </button>
 
@@ -181,7 +257,7 @@ export default function InteractionBar({ idAuthor, post, photo, name, cardWidth 
                                 setShowCommentsInput((prev) => !prev);
                             }}>
                         {isCompact && <MessageCircle className="purple-primary" size={15} />}
-                        <span>{post.countComment}</span>
+                        <span>{commentsCount}</span>
                         {!isCompact && <span className="text-xs">comentários</span>}
                     </button>
 
@@ -270,36 +346,188 @@ export default function InteractionBar({ idAuthor, post, photo, name, cardWidth 
                         </BtnCallToAction>
                     </div>
 
-                    {listComments.slice(0, commentsToShow).map((comment) => (
-                    <div key={comment.id} className="pt-3 flex gap-3">
-                        <img
-                            src={comment.userAvatarUrl || "/default-avatar.png"}
-                            className="w-8 h-8 rounded-full object-cover"
-                        />
-                        <div>
-                            <p className="font-semibold">{comment.userName}</p>
-                            <p>{comment.content}</p>
-                            <p className="text-xs text-gray-500">
-                                {new Intl.DateTimeFormat("pt-BR", {
-                                dateStyle: "short",
-                                timeStyle: "short",
-                                }).format(new Date(comment.createdAt))}
-                            </p>
-                        </div>
-                        {comment.userId === currentUser.id && (
-                            <button
-                                className="text-red-500 hover:text-red-700"
-                                onClick={() => {
-                                    setSelectedCommentId(comment.id);
-                                    setShowDeleteModal(true);
-                                }}
-                            >
-                                <Trash2 size={18} />
-                            </button>
-                        )}
-                    </div>
-                    ))}
+                    {listComments
+                        .filter((comment) => comment.parentComment === null)
+                        .slice(0, commentsToShow)
+                        .map((comment) => {
+                            const isLiked = likedComments.has(comment.id);
+                            return (
+                                <div key={comment.id} className="pt-3 flex gap-3 flex-col w-full">
+                                    <div className="flex gap-3">
+                                    <img
+                                        src={comment.userAvatarUrl || "/default-avatar.png"}
+                                        className="w-12 h-12 rounded-full object-cover"
+                                    />
+                                    <div className="flex flex-col w-full">
+                                        <div className="flex justify-between items-start">
+                                            <p className="font-semibold">{comment.userName}</p>
+                                            <p className="text-xs text-gray-500">
+                                                {new Intl.DateTimeFormat("pt-BR", {
+                                                dateStyle: "short",
+                                                timeStyle: "short",
+                                                }).format(new Date(comment.createdAt))}
+                                            </p>
+                                        </div>
+                                        <p className="mt-1">{comment.content}</p>
 
+                                        <div className="flex items-center gap-8 mt-2">
+                                            <button
+                                                onClick={() => sendLikeToComment(comment.id)}
+                                                className={`flex items-center cursor-pointer transition hover:text-purple-600 ${
+                                                isLiked ? "text-purple-600" : "text-gray-400"
+                                                }`}
+                                                title={isLiked ? "Descurtir comentário" : "Curtir comentário"}
+                                            >
+                                                <Heart
+                                                fill={isLiked ? "var(--purple-primary)" : "transparent"}
+                                                stroke="currentColor"
+                                                size={18}
+                                                />
+                                                <span
+                                                className="ml-1 text-sm cursor-pointer"
+                                                onClick={(e) => {
+                                                    e.stopPropagation();
+                                                    getListLikesComment(comment.id);
+                                                }}
+                                                >
+                                                {isLiked ? "Curtido" : "Curtir"}
+                                                </span>
+                                            </button>
+
+                                            <button
+                                                className="flex items-center cursor-pointer transition hover:text-purple-600"
+                                                onClick={() =>
+                                                setReplyingToCommentId(
+                                                    replyingToCommentId === comment.id ? null : comment.id
+                                                )
+                                                }
+                                            >
+                                                <CornerUpLeft size={16} />
+                                                <span className="ml-1 text-sm cursor-pointer">Responder</span>
+                                            </button>
+
+                                            {comment.userId === currentUser.id && (
+                                                <button
+                                                className="text-red-500 hover:text-red-700 flex items-center"
+                                                onClick={() => {
+                                                    setSelectedCommentId(comment.id);
+                                                    setShowDeleteModal(true);
+                                                }}
+                                                title="Excluir comentário"
+                                                >
+                                                <Trash2 size={18} />
+                                                <span className="ml-1 text-sm">Excluir</span>
+                                                </button>
+                                            )}
+                                        </div>
+
+                                        {replyingToCommentId === comment.id && (
+                                            <div className="flex mt-3 gap-4">
+                                                <img
+                                                    src={user.profileURL}
+                                                    className="w-10 h-10 object-cover rounded-full flex-shrink-0"
+                                                />
+                                                <div className="flex-1">
+                                                    <LabelInput
+                                                        placeholder="Escreva uma resposta..."
+                                                        value={replyContent}
+                                                        onChange={(e) => setReplyContent(e.target.value)}
+                                                        onKeyDown={(e) =>
+                                                        e.key === "Enter" && sendComment(true, comment.id)
+                                                        }
+                                                    />
+                                                </div>
+                                                <BtnCallToAction
+                                                    variant="purple"
+                                                    className="!px-3 !py-1 !text-sm"
+                                                    onClick={() => sendComment(true, comment.id)}
+                                                >
+                                                    Enviar
+                                                </BtnCallToAction>
+                                            </div>
+                                        )}
+                                        {listComments
+                                        .filter((reply) => reply.parentComment === comment.id)
+                                        .map((reply) => {
+                                            const isLikedReply = likedComments.has(reply.id);
+                                            return (
+                                                <div
+                                                    key={reply.id}
+                                                    className="ml-12 mt-3 flex gap-3 flex-col w-full border-l-2 border-gray-300 pl-4"
+                                                >
+                                                    <div className="flex gap-3">
+                                                        <img
+                                                            src={reply.userAvatarUrl || "/default-avatar.png"}
+                                                            className="w-10 h-10 rounded-full object-cover"
+                                                        />
+                                                        <div className="flex flex-col w-full">
+                                                            <div className="flex justify-between items-start">
+                                                                <p className="font-semibold">{reply.userName}</p>
+                                                                <p className="text-xs text-gray-500 mr-12">
+                                                                    {new Intl.DateTimeFormat("pt-BR", {
+                                                                    dateStyle: "short",
+                                                                    timeStyle: "short",
+                                                                    }).format(new Date(reply.createdAt))}
+                                                                </p>
+                                                            </div>
+                                                            <p className="mt-1">{reply.content}</p>
+
+                                                            <div className="flex items-center gap-8 mt-2">
+                                                                <button
+                                                                    onClick={() => sendLikeToComment(reply.id)}
+                                                                    className={`flex items-center cursor-pointer transition hover:text-purple-600 ${
+                                                                    isLikedReply ? "text-purple-600" : "text-gray-400"
+                                                                    }`}
+                                                                    title={
+                                                                    isLikedReply
+                                                                        ? "Descurtir comentário"
+                                                                        : "Curtir comentário"
+                                                                    }
+                                                                >
+                                                                    <Heart
+                                                                    fill={
+                                                                        isLikedReply
+                                                                        ? "var(--purple-primary)"
+                                                                        : "transparent"
+                                                                    }
+                                                                    stroke="currentColor"
+                                                                    size={18}
+                                                                    />
+                                                                    <span
+                                                                    className="ml-1 text-sm cursor-pointer"
+                                                                    onClick={(e) => {
+                                                                        e.stopPropagation();
+                                                                        getListLikesComment(reply.id);
+                                                                    }}
+                                                                    >
+                                                                    {isLikedReply ? "Curtido" : "Curtir"}
+                                                                    </span>
+                                                                </button>
+
+                                                                {reply.userId === currentUser.id && (
+                                                                    <button
+                                                                    className="text-red-500 hover:text-red-700 flex items-center"
+                                                                    onClick={() => {
+                                                                        setSelectedCommentId(reply.id);
+                                                                        setShowDeleteModal(true);
+                                                                    }}
+                                                                    title="Excluir comentário"
+                                                                    >
+                                                                    <Trash2 size={18} />
+                                                                    <span className="ml-1 text-sm">Excluir</span>
+                                                                    </button>
+                                                                )}
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            );
+                                        })}
+                                    </div>
+                                </div>
+                            </div>
+                        );
+                    })}
                     {listComments.length > commentsToShow && (
                         <button
                             onClick={() => setCommentsToShow((prev) => prev + 2)}
@@ -360,35 +588,12 @@ export default function InteractionBar({ idAuthor, post, photo, name, cardWidth 
                                 </div>
                                 <div className="flex flex-col">
                                     <p>{user.userName}</p>
-                                    <div className="flex items-center gap-2 text-(--purple-primary) cursor-pointer"
-                                        onClick={() =>
-                                            setChangeVisibilityPopup((prev) => !prev)
-                                        }
-                                    >
-                                    {formData.visibility === "PUBLICO" ? (
-                                        <> <Earth size={18} /> Pública  </>
-                                    ) : (
-                                        <> <Lock size={18} /> Privada </>
-                                    )}
+                                    <div className="flex items-center gap-2 text-(--purple-primary) cursor-pointer">
+                                        <Earth size={18} /> Pública
                                     </div>
                                 </div>
                             </div>
                         </div>
-
-                        {changeVisibilityPopup && (
-                            <div className="flex flex-col gap-1 bg-gray-50 p-2 rounded-xl w-fit">
-                            <p className="cursor-pointer p-2 rounded-lg hover:bg-gray-200 text-xs"
-                                onClick={() => changeVisibility("PUBLICO")}
-                            >
-                                Visível para todos
-                            </p>
-                            <p className="cursor-pointer p-2 rounded-lg hover:bg-gray-200 text-xs"
-                                onClick={() => changeVisibility("PRIVADO")}
-                            >
-                                Apenas você pode ver isso
-                            </p>
-                            </div>
-                        )}
 
                         <LabelInput
                             placeholder="Digite sua nova publicação"
@@ -422,6 +627,43 @@ export default function InteractionBar({ idAuthor, post, photo, name, cardWidth 
                                 Compartilhar
                             </BtnCallToAction>
                         </div>
+                    </div>
+                }
+            />
+            <PopUpBlurProfile
+                isOpen={showLikesCommentModal}
+                onClose={() => setShowLikesCommentModal(false)}
+                content={
+                    <div className="p-4 max-h-[70vh] overflow-y-auto">
+                    <h2 className="text-4xl font-bold text-[var(--purple-secundary)] mb-4">Curtidas do comentário</h2>
+                    {listLikesComment.length > 0 ? (
+                        listLikesComment.map((user) => (
+                        <div
+                            key={user.id}
+                            className="flex align-content-center px-4 border-t pt-4 border-slate-200 mx-auto md:mx-0"
+                        >
+                            <div className="relative w-full max-w-[85px] h-[85px] flex-shrink-0 my-auto mr-5">
+                            <img
+                                src={user.userAvatarUrl || "/default-avatar.png"}
+                                className="h-full w-full object-cover rounded-full"
+                                alt={user.userName}
+                            />
+                            </div>
+                            <div className="flex flex-col md:flex-row md:w-full justify-between">
+                            <div className="flex flex-col max-w-[70%]">
+                                <p className="font-semibold truncate">{user.userName}</p>
+                            </div>
+                            <p className="text-sm text-gray-500">
+                                Curtiu em {new Intl.DateTimeFormat('pt-BR').format(new Date(user.createdAt))}
+                            </p>
+                            </div>
+                        </div>
+                        ))
+                    ) : (
+                        <p className='italic text-xl text-[var(--text-secondary)] leading-relaxed opacity-70'>
+                        Não há nenhuma curtida neste comentário.
+                        </p>
+                    )}
                     </div>
                 }
             />
