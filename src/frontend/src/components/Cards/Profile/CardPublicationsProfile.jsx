@@ -113,7 +113,7 @@ export default function CardPublicationsProfile({ title, posts, onPostsUpdated, 
         </div>
 
         {visiblePosts.length > 0 ? (
-          <div className="grid gap-6 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3">
+          <div className="grid gap-4 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3">
             {visiblePosts.map((item, idx) => {
               const data = buildPostData(item);
               return (
@@ -125,10 +125,11 @@ export default function CardPublicationsProfile({ title, posts, onPostsUpdated, 
                     name={data.name}
                     handle={data.handle}
                     idAuthor={data.idAuthor}
-                    isOwner={true}
+                    isOwner={data.post.isOwner}
                     post={data.post}
                     isShare={data.isShare}
-                    postShare={data.postShare} 
+                    postShare={data.postShare}
+                    isPostDetail={false} 
                   />
                 </div>
               );
@@ -169,7 +170,7 @@ export default function CardPublicationsProfile({ title, posts, onPostsUpdated, 
               {filteredPosts.map((item, idx) => {
                 const data = buildPostData(item);
                 return (
-                  <div key={data.post?.id ?? `post-${idx}`} className="cursor-pointer" onClick={() => openUniquePostPopup(item.type === "COMPARTILHAMENTO" ? item.share.originalPost.id : item.post.id)}
+                  <div key={data.post?.id ?? `post-${idx}`} className="border border-(--gray) rounded-xl cursor-pointer hover:bg-slate-50 p-3" onClick={() => openUniquePostPopup(item.type === "COMPARTILHAMENTO" ? item.share.originalPost.id : item.post.id)}
 >
                     <CardPostProfile
                       idUserLogged={data.idUserLogged}
@@ -177,12 +178,13 @@ export default function CardPublicationsProfile({ title, posts, onPostsUpdated, 
                       name={data.name}
                       handle={data.handle}
                       idAuthor={data.idAuthor}
-                      isOwner={true}
+                      isOwner={data.isOwner}
                       post={data.post}
                       isShare={data.isShare}
                       postShare={data.postShare} 
                       onPostsUpdated={onPostsUpdated}
                       isPopupView={true}
+                      isPostDetail={true}
                     />
                   </div>
                 );
