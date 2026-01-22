@@ -209,6 +209,11 @@ export default function VerPerfil() {
               {activePopUp === 'docs' && <AttachFile type='docs' setFormData={setPostFormData} setActivePopUp={setActivePopUp}/>}
           </PopUp>
       )}
+    {loading && (
+        <div className="absolute inset-0 z-50 bg-white/60 flex items-center justify-center">
+        <LoadingSpinner />
+        </div>
+    )}
     </main>
   );
 }

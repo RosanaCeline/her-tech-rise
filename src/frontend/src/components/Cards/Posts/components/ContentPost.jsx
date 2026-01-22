@@ -21,7 +21,7 @@ export default function ContentPost({ post, isShare = false, postShare = null, i
 
   return (
     <div className="flex flex-col gap-2 overflow-auto h-fit p-1">
-      <p className="text-sm text-gray-700 break-words">{post.content}</p>
+      <p className="h-fit overflow-y-auto text-sm text-gray-700 break-words">{post.content}</p>
 
       {isShare && postShare && (
         <>

@@ -7,8 +7,8 @@ import ManagePost from '../../posts/ManagePost';
 import AttachFile from '../../posts/AttachFile';
 import InteractionBar from '../../posts/Interactions/InteractionBar';
 
-export default function CardPostProfile({ post, photo, name, handle = null, idAuthor = null, isOwner = false, isShare = false, postShare = null, hideInteractions = false,
-                                          isPopupView = false, isOpen = false, onPostsUpdated = false, isFollowing = null, onFollowToggle = null, }) {
+export default function CardPostProfile({ post, photo, name, isPostDetail = true, handle = null, idAuthor = null, isOwner = false, isShare = false, postShare = null, hideInteractions = false,
+                                          isPopupView = false, isOpen = false, onPostsUpdated = false, isFollowing = null, onFollowToggle = null }) {
   const [showPopup, setShowPopup] = useState(false);
   const [activePopUp, setActivePopUp] = useState("post");
   const [editingPost, setEditingPost] = useState(null);
@@ -56,7 +56,7 @@ export default function CardPostProfile({ post, photo, name, handle = null, idAu
       <div
         ref={containerRef}
         onClick={openPopup}
-        className={`flex flex-col justify-between rounded-xl h-fit transition-all duration-300 ${
+        className={`flex flex-col justify-between rounded-xl rounded-xl ${isPostDetail ? '' : 'border border-(--gray) p-3 max-h-[75vh] hover:bg-slate-50 hover:scale-102'}  h-fit transition-all duration-300 ${
           isPopupView
             ? 'w-full max-w-none min-h-[auto]'
             : `w-full max-w-[460vh] ${hasMedia ? 'min-h-[52vh]' : 'min-h-[20vh] '}`
