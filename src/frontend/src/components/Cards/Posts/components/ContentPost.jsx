@@ -76,7 +76,7 @@ export default function ContentPost({ post, isShare = false, postShare = null, i
                 </video>
               );
 
-            if (m.mediaType === 'DOCUMENTO')
+            if (m.mediaType === 'DOCUMENT')
               return (
                 <div
                   key={i}
@@ -119,7 +119,7 @@ export default function ContentPost({ post, isShare = false, postShare = null, i
               </video>
             )}
 
-            {firstMedia.mediaType === 'DOCUMENTO' && (
+            {firstMedia.mediaType === 'DOCUMENT' && (
               <div className="flex items-center justify-between w-full border border-[var(--purple-secunday)] rounded-md p-3 shadow-sm text-[var(--purple-primary)]">
                 <div className="flex items-center gap-3 overflow-hidden">
                   <Files size={20} />
