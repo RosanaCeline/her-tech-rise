@@ -8,11 +8,9 @@ import AttachFile from '../../posts/AttachFile';
 import InteractionBar from '../../posts/Interactions/InteractionBar';
 
 export default function CardPostProfile({ post, photo, name, isPostDetail = true, handle = null, idAuthor = null, isOwner = false, isShare = false, postShare = null, hideInteractions = false,
-                                          isPopupView = false, isOpen = false, onPostsUpdated = false, isFollowing = null, onFollowToggle = null }) {
-  const [showPopup, setShowPopup] = useState(false);
+                                          isPopupView = false, isOpen = false, onPostsUpdated = false, isFollowing = null, onFollowToggle = null, onClick }) {
   const [activePopUp, setActivePopUp] = useState("post");
   const [editingPost, setEditingPost] = useState(null);
-  const openPopup = () => setShowPopup(true);
 
   const formattedDate = new Date(post.createdAt).toLocaleDateString('pt-BR');
   const hasMedia = post.media?.length > 0;
@@ -55,11 +53,11 @@ export default function CardPostProfile({ post, photo, name, isPostDetail = true
   return (
       <div
         ref={containerRef}
-        onClick={openPopup}
-        className={`flex flex-col justify-between rounded-xl rounded-xl ${isPostDetail ? '' : 'border border-(--gray) p-3 max-h-[75vh] hover:bg-slate-50 hover:scale-102'}  h-fit transition-all duration-300 ${
+        onClick={onClick}
+        className={`flex flex-col justify-between rounded-xl ${isPostDetail ? '' : 'border border-(--gray) p-5 max-h-[550px] hover:bg-slate-50 hover:scale-102'}  h-fit transition-all duration-300 ${
           isPopupView
             ? 'w-full max-w-none min-h-[auto]'
-            : `w-full max-w-[460vh] ${hasMedia ? 'min-h-[52vh]' : 'min-h-[20vh] '}`
+            : `w-full max-w-[460vh] ${hasMedia ? '' : 'min-h-[20vh] '}`
         }`}
       >
         <HeaderPost
@@ -83,7 +81,7 @@ export default function CardPostProfile({ post, photo, name, isPostDetail = true
           isShare={isShare}
           postShare={isShare && postShare ? postShare : null}
           isOpen={isOpen} 
-          onExpand={openPopup}
+          onExpand={onClick}
           cardWidth={cardWidth}
         />
 

@@ -127,6 +127,7 @@ export default function CardPublicationsProfile({ title, posts, onPostsUpdated, 
                     idAuthor={data.idAuthor}
                     isOwner={data.post.isOwner}
                     post={data.post}
+                    onClick={() => openUniquePostPopup(item.type === "COMPARTILHAMENTO" ? item.share.originalPost.id : item.post.id)}
                     isShare={data.isShare}
                     postShare={data.postShare}
                     isPostDetail={false} 

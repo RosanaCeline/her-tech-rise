@@ -1,4 +1,5 @@
 import React from 'react';
+import { X } from 'lucide-react';
 
 export default function PopUpBlurProfile({ isOpen, onClose, content }) {
   if (!isOpen) return null;
@@ -18,7 +19,7 @@ export default function PopUpBlurProfile({ isOpen, onClose, content }) {
           className="absolute top-4 right-4 text-[var(--purple-primary)] hover:text-[var(--purple-action)] text-3xl font-bold"
           aria-label="Fechar modal"
         >
-          ×
+          <X/>
         </button>
         {content}
       </div>
