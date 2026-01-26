@@ -1,5 +1,6 @@
 import React, { useState } from 'react'
 import { validateField } from './validationField'
+import { EyeOff, Eye } from 'lucide-react'
 
 export default function LabelInput ({    name,
                                         type = 'text',
@@ -18,6 +19,7 @@ export default function LabelInput ({    name,
                                     }) {
  
     const [error, setError] = useState(null)
+    const [showPassword, setShowPassword] = useState(false)
  
     const handleBlur = () => {
         const validationError = validateField(validation, value, required)
@@ -119,21 +121,42 @@ export default function LabelInput ({    name,
             className={`${baseInputClasses} resize-none`}
             />
         ) : (
-            <input
-            id={name}
-            name={name}
-            type={type === 'senha' ? 'password' : type === 'email' ? 'email' : type === 'date' ? 'date' : 'text'}
-            value={value}
-            onChange={onChange}
-            onClick={onClick}
-            onBlur={handleBlur}
-            placeholder={placeholder}
-            className={baseInputClasses}
-            maxLength={maxLength}
-            ref={ref}
-            disabled={disabled}
-            style={{ height: '48px' }}
-            />
+            <div className="relative">
+                <input
+                    id={name}
+                    name={name}
+                    type={
+                        type === 'senha'
+                            ? showPassword ? 'text' : 'password'
+                            : type === 'email'
+                            ? 'email'
+                            : type === 'date'
+                            ? 'date'
+                            : 'text'
+                    }
+                    value={value}
+                    onChange={onChange}
+                    onClick={onClick}
+                    onBlur={handleBlur}
+                    placeholder={placeholder}
+                    className={`${baseInputClasses} pr-12`}
+                    maxLength={maxLength}
+                    ref={ref}
+                    disabled={disabled}
+                    style={{ height: '48px' }}
+                />
+
+                {type === 'senha' && (
+                    <button
+                        type="button"
+                        onClick={() => setShowPassword(!showPassword)}
+                        className="absolute inset-y-0 right-3 flex items-center text-gray-500 hover:text-gray-700"
+                    >
+                        {showPassword ? <EyeOff /> : <Eye />}
+                    </button>
+                )}
+            </div>
+
         )}
 
         {error && <p className={`mt-2 text-sm text-left text-${theme}`}>{error}</p>}
