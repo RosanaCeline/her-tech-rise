@@ -146,10 +146,12 @@ public class FollowService {
                 fr.getFollower().getName(),
                 fr.getFollower().getHandle(),
                 fr.getFollower().getProfilePic(),
+                fr.getFollower().getType(),
                 fr.getFollowing().getId(),
                 fr.getFollowing().getName(),
                 fr.getFollowing().getHandle(),
                 fr.getFollowing().getProfilePic(),
+                fr.getFollowing().getType(),
                 fr.getFollowedAt()
         );
     }
