@@ -9,6 +9,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -21,6 +22,13 @@ public class CloudinaryService {
     public String uploadFile(MultipartFile file) {
         String mimeType = file.getContentType();
         long size = file.getSize();
+
+        Map<String, Object> options = new HashMap<>();
+        options.put("folder", "posts");
+        options.put("overwrite", false);
+        options.put("resource_type", "auto");
+        options.put("use_filename", true);
+        options.put("unique_filename", true);
 
         if (mimeType == null) {
             throw new InvalidMediaTypeException("Tipo de mídia não identificado.");
@@ -45,11 +53,7 @@ public class CloudinaryService {
         try {
             Map<?, ?> uploadResult = cloudinary.uploader().upload(
                     file.getBytes(),
-                    Map.of(
-                            "folder", "posts",
-                            "resource_type", "auto",
-                            "overwrite", false
-                    )
+                    options
             );
             return (String) uploadResult.get("secure_url");
         } catch (IOException e) {
