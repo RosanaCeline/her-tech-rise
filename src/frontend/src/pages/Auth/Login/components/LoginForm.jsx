@@ -18,7 +18,7 @@ export default function LoginForm( { resetPass, registerPath, enter }){
     const [errorMsg, setErrorMsg] = useState('');
 
     const handleLogin = async () => {
-        if(!validateFields) return
+        if(!validateFields()) return
         setErrorMsg('');
         setLoading(true);
         try {
@@ -41,7 +41,12 @@ export default function LoginForm( { resetPass, registerPath, enter }){
     }
 
     return(
-    <div className="text-white w-full md:w-1/2 min-h-screen flex flex-col justify-between bg-(--purple-primary) mx-6 md:mx-0 p-9 md:rounded-r-[130px]">
+    <form 
+        onSubmit={(e) => {
+            e.preventDefault()
+            handleLogin()
+        }}
+        className="text-white w-full md:w-1/2 min-h-screen flex flex-col justify-between bg-(--purple-primary) mx-6 md:mx-0 p-9 md:rounded-r-[130px]">
 
         <button className='flex gap-x-3 cursor-pointer transition duration-300  hover:-translate-x-1 will-change-transform' 
                 onClick={() => navigate('/')}>
@@ -102,11 +107,12 @@ export default function LoginForm( { resetPass, registerPath, enter }){
         <div className='flex justify-center'>
             <BtnCallToAction variant="white"
                 onClick={handleLogin} 
-                disabled={loading}>
+                disabled={loading}
+                type="submit">
                 {loading ? 'Carregando...' : 'ENTRAR'}
             </BtnCallToAction>
         </div>
 
-    </div>
+    </form>
     )
 }

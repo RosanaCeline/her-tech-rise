@@ -387,8 +387,8 @@ public class PostService {
             );
         }).toList();
 
-        // Compartilhamentos: pegar todos do usuário (logado) e filtrar no código para só incluir públicos e próprios
-        List<PostShare> shares = postShareRepository.findAllByUserIdOrPublic(userId);
+        // Compartilhamentos: pegar todos os compartilhamentos do usuário
+        List<PostShare> shares = postShareRepository.findAllSharesByUserId(userId);
         List<UnifiedPostResponseDTO> shareItems = shares.stream()
                 .filter(share -> {
                     Post post = share.getPost();
@@ -475,7 +475,7 @@ public class PostService {
             );
         }).toList();
 
-        List<PostShare> shares = postShareRepository.findAllByUserIdOrPublic(loggedUser.getId());
+        List<PostShare> shares = postShareRepository.findSharesForTimeline(loggedUser.getId());
         List<UnifiedPostResponseDTO> shareItems = shares.stream()
                 .filter(share -> {
                     Post post = share.getPost();
