@@ -4,8 +4,8 @@ import BtnCallToAction from '../../../components/btn/BtnCallToAction/BtnCallToAc
 
 export default function ServicesList({ services, registerPath }) {
   return (
-    <section className="w-full py-20">
-      <div className="max-w-7xl mx-auto flex items-center justify-between mb-12">
+    <section className="w-full py-20  pt-16 px-7 md:px-16 bg-[var(--light)]">
+      <div className="max-w-7xl mx-auto flex items-center justify-between mb-12  gap-2">
         <h2 className="text-4xl font-bold text-[var(--purple-secundary)]">SERVIÇOS</h2>
         <BtnCallToAction
           variant="purple"

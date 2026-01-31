@@ -1,14 +1,22 @@
 export const faqs = [
   {
-    pergunta: 'Quem pode participar do Her Tech Rise?',
-    resposta: "O Her Tech Rise é aberto a mulheres de todas as áreas da tecnologia, desde iniciantes até profissionais experientes. Também acolhemos aliadas e organizações que compartilham do nosso propósito de inclusão e desenvolvimento na área tech."
+    pergunta: 'O Her Tech Rise é uma rede social profissional?',
+    resposta: 'Sim. Uma rede social focada em mulheres na tecnologia, com timeline interativa, perfis profissionais e conexões reais.'
   },
   {
-    pergunta: 'Como funciona o acesso para profissionais?',
-    resposta: "Para profissionais mulheres na tecnologia, o Her Tech Rise oferece acesso gratuito à plataforma, com recursos de networking, desenvolvimento de carreira, conteúdo educacional e acesso às oportunidades ofertadas por empresas parceiras."
+    pergunta: 'Quem pode fazer parte da comunidade?',
+    resposta: 'Mulheres em qualquer fase da carreira tech, além de aliadas e organizações que apoiam diversidade e inclusão.'
   },
   {
-    pergunta: 'Posso indicar minha empresa para ser parceira?',
-    resposta: "Sim! Valorizamos empresas comprometidas com diversidade. Interessadas podem entrar em contato através do nosso canal de parcerias para integrar suas vagas, cursos e ações de desenvolvimento na plataforma."
+    pergunta: 'A plataforma é gratuita?',
+    resposta: 'Sim. O acesso para profissionais é 100% gratuito.'
+  },
+  {
+    pergunta: 'O que profissionais encontram na plataforma?',
+    resposta: 'Networking, desenvolvimento de carreira, conteúdo relevante e acesso a oportunidades em empresas parceiras.'
+  },
+  {
+    pergunta: 'Como minha empresa pode se tornar parceira?',
+    resposta: 'Empresas comprometidas com diversidade podem se cadastrar para divulgar vagas, projetos e iniciativas.'
   },
 ]
