@@ -1,6 +1,8 @@
 package com.hertechrise.platform.data.dto.response;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
+import com.hertechrise.platform.model.User;
+import com.hertechrise.platform.model.UserType;
 import io.swagger.v3.oas.annotations.media.Schema;
 
 import java.time.LocalDateTime;
@@ -23,6 +25,9 @@ public record FollowResponseDTO(
         @Schema(description = "Foto de perfil do usuário que está seguindo", example = "https://res.cloudinary.com/demo/image/upload/v123456/usuario_5.jpg")
         String followerProfilePic,
 
+        @Schema(description = "Tipo do usuário que está seguindo", example = "PROFESSIONAL")
+        UserType followerType,
+
         @Schema(description = "ID do usuário que está sendo seguido", example = "10")
         Long followingId,
 
@@ -34,6 +39,9 @@ public record FollowResponseDTO(
 
         @Schema(description = "Foto de perfil do usuário que está sendo seguido", example = "https://res.cloudinary.com/demo/image/upload/v123456/usuario_10.jpg")
         String followingProfilePic,
+
+        @Schema(description = "Tipo do usuário que está sendo seguindo", example = "COMPANY")
+        UserType followingType,
 
         @JsonFormat(shape = JsonFormat.Shape.STRING,
                 pattern = "dd/MM/yyyy HH:mm",

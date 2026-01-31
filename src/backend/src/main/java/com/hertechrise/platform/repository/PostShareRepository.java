@@ -18,8 +18,14 @@ public interface PostShareRepository extends JpaRepository<PostShare, Long> {
     @Query("""
         select ps from PostShare ps
         where ps.user.id = :userId
+    """)
+    List<PostShare> findAllSharesByUserId(@Param("userId") Long userId);
+
+    @Query("""
+        select ps from PostShare ps
+        where ps.user.id = :userId
            or (ps.post.visibility = 'PUBLICO')
     """)
-    List<PostShare> findAllByUserIdOrPublic(@Param("userId") Long userId);
+    List<PostShare> findSharesForTimeline(@Param("userId") Long userId);
 
 }
