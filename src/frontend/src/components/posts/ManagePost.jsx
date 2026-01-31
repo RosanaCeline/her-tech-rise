@@ -134,7 +134,7 @@ export default function ManagePost({user, setActivePopUp, formData, setFormData,
             <X className="cursor-pointer" onClick={() => (formData.content !== '' || formData.media.length !== 0) ? setCancelModalOpen(true) : setActivePopUp('')}/>
         </div>
 
-        <div className='flex flex-col'>
+        <div className='flex flex-col mt-3'>
         <LabelInput placeholder="Digite sua nova publicação" type="mensagem" value={formData.content} required={!formData.media.length}
             onChange={(e) => setFormData(prev => ({ ...prev, content: e.target.value }))}/></div>
 
@@ -175,7 +175,7 @@ export default function ManagePost({user, setActivePopUp, formData, setFormData,
             ))}
         </div>
 
-        <div className="flex justify-between">
+        <div className="flex justify-between gap-x-3">
             <div className="border border-(--font-gray) p-3 rounded-2xl flex gap-x-4 items-center">
                 <p className='hidden md:flex'>Adicionar à publicação</p>
                 <Video className="transition duration-300 hover:scale-110 cursor-pointer text-(--purple-primary) h-8 w-8"

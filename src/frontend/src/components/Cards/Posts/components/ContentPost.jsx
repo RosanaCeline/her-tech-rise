@@ -21,7 +21,7 @@ export default function ContentPost({ post, isShare = false, postShare = null, i
 
   return (
     <div className="flex flex-col gap-2 overflow-auto h-fit p-1">
-      <p className="text-sm text-gray-700 break-words">{post.content}</p>
+      <p className={`min-h-fit ${!isOpen && 'max-h-[100px]'} overflow-y-auto text-sm text-gray-700 break-words`}>{post.content}</p>
 
       {isShare && postShare && (
         <>
@@ -53,48 +53,58 @@ export default function ContentPost({ post, isShare = false, postShare = null, i
         </>
       )}
       {isOpen ? (
-        media.map((m, i) => {
-          if (m.mediaType === 'IMAGE')
-            return (
-              <img
-                key={i}
-                src={m.url}
-                alt={`Imagem ${i + 1}`}
-                className="w-full max-h-64 object-contain rounded-md"
-              />
-            );
-          if (m.mediaType === 'VIDEO')
-            return (
-              <video key={i} controls className="w-full max-h-64 rounded-md">
-                <source src={m.url} type="video/mp4" />
-              </video>
-            );
-          if (m.mediaType === 'DOCUMENTO')
-            return (
-              <div
-                key={i}
-                className="flex items-center justify-between w-full border border-[var(--purple-secunday)] rounded-md p-3 shadow-sm text-[var(--purple-primary)]"
-              >
-                <div className="flex items-center gap-3 overflow-hidden">
-                  <Files size={20} />
-                  <span className="text-xs break-all max-w-[200px]">
-                    {m.url.split('/').pop()}
-                  </span>
-                </div>
-                <a
-                  href={m.url}
-                  download
-                  className="text-sm font-medium hover:underline ml-4 whitespace-nowrap"
+        <div className="grid grid-cols-2 sm:grid-cols-3 gap-2 px-2">
+          {media.map((m, i) => {
+            if (m.mediaType === 'IMAGE')
+              return (
+                <img
+                  key={i}
+                  src={m.url}
+                  alt={`Imagem ${i + 1}`}
+                  className="w-full h-full my-auto object-cover rounded-md cursor-pointer hover:opacity-90 transition"
+                />
+              );
+
+            if (m.mediaType === 'VIDEO')
+              return (
+                <video
+                  key={i}
+                  controls
+                  className="w-full h-full my-auto object-cover rounded-md"
                 >
-                  Baixar
-                </a>
-              </div>
-            );
-          return null;
-        })
+                  <source src={m.url} type="video/mp4" />
+                </video>
+              );
+
+            if (m.mediaType === 'DOCUMENT')
+              return (
+                <div
+                  key={i}
+                  className="col-span-2 sm:col-span-3 flex items-center justify-between border border-[var(--purple-secunday)] rounded-md p-3 shadow-sm text-[var(--purple-primary)]"
+                >
+                  <div className="flex items-center gap-3 overflow-hidden">
+                    <Files size={20} />
+                    <span className="text-xs break-all max-w-[200px]">
+                      {m.url.split('/').pop()}
+                    </span>
+                  </div>
+                  <a
+                    href={m.url}
+                    download
+                    className="text-sm font-medium hover:underline ml-4 whitespace-nowrap"
+                  >
+                    Baixar
+                  </a>
+                </div>
+              );
+
+            return null;
+          })}
+        </div>
       ) : (
+
         firstMedia && (
-          <div className="relative">
+          <div className="relative flex flex-col justify-center items-center">
             {firstMedia.mediaType === 'IMAGE' && (
               <img
                 src={firstMedia.url}
@@ -109,7 +119,7 @@ export default function ContentPost({ post, isShare = false, postShare = null, i
               </video>
             )}
 
-            {firstMedia.mediaType === 'DOCUMENTO' && (
+            {firstMedia.mediaType === 'DOCUMENT' && (
               <div className="flex items-center justify-between w-full border border-[var(--purple-secunday)] rounded-md p-3 shadow-sm text-[var(--purple-primary)]">
                 <div className="flex items-center gap-3 overflow-hidden">
                   <Files size={20} />

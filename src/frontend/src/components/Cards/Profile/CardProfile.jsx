@@ -3,6 +3,8 @@ import { useNavigate } from "react-router-dom";
 
 import { FaCamera, FaPaperclip, FaCheck, FaPaperPlane, FaSlidersH } from 'react-icons/fa';
 import { Check, Plus } from 'lucide-react'
+import defaultProfessionalPhoto from '../../../assets/profile/FotoPadraoProfissional.png';
+import defaultEnterprisePhoto from '../../../assets/profile/FotoPadraoEnterprise.png';
 
 import BtnCallToAction from '../../btn/BtnCallToAction/BtnCallToAction';
 import PopUpBlurProfile from './PopUpBlurProfile';
@@ -11,15 +13,15 @@ import { changeProfilePicture, listFollowers, listFollowing, deactivateAccount }
 import { useAuth } from '../../../context/AuthContext';
 
 export default function CardProfile({
-  id,
+  //id,
   photo,
-  // tipo_usuario,
+  tipo_usuario,
   name,
   nameuser,
   link,
   copyMyLink,
-  email,
-  number,
+  //email,
+  //number,
   city,
   state,
   statisticsComponent,
@@ -29,6 +31,7 @@ export default function CardProfile({
   followedUser
 }) {
   const navigate = useNavigate();
+  const [loading, setLoading] = useState(false)
   const [showOptions, setShowOptions] = useState(false);
   const [modalContent, setModalContent] = useState(null);
   const [showModal, setShowModal] = useState(false);
@@ -64,15 +67,18 @@ export default function CardProfile({
 
   const handleFollowingClick = async () => {
     try {
+      setLoading(true);
       const data = await listFollowing();
       setFollowingList(data);
       setShowFollowingModal(true);
     } catch (err) {
       console.error("Erro ao carregar seguindo:", err);
+    }finally{
+      setLoading(false);
     }
   };
 
-  const userPhoto = previewPhoto || defaultPhoto;
+  const userPhoto = previewPhoto || (tipo_usuario === 'company' ? defaultEnterprisePhoto : defaultProfessionalPhoto);
 
   const handleOpenModal = (content) => {
     setModalContent(content);
@@ -107,7 +113,7 @@ export default function CardProfile({
 
   return (
     <>
-      <article className="relative bg-white drop-shadow-md rounded-xl p-8 flex flex-col md:flex-row items-center md:items-start w-full max-w-8xl gap-10 z-0">
+      <article className="relative bg-white drop-shadow-md rounded-xl p-8 flex flex-col xl:flex-row items-center xl:items-start w-full max-w-8xl gap-10 z-0">
         {/* Foto com botão */}
         <div className="relative w-full max-w-[250px] h-[250px] flex-shrink-0">
           <div className="w-full h-full rounded-full border border-[var(--purple-secundary)] overflow-hidden">
@@ -136,73 +142,106 @@ export default function CardProfile({
           /></>}
         </div>
 
-        {/* Informações */}
-        <div className="flex flex-col gap-4 flex-1 min-w-[250px] my-auto">
-          <h2 className="text-4xl font-bold text-[var(--purple-primary)]">{name}</h2>
+        <div className='p-8 flex flex-col md:flex-row items-center xl:items-start w-full max-w-8xl gap-10 z-0'>
+          {/* Informações */}
+          <div className="flex flex-col gap-4 flex-1 min-w-[250px] my-auto">
+            <h2 className="text-4xl font-bold text-[var(--purple-primary)]">{name}</h2>
 
-          {nameuser && (
-            <p className="text-lg font-semibold text-[var(--purple-secundary)]">{nameuser}</p>
-          )}
+            {nameuser && (
+              <p className="text-lg font-semibold text-[var(--purple-secundary)]">{nameuser}</p>
+            )}
 
-          {link && (
-            <div className="flex items-center gap-2 text-[var(--font-gray)] text-sm">
-              <button
-                onClick={() => copyToClipboard(link)}
-                aria-label="Copiar link"
-                className="text-[var(--font-gray)] hover:text-[var(--purple-primary)] transition-colors"
-                type="button"
-              >
-                {copied ? <FaCheck /> : <FaPaperclip />}
-              </button>
-              <a
-                href={link}
-                target="_blank"
-                rel="noreferrer"
-                className="text-[var(--font-gray)] text-s break-all"
-              >
-                {link}
-              </a>
-            </div>
-          )}
+            {link && (
+              <div className="flex items-center gap-2 text-[var(--font-gray)] text-sm">
+                <button
+                  onClick={() => copyToClipboard(link)}
+                  aria-label="Copiar link"
+                  className="text-[var(--font-gray)] hover:text-[var(--purple-primary)] transition-colors"
+                  type="button"
+                >
+                  {copied ? <FaCheck /> : <FaPaperclip />}
+                </button>
+                <a
+                  href={link}
+                  target="_blank"
+                  rel="noreferrer"
+                  className="text-[var(--font-gray)] text-s break-all"
+                >
+                  {link}
+                </a>
+              </div>
+            )}
 
-          {email && <p className="text-[var(--font-gray)] text-s break-all">{email}</p>}
-          {number && <p className="text-[var(--font-gray)] text-s break-all">{number}</p>}
-          {(city || state) && (
-            <p className="text-[var(--font-gray)] text-s break-all">
-              {city ? city : ''}{city && state ? ', ' : ''}{state ? state : ''}
-            </p>
-          )}
-        </div>
+            {(city || state) && (
+              <p className="text-[var(--font-gray)] text-s break-all">
+                {city ? city : ''}{city && state ? ', ' : ''}{state ? state : ''}
+              </p>
+            )}
+          </div>
 
-        {/* Botões de ações */}
-        <div className="flex flex-col gap-6 w-full max-w-[250px] my-auto order-last md:order-none items-center md:items-start text-[var(--font-gray)] hover:text-[var(--purple-primary)] transition">
-          <button
-            type="button"
-            className="flex items-center mx-auto gap-3"
-            onClick={() => copyToClipboard(copyMyLink)}
-          >
-            <FaPaperPlane size={24} className="text-[var(--font-gray)]" />
-            <span className="text-xl font-medium">Compartilhar</span>
-          </button>
-        {isCurrentUser
-          ? <>
-          <div className="relative w-full mx-auto flex justify-center md:justify-start">
-            <button type="button"
-                    onClick={() => setShowOptions(!showOptions)}
-                    className="flex items-center mx-auto gap-3"
+          {/* Botões de ações */}
+          <div className="flex flex-col gap-6 w-full max-w-[250px] my-auto order-last md:order-none items-center md:items-start text-[var(--font-gray)] hover:text-[var(--purple-primary)] transition">
+            <button
+              type="button"
+              className="flex items-center mx-auto gap-3"
+              onClick={() => copyToClipboard(copyMyLink)}
             >
-              <FaSlidersH size={24} className="text-[var(--font-gray)]" />
-              <span className="text-xl font-medium">Configurações</span>
+              <FaPaperPlane size={24} className="text-[var(--font-gray)]" />
+              <span className="text-xl font-medium">Compartilhar</span>
             </button>
+          {isCurrentUser
+            ? <>
+            <div className="relative w-full mx-auto flex justify-center md:justify-start">
+              <button type="button"
+                      onClick={() => setShowOptions(!showOptions)}
+                      className="flex items-center mx-auto gap-3"
+              >
+                <FaSlidersH size={24} className="text-[var(--font-gray)]" />
+                <span className="text-xl font-medium">Configurações</span>
+              </button>
+
+              {showOptions && (
+                <div
+                  className={`
+                    absolute top-full mt-2 z-50
+                    bg-white rounded-xl shadow-lg
+                    flex-col gap-2 p-3
+                    right-0
+                    flex md:hidden
+                  `}
+                >
+                  <BtnCallToAction variant="white" onClick={() => setDeleteModalOpen(true)}>Excluir Perfil</BtnCallToAction>
+                  <BtnCallToAction
+                    variant="purple"
+                    onClick={() => handleOpenModal(<EditMyProfile />)}
+                  >
+                    Editar Perfil
+                  </BtnCallToAction>
+                </div>
+              )}
+            </div>
+            <div>
+              <button onClick={handleFollowersClick}
+                      className="text-xl font-medium"
+              >
+                    Seguidores
+              </button>
+              <span className='p-2'>|</span>
+              <button onClick={handleFollowingClick}
+                      className="text-xl font-medium"
+              >
+                    Seguindo
+              </button>
+            </div>
 
             {showOptions && (
               <div
                 className={`
-                  absolute top-full mt-2 z-50
+                  absolute flex-col gap-2 p-3
                   bg-white rounded-xl shadow-lg
-                  flex-col gap-2 p-3
-                  right-0
-                  flex md:hidden
+                  transition-all duration-300
+                  right-1/2 md:right-80 top-20 z-40
+                  hidden md:flex
                 `}
               >
                 <BtnCallToAction variant="white" onClick={() => setDeleteModalOpen(true)}>Excluir Perfil</BtnCallToAction>
@@ -214,85 +253,54 @@ export default function CardProfile({
                 </BtnCallToAction>
               </div>
             )}
-          </div>
-          <div>
-            <button onClick={handleFollowersClick}
-                    className="text-xl font-medium"
+            <BtnCallToAction
+              variant="purple"
+              onClick={() => handleOpenModal(statisticsComponent)}
             >
-                  Seguidores
-            </button>
-            <span className='p-2'>|</span>
-            <button onClick={handleFollowingClick}
-                    className="text-xl font-medium"
-            >
-                  Seguindo
-            </button>
-          </div>
-
-          {showOptions && (
-            <div
-              className={`
-                absolute flex-col gap-2 p-3
-                bg-white rounded-xl shadow-lg
-                transition-all duration-300
-                right-1/2 md:right-80 top-20 z-40
-                hidden md:flex
-              `}
-            >
-              <BtnCallToAction variant="white" onClick={() => setDeleteModalOpen(true)}>Excluir Perfil</BtnCallToAction>
-              <BtnCallToAction
-                variant="purple"
-                onClick={() => handleOpenModal(<EditMyProfile />)}
-              >
-                Editar Perfil
-              </BtnCallToAction>
+              VER ESTATÍSTICAS
+            </BtnCallToAction>
+          </>
+          : <div className='flex flex-col mx-auto gap-y-2'>
+              <p className='mx-auto'>{followersCount} seguidor{followersCount > 1 && 'es'}</p>
+              <button onClick={async () => await handleFollow()}
+                      className={`p-4 cursor-pointer mt-3 rounded-2xl 
+                                ${followedUser ? 'bg-(--purple-primary) text-white' : 'bg-(--gray)' 
+                      }`}>
+                  {followedUser ? <p className='flex gap-x-4'><Check />Seguindo</p> 
+                                : <p className='flex gap-x-4'><Plus/>Seguir</p>}
+              </button>
             </div>
-          )}
-          <BtnCallToAction
-            variant="purple"
-            onClick={() => handleOpenModal(statisticsComponent)}
-          >
-            VER ESTATÍSTICAS
-          </BtnCallToAction>
-        </>
-        : <div className='flex flex-col mx-auto gap-y-2'>
-            <p className='mx-auto'>{followersCount} seguidor{followersCount > 1 && 'es'}</p>
-            <button onClick={() => handleFollow()}
-                    className={`p-4 cursor-pointer mt-3 rounded-2xl 
-                              ${followedUser ? 'bg-(--purple-primary) text-white' : 'bg-(--gray)' 
-                    }`}>
-                {followedUser ? <p className='flex gap-x-4'><Check />Seguindo</p> 
-                              : <p className='flex gap-x-4'><Plus/>Seguir</p>}
-            </button>
-          </div>
-        }
-        {deleteModalOpen && (
-          <div className="fixed inset-0 z-50 bg-black/40 backdrop-blur-sm flex items-center justify-center">
-            <div className="bg-white p-8 rounded-2xl shadow-lg text-center max-w-sm">
-              <h2 className="text-2xl font-bold mb-4 text-[var(--purple-primary)]">
-                Confirmar Exclusão
-              </h2>
-              <p className="mb-6 text-gray-700">
-                Tem certeza que deseja excluir seu perfil? Esta ação não poderá ser desfeita.
-              </p>
-              <div className="flex justify-center gap-6">
-                <button
-                  onClick={() => setDeleteModalOpen(false)}
-                  className="bg-gray-300 text-gray-800 px-6 py-2 rounded-xl hover:bg-gray-400 transition"
-                >
-                  Não
-                </button>
-                <button
-                  onClick={deleteAccount}
-                  className="bg-purple-600 text-white px-6 py-2 rounded-xl hover:bg-purple-700 transition"
-                >
-                  Sim
-                </button>
+          }
+          {deleteModalOpen && (
+            <div className="fixed inset-0 z-50 bg-black/40 backdrop-blur-sm flex items-center justify-center">
+              <div className="bg-white p-8 rounded-2xl shadow-lg text-center max-w-sm">
+                <h2 className="text-2xl font-bold mb-4 text-[var(--purple-primary)]">
+                  Confirmar Exclusão
+                </h2>
+                <p className="mb-6 text-gray-700">
+                  Tem certeza que deseja excluir seu perfil? Esta ação não poderá ser desfeita.
+                </p>
+                <div className="flex justify-center gap-6">
+                  <button
+                    onClick={() => setDeleteModalOpen(false)}
+                    className="bg-gray-300 text-gray-800 px-6 py-2 rounded-xl hover:bg-gray-400 transition"
+                  >
+                    Não
+                  </button>
+                  <button
+                    onClick={deleteAccount}
+                    className="bg-purple-600 text-white px-6 py-2 rounded-xl hover:bg-purple-700 transition"
+                  >
+                    Sim
+                  </button>
+                </div>
               </div>
             </div>
+          )}
           </div>
-        )}
-      </div>
+        </div>
+
+        
     </article>
     
     {copied && (
@@ -410,6 +418,11 @@ export default function CardProfile({
         </div>
       }
     />
+    {loading && (
+      <div className="absolute inset-0 z-50 bg-white/60 flex items-center justify-center">
+        <LoadingSpinner />
+      </div>
+    )}
     </>
   )
 }
