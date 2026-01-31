@@ -146,7 +146,8 @@ export default function HeaderPost({ photo, name, post, date, isOpen = false, on
         {isOwner && !isOpen && (
           <div className="relative">
             <button
-              onClick={() => {
+              onClick={(e) => {
+                e.stopPropagation()
                 setShowVisibilityOptions(prev => !prev)
                 setShowVisibilityDropdown(false);
               }}
@@ -169,17 +170,22 @@ export default function HeaderPost({ photo, name, post, date, isOpen = false, on
                   <div className="relative">
                     <p
                       className="flex items-center gap-2 px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 cursor-pointer"
-                      onClick={() => setShowVisibilityDropdown(prev => !prev)}
-                    >
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        changeVisibility(post.visibility === 'PUBLICO' ? 'PRIVADO' : 'PUBLICO')
+                      }}>
                       <Eye size={size} className="text-blue-600" /> Alterar visibilidade
                     </p>
 
                     {showVisibilityDropdown && (
-                      <div className="absolute left-full top-0 ml-2 w-48 bg-white shadow-xl border rounded-xl z-30 p-2">
+                      <div className="absolute left-full top-0 ml-2 w-48 bg-white shadow-xl border rounded-xl z-50 p-2">
                         {post.visibility === "PRIVADO" && (
                           <p
                             className="flex items-center gap-2 text-sm p-2 hover:bg-gray-100 cursor-pointer rounded-lg"
-                            onClick={() => changeVisibility('PUBLICO')}
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              changeVisibility('PUBLICO')
+                            }}
                           >
                             <Globe size={14} /> Visível para todos
                           </p>
