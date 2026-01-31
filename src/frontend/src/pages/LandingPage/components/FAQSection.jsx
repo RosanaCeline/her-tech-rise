@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 
 export default function FAQSection({ faqs }) {
   return (
-    <section className="w-full py-20">
+    <section className="w-full pt-16 px-7 md:px-16 bg-[var(--light)] py-20">
       <div className="max-w-7xl mx-auto">
         <h2 className="text-4xl font-bold text-[var(--purple-secundary)] mb-12">DÚVIDAS</h2>
         <div className="flex flex-col gap-8">

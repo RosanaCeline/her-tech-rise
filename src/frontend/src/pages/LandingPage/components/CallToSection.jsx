@@ -7,15 +7,15 @@ export default function CallToSection({ type }) {
 
   const content = isEnterprise
     ? {
-        title: 'DIVERSIDADE QUE GERA VALOR',
+        title: 'DIVERSIDADE QUE GERA RESULTADOS',
         subtitle: 'Diversidade não é só uma meta — é estratégia inteligente de negócios.',
         image: imgEnterprise,
         items: [
-          'Mais mulheres, mais inovação.',
-          'Diversidade gera novas soluções.',
-          'Visibilidade para talentos reais.',
-          'Oportunidades que transformam carreiras.',
-          'Inclusão que move o mercado.'
+          'Acesse talentos femininos altamente qualificados.',
+          'Construa times mais diversos, inovadores e eficientes.',
+          'Dê visibilidade a oportunidades em ambientes inclusivos.',
+          'Fortaleça sua marca empregadora com impacto real.',
+          'Transforme diversidade em vantagem competitiva.'
         ]
       }
     : {
@@ -41,27 +41,28 @@ export default function CallToSection({ type }) {
           {content.subtitle}
         </p>
 
-        <div className={`flex flex-col-reverse md:flex-row ${isEnterprise ? '' : 'md:flex-row-reverse'} items-center`}>
+        <div className={`flex flex-col-reverse pt-6 md:flex-row ${isEnterprise ? '' : 'md:flex-row-reverse'} items-center`}>
           {/* Lista com bolinhas e textos */}
           <div className="flex w-full md:w-3/5 gap-4">
           
             {/* Bolinhas alinhadas à esquerda ou direita */}
-            <ul className="flex flex-col items-center pt-1 relative">
-              {content.items.map((_, index) => (
-                <div key={index} className="flex flex-col items-center">
-                  <span className="w-3 h-3 my-0.5 bg-[var(--purple-secundary)] rounded-full z-10"></span>
-                  {index < content.items.length - 1 && (
-                    <div className="w-px h-8 bg-purple-300"></div>
-                  )}
-                </div>
-              ))}
-            </ul>
-
-            {/* Textos da lista */}
-            <ul className="flex flex-col gap-6">
+            <ul className="flex flex-col gap-6 w-full">
               {content.items.map((item, index) => (
-                <li key={index} className="text-gray-800 text-base md:text-lg font-semibold">
-                  {item}
+                <li key={index} className="flex items-start gap-4 relative">
+                  
+                  {/* Coluna da bolinha + linha */}
+                  <div className="flex flex-col items-center relative mb-8">
+                    <span className="w-4 h-4 bg-[var(--purple-secundary)] rounded-full z-10" />
+
+                    {index < content.items.length - 1 && (
+                      <span className="w-px flex-1 bg-purple-300" />
+                    )}
+                  </div>
+
+                  {/* Texto */}
+                  <p className="text-gray-800 text-base md:text-lg font-semibold leading-snug">
+                    {item}
+                  </p>
                 </li>
               ))}
             </ul>

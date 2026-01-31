@@ -4,15 +4,15 @@ import {
   GlobeAltIcon,
   BriefcaseIcon,
   ShieldCheckIcon,
-  AcademicCapIcon,
+  UserIcon,
   UserGroupIcon,
 } from '@heroicons/react/24/outline'
 
 export const services = [
   {
     icon: <ChatBubbleLeftRightIcon className="w-6 h-6 text-[#55618C]" />,
-    title: 'Comunidade',
-    description: 'Ambiente seguro e colaborativo para troca e crescimento profissional.',
+    title: 'Timeline',
+    description: 'Compartilhe ideias, conquistas e projetos. Interaja, aprenda e cresça com a comunidade.',
   },
   {
     icon: <GlobeAltIcon className="w-6 h-6 text-[#55618C]" />,
@@ -30,9 +30,9 @@ export const services = [
     description: 'Mostre suas competências e conquistas para empresas e recrutadores.',
   },
   {
-    icon: <AcademicCapIcon className="w-6 h-6 text-[#55618C]" />,
-    title: 'Treinamentos',
-    description: 'Ofereça e participe de capacitações exclusivas e formações direcionadas para futuras contratações.',
+    icon: <UserIcon className="w-6 h-6 text-[#55618C]" />,
+    title: 'Perfil',
+    description: 'Centralize suas habilidades, experiências e projetos em um perfil profissional visível.',
   },
   {
     icon: <UserGroupIcon className="w-6 h-6 text-[#55618C]" />,
