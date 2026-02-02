@@ -8,7 +8,7 @@ import 'react-toastify/dist/ReactToastify.css'
 export default function App() {
   return (
     <ErrorProvider>
-      <Router>
+      <Router basename="/hertechrise">
         <AppRoutes />
       </Router>
       <ToastContainer position="top-right" autoClose={3000} />
