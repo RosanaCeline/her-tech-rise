@@ -1,4 +1,4 @@
-# Roda com: docker-compose up -d --build
+# Roda com: docker-compose up -d --build (ou, em versões novas do docker como no servidor) docker compose up -d --build
 # Verificar se os containers subiram: docker-compose ps
 # Se quiser ver logs do front ou back: docker-compose logs -f backend  (ou)  docker-compose logs -f frontend
 # Se tiver mudanças no front ou back: docker-compose build frontend  (e depois)   docker-compose up -d frontend
@@ -21,7 +21,7 @@ services:
       context: ./src/frontend
     container_name: hertechrise-frontend
     ports:
-      - "80:80"
+      - "8081:80"
     depends_on:
       - backend
     env_file:
