@@ -37,3 +37,10 @@
     background-color: var(--light);
     color: var(--purple-primary);
 }
+
+@media (max-width: 470px) {
+    .btnCallToAction {
+        font-size: 1rem;
+        padding: 0.6em 1.5em;
+    }
+}
