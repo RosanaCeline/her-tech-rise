@@ -110,14 +110,14 @@ export default function Timeline() {
 
                 setPosts((prev) => (page === 0 ? rawPosts : [...prev, ...rawPosts]));
             } catch (err) {
-                showError("Erro ao carregar a timeline. Tente novamente.");
+                showError("Erro ao carregar a timeline. Tente novamente.", err);
             } finally {
                 setLoading(false);
                 setLoadingMore(false);
             }
         }
         if (hasMore) fetchTimeline();
-    }, [page]);
+    }, [page, hasMore, showError]);
 
     useEffect(() => {
         function handleScroll() {
@@ -148,7 +148,7 @@ export default function Timeline() {
                 setFollowStatusMap((prev) => ({ ...prev, [userId]: true }));
             }
         } catch (err) {
-          showError("Erro ao atualizar o status de seguir.");
+          showError("Erro ao atualizar o status de seguir.", err);
         }
     }; 
 
@@ -156,7 +156,7 @@ export default function Timeline() {
     
 
     return (
-        <main className="flex flex-col bg-(--gray) pt-34 pb-6">
+        <main className="flex flex-col bg-(--gray) flex-1">
             <TimelineCard> <NewPost /> </TimelineCard>
 
             {posts.length > 0 ? (
@@ -165,7 +165,7 @@ export default function Timeline() {
                         const data = normalizePost(post);
                         const isFollowing = data.post.isOwner
                             ? null
-                            : followStatusMap.hasOwnProperty(data.idAuthor)
+                            : followStatusMap.hasOwnProperty.call(followStatusMap, data.idAuthor)
                                 ? followStatusMap[data.idAuthor]
                                 : data.isFollowed;
                         // console.log(data)
@@ -194,7 +194,14 @@ export default function Timeline() {
                     })}
                 </div>
             ) : (
-                <p className="text-center text-gray-500 mt-10"> Nenhuma publicação encontrada </p>
+                <div className="flex flex-col items-center justify-center flex-1 text-center px-6">
+                    <h2 className="text-2xl md:text-4xl font-semibold text-gray-700 mb-3">
+                        A timeline começa com você
+                    </h2>
+                    <p className="text-l md:text-2xl text-gray-500 max-w-md mb-6">
+                        Seja a primeira a compartilhar uma ideia, conquista ou aprendizado.
+                    </p>
+                </div>
             )}
 
             {!hasMore && (
