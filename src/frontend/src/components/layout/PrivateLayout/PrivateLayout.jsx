@@ -1,26 +1,24 @@
-import { useNavigate, Outlet } from "react-router-dom";
+import { Navigate, Outlet } from "react-router-dom";
 import { useAuth } from "../../../context/AuthContext";  
-import { useEffect } from 'react'
 
 import PrivateHeader from "../Header/Private/PrivateHeader";
 import Footer from "../Footer/Footer";
 
 export default function PrivateLayout({ routes }) {
   const { user, loading } = useAuth();
-  const navigate = useNavigate()
 
-   useEffect(() => {
-    if (!loading && !user) {
-      navigate('/login');
-    }
-  }, [user, loading, navigate]);
+  if (loading) {
+    return <div>Carregando...</div>;
+  }
 
-  if (loading || !user) return <div>Carregando...</div>;
+  if (!user) {
+    return <Navigate to="/login" replace />;
+  }
 
   return (
     <div className="min-h-screen flex flex-col">
       <PrivateHeader routes={routes} />
-      <main className="flex-grow">
+      <main className="flex-1 pt-25 flex flex-col">
         <Outlet />
       </main>
       <Footer />
