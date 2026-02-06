@@ -9,11 +9,11 @@ export default function PublicHeader() {
   const navigate = useNavigate();
 
   return (
-    <header className="fixed top-0 left-0 w-full h-25 bg-(--purple-primary) text-white z-50 shadow-md px-15 flex items-center justify-between">
+    <header className="fixed top-0 left-0 w-full h-25 bg-[var(--purple-primary)] text-white z-50 shadow-md px-10 md:px-15 flex items-center justify-between">
        
-      <div className="flex items-center gap-4">
-        <img src={logo} alt="Logo Her Tech Rise" className="w-auto max-w-30" />
-        <span className="md:text-4xl text-xl font-semibold">Her Tech Rise</span>
+      <div className="flex items-center gap-2">
+        <img src={logo} alt="Logo Her Tech Rise" className="w-auto max-w-12 md:max-w-20 lg:max-w-30" />
+        <span className="text-xl md:text-2xl lg:text-4xl font-semibold whitespace-nowrap">Her Tech Rise</span>
       </div>
 
       {/* BOTÃO HAMBURGUER MOBILE */}
@@ -40,7 +40,7 @@ export default function PublicHeader() {
       <nav
         className={`${
           menuVisible
-            ? 'flex flex-col gap-4 bg-(--purple-primary) absolute top-20 right-0 px-6 py-6 shadow-xl w-64 z-40'
+            ? 'flex flex-col gap-4 bg-(--purple-primary) fixed top-25 right-4 px-6 py-6 shadow-xl w-max min-w-[12rem] z-40 rounded-bl-xl'
             : 'hidden'
         } lg:flex lg:items-center lg:gap-6 lg:relative`}
       >
