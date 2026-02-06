@@ -10,16 +10,14 @@ export function useAuthProvider() {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    const current = getCurrentUser();
-    if (current) setUser(current);
-    setLoading(false)
-  }, [])
+    setLoading(false);
+  }, []);
 
   // guarda token e atualiza user
-  const login = async (email, senha) => {
+  const login = async (email, senha, remember) => {
     try {
-      await loginService(email, senha);
-      setUser(getCurrentUser())
+      const userData = await loginService(email, senha, remember);
+      setUser(userData);
     } catch (err) {
       throw new Error(err.response?.data?.message || 'Erro ao fazer login');
     }

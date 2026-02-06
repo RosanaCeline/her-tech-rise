@@ -33,7 +33,7 @@ export const authRoutes = [
 export function getRoutesByRole(tipoUsuario, navigate) {
   const handleLogout = () => {
     logout()
-    navigate('/login')
+    navigate('/login', { replace: true })
   }
 
   if (tipoUsuario === 'COMPANY') 

@@ -14,6 +14,7 @@ export default function LoginForm( { resetPass, registerPath, enter }){
 
     const [email, setEmail] = useState('');
     const [senha, setSenha] = useState('');
+    const [rememberMe, setRememberMe] = useState(false);
     const [loading, setLoading] = useState(false);
     const [errorMsg, setErrorMsg] = useState('');
 
@@ -22,7 +23,7 @@ export default function LoginForm( { resetPass, registerPath, enter }){
         setErrorMsg('');
         setLoading(true);
         try {
-            await login(email, senha);
+            await login(email, senha, rememberMe);
             navigate(enter); 
         } catch (err) {
             setErrorMsg(err.message);
@@ -82,6 +83,16 @@ export default function LoginForm( { resetPass, registerPath, enter }){
                     value={senha}
                     onChange={(e) => setSenha(e.target.value)}
                 />
+
+                <label className="flex items-center gap-2 text-sm mt-4">
+                    <input
+                        type="checkbox"
+                        checked={rememberMe}
+                        onChange={(e) => setRememberMe(e.target.checked)}
+                        className="accent-white"
+                    />
+                    Manter-me conectada
+                </label>
             </div>
 
             {errorMsg && (
@@ -106,7 +117,6 @@ export default function LoginForm( { resetPass, registerPath, enter }){
 
         <div className='flex justify-center'>
             <BtnCallToAction variant="white"
-                onClick={handleLogin} 
                 disabled={loading}
                 type="submit">
                 {loading ? 'Carregando...' : 'ENTRAR'}
