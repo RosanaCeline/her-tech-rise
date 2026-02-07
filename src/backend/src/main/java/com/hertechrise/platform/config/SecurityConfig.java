@@ -87,7 +87,7 @@ public class SecurityConfig {
         CorsConfiguration config = new CorsConfiguration();
         config.setAllowedOrigins(List.of(
                 "http://localhost:5173",
-                "https://her-tech-rise.onrender.com"
+                "https://cynthiapinheiro.ifce.edu.br"
         ));
         config.setAllowedMethods(List.of("GET", "POST", "PATCH", "PUT", "DELETE", "OPTIONS"));
         config.setAllowedHeaders(List.of("*"));
