@@ -4,7 +4,7 @@ import LabelInput from "../form/Label/LabelInput"
 import { Earth, Lock, X, Video, Image, Files, Trash2} from 'lucide-react'
 import { newPost, updatePost } from '../../services/timelineService'
 
-export default function ManagePost({user, setActivePopUp, formData, setFormData, isEdit, onSuccess, isShare = false }){
+export default function ManagePost({user, setActivePopUp, formData, setFormData, isEdit, onSuccess }){
     const [changeVisibilityPopup, setChangeVisibilityPopup] = useState(false)
     const [postErrorMessage, setPostErrorMessage] = useState('')
     const [errorMessage, setErrorMessage] = useState('')
@@ -90,7 +90,7 @@ export default function ManagePost({user, setActivePopUp, formData, setFormData,
         setFormData(prev => ({ ...prev, visibility: 'PRIVADO' }));
         }
     }
-    }, []); 
+    }, [formData.visibility, setFormData]); 
 
 
 
@@ -105,14 +105,15 @@ export default function ManagePost({user, setActivePopUp, formData, setFormData,
     };
 
     return(
-        <>
+        <div className="flex flex-col gap-2">
         <div className="flex justify-between">
             <div className="flex items-center">
-                <div className="relative w-full max-w-[70px] h-[70px] flex-shrink-0 mr-4">
+                <div className="relative w-[40px] h-[40px] sm:w-[60px] sm:h-[60px] flex-shrink-0 mr-4">
                     <img src={user.profileURL} className="h-full w-full object-cover rounded-full"/>
                 </div>
+                <div className="flex flex-col sm:flex-row">
                 <div className="flex flex-col items-start gap-y-1 justify-start">
-                    <p className='text-nowrap'>{user.userName}</p>
+                    <p className='text-sm sm:text-base font-medium truncate max-w-[140px] sm:max-w-none'>{user.userName}</p>
                     <div className="flex text-(--purple-primary) items-center gap-x-1.5 cursor-pointer" 
                     onClick={() => setChangeVisibilityPopup(!changeVisibilityPopup)}>
                         {formData.visibility === 'PUBLICO' 
@@ -121,7 +122,7 @@ export default function ManagePost({user, setActivePopUp, formData, setFormData,
                     </div>
                 </div>
                 {changeVisibilityPopup && (
-                    <div className="ml-3 flex flex-col p-1 gap-y-1">
+                    <div className="sm:ml-3 flex flex-row sm:flex-col p-1 gap-2 sm:gap-y-1">
                         <p className="p-2 text-xs bg-slate-100 hover:bg-slate-200 rounded-xl cursor-pointer" 
                         onClick={() => changeVisibility('PUBLICO')}>
                             Visível para todos</p>
@@ -130,12 +131,13 @@ export default function ManagePost({user, setActivePopUp, formData, setFormData,
                             Apenas você pode ver isso</p>
                     </div>
                 )}
+                </div>
             </div>
             <X className="cursor-pointer" onClick={() => (formData.content !== '' || formData.media.length !== 0) ? setCancelModalOpen(true) : setActivePopUp('')}/>
         </div>
 
         <div className='flex flex-col mt-3'>
-        <LabelInput placeholder="Digite sua nova publicação" type="mensagem" value={formData.content} required={!formData.media.length}
+        <LabelInput placeholder="Digite sua publicação" type="mensagem" value={formData.content} required={!formData.media.length}
             onChange={(e) => setFormData(prev => ({ ...prev, content: e.target.value }))}/></div>
 
         {formData.media.some(file => (file.type?.startsWith?.('image/') || file.mediaType === 'IMAGE') || (file.type?.startsWith?.('video/mp4') || file.mediaType === 'VIDEO')
@@ -144,8 +146,8 @@ export default function ManagePost({user, setActivePopUp, formData, setFormData,
                 {mediaUrls.map(({file, url}, index) => {
                     return(
                         <div key={index} className='relative inline-block mr-4 min-w-[8rem]'>
-                            {(file.type?.startsWith?.('image/') || file.mediaType === 'IMAGE') && <img src={url} alt="Preview" className="w-full h-32 object-cover rounded shadow"/>}
-                            {(file.type?.startsWith?.('video/mp4') || file.mediaType === 'VIDEO') && <video key={index} src={url} controls className="w-full h-32 rounded shadow object-cover"/>}
+                            {(file.type?.startsWith?.('image/') || file.mediaType === 'IMAGE') && <img src={url} alt="Preview" className="w-full h-24 sm:h-32 object-cover rounded shadow"/>}
+                            {(file.type?.startsWith?.('video/mp4') || file.mediaType === 'VIDEO') && <video key={index} src={url} controls className="w-full h-24 sm:h-32 rounded shadow object-cover"/>}
                             <button onClick={() => handleRemove(file)} 
                             className='absolute top-1 right-1 bg-(--purple-primary) text-white rounded-full w-9 h-9 flex items-center justify-center hover:bg-(--purple-action)'>
                                 <Trash2 />
@@ -175,14 +177,14 @@ export default function ManagePost({user, setActivePopUp, formData, setFormData,
             ))}
         </div>
 
-        <div className="flex justify-between gap-x-3">
-            <div className="border border-(--font-gray) p-3 rounded-2xl flex gap-x-4 items-center">
-                <p className='hidden md:flex'>Adicionar à publicação</p>
-                <Video className="transition duration-300 hover:scale-110 cursor-pointer text-(--purple-primary) h-8 w-8"
+        <div className="flex justify-between gap-x-1 sm:gap-x-3">
+            <div className="border border-(--font-gray) p-2 sm:p-3 rounded-2xl flex gap-x-4 items-center">
+                {/* <p className='hidden md:flex'>Adicionar à publicação</p> */}
+                <Video className="transition duration-300 hover:scale-110 cursor-pointer text-(--purple-primary) h-6 w-6 sm:h-8 sm:w-8"
                 onClick={() => setActivePopUp('video')}/>
-                <Image className="transition duration-300 hover:scale-110 cursor-pointer text-(--purple-primary) h-8 w-8"
+                <Image className="transition duration-300 hover:scale-110 cursor-pointer text-(--purple-primary) h-6 w-6 sm:h-8 sm:w-8"
                 onClick={() => setActivePopUp('image')}/>
-                <Files className="transition duration-300 hover:scale-110 cursor-pointer text-(--purple-primary) h-8 w-8"
+                <Files className="transition duration-300 hover:scale-110 cursor-pointer text-(--purple-primary) h-6 w-6 sm:h-8 sm:w-8"
                 onClick={() => setActivePopUp('docs')}/>
             </div>
             <BtnCallToAction variant="purple" onClick={() => handleSubmit()}>{isEdit ? "Salvar Alterações" : "Publicar"}</BtnCallToAction>
@@ -227,6 +229,6 @@ export default function ManagePost({user, setActivePopUp, formData, setFormData,
             </div>
             </div>
             )}
-        </>
+        </div>
     )
 }

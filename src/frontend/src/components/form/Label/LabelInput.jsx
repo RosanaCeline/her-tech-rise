@@ -29,9 +29,9 @@ export default function LabelInput ({    name,
     const baseInputClasses = `
         w-full min-w-full
         rounded-lg
-        px-4
-        py-3
-        text-sm
+        px-2 py-2
+        sm:px-4 sm:py-3
+        text-sm sm:text-base
         font-normal
         text-[#55618C]
         bg-[#F7F7F7]
@@ -41,7 +41,7 @@ export default function LabelInput ({    name,
         focus:ring-2
         focus:ring-[#55618C]
         transition
-        placeholder:text-[#55618C]/60
+        placeholder:text-[#55618C]/60 truncate
         disabled:bg-gray-300
     `
 
@@ -49,7 +49,7 @@ export default function LabelInput ({    name,
         block
         mb-1
         text-${theme}
-        text-base
+        text-base sm:text-sm md:text-base
         text-left
     `
 
@@ -143,7 +143,6 @@ export default function LabelInput ({    name,
                     maxLength={maxLength}
                     ref={ref}
                     disabled={disabled}
-                    style={{ height: '48px' }}
                 />
 
                 {type === 'senha' && (

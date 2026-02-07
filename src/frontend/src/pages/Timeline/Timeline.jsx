@@ -203,7 +203,7 @@ export default function Timeline() {
             )}
 
             {!hasMore && posts.length > 0 && (
-                <p className="text-center text-gray-500 mt-6">Você chegou ao fim!</p>
+                <p className="text-center text-gray-500 m-8">Você chegou ao fim!</p>
             )}
             
             {isUniquePostPopup && selectedPost && (

@@ -7,6 +7,7 @@ import ManagePost from "../../../components/posts/ManagePost";
 import AttachFile from "../../../components/posts/AttachFile";
 
 export default function NewPost(){
+
     const [formData, setFormData] = useState({
         content: '',
         media: [],
@@ -17,14 +18,15 @@ export default function NewPost(){
         userName: getCurrentUser().name,
         profileURL: getCurrentUser().profilePicture
     }
+    const isMobile = window.innerWidth < 440;
     return (
         <>
-            <div className="flex gap-x-4">
-                <div className="relative w-full max-w-[70px] h-[70px] flex-shrink-0"> 
+            <div className="flex items-center gap-4">
+                <div className="relative w-[50px] h-[50px] md:w-[70px] md:h-[70px] flex-shrink-0"> 
                     <img src={user.profileURL} className="h-full w-full object-cover rounded-full"/>
                 </div>
-                <div className="w-full pt-2">
-                    <LabelInput placeholder="Comece uma nova publicação" onClick={() => setActivePopUp('post')}/>
+                <div className="w-full">
+                    <LabelInput onClick={() => setActivePopUp('post')} placeholder={ isMobile ? 'Nova publicação...' : 'Comece uma nova publicação' } />
                 </div>
             </div>
             <div className="border-t my-5 border-(--purple-primary)"></div>
