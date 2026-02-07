@@ -91,7 +91,6 @@ export default function Timeline() {
                 else setLoadingMore(true);
 
                 const response = await getTimelinePosts(page);
-                // console.log(response)
                 let rawPosts = response.content || response;
                 rawPosts = rawPosts.filter((item) => {
                     if (item.type === "POSTAGEM") {
@@ -168,7 +167,6 @@ export default function Timeline() {
                             : followStatusMap.hasOwnProperty.call(followStatusMap, data.idAuthor)
                                 ? followStatusMap[data.idAuthor]
                                 : data.isFollowed;
-                        // console.log(data)
                         return (
                             <div key={`${data.post.id}-${data.post.createdAt}`}
                                 className="w-4/5 lg:w-1/2 mx-auto bg-white p-8 rounded-xl shadow-md"
@@ -204,7 +202,7 @@ export default function Timeline() {
                 </div>
             )}
 
-            {!hasMore && (
+            {!hasMore && posts.length > 0 && (
                 <p className="text-center text-gray-500 mt-6">Você chegou ao fim!</p>
             )}
             
@@ -215,7 +213,6 @@ export default function Timeline() {
                     content={
                         (() => {
                             const data = normalizePost(selectedPost);
-                            // console.log(data)
                             return (
                                 <CardPostProfile
                                     idUserLogged={data.idUserLogged}
