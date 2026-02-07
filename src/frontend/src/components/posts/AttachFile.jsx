@@ -45,24 +45,25 @@ export default function AttachFile({type, setFormData, setActivePopUp}){
                     {
                     type === 'image' 
                     ? <> 
-                        <Image className='mx-auto w-50 h-50'/>
-                        <p className='mt-4'>Arraste as imagens desejadas no formato JPG ou PNG ou</p>
+                        <Image className='mx-auto w-16 h-16 sm:w-50 sm:h-50'/>
+                        <p className='mt-4 text-sm sm:text-base max-w-xs sm:max-w-md mx-auto'>Arraste as imagens desejadas no formato JPG ou PNG ou</p>
                     </>
                     : type === 'video' 
                     ? <> 
-                        <Video className='mx-auto w-50 h-50'/>
-                        <p className='mt-4'>Arraste os vídeos desejados no formato MP4 ou</p>
+                        <Video className='mx-auto w-16 h-16 sm:w-50 sm:h-50'/>
+                        <p className='mt-4 text-sm sm:text-base max-w-xs sm:max-w-md mx-auto'>Arraste os vídeos desejados no formato MP4 ou</p>
                     </>
                     : <>
-                        <Files className='mx-auto w-50 h-50'/>
-                        <p className='mt-4'>Arraste os documentos desejados no formato DOCX ou PDF ou</p>
+                        <Files className='mx-auto w-16 h-16 sm:w-50 sm:h-50'/>
+                        <p className='mt-4 text-sm sm:text-base max-w-xs sm:max-w-md mx-auto'>Arraste os documentos desejados no formato DOCX ou PDF ou</p>
                     </>}
                     <button
                     type="button"
                     onClick={openFileDialog}
-                    className="mt-2 px-4 py-2 bg-(--purple-primary) text-white rounded hover:bg-(--purple-action)"
+                    className="mt-2 px-4 py-2 bg-(--purple-primary) rounded hover:bg-(--purple-action)
+                             text-white  text-sm sm:text-base"
                     >
-                    Selecione do computador
+                    Selecione do seu dispositivo
                     </button>
                 </div>
 

@@ -2,8 +2,15 @@ import { getCurrentUser } from "./authService";
 import { requestService } from "./requestService";
 
 const baseUrl = import.meta.env.VITE_API_URL;
+let isPosting = false;
 
 export const newPost = async (formData) => {
+
+  if (isPosting) return; 
+  isPosting = true;
+
+  try{
+
   const token = getCurrentUser().token;
   const fd = new FormData()
 
@@ -16,25 +23,22 @@ export const newPost = async (formData) => {
   if(formData.visibility) params.append('visibility', formData.visibility);
   if(formData.idCommunity) params.append('idCommunity', formData.idCommunity);
 
-  const config = {
+  const response = await fetch(
+    `${baseUrl}/api/post?${params.toString()}`,
+      {
     method: "POST",
     headers: {
         "Authorization": `Bearer ${token}`,
     },
     body: fd,
     credentials: "include",
-  };
-
-  try{
-      const response = await fetch(`${baseUrl}/api/post?${params.toString()}`, config);
+    }
+  );
 
       if (!response.ok) {
-        const errorData = await response.json();
-        const error = new Error(errorData.message || "Erro desconhecido");
-
+          const text = await response.text();
+          const error = new Error(text || "Erro desconhecido");
         error.status = response.status;
-        error.backendMessage = errorData.message;
-
         throw error;
       }
 
@@ -42,6 +46,8 @@ export const newPost = async (formData) => {
   }catch(error){
     console.error('API request error:', error);
     throw error;
+  }finally {
+    isPosting = false;
   }
 }
 
@@ -82,6 +88,6 @@ export const updatePost = async (postId, data) => {
 };
 
 
-export const getTimelinePosts = async (page = 0, size = 11) => {
+export const getTimelinePosts = async (page = 0, size = 5) => {
   return await requestService.apiRequest(`/post/timeline?page=${page}&size=${size}&orderBy=createdAt&direction=DESC`,'GET');
 }

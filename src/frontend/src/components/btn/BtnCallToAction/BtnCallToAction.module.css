@@ -1,8 +1,9 @@
 .btnCallToAction {
     cursor: pointer;
-    font-size:  1.2rem;
+    font-size: clamp(0.95rem, 2.5vw, 1.2rem);
     border-radius: 1.2em;
-    padding: 0.7em 2em;
+    padding: clamp(0.55em, 2vw, 0.7em) 
+             clamp(1.2em, 4vw, 2em);
     white-space: nowrap;
     transition: all 0.3s ease-in-out;
     border: 2px solid transparent;
