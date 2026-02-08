@@ -47,7 +47,7 @@ export default function LoginForm( { resetPass, registerPath, enter }){
             e.preventDefault()
             handleLogin()
         }}
-        className="text-white w-full md:w-1/2 min-h-screen flex flex-col justify-between bg-(--purple-primary) mx-6 md:mx-0 p-9 md:rounded-r-[130px]">
+        className="text-white w-full md:w-1/2 min-h-screen flex flex-col justify-between bg-(--purple-primary) mx-4 md:mx-0 p-9 md:rounded-r-[130px]">
 
         <button className='flex gap-x-3 cursor-pointer transition duration-300  hover:-translate-x-1 will-change-transform' 
                 onClick={() => navigate('/')}>
@@ -56,17 +56,17 @@ export default function LoginForm( { resetPass, registerPath, enter }){
         </button>
 
         <div className='flex flex-col text-center py-4'>
-            <p className='text-5xl font-bold'>
+            <p className='text-3xl sm:text-4xl md:text-5xl font-bold'>
                 Faça seu login!
             </p>
-            <p className='text-lg mt-4'>
+            <p className='text-sm sm:text-base md:text-lg mt-4'>
                 Bem-vinda de volta. Sua jornada continua aqui.
             </p>
 
-            <div className='text-left flex flex-col gap-y-3 mt-10 mb-5'>
+            <div className='text-left flex flex-col gap-y-3 mt-6 sm:mt-8 mb-5'>
                 <LabelInput 
                     label="E-mail" 
-                    theme='white' 
+                    theme='red' 
                     value={email}
                     required={true}
                     placeholder='Digite seu email'
@@ -76,7 +76,7 @@ export default function LoginForm( { resetPass, registerPath, enter }){
                 <LabelInput 
                     label="Senha" 
                     type="senha"
-                    theme='white' 
+                    theme='red' 
                     required={true} 
                     placeholder='Digite sua senha'
                     validation='senha'
@@ -103,7 +103,7 @@ export default function LoginForm( { resetPass, registerPath, enter }){
             </div>
             )}
 
-            <div className='flex flex-col gap-y-1 justify-end'>
+            <div className='flex flex-col sm:gap-y-1 justify-end'>
                 <button className='w-fit ml-auto transition duration-300 hover:-translate-y-0.75'
                     onClick={() => navigate(resetPass)}>
                     Esqueci a senha

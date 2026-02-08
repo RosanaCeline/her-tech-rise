@@ -48,7 +48,7 @@ export default function NewPasswordForm(){
         setErroSenha(senhaConfirmada && (senhaConfirmada !== senha));
     }
     return (
-        <div className="text-white w-full md:w-1/2 h-screen flex flex-col justify-between bg-(--purple-primary) mx-6 md:mx-0 p-9 md:rounded-r-[130px]">
+        <div className="text-white w-full md:w-1/2 min-h-screen flex flex-col justify-between bg-(--purple-primary) mx-4 md:mx-0 p-9 md:rounded-r-[130px]">
             <button className='flex gap-x-3 cursor-pointer transition hover:-translate-x-1'
                 onClick={() => navigate('/')}>
                 <Undo2 />
@@ -56,10 +56,10 @@ export default function NewPasswordForm(){
             </button>
 
             <div className='text-center'>
-            <p className='text-4xl font-bold'>Defina sua nova senha</p>
-            <p className='text-lg mt-4'>Digite uma nova senha segura para acessar sua conta.</p>
+            <p className='text-3xl sm:text-4xl md:text-5xl font-bold'>Defina sua nova senha</p>
+            <p className='text-sm sm:text-base md:text-lg mt-4'>Digite uma nova senha segura para acessar sua conta.</p>
 
-            <div className='text-left flex gap-y-4 flex-col mt-10 mb-5'>
+            <div className='text-left flex flex-col gap-y-3 mt-6 sm:mt-8 mb-5'>
                 <LabelInput label="Senha:" 
                     theme='white' 
                     required={true} 

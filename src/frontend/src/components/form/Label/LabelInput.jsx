@@ -2,7 +2,7 @@ import React, { useState } from 'react'
 import { validateField } from './validationField'
 import { EyeOff, Eye } from 'lucide-react'
 
-export default function LabelInput ({    name,
+export default function LabelInput ({   name,
                                         type = 'text',
                                         label,
                                         value,
@@ -10,7 +10,7 @@ export default function LabelInput ({    name,
                                         required = false,
                                         placeholder = '',
                                         options = [], 
-                                        theme = '[#303F3C]',
+                                        theme = 'white',
                                         validation = '',
                                         maxLength = '',
                                         ref = null,
@@ -57,7 +57,7 @@ export default function LabelInput ({    name,
         <div className="w-full mt-auto">
         {(label && type !== 'checkbox')&& (
             <label htmlFor={name} className={baseLabelClasses}>
-            {label} {required && <span className="text-$[theme]">*</span>}
+            {label} {required && <span className={`text-${theme}`}>*</span>}
             </label>
         )}
 
