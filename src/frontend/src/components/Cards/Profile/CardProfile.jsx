@@ -10,7 +10,7 @@ import BtnCallToAction from '../../btn/BtnCallToAction/BtnCallToAction';
 import PopUpBlurProfile from './PopUpBlurProfile';
 import EditMyProfile from '../../../pages/User/edit/EditMyProfile';
 import { changeProfilePicture, listFollowers, listFollowing, deactivateAccount } from '../../../services/userService';
-import { useAuth } from '../../../context/AuthContext';
+import { useAuth } from '../../../context/Auth/useAuth';
 
 export default function CardProfile({
   //id,
@@ -58,6 +58,7 @@ export default function CardProfile({
   const handleFollowersClick = async () => {
     try {
       const data = await listFollowers();
+      console.log(data);
       setFollowersList(data);
       setShowFollowersModal(true);
     } catch (err) {
@@ -78,7 +79,20 @@ export default function CardProfile({
     }
   };
 
+  // const goToUserProfile = async ( userId ) => {
+    // try {
+    //   if (res.role === "PROFESSIONAL" || res.role === "professional") {
+    //     navigate(`/profile/professional/${idAuthor}-${handle}`);
+    //   } else {
+    //     navigate(`/profile/company/${idAuthor}-${handle}`);
+    //   }
+    // } catch (err) {
+    //   console.log('Erro ao buscar profissional.')
+    // }
+  // };
+
   const userPhoto = previewPhoto || (tipo_usuario === 'company' ? defaultEnterprisePhoto : defaultProfessionalPhoto);
+  // const userPhoto = previewPhoto || defaultPhoto;
 
   const handleOpenModal = (content) => {
     setModalContent(content);
@@ -172,6 +186,8 @@ export default function CardProfile({
               </div>
             )}
 
+          {/* {email && <p className="text-[var(--font-gray)] text-s break-all">{email}</p>}
+          {number && <p className="text-[var(--font-gray)] text-s break-all">{number}</p>} */}
             {(city || state) && (
               <p className="text-[var(--font-gray)] text-s break-all">
                 {city ? city : ''}{city && state ? ', ' : ''}{state ? state : ''}
@@ -335,6 +351,7 @@ export default function CardProfile({
               <div
                 key={user.id}
                 className="flex align-content-center px-4 border-t pt-4 border-slate-200 mx-auto md:mx-0"
+                // onClick={goToUserProfile(user.followerId)}
               >
                 <div className="relative w-full max-w-[85px] h-[85px] flex-shrink-0 my-auto mr-5">
                   <img

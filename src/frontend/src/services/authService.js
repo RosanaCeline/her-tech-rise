@@ -69,17 +69,19 @@ export const register = async (formData) => {
 }
 
 export const getCurrentUser = () => {
-  return sessionStorage.getItem('user')
-    ? JSON.parse(sessionStorage.getItem('user'))
+  const local = localStorage.getItem('user');
+  const session = sessionStorage.getItem('user');
+
+  return local
+    ? JSON.parse(local)
+    : session
+    ? JSON.parse(session)
     : null;
-}
+};
 
 export const logout = () => {
-  localStorage.clear();
   localStorage.removeItem('user');
-  sessionStorage.clear();
   sessionStorage.removeItem('user');
-  window.location.reload()
 }
 
 export const resetPassword = async (email) => {
