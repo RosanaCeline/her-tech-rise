@@ -10,6 +10,10 @@ export function useAuthProvider() {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
+    const storedUser = getCurrentUser();
+    if (storedUser) {
+      setUser(storedUser);
+    }
     setLoading(false);
   }, []);
 
@@ -31,9 +35,9 @@ export function useAuthProvider() {
 
   const updateProfile = async (updatedData) => {
     try {
-      console.log('Dados enviados para atualização:', updatedData); 
+      // console.log('Dados enviados para atualização:', updatedData); 
       const userUpdated = await updateProfileService(updatedData);
-      console.log('Dados após atualização:', userUpdated); 
+      // console.log('Dados após atualização:', userUpdated); 
       setUser(userUpdated);
       return userUpdated;
     } 

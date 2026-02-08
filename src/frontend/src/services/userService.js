@@ -13,7 +13,7 @@ export const getProfileById = async (user_id, role) => {
       try {
         const data = await requestService.apiRequest(`/profiles/professionals/${user_id}`, 'GET');
         return { ...data, role: "professional" };
-      } catch (err) {
+      } catch {
         const data = await requestService.apiRequest(`/profiles/companies/${user_id}`, 'GET');
         return { ...data, role: "company" };
       }
@@ -100,10 +100,10 @@ export const verifyFollowUser = async(id) => {
     return await requestService.apiRequest(`/follows/verifyFollow/${id}`, 'GET');
 }
 
-export const listFollowing = async(id) => {
+export const listFollowing = async( ) => {
     return await requestService.apiRequest(`/follows/following`, 'GET');
 }
 
-export const listFollowers = async(id) => {
+export const listFollowers = async( ) => {
     return await requestService.apiRequest(`/follows/followers`, 'GET');
 }

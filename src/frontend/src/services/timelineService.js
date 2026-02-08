@@ -79,11 +79,10 @@ export const updatePost = async (postId, data) => {
       formData.append('newFiles', file);
     });
   }
-  for (let [key, value] of formData.entries()) {
-    console.log(key, value);
-  }
+  // for (let [key, value] of formData.entries()) {
+  //   console.log(key, value);
+  // }
   const res = await requestService.apiRequest(`/post/${postId}`, 'PUT', formData);
-  console.log(res)
   return res
 };
 

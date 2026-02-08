@@ -31,7 +31,10 @@ export const requestService = {
         try {
           const errorData = await response.json();
           errorMessage = errorData.message || errorMessage;
-        } catch {}
+        } catch (err) {
+          console.error('API request error:', err);
+          throw err;
+        }
 
         const error = new Error(errorMessage);
         error.status = response.status;
