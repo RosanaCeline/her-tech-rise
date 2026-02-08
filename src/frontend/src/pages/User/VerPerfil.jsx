@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 import { useParams } from 'react-router-dom';
 
 import { followUser, unfollowUser, verifyFollowUser } from '../../services/userService';
@@ -36,7 +36,7 @@ export default function VerPerfil() {
         visibility: 'public'
     })
 
-    const [followersCount, setFollowersCount] = useState(0);
+    // const [followersCount, setFollowersCount] = useState(0);
     const [followedUser, setFollowedUser] = useState(false);
     const [statistics, setStatistics] = useState({
         profileVisits: 0,
@@ -45,10 +45,10 @@ export default function VerPerfil() {
         likes: 0
     });
 
-    async function fetchStatistics() {
+    const fetchStatistics = useCallback(async () => {
         try {
-            const followers = await listFollowers(userId);
-            const following = await listFollowing(userId);
+            const followers = await listFollowers();
+            const following = await listFollowing();
             setStatistics({
                 profileVisits: user?.statistics?.profilevisits || 0,
                 followers: followers.length || 0,
@@ -58,9 +58,9 @@ export default function VerPerfil() {
         } catch (err) {
             console.error("Erro ao buscar estatísticas:", err);
         }
-    }
+    }, [user]);
 
-    async function fetchProfile() {
+    const fetchProfile = useCallback(async () => {
         try {
             const response = await getProfileById(userId, user_type);
 
@@ -95,10 +95,10 @@ export default function VerPerfil() {
         } finally {
             setLoading(false);
         }
-    }
+    }, [userId, user_type, isProfessional, isCompany]);
     useEffect(() => {
         fetchProfile().then(() => fetchStatistics());
-    }, [])
+    }, [fetchProfile, fetchStatistics])
 
     useEffect(() => {
         const checkFollow = async () => {
@@ -110,7 +110,7 @@ export default function VerPerfil() {
             }
         }
         if (user?.id && !isCurrentUser) checkFollow()
-    }, [user?.id, isCurrentUser])
+    }, [user?.id, isCurrentUser, userId])
 
     const handleFollow = async (id = userId, isFollowing = followedUser) => {
         try {
@@ -119,11 +119,11 @@ export default function VerPerfil() {
                 if (followedUser) {
                     await unfollowUser(userId);
                     setFollowedUser(false);
-                    setFollowersCount((prev) => prev - 1);
+                    // setFollowersCount((prev) => prev - 1);
                 } else {
                     await followUser(userId);
                     setFollowedUser(true);
-                    setFollowersCount((prev) => prev + 1);
+                    // setFollowersCount((prev) => prev + 1);
                 }
             } else {
                 if (isFollowing) {

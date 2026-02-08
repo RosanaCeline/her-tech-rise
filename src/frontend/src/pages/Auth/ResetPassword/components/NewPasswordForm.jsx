@@ -21,7 +21,7 @@ export default function NewPasswordForm(){
 
     const handleNewPassword = async () => {
         if(!validateFields()){
-            console.log("Tem erro")
+            console.log("Tem erro na senha ou nos campos obrigatórios.");
             return
         }
         setLoading(true);

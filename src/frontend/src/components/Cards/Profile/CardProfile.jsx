@@ -10,7 +10,7 @@ import BtnCallToAction from '../../btn/BtnCallToAction/BtnCallToAction';
 import PopUpBlurProfile from './PopUpBlurProfile';
 import EditMyProfile from '../../../pages/User/edit/EditMyProfile';
 import { changeProfilePicture, listFollowers, listFollowing, deactivateAccount } from '../../../services/userService';
-import { useAuth } from '../../../context/Auth/useAuth';
+import { useAuth } from '../../../context/AuthContext';
 
 export default function CardProfile({
   //id,

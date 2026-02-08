@@ -51,11 +51,11 @@ export default function InteractionBar({ idAuthor, post, photo, name, cardWidth 
         userName: currentUser.name,
         profileURL: currentUser.profilePicture
     }
-    const [changeVisibilityPopup, setChangeVisibilityPopup] = useState(false);
-    const changeVisibility = (visibility) => {
-        setFormData((prev) => ({ ...prev, visibility }));
-        setChangeVisibilityPopup(false);
-    };
+    // const [changeVisibilityPopup, setChangeVisibilityPopup] = useState(false);
+    // const changeVisibility = (visibility) => {
+    //     setFormData((prev) => ({ ...prev, visibility }));
+    //     setChangeVisibilityPopup(false);
+    // };
 
     const sendLike = async () => {
         try {
@@ -92,7 +92,7 @@ export default function InteractionBar({ idAuthor, post, photo, name, cardWidth 
             if (isReply && parentComment) {
                 payload.parentCommentId = Number(parentComment);
             }
-            console.log("Payload do comentário:", payload);
+            // console.log("Payload do comentário:", payload);
 
             let createdComment;
             if(post.type === 'POSTAGEM'){

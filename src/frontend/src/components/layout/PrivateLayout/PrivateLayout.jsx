@@ -3,12 +3,13 @@ import { useAuth } from "../../../context/AuthContext";
 
 import PrivateHeader from "../Header/Private/PrivateHeader";
 import Footer from "../Footer/Footer";
+import LoadingSpinner from "../../LoadingSpinner/LoadingSpinner";
 
 export default function PrivateLayout({ routes }) {
   const { user, loading } = useAuth();
 
   if (loading) {
-    return <div>Carregando...</div>;
+    return <LoadingSpinner />;
   }
 
   if (!user) {
