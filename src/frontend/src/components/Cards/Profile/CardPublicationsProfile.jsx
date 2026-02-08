@@ -43,6 +43,7 @@ export default function CardPublicationsProfile({ title, posts, onPostsUpdated, 
   }, [posts, limit])
 
   const openUniquePostPopup = (postId) => {
+    setIsPopupOpen(false);
     setSelectedPostId(postId);
     setIsUniquePostPopup(true);
   }
