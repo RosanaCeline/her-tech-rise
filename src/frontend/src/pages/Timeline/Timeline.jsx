@@ -23,7 +23,12 @@ export default function Timeline() {
 
     const [isUniquePostPopup, setIsUniquePostPopup] = useState(false);
     const [selectedPostId, setSelectedPostId] = useState(null);
-    const selectedPost = posts.find((p) => p.id === selectedPostId);
+    
+    const selectedPost = posts.find((item) => {
+        if (item.type === 'POSTAGEM') return item.post.id === selectedPostId;
+        if (item.type === 'COMPARTILHAMENTO') return item.share.sharedId === selectedPostId;
+        return false;
+    });
 
     const openUniquePostPopup = (postId) => {
         setSelectedPostId(postId);
@@ -159,7 +164,7 @@ export default function Timeline() {
             <TimelineCard> <NewPost /> </TimelineCard>
 
             {posts.length > 0 ? (
-                <div className="flex flex-col gap-8 w-full mx-auto mt-6">
+                <div className="flex flex-col gap-8 w-full mx-auto mt-6 mb-10">
                     {posts.map((post) => {
                         const data = normalizePost(post);
                         const isFollowing = data.post.isOwner
@@ -203,7 +208,7 @@ export default function Timeline() {
             )}
 
             {!hasMore && posts.length > 0 && (
-                <p className="text-center text-gray-500 m-8">Você chegou ao fim!</p>
+                <p className="text-center text-gray-500 m-8 mt-0">Você chegou ao fim!</p>
             )}
             
             {isUniquePostPopup && selectedPost && (
