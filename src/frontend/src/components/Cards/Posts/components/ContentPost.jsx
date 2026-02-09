@@ -1,8 +1,10 @@
-import { useState } from 'react';
+// import { useState } from 'react';
 import { Files } from 'lucide-react';
 
 import BtnCallToAction from '../../../btn/BtnCallToAction/BtnCallToAction';
 import CardPostProfile from '../CardPostProfile';
+import { useState } from 'react';
+import ConfirmModal from '../../../ConfirmModal/ConfirmModal';
 
 export default function ContentPost({ post, isShare = false, postShare = null, isOpen, onExpand, cardWidth }) {
   const isCompact = cardWidth < 600;
@@ -10,16 +12,39 @@ export default function ContentPost({ post, isShare = false, postShare = null, i
   const firstMedia = media[0];
   const hasMultipleMedia = media.length > 1;
 
-  const postViewShare = isShare && postShare
-    ? {
-        id: postShare.id,
-        content: postShare.content,
-        media: postShare.media || [],
-        createdAt: postShare.createdAt,
-      }
-    : null;
+  const [confirmOpen, setConfirmOpen] = useState(false);
+  const [downloadUrl, setDownloadUrl] = useState(null);
+
+  // const postViewShare = isShare && postShare
+  //   ? {
+  //       id: postShare.id,
+  //       content: postShare.content,
+  //       media: postShare.media || [],
+  //       createdAt: postShare.createdAt,
+  //     }
+  //   : null;
+
+  const handleDownloadClick = (url) => {
+    setDownloadUrl(url);
+    setConfirmOpen(true);
+  };
+
+  const handleConfirmDownload = () => {
+    if (!downloadUrl) return;
+
+    const link = document.createElement('a');
+    link.href = downloadUrl;
+    link.download = '';
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+
+    setConfirmOpen(false);
+    setDownloadUrl(null);
+  };
 
   return (
+    <>
     <div className="flex flex-col gap-2 overflow-auto h-fit p-1">
       <p className={`min-h-fit ${!isOpen && 'max-h-[100px]'} overflow-y-auto text-sm text-gray-700 break-words`}>{post.content}</p>
 
@@ -88,13 +113,13 @@ export default function ContentPost({ post, isShare = false, postShare = null, i
                       {m.url.split('/').pop()}
                     </span>
                   </div>
-                  <a
-                    href={m.url}
-                    download
+                  <button
+                    type="button"
+                    onClick={() => handleDownloadClick(m.url)}
                     className="text-sm font-medium hover:underline ml-4 whitespace-nowrap"
                   >
                     Baixar
-                  </a>
+                  </button>
                 </div>
               );
 
@@ -138,17 +163,25 @@ export default function ContentPost({ post, isShare = false, postShare = null, i
             )}
 
             {hasMultipleMedia && (
-                <BtnCallToAction 
-                    onClick={(e) => {
-                        e.stopPropagation();
-                        onExpand?.();
-                    }}>
+              <div className="m-3">
+                <BtnCallToAction onClick={onExpand}>
                         VER MAIS
                 </BtnCallToAction>
+                </div>
             )}
           </div>
         )
       )}
     </div>
+    <ConfirmModal
+      open={confirmOpen}
+      title="Iniciando download"
+      message="Deseja baixar este arquivo agora?"
+      confirmText="Baixar"
+      cancelText="Cancelar"
+      onCancel={() => setConfirmOpen(false)}
+      onConfirm={handleConfirmDownload}
+    />
+</>
   );
 }

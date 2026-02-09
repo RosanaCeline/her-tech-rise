@@ -3,16 +3,23 @@ import BtnCallToAction from '../btn/BtnCallToAction/BtnCallToAction'
 import LabelInput from "../form/Label/LabelInput"
 import { Earth, Lock, X, Video, Image, Files, Trash2} from 'lucide-react'
 import { newPost, updatePost } from '../../services/timelineService'
+import ConfirmModal from '../ConfirmModal/ConfirmModal'
 
 export default function ManagePost({user, setActivePopUp, formData, setFormData, isEdit, onSuccess }){
+    const [originalData] = useState(() => JSON.stringify(formData));
+    const [confirmSaveOpen, setConfirmSaveOpen] = useState(false);
     const [changeVisibilityPopup, setChangeVisibilityPopup] = useState(false)
     const [postErrorMessage, setPostErrorMessage] = useState('')
     const [errorMessage, setErrorMessage] = useState('')
     const [cancelModalOpen, setCancelModalOpen] = useState(false)
+
     const changeVisibility = (visibility) => {
         setFormData(prev => ({ ...prev, visibility: visibility }));
         setChangeVisibilityPopup(false)
     }
+    const hasChanges = () => {
+        return JSON.stringify(formData) !== originalData;
+    };
 
     const handleSubmit = async () => {
         if (formData.content !== '' || formData.media.length > 0) {
@@ -42,7 +49,7 @@ export default function ManagePost({user, setActivePopUp, formData, setFormData,
                 }
 
                 if (onSuccess) onSuccess();  
-                else window.location.reload(); 
+                // else window.location.reload(); 
                 setActivePopUp('')
             } catch (err) {
                 setPostErrorMessage(err.response || 'Erro ao salvar')
@@ -187,8 +194,15 @@ export default function ManagePost({user, setActivePopUp, formData, setFormData,
                 <Files className="transition duration-300 hover:scale-110 cursor-pointer text-(--purple-primary) h-6 w-6 sm:h-8 sm:w-8"
                 onClick={() => setActivePopUp('docs')}/>
             </div>
-            <BtnCallToAction variant="purple" onClick={() => handleSubmit()}>{isEdit ? "Salvar Alterações" : "Publicar"}</BtnCallToAction>
+            <BtnCallToAction variant="purple" onClick={() => { if (isEdit && hasChanges()) {
+                                                                setConfirmSaveOpen(true);
+                                                                } else {
+                                                                handleSubmit();
+                                                                }
+                                                            }} >
+                            {isEdit ? "Salvar Alterações" : "Publicar"}</BtnCallToAction>
         </div>
+        
         {errorMessage && <p className='text-center mt-2'>{errorMessage}</p>}
         {postErrorMessage && (
         <div className="fixed top-1/12 left-1/2 transform -translate-x-1/2 -translate-y-1/2 
@@ -197,38 +211,35 @@ export default function ManagePost({user, setActivePopUp, formData, setFormData,
             {postErrorMessage}
         </div>
         )}
-        {cancelModalOpen && (
-            <div className="fixed inset-0 z-50 bg-black/40 backdrop-blur-sm flex items-center justify-center">
-            <div className="bg-white p-8 rounded-2xl shadow-lg text-center max-w-sm">
-                <h2 className="text-2xl font-bold mb-4 text-[var(--purple-primary)]">
-                Confirmar Cancelamento
-                </h2>
-                <p className="mb-6 text-gray-700">Tem certeza que deseja cancelar publicação?</p>
-                <div className="flex justify-center gap-6">
-                <button
-                    onClick={() => setCancelModalOpen(false)}
-                    className="bg-gray-300 text-gray-800 px-6 py-2 rounded-xl hover:bg-gray-400 transition"
-                >
-                    Não
-                </button>
-                <button
-                    onClick={() => {
-                        setActivePopUp('');
-                        setFormData({
-                            content: '',
-                            media: [],
-                            visibility: 'PUBLICO'
-                        })
-                        window.location.reload(); 
-                    }}
-                    className="bg-purple-600 text-white px-6 py-2 rounded-xl hover:bg-purple-700 transition"
-                >
-                    Sim
-                </button>
-                </div>
-            </div>
-            </div>
-            )}
+        <ConfirmModal
+            open={cancelModalOpen}
+            title="Confirmar cancelamento"
+            message="Tem certeza que deseja cancelar a publicação?"
+            cancelText="Não"
+            confirmText="Sim"
+            onCancel={() => setCancelModalOpen(false)}
+            onConfirm={() => {
+                setCancelModalOpen(false);
+                setActivePopUp('');
+                setFormData({
+                content: '',
+                media: [],
+                visibility: 'PUBLICO'
+                });
+            }}
+        />
+        <ConfirmModal
+            open={confirmSaveOpen}
+            title="Salvar alterações?"
+            message="Você alterou esta publicação. Deseja salvar as mudanças?"
+            confirmText="Salvar"
+            cancelText="Cancelar"
+            onCancel={() => setConfirmSaveOpen(false)}
+            onConfirm={() => {
+                setConfirmSaveOpen(false);
+                handleSubmit();
+            }}
+        />
         </div>
     )
 }

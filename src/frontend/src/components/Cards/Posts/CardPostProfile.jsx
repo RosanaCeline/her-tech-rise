@@ -8,7 +8,7 @@ import AttachFile from '../../posts/AttachFile';
 import InteractionBar from '../../posts/Interactions/InteractionBar';
 
 export default function CardPostProfile({ post, photo, name, isPostDetail = true, handle = null, idAuthor = null, isOwner = false, isShare = false, postShare = null, hideInteractions = false,
-                                          isPopupView = false, isOpen = false, onPostsUpdated = false, isFollowing = null, onFollowToggle = null, onClick }) {
+                                          isPopupView = false, isOpen = false, onPostsUpdated = false, isFollowing = null, onFollowToggle = null, onCardClick }) {
   const [activePopUp, setActivePopUp] = useState("post");
   const [editingPost, setEditingPost] = useState(null);
 
@@ -53,10 +53,10 @@ export default function CardPostProfile({ post, photo, name, isPostDetail = true
   return (
       <div
         ref={containerRef}
-        onClick={onClick}
+        onClick={onCardClick}
         className={`flex flex-col justify-between rounded-xl w-full transition-all duration-300
                   ${ isPostDetail ? '' : 'border border-(--gray) p-5 hover:bg-slate-50'} 
-                  ${ isPopupView  ? 'w-full' : `max-w-xl mx-auto ${hasMedia ? '' : 'min-h-[20vh] '}` }`}
+                  ${ isPopupView  ? 'w-full' : `mx-auto ${hasMedia ? '' : 'min-h-[20vh] '}` }`}
       >
         <HeaderPost
           photo={photo}
@@ -79,7 +79,7 @@ export default function CardPostProfile({ post, photo, name, isPostDetail = true
           isShare={isShare}
           postShare={isShare && postShare ? postShare : null}
           isOpen={isOpen} 
-          onExpand={onClick}
+          onExpand={onCardClick}
           cardWidth={cardWidth}
         />
 
