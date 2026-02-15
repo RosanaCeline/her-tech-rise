@@ -235,6 +235,7 @@ function StepWrapper({ children, goBackTo, validateFields, errorMessage, registe
             </div>
 
             <section className="flex-1 flex flex-col justify-center py-3">{children}</section>
+            {errorMessage && <p className='text-center m-8'>{errorMessage}</p>}
 
             <div>
                 <p className='text-center mb-3'>Preencha <strong>todas</strong> as fases para concluir seu cadastro. *</p>
@@ -245,8 +246,7 @@ function StepWrapper({ children, goBackTo, validateFields, errorMessage, registe
                     {loading ? 'Carregando...' : 'CONTINUAR'}
                                         
                     </BtnCallToAction>
-                </div>
-                {errorMessage && <p className='text-center mt-2'>{errorMessage}</p>}
+                </div>                
             </div>
             {successModalOpen && (
             <div className="fixed inset-0 z-50 bg-black/40 backdrop-blur-sm flex items-center justify-center">

@@ -138,7 +138,10 @@ export default function HeaderPost({ photo, name, post, date, isOpen = false, on
 
         {!isOwner && isFollowing !== null && onFollowToggle && (
           <BtnCallToAction
-            onClick={onFollowToggle}
+            onClick={(e) => {
+              e.stopPropagation();
+              onFollowToggle?.();
+            }}
             variant={isFollowing ? 'white' : 'purple'}
           >
             {isFollowing ? 'Seguindo' : 'Seguir'}

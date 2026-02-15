@@ -17,7 +17,7 @@ export default function PopUpBlurProfile({ isOpen, onClose, content, children = 
         <button
           type="button"
           onClick={onClose}
-          className="absolute top-4 right-4 text-[var(--purple-primary)] hover:text-[var(--purple-action)] text-3xl font-bold"
+          className="absolute top-4 right-4 text-[var(--purple-primary)] hover:text-[var(--purple-action)] hover:bg-gray-100 text-3xl font-bold flex items-center justify-center w-10 h-10 rounded-md"
           aria-label="Fechar modal"
         >
           <X/>
