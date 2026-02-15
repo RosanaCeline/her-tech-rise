@@ -53,7 +53,10 @@ export default function CardPostProfile({ post, photo, name, isPostDetail = true
   return (
       <div
         ref={containerRef}
-        onClick={onCardClick}
+        onClick={(e) => {
+          e.stopPropagation();
+          onCardClick?.();
+        }}
         className={`flex flex-col justify-between rounded-xl w-full transition-all duration-300
                   ${ isPostDetail ? '' : 'border border-(--gray) p-5 hover:bg-slate-50'} 
                   ${ isPopupView  ? 'w-full' : `mx-auto ${hasMedia ? '' : 'min-h-[20vh] '}` }`}

@@ -12,10 +12,13 @@ import { sendLikePost, getLikesPost,
             sendCommentPost, getCommentsPost, sendLikeComment, getLikesComment, deleteCommentsPost, 
             sendSharePost, sendLikeShare, getLikesShare, sendCommentShare, getCommentsShare,
         } from "../../../services/interactionsService";
+import { followUser, unfollowUser } from "../../../services/userService";
+import { useError } from "../../../context/ErrorContext";
 
 export default function InteractionBar({ idAuthor, post, photo, name, cardWidth }) {
     const currentUser = getCurrentUser();
     const isCompact = cardWidth < 600;
+    const { showError } = useError();
 
     const [hasLiked, setHasLiked] = useState(false);
     const [likesCount, setLikesCount] = useState(0);
@@ -26,7 +29,6 @@ export default function InteractionBar({ idAuthor, post, photo, name, cardWidth 
 
     const [commentsCount, setCommentsCount] = useState(0);
     const [listComments, setListComments] = useState([]);
-    const [showCommentsModal, setShowCommentsModal] = useState(false);
     const [showCommentsInput, setShowCommentsInput] = useState(false);
     const [newComment, setNewComment] = useState("");
     const [commentsToShow, setCommentsToShow] = useState(2);
@@ -34,6 +36,7 @@ export default function InteractionBar({ idAuthor, post, photo, name, cardWidth 
 
     const [replyingToCommentId, setReplyingToCommentId] = useState(null);
     const [replyContent, setReplyContent] = useState("");
+    const [isFollowingLocal, setIsFollowingLocal] = useState(post?.author?.isFollowed ?? false);
 
     const [shareCount, setShareCount] = useState(0);
 
@@ -103,7 +106,7 @@ export default function InteractionBar({ idAuthor, post, photo, name, cardWidth 
             setListComments(prev => [
                 {
                     id: createdComment.id, 
-                    content: newComment,
+                    content: contentToSend,
                     userId: currentUser.id,
                     userName: currentUser.name,
                     userAvatarUrl: currentUser.profilePicture,
@@ -186,7 +189,6 @@ export default function InteractionBar({ idAuthor, post, photo, name, cardWidth 
                 }
             }
             setLikedComments(likedIds);
-            setShowCommentsModal(true);
         } catch (error) {
             console.error("Erro ao buscar comentários:", error);
         }
@@ -215,6 +217,28 @@ export default function InteractionBar({ idAuthor, post, photo, name, cardWidth 
             console.error("Erro ao excluir comentário:", error);
         }
     };
+
+    const handleToggleFollow = async (userId, isFollowing) => {
+        if (!userId) {
+            console.error("ID do perfil é inválido");
+            return;
+        }
+        try {
+            if (isFollowing) {
+                await unfollowUser(userId);
+                setIsFollowingLocal(false);
+            } else {
+                await followUser(userId);
+                setIsFollowingLocal(true);
+            }
+        } catch (err) {
+            showError("Erro ao atualizar o status de seguir.", err);
+        }
+    }; 
+
+    useEffect(() => {
+        setIsFollowingLocal(post?.author?.isFollowed ?? false);
+    }, [post]);
 
     useEffect(() => {
         setLikesCount(post.countLike || 0);
@@ -266,7 +290,7 @@ export default function InteractionBar({ idAuthor, post, photo, name, cardWidth 
                             <span>|</span>
                             <button className="flex items-center gap-1 cursor-pointer hover:opacity-80">
                             {isCompact && <Share className="purple-primary" size={15} />}
-                            <span>{post.countShares}</span>
+                            <span>{shareCount}</span>
                             {!isCompact && <span className="text-xs">compartilhamentos</span>}
                             </button>
                         </>
@@ -347,7 +371,7 @@ export default function InteractionBar({ idAuthor, post, photo, name, cardWidth 
                     </div>
 
                     {listComments
-                        .filter((comment) => comment.parentComment === null)
+                        .filter((comment) => !comment.parentCommentId)
                         .slice(0, commentsToShow)
                         .map((comment) => {
                             const isLiked = likedComments.has(comment.id);
@@ -447,7 +471,7 @@ export default function InteractionBar({ idAuthor, post, photo, name, cardWidth 
                                             </div>
                                         )}
                                         {listComments
-                                        .filter((reply) => reply.parentComment === comment.id)
+                                        .filter((reply) => reply.parentCommentId === comment.id)
                                         .map((reply) => {
                                             const isLikedReply = likedComments.has(reply.id);
                                             return (
@@ -614,8 +638,8 @@ export default function InteractionBar({ idAuthor, post, photo, name, cardWidth 
                                 isOwner={post.isOwner}
                                 hideInteractions={true}
                                 isShare={true}
-                                isFollowing={post.isOwner ? false : (post.author?.isFollowed ?? false)}
-                                onFollowToggle={() => handleToggleFollow(post.author.id)}
+                                isFollowing={post.isOwner ? false : isFollowingLocal}
+                                onFollowToggle={() => handleToggleFollow(idAuthor)}
                             />
                         </div>
 
