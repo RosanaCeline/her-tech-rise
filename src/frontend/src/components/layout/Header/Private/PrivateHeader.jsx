@@ -15,6 +15,7 @@ export default function PrivateHeader({ routes }) {
     setMenuVisible(prev => !prev);
   };
   const closeSearch = () =>  setSearchMode('none');
+  const closeMenu = () => setMenuVisible(false);
   const openOverlaySearch = () => {
     setMenuVisible(false);
     setSearchMode('overlay');
@@ -68,7 +69,7 @@ export default function PrivateHeader({ routes }) {
             : 'hidden'
         } lg:flex lg:items-center lg:gap-6 lg:relative`}
       >
-        <NavMenuHeader routes={routes} isHovered={true} />
+        <NavMenuHeader routes={routes} isHovered={true} isMobile={true} onItemClick={closeMenu} />
 
       </nav>
     </header>

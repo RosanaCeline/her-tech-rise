@@ -1,7 +1,7 @@
 import React from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 
-export default function NavMenuHeader({ routes, isHovered = true, isMobile = false }) {
+export default function NavMenuHeader({ routes, isHovered = true, isMobile = false, onItemClick  }) {
   const navigate = useNavigate();
   const location = useLocation();
 
@@ -34,7 +34,10 @@ export default function NavMenuHeader({ routes, isHovered = true, isMobile = fal
           return (
             <button
               key={route.path}
-              onClick={() => navigate(route.path)}
+              onClick={() => {
+                navigate(route.path);
+                if (isMobile) onItemClick?.();
+              }}
               className={`flex flex-col items-center text-white transition duration-300 hover:scale-105 ${
                 isActive ? '!text-violet-200 scale-105 my-2' : ''
               }`}
@@ -49,7 +52,10 @@ export default function NavMenuHeader({ routes, isHovered = true, isMobile = fal
           return (
             <button
               key={`action-${idx}`}
-              onClick={route.action}
+              onClick={() => {
+                route.action();
+                if (isMobile) onItemClick?.();
+              }}
               className="flex flex-col items-center text-white transition duration-300 hover:scale-105"
               type="button"
             >
