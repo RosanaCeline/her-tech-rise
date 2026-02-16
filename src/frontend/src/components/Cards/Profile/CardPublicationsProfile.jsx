@@ -1,11 +1,12 @@
 import { useState, useEffect } from 'react'
-import { getCurrentUser } from '../../../services/authService'
+// import { getCurrentUser } from '../../../services/authService'
 import BtnCallToAction from '../../btn/BtnCallToAction/BtnCallToAction'
 import CardPostProfile from '../Posts/CardPostProfile'
 import PopUpBlurProfile from '../Profile/PopUpBlurProfile'
+import { useAuth } from '../../../context/AuthContext'
 
 export default function CardPublicationsProfile({ title, posts, onPostsUpdated, setActivePopUp, isCurrentUser }) {
-  const userData = getCurrentUser();
+  const userData = useAuth();
   const [visiblePosts, setVisiblePosts] = useState([]);
   const normalizePost = (post) => post.type === "POSTAGEM" ? post.post : post.share.originalPost;
   const [limit, setLimit] = useState(3);
@@ -172,7 +173,9 @@ export default function CardPublicationsProfile({ title, posts, onPostsUpdated, 
               {filteredPosts.map((item, idx) => {
                 const data = buildPostData(item);
                 return (
-                  <div key={data.post?.id ?? `post-${idx}`} className="border border-(--gray) rounded-xl cursor-pointer hover:bg-slate-50 p-3" onClick={() => openUniquePostPopup(item.type === "COMPARTILHAMENTO" ? item.share.originalPost.id : item.post.id)}
+                  <div key={data.post?.id ?? `post-${idx}`} 
+                      className="border border-(--gray) rounded-xl cursor-pointer hover:bg-slate-50 p-3" 
+                      onClick={() => openUniquePostPopup(item.type === "COMPARTILHAMENTO" ? item.share.originalPost.id : item.post.id)}
 >
                     <CardPostProfile
                       idUserLogged={data.idUserLogged}

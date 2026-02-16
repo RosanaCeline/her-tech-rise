@@ -8,7 +8,12 @@ const BASE_URL = import.meta.env.VITE_API_URL;
 
 export const requestService = {
   async apiRequest(endpoint, method = "GET", data = null) {
-    const token = getCurrentUser().token;
+    const currentUser = getCurrentUser();
+    if (!currentUser?.token) {
+      window.location.href = "/login";
+      return;
+    }
+    const token = currentUser.token;
 
     const isFormData = data instanceof FormData;
 
@@ -26,6 +31,14 @@ export const requestService = {
       const response = await fetch(`${BASE_URL}/api${endpoint}`, config);
 
       if (!response.ok) {
+
+        if (response.status === 401 || response.status === 403) {
+          localStorage.removeItem("user");
+          sessionStorage.removeItem("user");
+          window.location.href = "/login";
+          return;
+        }
+
         let errorMessage = "Erro desconhecido";
 
         try {

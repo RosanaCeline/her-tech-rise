@@ -628,7 +628,7 @@ export default function InteractionBar({ idAuthor, post, photo, name, cardWidth 
                             }
                         />
 
-                        <div className="scale-80 origin-center">
+                        <div className="scale-80 origin-center border-1 border-[var(--purple-primary)] rounded-xl p-3">
                             <CardPostProfile 
                                 key={post.id}
                                 post={post}
