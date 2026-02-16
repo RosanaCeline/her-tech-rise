@@ -16,7 +16,7 @@ public record MediaRequestDTO(
 
         @NotBlank
         @Pattern(
-                regexp = "^(image|video|application)/.+$",
+                regexp = "^(image|application)/.+$",
                 message = "MIME inválido.")
         @Schema(description = "MIME type da mídia", example = "image/png")
         String mimeType,

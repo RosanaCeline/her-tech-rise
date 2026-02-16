@@ -65,17 +65,6 @@ export default function ContentPost({ post, isShare = false, postShare = null, i
                 />
               );
 
-            if (m.mediaType === 'VIDEO')
-              return (
-                <video
-                  key={i}
-                  controls
-                  className="w-full h-full my-auto object-cover rounded-md"
-                >
-                  <source src={m.url} type="video/mp4" />
-                </video>
-              );
-
             if (m.mediaType === 'DOCUMENT')
               return (
                 <div
@@ -111,12 +100,6 @@ export default function ContentPost({ post, isShare = false, postShare = null, i
                 alt="Imagem do post"
                 className="w-full max-h-90 object-contain rounded-md"
               />
-            )}
-
-            {firstMedia.mediaType === 'VIDEO' && (
-              <video controls className="w-full max-h-64 rounded-md">
-                <source src={firstMedia.url} type="video/mp4" />
-              </video>
             )}
 
             {firstMedia.mediaType === 'DOCUMENT' && (

@@ -34,16 +34,12 @@ public class CloudinaryService {
             throw new InvalidMediaTypeException("Tipo de mídia não identificado.");
         }
 
-        if (!mimeType.matches("^(image|video|application)/.+$")) {
+        if (!mimeType.matches("^(image|application)/.+$")) {
             throw new InvalidMediaTypeException("Tipo de arquivo não suportado: " + mimeType);
         }
 
         if (mimeType.startsWith("image/") && size > 10 * 1024 * 1024) {
             throw new MediaFileTooLargeException("Imagem excede o limite de 10MB.");
-        }
-
-        if (mimeType.startsWith("video/") && size > 100 * 1024 * 1024) {
-            throw new MediaFileTooLargeException("Vídeo excede o limite de 100MB.");
         }
 
         if (mimeType.startsWith("application/") && size > 10 * 1024 * 1024) {
