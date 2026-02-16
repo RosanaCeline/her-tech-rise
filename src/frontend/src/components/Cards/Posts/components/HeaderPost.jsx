@@ -7,7 +7,7 @@ import { getProfileById } from '../../../../services/userService';
 import ConfirmModal from '../../../ConfirmModal/ConfirmModal';
 import BtnCallToAction from '../../../btn/BtnCallToAction/BtnCallToAction';
 
-export default function HeaderPost({ photo, name, post, date, isOpen = false, onPostsUpdated = false, 
+export default function HeaderPost({ photo, name, post, date, isOpen = false, onPostsUpdated = false, isShare = false,
                                       isFollowing = null, onFollowToggle = null, handle = null, idAuthor = null, isOwner = false, onEdit = false }) {
   const navigate = useNavigate();
   const [showVisibilityOptions, setShowVisibilityOptions] = useState(false);
@@ -136,7 +136,7 @@ export default function HeaderPost({ photo, name, post, date, isOpen = false, on
           </div>
         )}
 
-        {!isOwner && isFollowing !== null && onFollowToggle && (
+        {!isShare && !isOwner && isFollowing !== null && onFollowToggle && (
           <BtnCallToAction
             onClick={(e) => {
               e.stopPropagation();
