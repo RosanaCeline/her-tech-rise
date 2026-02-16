@@ -92,13 +92,6 @@ class PostServiceTest extends AbstractIntegrationTest {
                 "image/jpg",
                 imageInput
         );
-        InputStream videoInput = getClass().getResourceAsStream("/videoTestPosts.mp4");
-        MultipartFile video = new MockMultipartFile(
-                "file",
-                "videoTestPosts.mp4",
-                "video/mp4",
-                videoInput
-        );
         InputStream docsInput = getClass().getResourceAsStream("/docsTestPosts.pdf");
         MultipartFile docs = new MockMultipartFile(
                 "file",
@@ -107,14 +100,13 @@ class PostServiceTest extends AbstractIntegrationTest {
                 docsInput
         );
         PostRequestDTO request = postService.processPostData("Olá mundo!", null,
-                PostVisibility.PUBLICO, List.of(image, video, docs));
+                PostVisibility.PUBLICO, List.of(image, docs));
         PostResponseDTO response = postService.create(request);
 
         assertNotNull(response);
         assertEquals("Olá mundo!", response.content());
-        assertEquals(3, response.media().size());
+        assertEquals(2, response.media().size());
         assertEquals(MediaType.IMAGE, response.media().getFirst().mediaType());
-        assertEquals(MediaType.VIDEO, response.media().get(1).mediaType());
         assertEquals(MediaType.DOCUMENT, response.media().get(2).mediaType());
     }
 

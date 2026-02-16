@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react'
 import BtnCallToAction from '../btn/BtnCallToAction/BtnCallToAction'
 import LabelInput from "../form/Label/LabelInput"
-import { Earth, Lock, X, Video, Image, Files, Trash2} from 'lucide-react'
+import { Earth, Lock, X, Image, Files, Trash2} from 'lucide-react'
 import { newPost, updatePost } from '../../services/timelineService'
 
 export default function ManagePost({user, setActivePopUp, formData, setFormData, isEdit, onSuccess, isShare = false }){
@@ -62,7 +62,7 @@ export default function ManagePost({user, setActivePopUp, formData, setFormData,
                     return { file: item, url: item.url };
                 }
                 if (item instanceof File) {
-                    if (item.type.startsWith('image/') || item.type === 'video/mp4') {
+                    if (item.type.startsWith('image/')) {
                     return { file: item, url: URL.createObjectURL(item) };
                     }
                 }
@@ -138,14 +138,12 @@ export default function ManagePost({user, setActivePopUp, formData, setFormData,
         <LabelInput placeholder="Digite sua nova publicação" type="mensagem" value={formData.content} required={!formData.media.length}
             onChange={(e) => setFormData(prev => ({ ...prev, content: e.target.value }))}/></div>
 
-        {formData.media.some(file => (file.type?.startsWith?.('image/') || file.mediaType === 'IMAGE') || (file.type?.startsWith?.('video/mp4') || file.mediaType === 'VIDEO')
-        ) && (
+        {formData.media.some(file => (file.type?.startsWith?.('image/') || file.mediaType === 'IMAGE')) && (
             <div className="mt-4 flex gap-4 overflow-x-auto overflow-y-hidden max-w-full h-37">
                 {mediaUrls.map(({file, url}, index) => {
                     return(
                         <div key={index} className='relative inline-block mr-4 min-w-[8rem]'>
                             {(file.type?.startsWith?.('image/') || file.mediaType === 'IMAGE') && <img src={url} alt="Preview" className="w-full h-32 object-cover rounded shadow"/>}
-                            {(file.type?.startsWith?.('video/mp4') || file.mediaType === 'VIDEO') && <video key={index} src={url} controls className="w-full h-32 rounded shadow object-cover"/>}
                             <button onClick={() => handleRemove(file)} 
                             className='absolute top-1 right-1 bg-(--purple-primary) text-white rounded-full w-9 h-9 flex items-center justify-center hover:bg-(--purple-action)'>
                                 <Trash2 />
@@ -178,8 +176,6 @@ export default function ManagePost({user, setActivePopUp, formData, setFormData,
         <div className="flex justify-between gap-x-3">
             <div className="border border-(--font-gray) p-3 rounded-2xl flex gap-x-4 items-center">
                 <p className='hidden md:flex'>Adicionar à publicação</p>
-                <Video className="transition duration-300 hover:scale-110 cursor-pointer text-(--purple-primary) h-8 w-8"
-                onClick={() => setActivePopUp('video')}/>
                 <Image className="transition duration-300 hover:scale-110 cursor-pointer text-(--purple-primary) h-8 w-8"
                 onClick={() => setActivePopUp('image')}/>
                 <Files className="transition duration-300 hover:scale-110 cursor-pointer text-(--purple-primary) h-8 w-8"
