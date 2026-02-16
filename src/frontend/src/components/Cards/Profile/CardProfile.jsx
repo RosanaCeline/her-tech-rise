@@ -1,5 +1,4 @@
 import { useState, useRef } from 'react';
-import { useNavigate } from "react-router-dom";
 
 import { FaCamera, FaPaperclip, FaCheck, FaPaperPlane, FaSlidersH } from 'react-icons/fa';
 import { Check, Plus } from 'lucide-react'
@@ -9,7 +8,7 @@ import defaultEnterprisePhoto from '../../../assets/profile/FotoPadraoEnterprise
 import BtnCallToAction from '../../btn/BtnCallToAction/BtnCallToAction';
 import PopUpBlurProfile from './PopUpBlurProfile';
 import EditMyProfile from '../../../pages/User/edit/EditMyProfile';
-import { changeProfilePicture, listFollowers, listFollowing, deactivateAccount } from '../../../services/userService';
+import { changeProfilePicture, listFollowers, listFollowing } from '../../../services/userService';
 import { useAuth } from '../../../context/AuthContext';
 
 export default function CardProfile({
@@ -28,9 +27,9 @@ export default function CardProfile({
   isCurrentUser,
   followersCount,
   handleFollow,
-  followedUser
+  followedUser,
+  onRequestDelete
 }) {
-  const navigate = useNavigate();
   const [loading, setLoading] = useState(false)
   const [showOptions, setShowOptions] = useState(false);
   const [modalContent, setModalContent] = useState(null);
@@ -40,20 +39,10 @@ export default function CardProfile({
   const fileInputRef = useRef();
   const [updateProfileError, setUpdateProfileError] = useState('')
 
-  const [deleteModalOpen, setDeleteModalOpen] = useState(false);
   const [showFollowersModal, setShowFollowersModal] = useState(false);
   const [showFollowingModal, setShowFollowingModal] = useState(false);
   const [followersList, setFollowersList] = useState([]);
   const [followingList, setFollowingList] = useState([]);
-
-  const deleteAccount = async () => {
-    try {
-      await deactivateAccount();
-      navigate('/');
-    } catch (err) {
-      console.error("Erro ao deletar conta:", err);
-    }
-  };
 
   const handleFollowersClick = async () => {
     try {
@@ -226,7 +215,7 @@ export default function CardProfile({
                     flex md:hidden
                   `}
                 >
-                  <BtnCallToAction variant="white" onClick={() => setDeleteModalOpen(true)}>Excluir Perfil</BtnCallToAction>
+                  <BtnCallToAction variant="white" onClick={onRequestDelete}>Excluir Perfil</BtnCallToAction>
                   <BtnCallToAction
                     variant="purple"
                     onClick={() => handleOpenModal(<EditMyProfile />)}
@@ -260,7 +249,7 @@ export default function CardProfile({
                   hidden md:flex
                 `}
               >
-                <BtnCallToAction variant="white" onClick={() => setDeleteModalOpen(true)}>Excluir Perfil</BtnCallToAction>
+                <BtnCallToAction variant="white" onClick={onRequestDelete}>Excluir Perfil</BtnCallToAction>
                 <BtnCallToAction
                   variant="purple"
                   onClick={() => handleOpenModal(<EditMyProfile />)}
@@ -287,32 +276,7 @@ export default function CardProfile({
               </button>
             </div>
           }
-          {deleteModalOpen && (
-            <div className="fixed inset-0 z-50 bg-black/40 backdrop-blur-sm flex items-center justify-center">
-              <div className="bg-white p-8 rounded-2xl shadow-lg text-center max-w-sm">
-                <h2 className="text-2xl font-bold mb-4 text-[var(--purple-primary)]">
-                  Confirmar Exclusão
-                </h2>
-                <p className="mb-6 text-gray-700">
-                  Tem certeza que deseja excluir seu perfil? Esta ação não poderá ser desfeita.
-                </p>
-                <div className="flex justify-center gap-6">
-                  <button
-                    onClick={() => setDeleteModalOpen(false)}
-                    className="bg-gray-300 text-gray-800 px-6 py-2 rounded-xl hover:bg-gray-400 transition"
-                  >
-                    Não
-                  </button>
-                  <button
-                    onClick={deleteAccount}
-                    className="bg-purple-600 text-white px-6 py-2 rounded-xl hover:bg-purple-700 transition"
-                  >
-                    Sim
-                  </button>
-                </div>
-              </div>
-            </div>
-          )}
+          
           </div>
         </div>
 

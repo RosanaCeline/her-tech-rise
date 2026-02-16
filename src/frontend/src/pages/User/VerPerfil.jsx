@@ -1,7 +1,7 @@
 import React, { useCallback, useEffect, useState } from 'react';
-import { useParams } from 'react-router-dom';
+import { useNavigate, useParams } from 'react-router-dom';
 
-import { followUser, unfollowUser, verifyFollowUser } from '../../services/userService';
+import { deactivateAccount, followUser, unfollowUser, verifyFollowUser } from '../../services/userService';
 import { getProfileById, listFollowers, listFollowing  } from '../../services/userService';
 import { getCurrentUser } from '../../services/authService';
 
@@ -15,16 +15,20 @@ import PopUp from '../../components/PopUp';
 import AttachFile from '../../components/posts/AttachFile';
 import ManagePost from '../../components/posts/ManagePost';
 import LoadingSpinner from './../../components/LoadingSpinner/LoadingSpinner'
+import PopUpBlurProfile from '../../components/Cards/Profile/PopUpBlurProfile';
 
 const baseUrl = import.meta.env.VITE_API_URL;
 
 export default function VerPerfil() {
+
+    const navigate = useNavigate();
     const { user_type, user_info } = useParams()
     const userId = (user_info === 'me') ? getCurrentUser().id : user_info.split('-')[0];
     const isCurrentUser = userId === getCurrentUser().id
     const [user, setUser] = useState(null);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
+    const [deleteModalOpen, setDeleteModalOpen] = useState(false);
 
     const isProfessional = user_type === 'professional';
     const isCompany = user_type === 'company';
@@ -112,6 +116,15 @@ export default function VerPerfil() {
         if (user?.id && !isCurrentUser) checkFollow()
     }, [user?.id, isCurrentUser, userId])
 
+    const handleDeleteAccount = async () => {
+        try {
+            await deactivateAccount();
+            navigate('/');
+        } catch (err) {
+            console.error("Erro ao deletar conta:", err);
+        }
+    };
+
     const handleFollow = async (id = userId, isFollowing = followedUser) => {
         try {
             setLoading(true)
@@ -142,9 +155,10 @@ export default function VerPerfil() {
     if (loading) return ( <LoadingSpinner /> )
     if (error) return <main className="..."><p className="text-red-600">{error}</p></main>;
     if (!user) return <main className="...">Nenhum perfil encontrado.</main>;
-
+// "flex flex-col items-center px-6 lg:px-30 pt-40 pb-10 gap-10 max-w-8xl mx-auto bg-(--gray)"
     return (
-    <main className="flex flex-col items-center px-6 lg:px-30 pt-40 pb-10 gap-10 max-w-8xl mx-auto bg-(--gray)">
+    <main className="flex flex-col bg-(--gray) pt-10 pb-10">
+        <div className="w-4/5 lg:w-1/2 mx-auto flex flex-col gap-8">
         <CardProfile
             isCurrentUser={isCurrentUser}
             tipo_usuario={user_type}
@@ -155,6 +169,7 @@ export default function VerPerfil() {
             email={user.email}
             number={user.telefone}
             link={user.externalLink}
+            onRequestDelete={() => setDeleteModalOpen(true)}
             copyMyLink={
                 user.externalLink && user.externalLink !== ''
                 ? user.externalLink
@@ -209,10 +224,44 @@ export default function VerPerfil() {
               {activePopUp === 'docs' && <AttachFile type='docs' setFormData={setPostFormData} setActivePopUp={setActivePopUp}/>}
           </PopUp>
       )}
+    </div>
     {loading && (
         <div className="absolute inset-0 z-50 bg-white/60 flex items-center justify-center">
         <LoadingSpinner />
         </div>
+    )}
+    {deleteModalOpen && (
+        <PopUpBlurProfile
+            isOpen={deleteModalOpen}
+            onClose={() => setDeleteModalOpen(false)}
+            content={
+                <div className="w-full flex items-center justify-center">
+                    <div className="p-6 w-full max-w-md text-center">                        
+                        <h2 className="text-2xl font-bold mb-4 text-[var(--purple-primary)]">
+                            Confirmar Exclusão
+                        </h2>
+                        <p className="mb-6 text-gray-700">
+                            Tem certeza que deseja excluir seu perfil? Esta ação não poderá ser desfeita.
+                        </p>
+                        <div className="flex justify-center gap-6">
+                            <button
+                                onClick={() => setDeleteModalOpen(false)}
+                                className="bg-gray-300 text-gray-800 px-6 py-2 rounded-xl hover:bg-gray-400 transition"
+                            >
+                                Não
+                            </button>
+
+                            <button
+                                onClick={handleDeleteAccount}
+                                className="bg-purple-600 text-white px-6 py-2 rounded-xl hover:bg-purple-700 transition"
+                            >
+                                Sim
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            }
+        />
     )}
     </main>
   );
