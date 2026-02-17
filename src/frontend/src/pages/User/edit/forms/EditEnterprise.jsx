@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 
 import LabelInput from "../../../../components/form/Label/LabelInput";
@@ -6,12 +6,14 @@ import BtnCallToAction from "../../../../components/btn/BtnCallToAction/BtnCallT
 import { validateField } from "../../../../components/form/Label/validationField";
 import { maskField } from "../../../../components/form/Label/maskField";
 import LoadingSpinner from './../../../../components/LoadingSpinner/LoadingSpinner'
-
 import { useAuth } from "../../../../context/AuthContext";
 import { getAllProfile, updateProfile } from "../../../../services/userService";
 import { useCepAutoComplete } from '../../../../services/hooks/useCepAutoComplete'
 
 export default function EditEnterprise() {
+
+  const navigate = useNavigate();
+  const { setUser } = useAuth();
   const [formData, setFormData] = useState({
     nome: '',
     cnpj: '',
@@ -26,10 +28,7 @@ export default function EditEnterprise() {
     sobrenos: '',
     link: '',
     tipoEmpresa: '',
-  });
-
-  const navigate = useNavigate();
-  const { setUser } = useAuth();
+  });  
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(true);
   const [originalData, setOriginalData] = useState({});
@@ -185,174 +184,175 @@ export default function EditEnterprise() {
 
   return (
     <>
-    <form onSubmit={handleSubmit} className="flex flex-col gap-8">
+      <form onSubmit={handleSubmit} className="flex flex-col gap-8">
 
-      <article className="bg-[var(--gray)] p-6 mb-8 w-full max-w-4xl mx-auto rounded-2xl">
-        <h2 className="text-2xl font-bold text-[var(--purple-secundary)] mb-4">INFORMAÇÕES EMPRESARIAIS</h2>
-        <p className="mt-2 text-lg max-w-xl text-[var(--font-gray)]">
-          Mantenha os dados da sua empresa atualizados e fortaleça sua presença na plataforma.
-        </p>
+        <article className="bg-[var(--gray)] p-6 mb-8 w-full max-w-4xl mx-auto rounded-2xl">
+          <h2 className="text-2xl font-bold text-[var(--purple-secundary)] mb-4">INFORMAÇÕES EMPRESARIAIS</h2>
+          <p className="mt-2 text-lg max-w-xl text-[var(--font-gray)]">
+            Mantenha os dados da sua empresa atualizados e fortaleça sua presença na plataforma.
+          </p>
 
-        <div className="w-full mt-4 grid gap-4 max-w-2xl mx-auto">
-          <LabelInput
-            name="nome"
-            label="Nome da Empresa:"
-            value={formData.nome ?? ''}
-            placeholder={formData.nome ? '' : originalData.nome ? originalData.nome : 'Informe o nome da empresa'}
-            onChange={handleChange}
-            required
-            validation="texto"
-          />
+          <div className="w-full mt-4 grid gap-4 max-w-2xl mx-auto">
+            <LabelInput
+              name="nome"
+              label="Nome da Empresa:"
+              value={formData.nome ?? ''}
+              placeholder={formData.nome ? '' : originalData.nome ? originalData.nome : 'Informe o nome da empresa'}
+              onChange={handleChange}
+              required
+              validation="texto"
+            />
 
-          <LabelInput
-            name="cnpj"
-            label="CNPJ:"
-            value={formData.cnpj ?? ''}
-            placeholder={originalData.cnpj ? '' : formData.cnpj ? originalData.cnpj : 'Digite seu CNPJ'}
-            onChange={handleChange}
-            required
-            validation="cnpj"
-            maxLength="18"
-          />
+            <LabelInput
+              name="cnpj"
+              label="CNPJ:"
+              value={formData.cnpj ?? ''}
+              placeholder={originalData.cnpj ? '' : formData.cnpj ? originalData.cnpj : 'Digite seu CNPJ'}
+              onChange={handleChange}
+              required
+              validation="cnpj"
+              maxLength="18"
+            />
 
-          <LabelInput
-            name="tipoEmpresa"
-            label="Tipo de Empresa:"
-            type="select"
-            value={formData.tipoEmpresa}
-            onChange={handleChange}
-            required
-            validation="texto"
-            options={companyTypeOptions}
-          />
+            <LabelInput
+              name="tipoEmpresa"
+              label="Tipo de Empresa:"
+              type="select"
+              value={formData.tipoEmpresa}
+              onChange={handleChange}
+              required
+              validation="texto"
+              options={companyTypeOptions}
+            />
 
-          <LabelInput
-            name="telefone"
-            label="Telefone:"
-            value={formData.telefone ?? ''}
-            placeholder={originalData.telefone ? '' : formData.telefone ? originalData.telefone : ''}
-            onChange={handleChange}
-            required
-            validation="telefone"
-            maxLength="15"
-          />
+            <LabelInput
+              name="telefone"
+              label="Telefone:"
+              value={formData.telefone ?? ''}
+              placeholder={originalData.telefone ? '' : formData.telefone ? originalData.telefone : ''}
+              onChange={handleChange}
+              required
+              validation="telefone"
+              maxLength="15"
+            />
 
-          <LabelInput
-            name="email"
-            label="Email de Contato:"
-            value={formData.email ?? ''}
-            placeholder={originalData.email ? '' : formData.email ? originalData.email : 'Digite seu e-mail'}
-            onChange={handleChange}
-            required
-            validation="email"
-          />
+            <LabelInput
+              name="email"
+              label="Email de Contato:"
+              value={formData.email ?? ''}
+              placeholder={originalData.email ? '' : formData.email ? originalData.email : 'Digite seu e-mail'}
+              onChange={handleChange}
+              required
+              validation="email"
+            />
 
-          <LabelInput
-            name="cep"
-            label="CEP:"
-            value={formData.cep ?? ''}
-            placeholder={originalData.cep ? '' : formData.cep ? originalData.cep : 'Digite seu CEP'}
-            onChange={handleChange}
-            required
-            validation="cep"
-            maxLength="9"
-          />
+            <LabelInput
+              name="cep"
+              label="CEP:"
+              value={formData.cep ?? ''}
+              placeholder={originalData.cep ? '' : formData.cep ? originalData.cep : 'Digite seu CEP'}
+              onChange={handleChange}
+              required
+              validation="cep"
+              maxLength="9"
+            />
 
-          <LabelInput
-            name="rua"
-            label="Rua:"
-            ref={ruaInput}
-            value={formData.rua ?? ''}
-            placeholder={originalData.rua ? '' : formData.rua ? originalData.rua : 'Digite o nome da sua rua'}
-            onChange={handleChange}
-            required
-            validation="texto"
-          />
+            <LabelInput
+              name="rua"
+              label="Rua:"
+              ref={ruaInput}
+              value={formData.rua ?? ''}
+              placeholder={originalData.rua ? '' : formData.rua ? originalData.rua : 'Digite o nome da sua rua'}
+              onChange={handleChange}
+              required
+              validation="texto"
+            />
 
-          <LabelInput
-            name="bairro"
-            label="Bairro:"
-            ref={bairroInput}
-            value={formData.bairro  ?? ''}
-            placeholder={originalData.bairro ? '' : formData.bairro ? originalData.bairro : 'Digite o nome do seu bairro'}
-            onChange={handleChange}
-            required
-            validation="texto"
-          />
+            <LabelInput
+              name="bairro"
+              label="Bairro:"
+              ref={bairroInput}
+              value={formData.bairro  ?? ''}
+              placeholder={originalData.bairro ? '' : formData.bairro ? originalData.bairro : 'Digite o nome do seu bairro'}
+              onChange={handleChange}
+              required
+              validation="texto"
+            />
 
-          <LabelInput
-            name="cidade"
-            label="Cidade:"
-            ref={cidadeInput}
-            value={formData.cidade ?? ''}
-            placeholder={originalData.cidade ? '' : formData.cidade ? originalData.cidade : 'Digite o nome da sua cidade'}
-            onChange={handleChange}
-            required
-            validation="texto"
-          />
+            <LabelInput
+              name="cidade"
+              label="Cidade:"
+              ref={cidadeInput}
+              value={formData.cidade ?? ''}
+              placeholder={originalData.cidade ? '' : formData.cidade ? originalData.cidade : 'Digite o nome da sua cidade'}
+              onChange={handleChange}
+              required
+              validation="texto"
+            />
 
-          <LabelInput
-            name="estado"
-            label="Estado:"
-            ref={estadoInput}
-            value={formData.estado ?? ''}
-            placeholder={originalData.estado ? '' : formData.estado ? originalData.estado: ''}
-            onChange={handleChange}
-            required
-            validation="texto"
-            type="select"
-            options={options}
-          />
+            <LabelInput
+              name="estado"
+              label="Estado:"
+              ref={estadoInput}
+              value={formData.estado ?? ''}
+              placeholder={originalData.estado ? '' : formData.estado ? originalData.estado: ''}
+              onChange={handleChange}
+              required
+              validation="texto"
+              type="select"
+              options={options}
+            />
+          </div>
+        </article>
+
+        <article className="bg-[var(--gray)] p-6 w-full max-w-4xl mx-auto rounded-2xl">
+          <h2 className="text-2xl font-bold text-[var(--purple-secundary)] mb-4">PERFIL CORPORATIVO</h2>
+          <p className="mt-2 text-lg max-w-xl text-[var(--font-gray)]">
+            Compartilhe a missão da sua empresa e mostre sua cultura organizacional.
+          </p>
+
+          <div className="w-full mt-4 grid gap-4 max-w-2xl mx-auto">
+            <LabelInput
+              name="descricao"
+              label="Descrição:"
+              value={formData.descricao ?? ''}
+              placeholder={originalData.descricao ? '' : formData.descricao ? originalData.descricao : 'Digite sua área de atuação e etc...'}
+              onChange={handleChange}
+              validation="texto"
+            />
+
+            <LabelInput
+              name="sobrenos"
+              label="Sobre nós:"
+              type="mensagem"
+              value={formData.sobrenos ?? ''}
+              placeholder={originalData.sobrenos ? '' : formData.sobrenos ? originalData.sobrenos : 'Descreva um pouco sobre sua empresa'}
+              onChange={handleChange}
+              validation="texto"
+            />
+
+            <LabelInput
+              name="link"
+              label="Link externo:"
+              value={formData.link ?? ''}
+              placeholder={originalData.link ? '' : formData.link ? originalData.link : 'https://suaempresa.com'}
+              onChange={handleChange}
+              validation="url"
+            />
+          </div>
+        </article>
+
+        <div className="mx-auto mt-4 flex gap-4 justify-center">
+          <BtnCallToAction type="button" variant="white" onClick={handleCancelClick}>
+            CANCELAR
+          </BtnCallToAction>
+          <BtnCallToAction type="submit" variant="purple">
+            SALVAR
+          </BtnCallToAction>
         </div>
-      </article>
+      </form>
 
-      <article className="bg-[var(--gray)] p-6 w-full max-w-4xl mx-auto rounded-2xl">
-        <h2 className="text-2xl font-bold text-[var(--purple-secundary)] mb-4">PERFIL CORPORATIVO</h2>
-        <p className="mt-2 text-lg max-w-xl text-[var(--font-gray)]">
-          Compartilhe a missão da sua empresa e mostre sua cultura organizacional.
-        </p>
-
-        <div className="w-full mt-4 grid gap-4 max-w-2xl mx-auto">
-          <LabelInput
-            name="descricao"
-            label="Descrição:"
-            value={formData.descricao ?? ''}
-            placeholder={originalData.descricao ? '' : formData.descricao ? originalData.descricao : 'Digite sua área de atuação e etc...'}
-            onChange={handleChange}
-            validation="texto"
-          />
-
-          <LabelInput
-            name="sobrenos"
-            label="Sobre nós:"
-            type="mensagem"
-            value={formData.sobrenos ?? ''}
-            placeholder={originalData.sobrenos ? '' : formData.sobrenos ? originalData.sobrenos : 'Descreva um pouco sobre sua empresa'}
-            onChange={handleChange}
-            validation="texto"
-          />
-
-          <LabelInput
-            name="link"
-            label="Link externo:"
-            value={formData.link ?? ''}
-            placeholder={originalData.link ? '' : formData.link ? originalData.link : 'https://suaempresa.com'}
-            onChange={handleChange}
-            validation="url"
-          />
-        </div>
-      </article>
-
-      <div className="mx-auto mt-4 flex gap-4 justify-center">
-        <BtnCallToAction type="button" variant="white" onClick={handleCancelClick}>
-          CANCELAR
-        </BtnCallToAction>
-        <BtnCallToAction type="submit" variant="purple">
-          SALVAR
-        </BtnCallToAction>
-      </div>
-    </form>
-    {successModalOpen && (
+      {successModalOpen && (
         <div className="fixed inset-0 z-50 bg-black/40 backdrop-blur-sm flex items-center justify-center">
           <div className="bg-white p-8 rounded-2xl shadow-lg text-center max-w-sm">
             <h2 className="text-2xl font-bold mb-4 text-[var(--purple-primary)]">
@@ -371,6 +371,7 @@ export default function EditEnterprise() {
           </div>
         </div>
       )}
+
       {errorModalOpen && (
         <div className="fixed inset-0 z-50 bg-black/40 backdrop-blur-sm flex items-center justify-center">
           <div className="bg-white p-8 rounded-2xl shadow-lg text-center max-w-sm">

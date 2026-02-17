@@ -1,8 +1,10 @@
-import BtnCallToAction from "../../../components/btn/BtnCallToAction/BtnCallToAction"
 import { useNavigate } from "react-router-dom"
 
+import BtnCallToAction from "../../../components/btn/BtnCallToAction/BtnCallToAction"
+
 export default function UserPreview({user, type}){
-    const navigate = useNavigate()
+
+    const navigate = useNavigate();
 
     return(
         <div className="flex align-content-center px-4 border-t-1 pt-4 border-slate-200 mx-auto md:mx-0">

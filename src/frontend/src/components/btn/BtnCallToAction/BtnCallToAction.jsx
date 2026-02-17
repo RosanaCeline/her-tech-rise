@@ -1,4 +1,3 @@
-import React from "react";
 import style from "./BtnCallToAction.module.css";
 
 export default function BtnCallToAction({ children, variant = "purple", onClick, type = "button" }) {

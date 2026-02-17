@@ -1,8 +1,33 @@
-import React, { useState, useEffect } from "react";
+import { useState, useEffect } from "react";
 import LabelInput from "../../form/Label/LabelInput";
 import BtnCallToAction from "../../btn/BtnCallToAction/BtnCallToAction";
 
+function maskDate(value) {
+  return value
+    .replace(/\D/g, "")
+    .replace(/(\d{2})(\d)/, "$1/$2")
+    .replace(/(\d{2})(\d)/, "$1/$2")
+    .slice(0, 10);
+};
+
+function convertDateToISO(dateStr) {
+  if (!dateStr) return null;
+  const parts = dateStr.split("/");
+  if (parts.length !== 3) return null;
+  const [dd, mm, yyyy] = parts;
+  return `${yyyy}-${mm.padStart(2, "0")}-${dd.padStart(2, "0")}`;
+};
+
+function formatDateToBR(dateStr) {
+  if (!dateStr) return "";
+  const parts = dateStr.split("-");
+  if (parts.length !== 3) return "";
+  const [yyyy, mm, dd] = parts;
+  return `${dd}/${mm}/${yyyy}`;
+};
+
 export default function FormEditExperience({ experience, onClose, onUpdate }) {
+  
   const [formData, setFormData] = useState({
     titulo: '',
     empresa: '',
@@ -140,28 +165,4 @@ export default function FormEditExperience({ experience, onClose, onUpdate }) {
       </div>
     </form>
   );
-}
-
-function maskDate(value) {
-  return value
-    .replace(/\D/g, "")
-    .replace(/(\d{2})(\d)/, "$1/$2")
-    .replace(/(\d{2})(\d)/, "$1/$2")
-    .slice(0, 10);
-}
-
-function convertDateToISO(dateStr) {
-  if (!dateStr) return null;
-  const parts = dateStr.split("/");
-  if (parts.length !== 3) return null;
-  const [dd, mm, yyyy] = parts;
-  return `${yyyy}-${mm.padStart(2, "0")}-${dd.padStart(2, "0")}`;
-}
-
-function formatDateToBR(dateStr) {
-  if (!dateStr) return "";
-  const parts = dateStr.split("-");
-  if (parts.length !== 3) return "";
-  const [yyyy, mm, dd] = parts;
-  return `${dd}/${mm}/${yyyy}`;
 }

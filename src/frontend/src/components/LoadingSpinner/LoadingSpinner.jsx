@@ -29,7 +29,6 @@ export default function LoadingSpinner() {
           src={logo}
           alt="Loading Logo"
           className="w-130 h-auto rounded-lg mb-8"
-          // removei a sombra
         />
 
         <div className="relative w-72 h-4 bg-gray-200 rounded-full overflow-hidden">

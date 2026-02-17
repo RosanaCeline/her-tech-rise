@@ -1,4 +1,3 @@
-import React from 'react'
 
 export function maskField(type, value) {
     value = value.replace(/\D/g, ''); 

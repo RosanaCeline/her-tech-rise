@@ -1,17 +1,19 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+
+import { Undo2 } from 'lucide-react';
+
 import { resetPassword } from '../../../../services/authService';
 import LabelInput from '../../../../components/form/Label/LabelInput';
 import BtnCallToAction from '../../../../components/btn/BtnCallToAction/BtnCallToAction';
-import { Undo2 } from 'lucide-react';
 import { validateField } from '../../../../components/form/Label/validationField';
 
-
 export default function ResetForm() {
+
   const [email, setEmail] = useState('');
   const [feedback, setFeedback] = useState('');
   const [loading, setLoading] = useState(false);
-  const [errorMsg, setErrorMsg] = useState('')
+  const [errorMsg, setErrorMsg] = useState('');
   const navigate = useNavigate();
 
   const handleReset = async () => {
@@ -28,15 +30,14 @@ export default function ResetForm() {
   };
 
   const validateFields = () => {
-      const hasError = validateField('email', email, true)
-      if(hasError)
-          setErrorMsg('Preencha os campos obrigatórios e corrija os erros antes de continuar')
-      else setErrorMsg('')
-      return !hasError
+      const hasError = validateField('email', email, true);
+      if(hasError) setErrorMsg('Preencha os campos obrigatórios e corrija os erros antes de continuar');
+      else setErrorMsg('');
+      return !hasError;
   }
 
   return (
-    <div className="text-white w-full md:w-1/2 h-screen flex flex-col justify-between bg-(--purple-primary) mx-6 md:mx-0 p-9 md:rounded-r-[130px]">
+    <div className="text-white w-full md:w-1/2 min-h-screen flex flex-col justify-between bg-(--purple-primary) mx-4 md:mx-0 p-9 md:rounded-r-[130px]">
       <button className='flex gap-x-3 cursor-pointer transition hover:-translate-x-1'
               onClick={() => navigate('/')}>
         <Undo2 />
@@ -44,10 +45,10 @@ export default function ResetForm() {
       </button>
 
       <div className='text-center'>
-        <p className='text-4xl font-bold'>Esqueceu sua senha?</p>
-        <p className='text-lg mt-4'>Informe seu e-mail e enviaremos instruções.</p>
+        <p className='text-3xl sm:text-4xl md:text-5xl font-bold'>Esqueceu sua senha?</p>
+        <p className='text-sm sm:text-base md:text-lg mt-4'>Informe seu e-mail e enviaremos instruções.</p>
 
-        <div className='text-left mt-10 mb-5'>
+        <div className='text-left flex flex-col gap-y-3 mt-6 sm:mt-8 mb-5'>
           <LabelInput
             label="E-mail"
             theme="white"

@@ -1,11 +1,12 @@
 import { useState, useEffect, useCallback } from 'react';
-import { Search } from 'lucide-react';
 import { useNavigate, useLocation } from 'react-router-dom';
+import { Search } from 'lucide-react';
 
 export default function SearchBar() {
-  const navigate = useNavigate()
-  const location = useLocation()
-  const [search, setSearch] = useState('')
+
+  const navigate = useNavigate();
+  const location = useLocation();
+  const [search, setSearch] = useState('');
 
   const handleSearch = useCallback(() => {
     const params = new URLSearchParams({ s: search });
@@ -25,7 +26,6 @@ export default function SearchBar() {
     const delayDebounce = setTimeout(() => {
       if (location.pathname === '/search') handleSearch()
     }, 500); 
-
     return () => clearTimeout(delayDebounce);
   }, [search, navigate, location.pathname, handleSearch]);
   

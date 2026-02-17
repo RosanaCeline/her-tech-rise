@@ -2,13 +2,27 @@ import axios from 'axios';
 
 const API_URL = `${import.meta.env.VITE_API_URL}/auth`;
 
-export const login = async (email, senha) => {
-  const response = await axios.post(`${API_URL}/login`, { email, password: senha });
-  if (response.status === 200) {
-    localStorage.setItem('user', JSON.stringify(response.data));
-    return response.data;
+export const saveUser = (data, remember) => {
+  if (remember) {
+    localStorage.setItem('user', JSON.stringify(data));
+  } else {
+    sessionStorage.setItem('user', JSON.stringify(data));
   }
-  throw new Error(error?.response?.data?.message || 'Erro ao realizar login');
+};
+
+export const login = async (email, senha, remember) => {
+  const response = await axios.post(`${API_URL}/login`, { email, password: senha });
+  try {
+    saveUser(response.data, remember);
+    if (remember) {
+      localStorage.setItem('user', JSON.stringify(response.data));
+    } else {
+      sessionStorage.setItem('user', JSON.stringify(response.data));
+    }
+    return response.data;
+  } catch (error) {
+    throw new Error(error?.response?.data?.message || 'Erro ao realizar login');
+  }
 }
 
 export const register = async (formData) => {
@@ -55,13 +69,19 @@ export const register = async (formData) => {
 }
 
 export const getCurrentUser = () => {
-  const saved = localStorage.getItem('user');
-  return saved ? JSON.parse(saved) : null;
-}
+  const local = localStorage.getItem('user');
+  const session = sessionStorage.getItem('user');
+
+  return local
+    ? JSON.parse(local)
+    : session
+    ? JSON.parse(session)
+    : null;
+};
 
 export const logout = () => {
-  localStorage.clear()
-  window.location.reload()
+  localStorage.removeItem('user');
+  sessionStorage.removeItem('user');
 }
 
 export const resetPassword = async (email) => {

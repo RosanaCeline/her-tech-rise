@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 
 import TimelineCard from './components/TimelineCard';
 import NewPost from './components/NewPost';
@@ -12,6 +12,7 @@ import { getCurrentUser } from '../../services/authService';
 import { useError } from "../../context/ErrorContext";
 
 export default function Timeline() {
+
     const userData = getCurrentUser();
     const { showError } = useError();
     const [posts, setPosts] = useState([]);
@@ -23,7 +24,12 @@ export default function Timeline() {
 
     const [isUniquePostPopup, setIsUniquePostPopup] = useState(false);
     const [selectedPostId, setSelectedPostId] = useState(null);
-    const selectedPost = posts.find((p) => p.id === selectedPostId);
+    
+    const selectedPost = posts.find((item) => {
+        if (item.type === 'POSTAGEM') return item.post.id === selectedPostId;
+        if (item.type === 'COMPARTILHAMENTO') return item.share.sharedId === selectedPostId;
+        return false;
+    });
 
     const openUniquePostPopup = (postId) => {
         setSelectedPostId(postId);
@@ -91,7 +97,6 @@ export default function Timeline() {
                 else setLoadingMore(true);
 
                 const response = await getTimelinePosts(page);
-                // console.log(response)
                 let rawPosts = response.content || response;
                 rawPosts = rawPosts.filter((item) => {
                     if (item.type === "POSTAGEM") {
@@ -110,14 +115,14 @@ export default function Timeline() {
 
                 setPosts((prev) => (page === 0 ? rawPosts : [...prev, ...rawPosts]));
             } catch (err) {
-                showError("Erro ao carregar a timeline. Tente novamente.");
+                showError("Erro ao carregar a timeline. Tente novamente.", err);
             } finally {
                 setLoading(false);
                 setLoadingMore(false);
             }
         }
         if (hasMore) fetchTimeline();
-    }, [page]);
+    }, [page, hasMore, showError]);
 
     useEffect(() => {
         function handleScroll() {
@@ -148,7 +153,7 @@ export default function Timeline() {
                 setFollowStatusMap((prev) => ({ ...prev, [userId]: true }));
             }
         } catch (err) {
-          showError("Erro ao atualizar o status de seguir.");
+          showError("Erro ao atualizar o status de seguir.", err);
         }
     }; 
 
@@ -156,49 +161,54 @@ export default function Timeline() {
     
 
     return (
-        <main className="flex flex-col bg-(--gray) pt-34 pb-6">
+        <main className="flex flex-col bg-(--gray) flex-1">
             <TimelineCard> <NewPost /> </TimelineCard>
 
             {posts.length > 0 ? (
-                <div className="flex flex-col gap-8 w-full mx-auto mt-6">
+                <div className="flex flex-col gap-8 w-full mx-auto mt-6 mb-10">
                     {posts.map((post) => {
                         const data = normalizePost(post);
                         const isFollowing = data.post.isOwner
                             ? null
-                            : followStatusMap.hasOwnProperty(data.idAuthor)
+                            : followStatusMap.hasOwnProperty.call(followStatusMap, data.idAuthor)
                                 ? followStatusMap[data.idAuthor]
                                 : data.isFollowed;
-                        // console.log(data)
                         return (
                             <div key={`${data.post.id}-${data.post.createdAt}`}
-                                className="w-4/5 lg:w-1/2 mx-auto bg-white p-8 rounded-xl shadow-md"
+                                className="w-4/5 lg:w-1/2 mx-auto bg-white p-4 sm:p-8 rounded-xl shadow-md"
                                 onClick={() => openUniquePostPopup(data.post.id)}
                             >
-                            <CardPostProfile
-                                idUserLogged={data.idUserLogged}
-                                post={data.post}
-                                photo={data.photo}
-                                name={data.name}
-                                idAuthor={data.idAuthor}
-                                handle={data.handle}
-                                isOwner={data.idUserLogged === data.idAuthor}
-                                isShare={data.isShare}
-                                postShare={data.postShare}
-                                // isFollowing={data.post.isOwner ? null : data.isFollowed}
-                                isFollowing={isFollowing}
-                                onFollowToggle={() => handleToggleFollow(data.idAuthor, isFollowing)}
-                                onCardClick={() => openUniquePostPopup(data.post.id)}
-                            />
+                                <CardPostProfile
+                                    idUserLogged={data.idUserLogged}
+                                    post={data.post}
+                                    photo={data.photo}
+                                    name={data.name}
+                                    idAuthor={data.idAuthor}
+                                    handle={data.handle}
+                                    isOwner={data.idUserLogged === data.idAuthor}
+                                    isShare={data.isShare}
+                                    postShare={data.postShare}
+                                    isFollowing={isFollowing}
+                                    onFollowToggle={() => handleToggleFollow(data.idAuthor, isFollowing)}
+                                    onCardClick={() => openUniquePostPopup(data.post.id)}
+                                />
                             </div>
                         );
                     })}
                 </div>
             ) : (
-                <p className="text-center text-gray-500 mt-10"> Nenhuma publicação encontrada </p>
+                <div className="flex flex-col items-center justify-center flex-1 text-center px-6">
+                    <h2 className="text-2xl md:text-4xl font-semibold text-gray-700 mb-3">
+                        A timeline começa com você
+                    </h2>
+                    <p className="text-l md:text-2xl text-gray-500 max-w-md mb-6">
+                        Seja a primeira a compartilhar uma ideia, conquista ou aprendizado.
+                    </p>
+                </div>
             )}
 
-            {!hasMore && (
-                <p className="text-center text-gray-500 mt-6">Você chegou ao fim!</p>
+            {!hasMore && posts.length > 0 && (
+                <p className="text-center text-gray-500 m-8 mt-0">Você chegou ao fim!</p>
             )}
             
             {isUniquePostPopup && selectedPost && (
@@ -208,7 +218,6 @@ export default function Timeline() {
                     content={
                         (() => {
                             const data = normalizePost(selectedPost);
-                            // console.log(data)
                             return (
                                 <CardPostProfile
                                     idUserLogged={data.idUserLogged}

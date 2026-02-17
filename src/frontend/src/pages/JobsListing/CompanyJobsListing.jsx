@@ -1,17 +1,20 @@
 import { useEffect, useState } from "react"
+import { useNavigate } from "react-router-dom"
+
+import { House, MapPin, CalendarDays } from 'lucide-react'
+
 import BtnCallToAction from "../../components/btn/BtnCallToAction/BtnCallToAction"
 import ManageJob from "./components/ManageJob"
 import PopUp from "../../components/PopUp"
 import { companyJobPostings, companyJobPostingDetail, deactivateJobPosting } from "../../services/jobsService"
-import { House, MapPin, CalendarDays } from 'lucide-react'
 import { maskField } from "../../components/form/Label/maskField";
-import { useNavigate } from "react-router-dom"
 import LoadingSpinner from "../../components/LoadingSpinner/LoadingSpinner"
 import ConfirmModal from '../../components/ConfirmModal/ConfirmModal'
 
 export default function CompanyJobsListing(){
-    const [manageJobModal, setManageJobModal] = useState('')
-    const [jobs, setJobs] = useState([])
+
+    const [manageJobModal, setManageJobModal] = useState('');
+    const [jobs, setJobs] = useState([]);
     const emptyJobFormData = {
         title: '',
         description: '',
@@ -24,26 +27,26 @@ export default function CompanyJobsListing(){
         jobLevel: '',
         applicationDeadline: ''
     }
-    const [jobFormData, setJobFormData] = useState(emptyJobFormData)
-    const [loading, setLoading] = useState(true)
+    const [jobFormData, setJobFormData] = useState(emptyJobFormData);
+    const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
-    const [errorMessage, setErrorMessage] = useState('')
+    const [errorMessage, setErrorMessage] = useState('');
 
     const fetchMyJobs = async () => {
-        try{
-            const response = await companyJobPostings()
-            setJobs(response)
-        }catch(err){
+        try {
+            const response = await companyJobPostings();
+            setJobs(response);
+        } catch(err) {
             setError('Erro ao carregar vagas de emprego.');
             console.error(err);
-        }finally{
-            setLoading(false)
+        } finally {
+            setLoading(false);
         }
         
     }
 
     useEffect(() => {
-        fetchMyJobs()
+        fetchMyJobs();
     }, [])
 
    const handleDeactivate = async (id) => {
@@ -57,8 +60,7 @@ export default function CompanyJobsListing(){
         }
     };
 
-
-    if (loading) return ( <LoadingSpinner /> )
+    if (loading) return ( <LoadingSpinner /> );
     if (error) return <main className="pt-34"><p className="text-red-600">{error}</p></main>;
 
     return(
@@ -76,27 +78,34 @@ export default function CompanyJobsListing(){
                 </div>
                 <section className="flex flex-col my-3 gap-y-3">
                     {jobs.length > 0 
-                    ? jobs.map((job) => <CompanyJobDetails key={job.id} job={job} handleDeactivate={handleDeactivate} 
-                    setManageJobModal={setManageJobModal} setJobFormData={setJobFormData} errorMessage={errorMessage}/>)
-                    : <p className="mx-auto mt-4">Sua empresa ainda não publicou nenhuma vaga de emprego</p>}
+                        ? 
+                            jobs.map((job) => <CompanyJobDetails key={job.id} job={job} handleDeactivate={handleDeactivate} 
+                            setManageJobModal={setManageJobModal} setJobFormData={setJobFormData} errorMessage={errorMessage}/>)
+                        : 
+                            <p className="mx-auto mt-4">Sua empresa ainda não publicou nenhuma vaga de emprego</p>
+                    }
                 </section>
             </div>
             {manageJobModal === 'new' || manageJobModal === 'edit' ? (
-            <PopUp>
-                <ManageJob
-                setJobFormData={setJobFormData}
-                jobFormData={jobFormData}
-                setManageJobModal={setManageJobModal}
-                fetchMyJobs={fetchMyJobs}
-                action={manageJobModal}
-                />
-            </PopUp>
+                <PopUp>
+                    <ManageJob
+                        setJobFormData={setJobFormData}
+                        jobFormData={jobFormData}
+                        setManageJobModal={setManageJobModal}
+                        fetchMyJobs={fetchMyJobs}
+                        action={manageJobModal}
+                    />
+                 </PopUp>
             ) : null}
         </main>
     )
 }
 
 function CompanyJobDetails({job, setManageJobModal, setJobFormData, handleDeactivate, errorMessage}){
+
+    const navigate = useNavigate();
+    const [deactivateWarning, setDeactivateWarnig] = useState(false);
+
     const contractTypes = {
         CLT: "CLT", PJ: "PJ",
         APRENDIZ: "Aprendiz", ESTAGIO: "Estágio",
@@ -107,10 +116,6 @@ function CompanyJobDetails({job, setManageJobModal, setJobFormData, handleDeacti
     const jobModels = {
         REMOTO: 'Remoto', HIBRIDO: 'Híbrido', PRESENCIAL: 'Presencial'
     }
-
-    const navigate = useNavigate()
-
-    const [deactivateWarning, setDeactivateWarnig] = useState(false)
 
     return(
         <div className={`flex grid grid-cols-10 border rounded-xl hover:bg-slate-50 border-(--gray) p-3 ${!job.isActive ? 'grayscale opacity-60' : ''}`}>
@@ -147,50 +152,60 @@ function CompanyJobDetails({job, setManageJobModal, setJobFormData, handleDeacti
                 </div>
                 <div className="lg:w-2/9 text-sm flex flex-col md:flex-row lg:flex-col gap-y-3 items-end justify-around mt-4 lg:mt-0">
                     {!job.isActive && <p className="text-normal font-bold">Vaga desativada</p>}
+
                     {job.isActive &&
-                    <div className="lg:ml-auto">
-                    <button className="border border-(--purple-primary) text-(--purple-primary) cursor-pointer rounded-2xl py-2 px-6
-                    transition duration-300 hover:bg-(--purple-primary) hover:text-white hover:scale-110"
-                    onClick={async () => {
-                        const jobDetail = await companyJobPostingDetail(job.id)
-                        setJobFormData({
-                            ...jobDetail,
-                            salaryMin: maskField('money', Number(jobDetail.salaryMin).toFixed(2)),
-                            salaryMax: maskField('money', Number(jobDetail.salaryMax).toFixed(2))
-                        })
-                        setManageJobModal('edit')
-                    }}>
-                        Editar
-                    </button></div>}
+                        <div className="lg:ml-auto">
+                            <button className="border border-(--purple-primary) text-(--purple-primary) cursor-pointer rounded-2xl py-2 px-6
+                                transition duration-300 hover:bg-(--purple-primary) hover:text-white hover:scale-110"
+                                onClick={async () => {
+                                    const jobDetail = await companyJobPostingDetail(job.id)
+                                    setJobFormData({
+                                        ...jobDetail,
+                                        salaryMin: maskField('money', Number(jobDetail.salaryMin).toFixed(2)),
+                                        salaryMax: maskField('money', Number(jobDetail.salaryMax).toFixed(2))
+                                    })
+                                    setManageJobModal('edit')
+                                }}>
+                                Editar
+                            </button>
+                        </div>
+                    }
 
                     <div className="lg:ml-auto">
-                    <button className="border border-(--purple-primary) text-(--purple-primary) cursor-pointer rounded-2xl py-2 px-6
-                    transition duration-300 hover:bg-(--purple-primary) hover:text-white hover:scale-110"
-                    onClick={() => navigate(`/empresa/vagas/${job.id}`)}>
-                        Ver candidaturas
-                    </button></div>
+                        <button className="border border-(--purple-primary) text-(--purple-primary) cursor-pointer rounded-2xl py-2 px-6
+                        transition duration-300 hover:bg-(--purple-primary) hover:text-white hover:scale-110"
+                        onClick={() => navigate(`/empresa/vagas/${job.id}`)}>
+                            Ver candidaturas
+                        </button>
+                    </div>
 
-                    {job.isActive && <div className="lg:ml-auto"> 
-                    <button className="bg-(--purple-action) text-white cursor-pointer rounded-2xl py-2 px-6
-                    transition duration-300 hover:bg-(--purple-primary) hover:text-white hover:scale-110"
-                    onClick={() => setDeactivateWarnig(true)}>
-                        Desativar
-                    </button></div>}
+                    {job.isActive && 
+                        <div className="lg:ml-auto"> 
+                            <button className="bg-(--purple-action) text-white cursor-pointer rounded-2xl py-2 px-6
+                            transition duration-300 hover:bg-(--purple-primary) hover:text-white hover:scale-110"
+                            onClick={() => setDeactivateWarnig(true)}>
+                                Desativar
+                            </button>
+                        </div>
+                    }
                 </div>
             </div>
+
             {errorMessage && (
-            <div className="fixed top-1/12 left-1/2 transform -translate-x-1/2 -translate-y-1/2 
-                            z-50 bg-red-600 text-white px-6 py-3 rounded-lg shadow-lg 
-                           transition-opacity duration-300">
-                {errorMessage}
-            </div>
+                <div className="fixed top-1/12 left-1/2 transform -translate-x-1/2 -translate-y-1/2 
+                                z-50 bg-red-600 text-white px-6 py-3 rounded-lg shadow-lg 
+                            transition-opacity duration-300">
+                    {errorMessage}
+                </div>
             )}
+
             {deactivateWarning &&
-            <ConfirmModal open={deactivateWarning} title="Desativar vaga"
-            message="Tem certeza que deseja desativar vaga?"
-            confirmText="Sim" cancelText="Não"
-            onConfirm={() => handleDeactivate(job.id)}
-            onCancel={() => setDeactivateWarnig(false)}/>
+                <ConfirmModal open={deactivateWarning} title="Desativar vaga"
+                    message="Tem certeza que deseja desativar vaga?"
+                    confirmText="Sim" cancelText="Não"
+                    onConfirm={() => handleDeactivate(job.id)}
+                    onCancel={() => setDeactivateWarnig(false)}
+                />
             }
         </div>
     )
