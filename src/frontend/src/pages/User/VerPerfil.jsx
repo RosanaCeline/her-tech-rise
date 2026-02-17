@@ -155,10 +155,10 @@ export default function VerPerfil() {
     if (loading) return ( <LoadingSpinner /> )
     if (error) return <main className="..."><p className="text-red-600">{error}</p></main>;
     if (!user) return <main className="...">Nenhum perfil encontrado.</main>;
-// "flex flex-col items-center px-6 lg:px-30 pt-40 pb-10 gap-10 max-w-8xl mx-auto bg-(--gray)"
+    
     return (
-    <main className="flex flex-col bg-(--gray) pt-10 pb-10">
-        <div className="w-4/5 lg:w-1/2 mx-auto flex flex-col gap-8">
+    <main className="flex flex-col bg-[var(--gray)] pt-10 pb-10 min-h-screen">
+        <div className="w-4/5 xl:w-1/2 mx-auto flex flex-col gap-8">
         <CardProfile
             isCurrentUser={isCurrentUser}
             tipo_usuario={user_type}

@@ -5,7 +5,7 @@ export default function CardExperienceProfile({ title, experiencias = [] }) {
 
   return (
     <article className="bg-white text-[var(--purple-secundary)] drop-shadow-md rounded-xl p-8 flex flex-col w-full max-w-8xl z-0">
-      <h2 className="text-4xl font-semibold text-[var(--purple-secundary)] mb-8">{title}</h2>
+      <h2 className="text-2xl md:text-4xl font-semibold text-[var(--purple-secundary)] mb-8">{title}</h2>
 
       {hasExperiences ? (
         <div className="relative pl-10">
@@ -20,8 +20,8 @@ export default function CardExperienceProfile({ title, experiencias = [] }) {
 
                 {/* Card da experiência */}
                 <div className="bg-white p-6 rounded-lg shadow-md flex-1">
-                  <h3 className="text-xl font-semibold text-[var(--purple-secundary)]">{exp.title}</h3>
-                  <p className="text-md text-[var(--text-secondary)] font-medium">
+                  <h3 className="text-base md:text-xl font-semibold text-[var(--purple-secundary)]">{exp.title}</h3>
+                  <p className="text-sm md:text-md text-[var(--text-secondary)] font-medium">
                     {exp.company} | {exp.modality}
                   </p>
                   <p className="text-sm text-gray-500 italic mt-1">
@@ -36,7 +36,7 @@ export default function CardExperienceProfile({ title, experiencias = [] }) {
           </div>
         </div>
       ) : (
-        <p className="italic text-xl text-[var(--text-secondary)] leading-relaxed opacity-70">
+        <p className="italic text-base md:text-xl text-[var(--text-secondary)] leading-relaxed opacity-70">
           Nenhuma experiência disponível no momento.
         </p>
       )}

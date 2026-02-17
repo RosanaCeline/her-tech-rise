@@ -10,6 +10,7 @@ import PopUpBlurProfile from './PopUpBlurProfile';
 import EditMyProfile from '../../../pages/User/edit/EditMyProfile';
 import { changeProfilePicture, listFollowers, listFollowing } from '../../../services/userService';
 import { useAuth } from '../../../context/AuthContext';
+import { useNavigate } from 'react-router-dom';
 
 export default function CardProfile({
   //id,
@@ -30,6 +31,7 @@ export default function CardProfile({
   followedUser,
   onRequestDelete
 }) {
+  const navigate = useNavigate();
   const [loading, setLoading] = useState(false)
   const [showOptions, setShowOptions] = useState(false);
   const [modalContent, setModalContent] = useState(null);
@@ -47,7 +49,6 @@ export default function CardProfile({
   const handleFollowersClick = async () => {
     try {
       const data = await listFollowers();
-      console.log(data);
       setFollowersList(data);
       setShowFollowersModal(true);
     } catch (err) {
@@ -68,17 +69,19 @@ export default function CardProfile({
     }
   };
 
-  // const goToUserProfile = async ( userId ) => {
-    // try {
-    //   if (res.role === "PROFESSIONAL" || res.role === "professional") {
-    //     navigate(`/profile/professional/${idAuthor}-${handle}`);
-    //   } else {
-    //     navigate(`/profile/company/${idAuthor}-${handle}`);
-    //   }
-    // } catch (err) {
-    //   console.log('Erro ao buscar profissional.')
-    // }
-  // };
+  const goToUserProfile = async ( userId ) => {
+    try {
+      setShowFollowersModal(false);
+      setShowFollowingModal(false);
+      if (user.role === "PROFESSIONAL" || user.role === "professional") {
+        navigate(`/profile/professional/${userId}-${nameuser}`);
+      } else {
+        navigate(`/profile/company/${userId}-${nameuser}`);
+      }
+    } catch (err) {
+      console.log('Erro ao buscar profissional.', err)
+    }
+  };
 
   const userPhoto = previewPhoto || (tipo_usuario === 'company' ? defaultEnterprisePhoto : defaultProfessionalPhoto);
   // const userPhoto = previewPhoto || defaultPhoto;
@@ -116,9 +119,9 @@ export default function CardProfile({
 
   return (
     <>
-      <article className="relative bg-white drop-shadow-md rounded-xl p-8 flex flex-col xl:flex-row items-center xl:items-start w-full max-w-8xl gap-10 z-0">
+      <article className="relative bg-white drop-shadow-md rounded-xl p-8 flex flex-col lg:flex-row lg:items-center items-center w-full max-w-8xl gap-10 z-0 ">
         {/* Foto com botão */}
-        <div className="relative w-full max-w-[250px] h-[250px] flex-shrink-0">
+        <div className="relative w-32 h-32 sm:w-40 sm:h-40 xl:w-55 xl:h-55 flex-shrink-0">
           <div className="w-full h-full rounded-full border border-[var(--purple-secundary)] overflow-hidden">
             <img
               src={userPhoto}
@@ -145,13 +148,13 @@ export default function CardProfile({
           /></>}
         </div>
 
-        <div className='p-8 flex flex-col md:flex-row items-center xl:items-start w-full max-w-8xl gap-10 z-0'>
+        <div className='flex flex-col md:flex-row items-center w-full gap-5 z-0'>
           {/* Informações */}
           <div className="flex flex-col gap-4 flex-1 min-w-[250px] my-auto">
-            <h2 className="text-4xl font-bold text-[var(--purple-primary)]">{name}</h2>
+            <h2 className="text-3xl xl:text-4xl font-bold text-[var(--purple-primary)]">{name}</h2>
 
             {nameuser && (
-              <p className="text-lg font-semibold text-[var(--purple-secundary)]">{nameuser}</p>
+              <p className="text-sm xl:text-lg font-semibold text-[var(--purple-secundary)]">{nameuser}</p>
             )}
 
             {link && (
@@ -185,30 +188,30 @@ export default function CardProfile({
           </div>
 
           {/* Botões de ações */}
-          <div className="flex flex-col gap-6 w-full max-w-[250px] my-auto order-last md:order-none items-center md:items-start text-[var(--font-gray)] hover:text-[var(--purple-primary)] transition">
+          <div className="flex flex-col gap-5 w-full my-auto order-last md:order-none items-center text-[var(--font-gray)] hover:text-[var(--purple-primary)] transition">
             <button
               type="button"
               className="flex items-center mx-auto gap-3"
               onClick={() => copyToClipboard(copyMyLink)}
             >
-              <FaPaperPlane size={24} className="text-[var(--font-gray)]" />
-              <span className="text-xl font-medium">Compartilhar</span>
+              <FaPaperPlane className="text-[var(--font-gray)] text-xl xl:text-3xl" />
+              <span className="text-md xl:text-xl font-medium">Compartilhar</span>
             </button>
           {isCurrentUser
             ? <>
-            <div className="relative w-full mx-auto flex justify-center md:justify-start">
+            <div className="flex flex-col relative w-full mx-auto justify-center md:justify-start">
               <button type="button"
                       onClick={() => setShowOptions(!showOptions)}
                       className="flex items-center mx-auto gap-3"
               >
-                <FaSlidersH size={24} className="text-[var(--font-gray)]" />
-                <span className="text-xl font-medium">Configurações</span>
+                <FaSlidersH className="text-[var(--font-gray)] text-xl xl:text-3xl" />
+                <span className="text-md xl:text-xl font-medium">Configurações</span>
               </button>
 
               {showOptions && (
                 <div
                   className={`
-                    absolute top-full mt-2 z-50
+                    absolute mt-2 z-50
                     bg-white rounded-xl shadow-lg
                     flex-col gap-2 p-3
                     right-0
@@ -227,13 +230,13 @@ export default function CardProfile({
             </div>
             <div>
               <button onClick={handleFollowersClick}
-                      className="text-xl font-medium"
+                      className="text-md xl:text-xl font-medium"
               >
                     Seguidores
               </button>
               <span className='p-2'>|</span>
               <button onClick={handleFollowingClick}
-                      className="text-xl font-medium"
+                      className="text-md xl:text-xl font-medium"
               >
                     Seguindo
               </button>
@@ -245,7 +248,7 @@ export default function CardProfile({
                   absolute flex-col gap-2 p-3
                   bg-white rounded-xl shadow-lg
                   transition-all duration-300
-                  right-1/2 md:right-80 top-20 z-40
+                  right-0 md:right-80 top-20 z-40
                   hidden md:flex
                 `}
               >
@@ -278,9 +281,7 @@ export default function CardProfile({
           }
           
           </div>
-        </div>
-
-        
+        </div>        
     </article>
     
     {copied && (
@@ -315,7 +316,7 @@ export default function CardProfile({
               <div
                 key={user.id}
                 className="flex align-content-center px-4 border-t pt-4 border-slate-200 mx-auto md:mx-0"
-                // onClick={goToUserProfile(user.followerId)}
+                onClick={() => goToUserProfile(user.followerId)}
               >
                 <div className="relative w-full max-w-[85px] h-[85px] flex-shrink-0 my-auto mr-5">
                   <img
@@ -325,7 +326,7 @@ export default function CardProfile({
                   />
                 </div>
                 <div className="flex flex-col md:flex-row md:w-full justify-between">
-                  <div className="flex flex-col max-w-[70%]">
+                  <div className="flex flex-col w-full">
                     <p className="font-semibold truncate">{user.followerName}</p>
                     {user.followerName && <p className="truncate">{user.followerHandle}</p>}
                     <p className="text-sm text-gray-500">
@@ -355,6 +356,7 @@ export default function CardProfile({
               <div
                 key={user.id}
                 className="flex align-content-center px-4 border-t pt-4 border-slate-200 mx-auto md:mx-0"
+                onClick={() => goToUserProfile(user.followingId)}
               >
                 <div className="relative w-full max-w-[85px] h-[85px] flex-shrink-0 my-auto mr-5">
                   <img
@@ -364,7 +366,7 @@ export default function CardProfile({
                   />
                 </div>
                 <div className="flex flex-col md:flex-row md:w-full justify-between">
-                  <div className="flex flex-col max-w-[70%]">
+                  <div className="flex flex-col w-full">
                     <p className="font-semibold truncate">{user.followingName}</p>
                     {user.followingName && <p className="truncate">{user.followingHandle}</p>}
                     <p className="text-sm text-gray-500">

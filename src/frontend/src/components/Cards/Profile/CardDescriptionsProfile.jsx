@@ -18,15 +18,15 @@ export default function CardDescriptionsProfile ({ title, content }) {
             z-0
         "
         >
-        <h2 className="text-4xl font-semibold text-[var(--purple-secundary)] mb-4">
+        <h2 className="text-2xl md:text-4xl font-semibold text-[var(--purple-secundary)] mb-4">
             {title}
         </h2>
         {hasContent ? (
-            <p className="text-xl text-[var(--text-secondary)] leading-relaxed">
+            <p className="text-base md:text-xl text-[var(--text-secondary)] leading-relaxed">
             {content}
             </p>
         ) : (
-            <p className="italic text-xl text-[var(--text-secondary)] leading-relaxed opacity-70">
+            <p className="italic text-base md:text-xl text-[var(--text-secondary)] leading-relaxed opacity-70">
             Nenhuma informação disponível no momento.
             </p>
         )}

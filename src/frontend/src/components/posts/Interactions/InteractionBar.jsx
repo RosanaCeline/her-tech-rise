@@ -179,7 +179,7 @@ export default function InteractionBar({ idAuthor, post, photo, name, cardWidth 
             if (post.type === "POSTAGEM") list = await getCommentsPost(post.id);
             else if (post.type === "COMPARTILHAMENTO") list = await getCommentsShare(post.id);
             setListComments(list);
-            console.log(list)
+            // console.log(list)
 
             const likedIds = new Set();
             for (const comment of list) {
