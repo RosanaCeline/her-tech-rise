@@ -8,13 +8,8 @@ import LoadingSpinner from "../../LoadingSpinner/LoadingSpinner";
 export default function PrivateLayout({ routes }) {
   const { user, loading } = useAuth();
 
-  if (loading) {
-    return <LoadingSpinner />;
-  }
-
-  if (!user) {
-    return <Navigate to="/login" replace />;
-  }
+  if (loading) return <LoadingSpinner />;
+  if (!user)  return <Navigate to="/login" replace />;
 
   return (
     <div className="min-h-screen flex flex-col">

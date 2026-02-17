@@ -106,15 +106,6 @@ export default function SeeStatistics({ profilevisits, followers, following, pos
         <LoadingSpinner />
       ) : (
         <article className="grid grid-cols-3 gap-6 max-w-6xl mx-auto p-8">
-          {/* <Card
-            icon={<FaEye className="w-6 h-6 text-[var(--purple-primary)]" />}
-            title="Visualizações"
-            description={
-              <span className="text-3xl font-bold leading-tight">
-                {profilevisits ?? 0}
-              </span>
-            }
-          /> */}
           <Card
             icon={<FaUserFriends className="w-6 h-6 text-[var(--purple-primary)]" />}
             title="Seguidores"

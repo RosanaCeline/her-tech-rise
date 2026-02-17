@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 
 import { deactivateAccount, followUser, unfollowUser, verifyFollowUser } from '../../services/userService';
@@ -22,9 +22,9 @@ const baseUrl = import.meta.env.VITE_API_URL;
 export default function VerPerfil() {
 
     const navigate = useNavigate();
-    const { user_type, user_info } = useParams()
+    const { user_type, user_info } = useParams();
     const userId = (user_info === 'me') ? getCurrentUser().id : user_info.split('-')[0];
-    const isCurrentUser = userId === getCurrentUser().id
+    const isCurrentUser = userId === getCurrentUser().id;
     const [user, setUser] = useState(null);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
@@ -33,14 +33,13 @@ export default function VerPerfil() {
     const isProfessional = user_type === 'professional';
     const isCompany = user_type === 'company';
 
-    const [activePopUp, setActivePopUp] = useState(null)
+    const [activePopUp, setActivePopUp] = useState(null);
     const [postFormData, setPostFormData] = useState({
         content: '',
         media: [],
         visibility: 'public'
-    })
+    });
 
-    // const [followersCount, setFollowersCount] = useState(0);
     const [followedUser, setFollowedUser] = useState(false);
     const [statistics, setStatistics] = useState({
         profileVisits: 0,
@@ -100,6 +99,7 @@ export default function VerPerfil() {
             setLoading(false);
         }
     }, [userId, user_type, isProfessional, isCompany]);
+
     useEffect(() => {
         fetchProfile().then(() => fetchStatistics());
     }, [fetchProfile, fetchStatistics])
@@ -132,11 +132,9 @@ export default function VerPerfil() {
                 if (followedUser) {
                     await unfollowUser(userId);
                     setFollowedUser(false);
-                    // setFollowersCount((prev) => prev - 1);
                 } else {
                     await followUser(userId);
                     setFollowedUser(true);
-                    // setFollowersCount((prev) => prev + 1);
                 }
             } else {
                 if (isFollowing) {
@@ -151,117 +149,120 @@ export default function VerPerfil() {
         }
     };
 
-
-    if (loading) return ( <LoadingSpinner /> )
+    if (loading) return ( <LoadingSpinner /> );
     if (error) return <main className="..."><p className="text-red-600">{error}</p></main>;
     if (!user) return <main className="...">Nenhum perfil encontrado.</main>;
     
     return (
-    <main className="flex flex-col bg-[var(--gray)] pt-10 pb-10 min-h-screen">
-        <div className="w-4/5 xl:w-1/2 mx-auto flex flex-col gap-8">
-        <CardProfile
-            isCurrentUser={isCurrentUser}
-            tipo_usuario={user_type}
-            id={user.id}
-            photo={user.photo}
-            name={user.nome}
-            nameuser={user.nameuser}
-            email={user.email}
-            number={user.telefone}
-            link={user.externalLink}
-            onRequestDelete={() => setDeleteModalOpen(true)}
-            copyMyLink={
-                user.externalLink && user.externalLink !== ''
-                ? user.externalLink
-                : user.tipo_usuario === 'company'
-                ? `${baseUrl}/profile/company/${user.id}-@${user.username}`
-                : `${baseUrl}/profile/professional/${user.id}-@${user.username}`
-            }
-            city={user.endereco.cidade}
-            state={user.endereco.estado}
-            followersCount={user.followersCount}
-            handleFollow={handleFollow}
-            followedUser={followedUser}
-            statisticsComponent={
-                <SeeStatistics
-                    profilevisits={statistics.profileVisits}
-                    followers={statistics.followers}
-                    following={statistics.following}
-                    posts={user.posts}
-                    likes={statistics.likes}
+        <main className="flex flex-col bg-[var(--gray)] pt-10 pb-10 min-h-screen">
+            <div className="w-4/5 xl:w-1/2 mx-auto flex flex-col gap-8">
+                <CardProfile
+                    isCurrentUser={isCurrentUser}
+                    tipo_usuario={user_type}
+                    id={user.id}
+                    photo={user.photo}
+                    name={user.nome}
+                    nameuser={user.nameuser}
+                    email={user.email}
+                    number={user.telefone}
+                    link={user.externalLink}
+                    onRequestDelete={() => setDeleteModalOpen(true)}
+                    copyMyLink={
+                        user.externalLink && user.externalLink !== ''
+                        ? user.externalLink
+                        : user.tipo_usuario === 'company'
+                        ? `${baseUrl}/profile/company/${user.id}-@${user.username}`
+                        : `${baseUrl}/profile/professional/${user.id}-@${user.username}`
+                    }
+                    city={user.endereco.cidade}
+                    state={user.endereco.estado}
+                    followersCount={user.followersCount}
+                    handleFollow={handleFollow}
+                    followedUser={followedUser}
+                    statisticsComponent={
+                        <SeeStatistics
+                            profilevisits={statistics.profileVisits}
+                            followers={statistics.followers}
+                            following={statistics.following}
+                            posts={user.posts}
+                            likes={statistics.likes}
+                        />
+                    }
                 />
-            }
-        />
 
-        {isProfessional && (
-            <>
-            <CardDescriptionsProfile title="Tecnologias" content={user.tecnologias} />
-            <CardDescriptionsProfile title="Biografia" content={user.biografia} />
-            <CardExperienceProfile title="Experiência" experiencias={user.experiencias} />
-            </>
-        )}
+                {isProfessional && (
+                    <>
+                    <CardDescriptionsProfile title="Tecnologias" content={user.tecnologias} />
+                    <CardDescriptionsProfile title="Biografia" content={user.biografia} />
+                    <CardExperienceProfile title="Experiência" experiencias={user.experiencias} />
+                    </>
+                )}
 
-        {isCompany && (
-            <>
-            <CardDescriptionsProfile title="Descrição" content={user.description} />
-            <CardDescriptionsProfile title="Sobre nós" content={user.aboutUs} />
-            </>
-        )}
-        <CardPublicationsProfile title="Publicações" 
-                                posts={user.posts} 
-                                photo={user.photo} 
-                                name={user.nome} 
-                                onPostsUpdated={fetchProfile} 
-                                setActivePopUp={setActivePopUp}
-                                isCurrentUser={isCurrentUser}
-        />
-        {activePopUp && (
-          <PopUp>
-              {activePopUp === 'post' && <ManagePost user={{profileURL: user.profilePic, userName: user.name}} setActivePopUp={setActivePopUp} 
-              formData={postFormData} setFormData={setPostFormData}/>}
-              {activePopUp === 'image' && <AttachFile type='image' setFormData={setPostFormData} setActivePopUp={setActivePopUp}/>}
-              {activePopUp === 'docs' && <AttachFile type='docs' setFormData={setPostFormData} setActivePopUp={setActivePopUp}/>}
-          </PopUp>
-      )}
-    </div>
-    {loading && (
-        <div className="absolute inset-0 z-50 bg-white/60 flex items-center justify-center">
-        <LoadingSpinner />
-        </div>
-    )}
-    {deleteModalOpen && (
-        <PopUpBlurProfile
-            isOpen={deleteModalOpen}
-            onClose={() => setDeleteModalOpen(false)}
-            content={
-                <div className="w-full flex items-center justify-center">
-                    <div className="p-6 w-full max-w-md text-center">                        
-                        <h2 className="text-2xl font-bold mb-4 text-[var(--purple-primary)]">
-                            Confirmar Exclusão
-                        </h2>
-                        <p className="mb-6 text-gray-700">
-                            Tem certeza que deseja excluir seu perfil? Esta ação não poderá ser desfeita.
-                        </p>
-                        <div className="flex justify-center gap-6">
-                            <button
-                                onClick={() => setDeleteModalOpen(false)}
-                                className="bg-gray-300 text-gray-800 px-6 py-2 rounded-xl hover:bg-gray-400 transition"
-                            >
-                                Não
-                            </button>
+                {isCompany && (
+                    <>
+                    <CardDescriptionsProfile title="Descrição" content={user.description} />
+                    <CardDescriptionsProfile title="Sobre nós" content={user.aboutUs} />
+                    </>
+                )}
 
-                            <button
-                                onClick={handleDeleteAccount}
-                                className="bg-purple-600 text-white px-6 py-2 rounded-xl hover:bg-purple-700 transition"
-                            >
-                                Sim
-                            </button>
-                        </div>
-                    </div>
+                <CardPublicationsProfile title="Publicações" 
+                                        posts={user.posts} 
+                                        photo={user.photo} 
+                                        name={user.nome} 
+                                        onPostsUpdated={fetchProfile} 
+                                        setActivePopUp={setActivePopUp}
+                                        isCurrentUser={isCurrentUser}
+                />
+
+                {activePopUp && (
+                    <PopUp>
+                        {activePopUp === 'post' && <ManagePost user={{profileURL: user.profilePic, userName: user.name}} setActivePopUp={setActivePopUp} 
+                        formData={postFormData} setFormData={setPostFormData}/>}
+                        {activePopUp === 'image' && <AttachFile type='image' setFormData={setPostFormData} setActivePopUp={setActivePopUp}/>}
+                        {activePopUp === 'docs' && <AttachFile type='docs' setFormData={setPostFormData} setActivePopUp={setActivePopUp}/>}
+                    </PopUp>
+                )}
+            </div>
+
+            {loading && (
+                <div className="absolute inset-0 z-50 bg-white/60 flex items-center justify-center">
+                <LoadingSpinner />
                 </div>
-            }
-        />
-    )}
-    </main>
-  );
+            )}
+
+            {deleteModalOpen && (
+                <PopUpBlurProfile
+                    isOpen={deleteModalOpen}
+                    onClose={() => setDeleteModalOpen(false)}
+                    content={
+                        <div className="w-full flex items-center justify-center">
+                            <div className="p-6 w-full max-w-md text-center">                        
+                                <h2 className="text-2xl font-bold mb-4 text-[var(--purple-primary)]">
+                                    Confirmar Exclusão
+                                </h2>
+                                <p className="mb-6 text-gray-700">
+                                    Tem certeza que deseja excluir seu perfil? Esta ação não poderá ser desfeita.
+                                </p>
+                                <div className="flex justify-center gap-6">
+                                    <button
+                                        onClick={() => setDeleteModalOpen(false)}
+                                        className="bg-gray-300 text-gray-800 px-6 py-2 rounded-xl hover:bg-gray-400 transition"
+                                    >
+                                        Não
+                                    </button>
+
+                                    <button
+                                        onClick={handleDeleteAccount}
+                                        className="bg-purple-600 text-white px-6 py-2 rounded-xl hover:bg-purple-700 transition"
+                                    >
+                                        Sim
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    }
+                />
+            )}
+        </main>
+    );
 }

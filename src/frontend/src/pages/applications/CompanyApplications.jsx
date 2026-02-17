@@ -1,44 +1,48 @@
 import { useState, useEffect } from 'react'
-import { applicationsById } from '../../services/applicationService'
 import { useNavigate, useParams } from 'react-router-dom';
+
+
 import { Undo2, CircleX, CircleCheck } from 'lucide-react';
+
+import { applicationsById } from '../../services/applicationService'
 import ApplicationDetail from './components/ApplicationDetail'
 import LoadingSpinner from '../../components/LoadingSpinner/LoadingSpinner'
 
 export default function CompanyApplications(){
-    const { id } = useParams()
-    const navigate = useNavigate()
-    const [jobApplications, setJobApplications] = useState([])
-    const [applicationDetail, setApplicationDetail] = useState('')
-    const [loading, setLoading] = useState(true)
+
+    const { id } = useParams();
+    const navigate = useNavigate();
+    const [jobApplications, setJobApplications] = useState([]);
+    const [applicationDetail, setApplicationDetail] = useState('');
+    const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
 
     const fetchApplications = async () =>{
-        try{
+        try {
             const response = await applicationsById(id)
             setJobApplications(response)
-        }catch(err){
+        } catch (err) {
             setError('Erro ao carregar detalhes de candidatura.');
             console.error(err);
-        }finally{
-            setLoading(false)
+        } finally {
+            setLoading(false);
         }
     }
 
     useEffect(() => {
         fetchApplications()
-    }, [])
+    }, []);
 
-    if (loading) return ( <LoadingSpinner /> )
+    if (loading) return ( <LoadingSpinner /> );
     if (error) return <main className="pt-34"><p className="text-red-600">{error}</p></main>;
     
     return(
         <main className='flex flex-col min-h-[83vh] bg-(--gray) pt-34 pb-6'>
             <div className="flex flex-col mb-6 w-5/6 p-8 bg-white mx-auto rounded-xl">
                 <button className='flex gap-x-3 cursor-pointer transition duration-300  hover:-translate-x-1 will-change-transform' 
-                onClick={() => navigate('/empresa/vagas')}>
-                    <Undo2/>
-                    Voltar
+                    onClick={() => navigate('/empresa/vagas')}>
+                        <Undo2/>
+                        Voltar
                 </button>
 
                 <h1 className="text-3xl font-semibold text-[var(--purple-secundary)] pt-2 mx-auto mb-4">Candidaturas recebidas</h1>
@@ -52,57 +56,62 @@ export default function CompanyApplications(){
                         <p className="font-medium">{jobApplications.companyName}</p>
                         <p>Candidatado em {new Date(jobApplications.applicationDeadline).toLocaleDateString('pt-BR')}</p>
                         {jobApplications.isActive
-                        ? <p className="flex gap-2">Status da vaga: Ativa <CircleCheck size='18' className="my-auto text-green-900"/></p>
-                        : <p className="flex gap-2">Status da vaga: Inativa <CircleX size='18' className="my-auto text-red-900"/></p>}
+                            ? <p className="flex gap-2">Status da vaga: Ativa <CircleCheck size='18' className="my-auto text-green-900"/></p>
+                            : <p className="flex gap-2">Status da vaga: Inativa <CircleX size='18' className="my-auto text-red-900"/></p>}
                     </div>
                 </div>
 
                 <p className='mx-auto mt-6 font-medium'>{jobApplications.totalApplications > 1
-                ? `${jobApplications.totalApplications} candidaturas recebidas`
-                : `${jobApplications.totalApplications === 0 ? 'Nenhuma' : '1'} candidatura recebida`}</p>
+                    ? `${jobApplications.totalApplications} candidaturas recebidas`
+                    : `${jobApplications.totalApplications === 0 ? 'Nenhuma' : '1'} candidatura recebida`}</p>
 
                 {jobApplications.totalApplications > 0 &&
-                <div className="flex flex-col gap-y-4 mt-3">
-                {jobApplications.applications.map((application) => 
-                    <div className='flex grid grid-cols-10 hover:bg-slate-50 border rounded-xl border-(--gray) p-3'>
-                        <div className="">
-                            <img src={application.applicantProfilePic} className="w-full object-cover rounded-full"/>
-                        </div>
-                        <div className="text-sm pl-4 col-span-9 flex flex-col lg:flex-row w-full">
-                            <div className="w-7/9 pr-6 flex flex-col my-auto">
-                                <p className="font-bold">Nome:  
-                                    <span className='font-normal'> {application.applicantName}</span>
-                                </p>
-                                <p className="font-bold">Telefone:  
-                                    <span className='font-normal'> {application.applicantPhone}</span>
-                                </p>
-                                <p className="font-bold">Email:  
-                                    <span className='font-normal'> {application.applicantEmail}</span>
-                                </p>
-                                <p className="font-bold">Biografia:  
-                                    <span className='font-normal'> {application.applicantTechnology || 'Não informada'}</span>
-                                </p>
+                    <div className="flex flex-col gap-y-4 mt-3">
+                        {jobApplications.applications.map((application) => 
+                            <div className='flex grid grid-cols-10 hover:bg-slate-50 border rounded-xl border-(--gray) p-3'>
+                                <div className="">
+                                    <img src={application.applicantProfilePic} className="w-full object-cover rounded-full"/>
+                                </div>
+                                <div className="text-sm pl-4 col-span-9 flex flex-col lg:flex-row w-full">
+                                    <div className="w-7/9 pr-6 flex flex-col my-auto">
+                                        <p className="font-bold">Nome:  
+                                            <span className='font-normal'> {application.applicantName}</span>
+                                        </p>
+                                        <p className="font-bold">Telefone:  
+                                            <span className='font-normal'> {application.applicantPhone}</span>
+                                        </p>
+                                        <p className="font-bold">Email:  
+                                            <span className='font-normal'> {application.applicantEmail}</span>
+                                        </p>
+                                        <p className="font-bold">Biografia:  
+                                            <span className='font-normal'> {application.applicantTechnology || 'Não informada'}</span>
+                                        </p>
 
-                                {(application.gender === 'MULHER' || application.gender === 'PESSOA_NAO_BINARIA') &&
-                                <p className="font-bold">Gênero:  
-                                    <span className='font-normal'> {application.gender === 'MULHER' ? 'Mulher' : 'Pessoa não binária'}</span>
-                                </p>}
-                            </div>
+                                        {(application.gender === 'MULHER' || application.gender === 'PESSOA_NAO_BINARIA') &&
+                                            <p className="font-bold">Gênero:  
+                                                <span className='font-normal'> {application.gender === 'MULHER' ? 'Mulher' : 'Pessoa não binária'}</span>
+                                            </p>
+                                        }
+                                    </div>
 
-                            <div className='lg:w-2/9 text-sm flex flex-col md:flex-row lg:flex-col gap-y-3 items-end justify-around mt-4 lg:mt-0'>
-                                <div className="lg:ml-auto">
-                                <button className="border border-(--purple-primary) text-(--purple-primary) cursor-pointer rounded-2xl py-2 px-6
-                                transition duration-300 hover:bg-(--purple-primary) hover:text-white hover:scale-110"
-                                onClick={() => setApplicationDetail(application.applicationId)}>
-                                    Ver candidatura
-                                </button></div>
+                                    <div className='lg:w-2/9 text-sm flex flex-col md:flex-row lg:flex-col gap-y-3 items-end justify-around mt-4 lg:mt-0'>
+                                        <div className="lg:ml-auto">
+                                            <button className="border border-(--purple-primary) text-(--purple-primary) cursor-pointer rounded-2xl py-2 px-6
+                                                transition duration-300 hover:bg-(--purple-primary) hover:text-white hover:scale-110"
+                                                onClick={() => setApplicationDetail(application.applicationId)}>
+                                                    Ver candidatura
+                                            </button>
+                                        </div>
+                                    </div>
+                                </div>
                             </div>
-                        </div>
-                    </div>)}
-                </div>}
+                        )}
+                    </div>
+                }
             </div>
-            {applicationDetail && 
-            <ApplicationDetail applicationDetail={applicationDetail} setApplicationDetail={setApplicationDetail} user="company"/>}
+
+            {applicationDetail && <ApplicationDetail applicationDetail={applicationDetail} setApplicationDetail={setApplicationDetail} user="company"/>}
+
         </main>
     )
 }

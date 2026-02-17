@@ -1,4 +1,3 @@
-import React from 'react';
 import { X } from 'lucide-react';
 
 export default function PopUpBlurProfile({ isOpen, onClose, content, children = null }) {

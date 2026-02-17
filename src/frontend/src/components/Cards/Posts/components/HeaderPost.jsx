@@ -1,6 +1,8 @@
 import { useState } from 'react';
 import { useNavigate } from "react-router-dom";
+
 import { Edit, Trash2, Eye, Globe, Users, Lock, AlertCircle, PencilIcon, TrashIcon } from 'lucide-react';
+
 import { updatePostVisibility, deletePost } from '../../../../services/timelineService';
 import { deleteShare } from '../../../../services/interactionsService';
 import { getProfileById } from '../../../../services/userService';
@@ -9,6 +11,7 @@ import BtnCallToAction from '../../../btn/BtnCallToAction/BtnCallToAction';
 
 export default function HeaderPost({ photo, name, post, date, isOpen = false, onPostsUpdated = false, isShare = false,
                                       isFollowing = null, onFollowToggle = null, handle = null, idAuthor = null, isOwner = false, onEdit = false }) {
+  
   const navigate = useNavigate();
   const [showVisibilityOptions, setShowVisibilityOptions] = useState(false);
   const [showVisibilityDropdown, setShowVisibilityDropdown] = useState(false);

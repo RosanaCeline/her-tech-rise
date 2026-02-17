@@ -1,4 +1,3 @@
-import React from 'react';
 
 export default function CardDescriptionsProfile ({ title, content }) {
 
@@ -6,17 +5,9 @@ export default function CardDescriptionsProfile ({ title, content }) {
 
     return (
         <article
-        className="
-            bg-white
-            text-[var(--purple-secundary)]
-            drop-shadow-md
-            rounded-xl
-            p-8
-            flex flex-col
-            w-full
-            max-w-8xl
-            z-0
-        "
+        className="bg-white text-[var(--purple-secundary)]
+                    drop-shadow-md rounded-xl flex flex-col 
+                    w-full max-w-8xl p-8 z-0        "
         >
         <h2 className="text-2xl md:text-4xl font-semibold text-[var(--purple-secundary)] mb-4">
             {title}

@@ -1,4 +1,34 @@
-import React from 'react';
+const formatMesAnoComDuracao = (inicio, fim, atual) => {
+  const dataInicio = new Date(inicio);
+  const dataFim = atual || !fim ? new Date() : new Date(fim);
+
+  const options = { month: 'long', year: 'numeric' };
+  const inicioFormatado = dataInicio.toLocaleDateString('pt-BR', options);
+  const fimFormatado = atual || !fim ? 'o momento' : dataFim.toLocaleDateString('pt-BR', options);
+
+  let anos = dataFim.getFullYear() - dataInicio.getFullYear();
+  let meses = dataFim.getMonth() - dataInicio.getMonth();
+
+  if (meses < 0) {
+    anos -= 1;
+    meses += 12;
+  }
+
+  if (anos === 0 && meses === 0) {
+    meses = 1;
+  }
+
+  const duracao = [
+    anos > 0 ? `${anos} ano${anos > 1 ? 's' : ''}` : '',
+    meses > 0 ? `${meses} mês${meses > 1 ? 'es' : ''}` : '',
+  ].filter(Boolean)
+   .join(' e ');
+
+  return `De ${capitalize(inicioFormatado)}, até ${capitalize(fimFormatado)} (${duracao})`;
+};
+
+const capitalize = (str) => str.charAt(0).toUpperCase() + str.slice(1);
+
 
 export default function CardExperienceProfile({ title, experiencias = [] }) {
   const hasExperiences = experiencias.length > 0;
@@ -43,35 +73,3 @@ export default function CardExperienceProfile({ title, experiencias = [] }) {
     </article>
   );
 }
-
-const formatMesAnoComDuracao = (inicio, fim, atual) => {
-  const dataInicio = new Date(inicio);
-  const dataFim = atual || !fim ? new Date() : new Date(fim);
-
-  const options = { month: 'long', year: 'numeric' };
-  const inicioFormatado = dataInicio.toLocaleDateString('pt-BR', options);
-  const fimFormatado = atual || !fim ? 'o momento' : dataFim.toLocaleDateString('pt-BR', options);
-
-  let anos = dataFim.getFullYear() - dataInicio.getFullYear();
-  let meses = dataFim.getMonth() - dataInicio.getMonth();
-
-  if (meses < 0) {
-    anos -= 1;
-    meses += 12;
-  }
-
-  if (anos === 0 && meses === 0) {
-    meses = 1;
-  }
-
-  const duracao = [
-    anos > 0 ? `${anos} ano${anos > 1 ? 's' : ''}` : '',
-    meses > 0 ? `${meses} mês${meses > 1 ? 'es' : ''}` : '',
-  ]
-    .filter(Boolean)
-    .join(' e ');
-
-  return `De ${capitalize(inicioFormatado)}, até ${capitalize(fimFormatado)} (${duracao})`;
-};
-
-const capitalize = (str) => str.charAt(0).toUpperCase() + str.slice(1);

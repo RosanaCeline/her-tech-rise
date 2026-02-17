@@ -1,22 +1,26 @@
 import { useState, useEffect } from 'react'
+
+import { Earth, Lock, X, Image, Files, Trash2} from 'lucide-react'
+
+import { newPost, updatePost } from '../../services/timelineService'
 import BtnCallToAction from '../btn/BtnCallToAction/BtnCallToAction'
 import LabelInput from "../form/Label/LabelInput"
-import { Earth, Lock, X, Image, Files, Trash2} from 'lucide-react'
-import { newPost, updatePost } from '../../services/timelineService'
 import ConfirmModal from '../ConfirmModal/ConfirmModal'
 
 export default function ManagePost({user, setActivePopUp, formData, setFormData, isEdit, onSuccess }){
+
     const [originalData] = useState(() => JSON.stringify(formData));
     const [confirmSaveOpen, setConfirmSaveOpen] = useState(false);
-    const [changeVisibilityPopup, setChangeVisibilityPopup] = useState(false)
-    const [postErrorMessage, setPostErrorMessage] = useState('')
-    const [errorMessage, setErrorMessage] = useState('')
-    const [cancelModalOpen, setCancelModalOpen] = useState(false)
+    const [changeVisibilityPopup, setChangeVisibilityPopup] = useState(false);
+    const [postErrorMessage, setPostErrorMessage] = useState('');
+    const [errorMessage, setErrorMessage] = useState('');
+    const [cancelModalOpen, setCancelModalOpen] = useState(false);
+    const [mediaUrls, setMediaUrls] = useState([]);
 
     const changeVisibility = (visibility) => {
         setFormData(prev => ({ ...prev, visibility: visibility }));
         setChangeVisibilityPopup(false)
-    }
+    };
     const hasChanges = () => {
         return JSON.stringify(formData) !== originalData;
     };
@@ -49,7 +53,6 @@ export default function ManagePost({user, setActivePopUp, formData, setFormData,
                 }
 
                 if (onSuccess) onSuccess();  
-                // else window.location.reload(); 
                 setActivePopUp('')
             } catch (err) {
                 setPostErrorMessage(err.response || 'Erro ao salvar')
@@ -59,8 +62,6 @@ export default function ManagePost({user, setActivePopUp, formData, setFormData,
             setErrorMessage("Insira pelo menos um texto ou anexo para publicar.")
         }
     }
-
-    const [mediaUrls, setMediaUrls] = useState([]);
 
     useEffect(() => {
         const urls = formData.media
@@ -87,19 +88,17 @@ export default function ManagePost({user, setActivePopUp, formData, setFormData,
     }, [formData.media]);
 
     useEffect(() => {
-    if (!formData?.visibility) {
-        setFormData(prev => ({ ...prev, visibility: 'PUBLICO' }));
-    } else {
-        const v = String(formData.visibility).toUpperCase();
-        if (v === 'PUBLIC' || v === 'PUBLICO') {
-        setFormData(prev => ({ ...prev, visibility: 'PUBLICO' }));
-        } else if (v === 'PRIVATE' || v === 'PRIVADO') {
-        setFormData(prev => ({ ...prev, visibility: 'PRIVADO' }));
+        if (!formData?.visibility) {
+            setFormData(prev => ({ ...prev, visibility: 'PUBLICO' }));
+        } else {
+            const v = String(formData.visibility).toUpperCase();
+            if (v === 'PUBLIC' || v === 'PUBLICO') {
+                setFormData(prev => ({ ...prev, visibility: 'PUBLICO' }));
+            } else if (v === 'PRIVATE' || v === 'PRIVADO') {
+                setFormData(prev => ({ ...prev, visibility: 'PRIVADO' }));
+            }
         }
-    }
     }, [formData.visibility, setFormData]); 
-
-
 
     const handleRemove = (fileToRemove) => {
         setFormData(prev => ({
@@ -113,129 +112,135 @@ export default function ManagePost({user, setActivePopUp, formData, setFormData,
 
     return(
         <div className="flex flex-col gap-2">
-        <div className="flex justify-between">
-            <div className="flex items-center">
-                <div className="relative w-[40px] h-[40px] sm:w-[60px] sm:h-[60px] flex-shrink-0 mr-4">
-                    <img src={user.profileURL} className="h-full w-full object-cover rounded-full"/>
-                </div>
-                <div className="flex flex-col sm:flex-row">
-                <div className="flex flex-col items-start gap-y-1 justify-start">
-                    <p className='text-sm sm:text-base font-medium truncate max-w-[140px] sm:max-w-none'>{user.userName}</p>
-                    <div className="flex text-(--purple-primary) items-center gap-x-1.5 cursor-pointer" 
-                    onClick={() => setChangeVisibilityPopup(!changeVisibilityPopup)}>
-                        {formData.visibility === 'PUBLICO' 
-                        ? (<><Earth className="w-5 h-5"/>Pública</>)
-                        : (<><Lock className="w-5 h-5"/>Privada</>)}
+            <div className="flex justify-between">
+                <div className="flex items-center">
+                    <div className="relative w-[40px] h-[40px] sm:w-[60px] sm:h-[60px] flex-shrink-0 mr-4">
+                        <img src={user.profileURL} className="h-full w-full object-cover rounded-full"/>
+                    </div>
+                    <div className="flex flex-col sm:flex-row">
+                        <div className="flex flex-col items-start gap-y-1 justify-start">
+                            <p className='text-sm sm:text-base font-medium truncate max-w-[140px] sm:max-w-none'>{user.userName}</p>
+                            <div className="flex text-(--purple-primary) items-center gap-x-1.5 cursor-pointer" 
+                                onClick={() => setChangeVisibilityPopup(!changeVisibilityPopup)}>
+                                    {formData.visibility === 'PUBLICO' 
+                                    ? (<><Earth className="w-5 h-5"/>Pública</>)
+                                    : (<><Lock className="w-5 h-5"/>Privada</>)}
+                            </div>
+                        </div>
+                        {changeVisibilityPopup && (
+                            <div className="sm:ml-3 flex flex-row sm:flex-col p-1 gap-2 sm:gap-y-1">
+                                <p className="p-2 text-xs bg-slate-100 hover:bg-slate-200 rounded-xl cursor-pointer" 
+                                onClick={() => changeVisibility('PUBLICO')}>
+                                    Visível para todos</p>
+                                <p className="p-2 text-xs bg-slate-100 hover:bg-slate-200 rounded-xl cursor-pointer"
+                                onClick={() => changeVisibility('PRIVADO')}>
+                                    Apenas você pode ver isso</p>
+                            </div>
+                        )}
                     </div>
                 </div>
-                {changeVisibilityPopup && (
-                    <div className="sm:ml-3 flex flex-row sm:flex-col p-1 gap-2 sm:gap-y-1">
-                        <p className="p-2 text-xs bg-slate-100 hover:bg-slate-200 rounded-xl cursor-pointer" 
-                        onClick={() => changeVisibility('PUBLICO')}>
-                            Visível para todos</p>
-                        <p className="p-2 text-xs bg-slate-100 hover:bg-slate-200 rounded-xl cursor-pointer"
-                        onClick={() => changeVisibility('PRIVADO')}>
-                            Apenas você pode ver isso</p>
-                    </div>
-                )}
-                </div>
+                <X className="cursor-pointer" onClick={() => (formData.content !== '' || formData.media.length !== 0) ? setCancelModalOpen(true) : setActivePopUp('')}/>
             </div>
-            <X className="cursor-pointer" onClick={() => (formData.content !== '' || formData.media.length !== 0) ? setCancelModalOpen(true) : setActivePopUp('')}/>
-        </div>
 
-        <div className='flex flex-col mt-3'>
-        <LabelInput placeholder="Digite sua publicação" type="mensagem" value={formData.content} required={!formData.media.length}
-            onChange={(e) => setFormData(prev => ({ ...prev, content: e.target.value }))}/></div>
+            <div className='flex flex-col mt-3'>
+            <LabelInput placeholder="Digite sua publicação" type="mensagem" value={formData.content} required={!formData.media.length}
+                onChange={(e) => setFormData(prev => ({ ...prev, content: e.target.value }))}/></div>
 
-        {formData.media.some(file => (file.type?.startsWith?.('image/') || file.mediaType === 'IMAGE')) && (
-            <div className="mt-4 flex gap-4 overflow-x-auto overflow-y-hidden max-w-full h-37">
-                {mediaUrls.map(({file, url}, index) => {
-                    return(
-                        <div key={index} className='relative inline-block mr-4 min-w-[8rem]'>
-                            {(file.type?.startsWith?.('image/') || file.mediaType === 'IMAGE') && <img src={url} alt="Preview" className="w-full h-32 object-cover rounded shadow"/>}
-                            <button onClick={() => handleRemove(file)} 
-                            className='absolute top-1 right-1 bg-(--purple-primary) text-white rounded-full w-9 h-9 flex items-center justify-center hover:bg-(--purple-action)'>
-                                <Trash2 />
+            {formData.media.some(file => (file.type?.startsWith?.('image/') || file.mediaType === 'IMAGE')) && (
+                <div className="mt-4 flex gap-4 overflow-x-auto overflow-y-hidden max-w-full h-37">
+                    {mediaUrls.map(({file, url}, index) => {
+                        return(
+                            <div key={index} className='relative inline-block mr-4 min-w-[8rem]'>
+                                {(file.type?.startsWith?.('image/') || file.mediaType === 'IMAGE') && <img src={url} alt="Preview" className="w-full h-32 object-cover rounded shadow"/>}
+                                <button onClick={() => handleRemove(file)} 
+                                className='absolute top-1 right-1 bg-(--purple-primary) text-white rounded-full w-9 h-9 flex items-center justify-center hover:bg-(--purple-action)'>
+                                    <Trash2 />
+                                </button>
+                            </div>
+                        )
+                    })}
+                </div>
+            )}
+
+            <div>
+                {formData.media
+                    .filter(file =>
+                        file.type === 'application/pdf' ||
+                        file.type === 'application/vnd.openxmlformats-officedocument.wordprocessingml.document'
+                    )
+                    .map((file, index) => (
+                        <div key={index} className='flex items-center p-4 border border-blue-600 rounded shadow bg-gray-100 mb-2'>
+                            <a href={URL.createObjectURL(file)} target="_blank" rel="noopener noreferrer"
+                            className="flex-grow text-center text-sm text-blue-600 hover:underline truncate">
+                            {file.name}
+                            </a>
+                            <button type='button' onClick={() => handleRemove(file)} className="ml-4">
+                                <X/>
                             </button>
                         </div>
-                    )
-                })}
+                    ))}
             </div>
-        )}
 
-        <div>
-           {formData.media
-            .filter(file =>
-                file.type === 'application/pdf' ||
-                file.type === 'application/vnd.openxmlformats-officedocument.wordprocessingml.document'
-            )
-            .map((file, index) => (
-                <div key={index} className='flex items-center p-4 border border-blue-600 rounded shadow bg-gray-100 mb-2'>
-                    <a href={URL.createObjectURL(file)} target="_blank" rel="noopener noreferrer"
-                    className="flex-grow text-center text-sm text-blue-600 hover:underline truncate">
-                    {file.name}
-                    </a>
-                    <button type='button' onClick={() => handleRemove(file)} className="ml-4">
-                        <X/>
-                    </button>
+            <div className="flex justify-between gap-x-3">
+                <div className="border border-(--font-gray) p-3 rounded-2xl flex gap-x-4 items-center">
+                    <p className='hidden md:flex'>Adicionar à publicação</p>
+                    <Image 
+                        className="transition duration-300 hover:scale-110 cursor-pointer text-(--purple-primary) h-8 w-8"
+                        onClick={() => setActivePopUp('image')}
+                    />
+                    <Files 
+                        className="transition duration-300 hover:scale-110 cursor-pointer text-(--purple-primary) h-6 w-6 sm:h-8 sm:w-8"
+                        onClick={() => setActivePopUp('docs')}
+                    />
                 </div>
-            ))}
-        </div>
-
-        <div className="flex justify-between gap-x-3">
-            <div className="border border-(--font-gray) p-3 rounded-2xl flex gap-x-4 items-center">
-                <p className='hidden md:flex'>Adicionar à publicação</p>
-                <Image className="transition duration-300 hover:scale-110 cursor-pointer text-(--purple-primary) h-8 w-8"
-                onClick={() => setActivePopUp('image')}/>
-                <Files className="transition duration-300 hover:scale-110 cursor-pointer text-(--purple-primary) h-6 w-6 sm:h-8 sm:w-8"
-                onClick={() => setActivePopUp('docs')}/>
+                <BtnCallToAction variant="purple" onClick={() => { if (isEdit && hasChanges()) { setConfirmSaveOpen(true);
+                                                                } else { handleSubmit(); }
+                                                                }} >
+                                {isEdit ? "Salvar Alterações" : "Publicar"}
+                </BtnCallToAction>
             </div>
-            <BtnCallToAction variant="purple" onClick={() => { if (isEdit && hasChanges()) {
-                                                                setConfirmSaveOpen(true);
-                                                                } else {
-                                                                handleSubmit();
-                                                                }
-                                                            }} >
-                            {isEdit ? "Salvar Alterações" : "Publicar"}</BtnCallToAction>
-        </div>
         
-        {errorMessage && <p className='text-center mt-2'>{errorMessage}</p>}
-        {postErrorMessage && (
-        <div className="fixed top-1/12 left-1/2 transform -translate-x-1/2 -translate-y-1/2 
-                        z-50 bg-red-600 text-white px-6 py-3 rounded-lg shadow-lg 
-                        transition-opacity duration-300">
-            {postErrorMessage}
-        </div>
-        )}
-        <ConfirmModal
-            open={cancelModalOpen}
-            title="Confirmar cancelamento"
-            message="Tem certeza que deseja cancelar a publicação?"
-            cancelText="Não"
-            confirmText="Sim"
-            onCancel={() => setCancelModalOpen(false)}
-            onConfirm={() => {
-                setCancelModalOpen(false);
-                setActivePopUp('');
-                setFormData({
-                content: '',
-                media: [],
-                visibility: 'PUBLICO'
-                });
-            }}
-        />
-        <ConfirmModal
-            open={confirmSaveOpen}
-            title="Salvar alterações?"
-            message="Você alterou esta publicação. Deseja salvar as mudanças?"
-            confirmText="Salvar"
-            cancelText="Cancelar"
-            onCancel={() => setConfirmSaveOpen(false)}
-            onConfirm={() => {
-                setConfirmSaveOpen(false);
-                handleSubmit();
-            }}
-        />
+            {errorMessage && <p className='text-center mt-2'>{errorMessage}</p>}
+            
+            {postErrorMessage && (
+                <div className="fixed top-1/12 left-1/2 transform -translate-x-1/2 -translate-y-1/2 
+                                z-50 bg-red-600 text-white px-6 py-3 rounded-lg shadow-lg 
+                                transition-opacity duration-300">
+                    {postErrorMessage}
+                </div>
+            )}
+
+            <ConfirmModal
+                open={cancelModalOpen}
+                title="Confirmar cancelamento"
+                message="Tem certeza que deseja cancelar a publicação?"
+                cancelText="Não"
+                confirmText="Sim"
+                onCancel={() => setCancelModalOpen(false)}
+                onConfirm={() => {
+                    setCancelModalOpen(false);
+                    setActivePopUp('');
+                    setFormData({
+                    content: '',
+                    media: [],
+                    visibility: 'PUBLICO'
+                    });
+                }}
+            />
+
+            <ConfirmModal
+                open={confirmSaveOpen}
+                title="Salvar alterações?"
+                message="Você alterou esta publicação. Deseja salvar as mudanças?"
+                confirmText="Salvar"
+                cancelText="Cancelar"
+                onCancel={() => setConfirmSaveOpen(false)}
+                onConfirm={() => {
+                    setConfirmSaveOpen(false);
+                    handleSubmit();
+                }}
+            />
+
         </div>
     )
 }

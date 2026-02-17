@@ -1,16 +1,16 @@
 import { useState, useEffect } from 'react'
-// import { getCurrentUser } from '../../../services/authService'
+
 import BtnCallToAction from '../../btn/BtnCallToAction/BtnCallToAction'
 import CardPostProfile from '../Posts/CardPostProfile'
 import PopUpBlurProfile from '../Profile/PopUpBlurProfile'
 import { useAuth } from '../../../context/AuthContext'
 
 export default function CardPublicationsProfile({ title, posts, onPostsUpdated, setActivePopUp, isCurrentUser }) {
+  
   const userData = useAuth();
-  const [visiblePosts, setVisiblePosts] = useState([]);
   const normalizePost = (post) => post.type === "POSTAGEM" ? post.post : post.share.originalPost;
+  const [visiblePosts, setVisiblePosts] = useState([]);
   const [limit, setLimit] = useState(3);
-
   const [isPopupOpen, setIsPopupOpen] = useState(false);
 
   const [isUniquePostPopup, setIsUniquePostPopup] = useState(false);
@@ -36,12 +36,12 @@ export default function CardPublicationsProfile({ title, posts, onPostsUpdated, 
   }, []);
 
   useEffect(() => {
-    if (!posts || posts.length === 0) return
+    if (!posts || posts.length === 0) return;
     const sorted = [...posts].sort(
       (a, b) => new Date(b.createdAt) - new Date(a.createdAt)
-    )
-    setVisiblePosts(sorted.slice(0, limit))
-  }, [posts, limit])
+    );
+    setVisiblePosts(sorted.slice(0, limit));
+  }, [posts, limit]);
 
   const openUniquePostPopup = (postId) => {
     setIsPopupOpen(false);
@@ -119,8 +119,7 @@ export default function CardPublicationsProfile({ title, posts, onPostsUpdated, 
             {visiblePosts.map((item, idx) => {
               const data = buildPostData(item);
               return (
-                <div key={data.post?.id ?? `post-${idx}`} className="cursor-pointer" onClick={() => openUniquePostPopup(item.type === "COMPARTILHAMENTO" ? item.share.originalPost.id : item.post.id)}
->
+                <div key={data.post?.id ?? `post-${idx}`} className="cursor-pointer" onClick={() => openUniquePostPopup(item.type === "COMPARTILHAMENTO" ? item.share.originalPost.id : item.post.id)}>
                   <CardPostProfile
                     idUserLogged={data.idUserLogged}
                     photo={data.photo}
@@ -175,8 +174,7 @@ export default function CardPublicationsProfile({ title, posts, onPostsUpdated, 
                 return (
                   <div key={data.post?.id ?? `post-${idx}`} 
                       className="border border-(--gray) rounded-xl cursor-pointer hover:bg-slate-50 p-3" 
-                      onClick={() => openUniquePostPopup(item.type === "COMPARTILHAMENTO" ? item.share.originalPost.id : item.post.id)}
->
+                      onClick={() => openUniquePostPopup(item.type === "COMPARTILHAMENTO" ? item.share.originalPost.id : item.post.id)} >
                     <CardPostProfile
                       idUserLogged={data.idUserLogged}
                       photo={data.photo}
@@ -198,6 +196,7 @@ export default function CardPublicationsProfile({ title, posts, onPostsUpdated, 
           }
         />
       )}
+
       {isUniquePostPopup && selectedRealPost && (
         <PopUpBlurProfile
           isOpen={isUniquePostPopup}

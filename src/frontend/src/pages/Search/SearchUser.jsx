@@ -1,48 +1,50 @@
 import { useEffect, useState } from "react"
+
 import { useQueryParams } from "../../services/useQueryParams"
 import { searchUsers } from "../../services/searchService"
 import BtnCallToAction from "../../components/btn/BtnCallToAction/BtnCallToAction"
-
 import UserPreview from "./components/UserPreview"
 import DetailedList from "./components/DetailedList"
 import LoadingSpinner from '../../components/LoadingSpinner/LoadingSpinner'
 
 export default function SearchUser(){
-    const query = useQueryParams()
-    const [profissionais, setProfissionais] = useState([])
-    const [empresas, setEmpresas] = useState([])
-    const [currentList, setCurrentList] = useState('all')
-    const [loading, setLoading] = useState(true)
+
+    const query = useQueryParams();
+    const [profissionais, setProfissionais] = useState([]);
+    const [empresas, setEmpresas] = useState([]);
+    const [currentList, setCurrentList] = useState('all');
+    const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
-    const s = query.get('s')
+    const s = query.get('s');
 
     useEffect(() => {
         async function fetchUsers(){
-            try{
+            try {
                 setLoading(true)
                 const response = await searchUsers(s)
                 setProfissionais(response.professionals)
                 setEmpresas(response.companies)
-            }catch(err){
+            } catch(err) {
                 setError('Erro ao carregar detalhes de candidatura.');
                 console.error(err);
-            }finally{
+            } finally {
                 setLoading(false)
             }
-            
         }
-        fetchUsers()
-    }, [s])
+        fetchUsers();
+    }, [s]);
 
-    if (loading) return ( <LoadingSpinner /> )
+    if (loading) return ( <LoadingSpinner /> );
     if (error) return <main className="pt-34"><p className="text-red-600">{error}</p></main>;
 
     return(
         <main className='flex flex-col bg-(--gray) pt-34 pb-6'>
             {currentList === 'all'
-            ? (<><SearchCard title="Profissionais" elements={profissionais} setCurrentList={setCurrentList}/>
-                <SearchCard title="Empresas" elements={empresas} setCurrentList={setCurrentList}/></>)
-            : <DetailedList type={currentList} query={s} setCurrentList={setCurrentList} />}
+                ?   (<>
+                        <SearchCard title="Profissionais" elements={profissionais} setCurrentList={setCurrentList}/>
+                        <SearchCard title="Empresas" elements={empresas} setCurrentList={setCurrentList}/>
+                    </>)
+                : <DetailedList type={currentList} query={s} setCurrentList={setCurrentList} />}
         </main>
     )
 }
@@ -57,9 +59,10 @@ function SearchCard({title, elements, setCurrentList}){
                 : <p>Nenhum usuário foi encontrado</p>}
             </div>
             {elements.length == 6 &&
-            <div className="flex justify-center">
-                <BtnCallToAction variant="white" onClick={() => setCurrentList(title)}>Ver todos os resultados</BtnCallToAction>
-            </div>}
+                <div className="flex justify-center">
+                    <BtnCallToAction variant="white" onClick={() => setCurrentList(title)}>Ver todos os resultados</BtnCallToAction>
+                </div>
+            }
         </article>
     )
 }

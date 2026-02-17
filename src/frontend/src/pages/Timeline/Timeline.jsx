@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 
 import TimelineCard from './components/TimelineCard';
 import NewPost from './components/NewPost';
@@ -12,6 +12,7 @@ import { getCurrentUser } from '../../services/authService';
 import { useError } from "../../context/ErrorContext";
 
 export default function Timeline() {
+
     const userData = getCurrentUser();
     const { showError } = useError();
     const [posts, setPosts] = useState([]);
@@ -177,21 +178,20 @@ export default function Timeline() {
                                 className="w-4/5 lg:w-1/2 mx-auto bg-white p-4 sm:p-8 rounded-xl shadow-md"
                                 onClick={() => openUniquePostPopup(data.post.id)}
                             >
-                            <CardPostProfile
-                                idUserLogged={data.idUserLogged}
-                                post={data.post}
-                                photo={data.photo}
-                                name={data.name}
-                                idAuthor={data.idAuthor}
-                                handle={data.handle}
-                                isOwner={data.idUserLogged === data.idAuthor}
-                                isShare={data.isShare}
-                                postShare={data.postShare}
-                                // isFollowing={data.post.isOwner ? null : data.isFollowed}
-                                isFollowing={isFollowing}
-                                onFollowToggle={() => handleToggleFollow(data.idAuthor, isFollowing)}
-                                onCardClick={() => openUniquePostPopup(data.post.id)}
-                            />
+                                <CardPostProfile
+                                    idUserLogged={data.idUserLogged}
+                                    post={data.post}
+                                    photo={data.photo}
+                                    name={data.name}
+                                    idAuthor={data.idAuthor}
+                                    handle={data.handle}
+                                    isOwner={data.idUserLogged === data.idAuthor}
+                                    isShare={data.isShare}
+                                    postShare={data.postShare}
+                                    isFollowing={isFollowing}
+                                    onFollowToggle={() => handleToggleFollow(data.idAuthor, isFollowing)}
+                                    onCardClick={() => openUniquePostPopup(data.post.id)}
+                                />
                             </div>
                         );
                     })}

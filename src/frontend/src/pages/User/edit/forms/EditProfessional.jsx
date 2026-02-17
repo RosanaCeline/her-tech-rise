@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import { Plus } from 'lucide-react';
 
@@ -173,7 +173,7 @@ export default function EditProfessional() {
       if(!genderChangeWarning){
         setGenderChangeWarning(true)
         return
-      }else updateGender(formData.gender, formData.consentGenderSharing)
+      } else updateGender(formData.gender, formData.consentGenderSharing)
     }
 
     if(oldConsentData !== formData.consentGenderSharing) updateGender(formData.gender, formData.consentGenderSharing)
@@ -217,188 +217,188 @@ export default function EditProfessional() {
 
   return (
     <>
-    <form onSubmit={handleSubmit} className="flex flex-col gap-8">
-      {/* Informações Pessoais */}
-      <article className="bg-[var(--gray)] p-8 mb-8 w-full max-w-4xl mx-auto rounded-2xl">
-        <h2 className="text-2xl font-bold text-[var(--purple-secundary)] mb-4">INFORMAÇÕES PESSOAIS</h2>
+      <form onSubmit={handleSubmit} className="flex flex-col gap-8">
+        {/* Informações Pessoais */}
+        <article className="bg-[var(--gray)] p-8 mb-8 w-full max-w-4xl mx-auto rounded-2xl">
+          <h2 className="text-2xl font-bold text-[var(--purple-secundary)] mb-4">INFORMAÇÕES PESSOAIS</h2>
 
-        <div className="w-full mt-4 grid gap-4 max-w-2xl mx-auto">
-          <LabelInput
-            label="Nome:"
-            name="nome"
-            value={formData.nome ?? ''}
-            onChange={handleChange}
-            required
-            validation="texto"
-            placeholder="Digite seu nome completo"
-          />
+          <div className="w-full mt-4 grid gap-4 max-w-2xl mx-auto">
+            <LabelInput
+              label="Nome:"
+              name="nome"
+              value={formData.nome ?? ''}
+              onChange={handleChange}
+              required
+              validation="texto"
+              placeholder="Digite seu nome completo"
+            />
 
-          <LabelInput
-            label="CPF:"
-            name="cpf"
-            value={formData.cpf ?? ''}
-            onChange={handleChange}
-            required
-            validation="cpf"
-            maxLength="14"
-            placeholder="000.000.000-00"
-          />
+            <LabelInput
+              label="CPF:"
+              name="cpf"
+              value={formData.cpf ?? ''}
+              onChange={handleChange}
+              required
+              validation="cpf"
+              maxLength="14"
+              placeholder="000.000.000-00"
+            />
 
-          <LabelInput
-            label="Data de Nascimento:"
-            name="data_nascimento"
-            value={formData.data_nascimento ?? ''}
-            onChange={handleChange}
-            required
-            validation="data"
-            placeholder="dd/mm/aaaa"
-          />
+            <LabelInput
+              label="Data de Nascimento:"
+              name="data_nascimento"
+              value={formData.data_nascimento ?? ''}
+              onChange={handleChange}
+              required
+              validation="data"
+              placeholder="dd/mm/aaaa"
+            />
 
-          <LabelInput label="Você se identifica como:" 
-          required={true}         type="select"    name='gender'
-          options={[
-              {value: 'MULHER', label: 'Mulher'}, 
-              {value: 'HOMEM', label: 'Homem'},
-              {value: 'PESSOA_NAO_BINARIA', label: 'Pessoa não binária'},
-              {value: 'OUTRO', label: 'Outro'},
-              {value: 'PREFIRO_NAO_INFORMAR', label: 'Prefiro não informar'}]}
-          value={formData.gender}    onChange={handleChange}/>
+            <LabelInput label="Você se identifica como:" 
+              required={true}         type="select"    name='gender'
+              options={[
+                  {value: 'MULHER', label: 'Mulher'}, 
+                  {value: 'HOMEM', label: 'Homem'},
+                  {value: 'PESSOA_NAO_BINARIA', label: 'Pessoa não binária'},
+                  {value: 'OUTRO', label: 'Outro'},
+                  {value: 'PREFIRO_NAO_INFORMAR', label: 'Prefiro não informar'}]}
+              value={formData.gender}    onChange={handleChange}/>
 
-          <LabelInput type="checkbox" value={formData.consentGenderSharing} 
-            name='consentGenderSharing' onChange={handleChange}
-            label="Autorizo que meu gênero seja compartilhado com empresas nas candidaturas a vagas, 
-            para apoiar ações afirmativas e promover diversidade. "/>
+            <LabelInput type="checkbox" value={formData.consentGenderSharing} 
+              name='consentGenderSharing' onChange={handleChange}
+              label="Autorizo que meu gênero seja compartilhado com empresas nas candidaturas a vagas, 
+              para apoiar ações afirmativas e promover diversidade. "/>
 
-          <LabelInput
-            label="Telefone:"
-            name="telefone"
-            value={formData.telefone ?? ''}
-            onChange={handleChange}
-            required
-            validation="telefone"
-            maxLength="15"
-            placeholder="(99) 99999-9999"
-          />
+            <LabelInput
+              label="Telefone:"
+              name="telefone"
+              value={formData.telefone ?? ''}
+              onChange={handleChange}
+              required
+              validation="telefone"
+              maxLength="15"
+              placeholder="(99) 99999-9999"
+            />
 
-          <LabelInput
-            label="Email:"
-            name="email"
-            value={formData.email ?? ''}
-            onChange={handleChange}
-            required
-            validation="email"
-            placeholder="email@exemplo.com"
-          />
+            <LabelInput
+              label="Email:"
+              name="email"
+              value={formData.email ?? ''}
+              onChange={handleChange}
+              required
+              validation="email"
+              placeholder="email@exemplo.com"
+            />
 
-          <LabelInput
-            label="CEP:"
-            name="cep"
-            value={formData.cep ?? ''}
-            onChange={handleChange}
-            required
-            validation="cep"
-            placeholder="00000-000"
-          />
+            <LabelInput
+              label="CEP:"
+              name="cep"
+              value={formData.cep ?? ''}
+              onChange={handleChange}
+              required
+              validation="cep"
+              placeholder="00000-000"
+            />
 
-          <LabelInput
-            label="Rua:"
-            name="rua"
-            ref={ruaInput}
-            value={formData.rua ?? ''}
-            onChange={handleChange}
-            required
-            validation="texto"
-            placeholder="Nome da rua"
-          />
+            <LabelInput
+              label="Rua:"
+              name="rua"
+              ref={ruaInput}
+              value={formData.rua ?? ''}
+              onChange={handleChange}
+              required
+              validation="texto"
+              placeholder="Nome da rua"
+            />
 
-          <LabelInput
-            label="Bairro:"
-            name="bairro"
-            ref={bairroInput}
-            value={formData.bairro ?? ''}
-            onChange={handleChange}
-            required
-            validation="texto"
-            placeholder="Bairro"
-          />
+            <LabelInput
+              label="Bairro:"
+              name="bairro"
+              ref={bairroInput}
+              value={formData.bairro ?? ''}
+              onChange={handleChange}
+              required
+              validation="texto"
+              placeholder="Bairro"
+            />
 
-          <LabelInput
-            label="Cidade:"
-            name="cidade"
-            ref={cidadeInput}
-            value={formData.cidade ?? ''}
-            onChange={handleChange}
-            required
-            validation="texto"
-            placeholder="Sua cidade"
-          />
+            <LabelInput
+              label="Cidade:"
+              name="cidade"
+              ref={cidadeInput}
+              value={formData.cidade ?? ''}
+              onChange={handleChange}
+              required
+              validation="texto"
+              placeholder="Sua cidade"
+            />
 
-          <LabelInput
-            label="Estado:"
-            name="estado"
-            ref={estadoInput}
-            value={formData.estado ?? ''}
-            onChange={handleChange}
-            type="select"
-            options={options}
-            required
-            validation="texto"
-            placeholder="Seu estado"
-          />
-        </div>
-      </article>
-
-      {/* Tecnologias e Biografia */}
-      <article className="bg-[var(--gray)] p-8 w-full max-w-4xl mx-auto rounded-2xl">
-        <h2 className="text-2xl font-bold text-[var(--purple-secundary)] mb-4">TRAJETÓRIA E HABILIDADES</h2>
-
-        <div className="w-full mt-4 grid gap-4 max-w-2xl mx-auto">
-          <LabelInput
-            label="Tecnologias:"
-            name="tecnologias"
-            value={formData.tecnologias ?? ''}
-            onChange={handleChange}
-            validation="texto"
-            placeholder="Ex: React, Node.js, Java"
-          />
-
-          <LabelInput
-            label="Biografia:"
-            name="biografia"
-            type="mensagem"
-            value={formData.biografia ?? ''}
-            onChange={handleChange}
-            validation="texto"
-            placeholder="Conte um pouco sobre sua trajetória"
-          />
-
-          <label className="block text-[#303F3C] font-sm text-base text-left">
-            Experiencias:
-          </label>
-          <div className="flex flex-col gap-4">
-            {formData.experiences.length > 0 ? (
-              formData.experiences.map((exp, idx) => (
-                <CardExperienceItem
-                  key={idx}
-                  experience={exp}
-                  onEdit={(exp) => {
-                    setEditingExperience(exp);
-                    setAddExperienceOpen(true);
-                  }}
-                  onDelete={() => {
-                    setFormData((prev) => ({
-                      ...prev,
-                      experiences: prev.experiences.filter((e) => e !== exp),
-                    }));
-                  }}
-                />
-              ))
-            ) : (
-              <p className="text-sm text-[#55618C]/60">Nenhuma experiência adicionada.</p>
-            )}
+            <LabelInput
+              label="Estado:"
+              name="estado"
+              ref={estadoInput}
+              value={formData.estado ?? ''}
+              onChange={handleChange}
+              type="select"
+              options={options}
+              required
+              validation="texto"
+              placeholder="Seu estado"
+            />
           </div>
+        </article>
 
-          <button type="button"
+        {/* Tecnologias e Biografia */}
+        <article className="bg-[var(--gray)] p-8 w-full max-w-4xl mx-auto rounded-2xl">
+          <h2 className="text-2xl font-bold text-[var(--purple-secundary)] mb-4">TRAJETÓRIA E HABILIDADES</h2>
+
+          <div className="w-full mt-4 grid gap-4 max-w-2xl mx-auto">
+            <LabelInput
+              label="Tecnologias:"
+              name="tecnologias"
+              value={formData.tecnologias ?? ''}
+              onChange={handleChange}
+              validation="texto"
+              placeholder="Ex: React, Node.js, Java"
+            />
+
+            <LabelInput
+              label="Biografia:"
+              name="biografia"
+              type="mensagem"
+              value={formData.biografia ?? ''}
+              onChange={handleChange}
+              validation="texto"
+              placeholder="Conte um pouco sobre sua trajetória"
+            />
+
+            <label className="block text-[#303F3C] font-sm text-base text-left">
+              Experiencias:
+            </label>
+            <div className="flex flex-col gap-4">
+              {formData.experiences.length > 0 ? (
+                formData.experiences.map((exp, idx) => (
+                  <CardExperienceItem
+                    key={idx}
+                    experience={exp}
+                    onEdit={(exp) => {
+                      setEditingExperience(exp);
+                      setAddExperienceOpen(true);
+                    }}
+                    onDelete={() => {
+                      setFormData((prev) => ({
+                        ...prev,
+                        experiences: prev.experiences.filter((e) => e !== exp),
+                      }));
+                    }}
+                  />
+                ))
+              ) : (
+                <p className="text-sm text-[#55618C]/60">Nenhuma experiência adicionada.</p>
+              )}
+            </div>
+
+            <button type="button"
                   onClick={() => {
                     setEditingExperience(null);
                     setAddExperienceOpen(true);
@@ -409,27 +409,28 @@ export default function EditProfessional() {
               <Plus size={20} />
             </button>
 
-          <LabelInput
-            label="Link externo:"
-            name="link"
-            value={formData.link ?? ''}
-            onChange={handleChange}
-            validation="url"
-            placeholder="https://github.com/seu-perfil"
-          />
-        </div>
-      </article>
+            <LabelInput
+              label="Link externo:"
+              name="link"
+              value={formData.link ?? ''}
+              onChange={handleChange}
+              validation="url"
+              placeholder="https://github.com/seu-perfil"
+            />
+          </div>
+        </article>
 
-      <div className="mx-auto mt-6 flex gap-4 justify-center">
-        <BtnCallToAction type="button" variant="white" onClick={handleCancelClick}>
-          CANCELAR
-        </BtnCallToAction>
-        <BtnCallToAction type="submit" variant="purple">
-          SALVAR
-        </BtnCallToAction>
-      </div>
-    </form>
-    {successModalOpen && (
+        <div className="mx-auto mt-6 flex gap-4 justify-center">
+          <BtnCallToAction type="button" variant="white" onClick={handleCancelClick}>
+            CANCELAR
+          </BtnCallToAction>
+          <BtnCallToAction type="submit" variant="purple">
+            SALVAR
+          </BtnCallToAction>
+        </div>
+      </form>
+
+      {successModalOpen && (
         <div className="fixed inset-0 z-50 bg-black/40 backdrop-blur-sm flex items-center justify-center">
           <div className="bg-white p-8 rounded-2xl shadow-lg text-center max-w-sm">
             <h2 className="text-2xl font-bold mb-4 text-[var(--purple-primary)]">
@@ -448,6 +449,7 @@ export default function EditProfessional() {
           </div>
         </div>
       )}
+
       {errorModalOpen && (
         <div className="fixed inset-0 z-50 bg-black/40 backdrop-blur-sm flex items-center justify-center">
           <div className="bg-white p-8 rounded-2xl shadow-lg text-center max-w-sm">
@@ -462,6 +464,7 @@ export default function EditProfessional() {
           </div>
         </div>
       )}
+
       {cancelModalOpen && (
         <div className="fixed inset-0 z-50 bg-black/40 backdrop-blur-sm flex items-center justify-center">
           <div className="bg-white p-8 rounded-2xl shadow-lg text-center max-w-sm">
@@ -489,6 +492,7 @@ export default function EditProfessional() {
           </div>
         </div>
       )}
+
       {addExperienceOpen && (
         <PopUpBlurProfile
           isOpen={addExperienceOpen}
@@ -523,6 +527,7 @@ export default function EditProfessional() {
           }
         />
       )}
+
       {error && (
         <div className="fixed top-1/12 left-1/2 transform -translate-x-1/2 -translate-y-1/2 
                         z-50 bg-red-600 text-white px-6 py-3 rounded-lg shadow-lg 
@@ -530,18 +535,23 @@ export default function EditProfessional() {
             {error}
         </div>
       )}
+
       {genderChangeWarning === true &&
-      <ConfirmModal open={genderChangeWarning} title="Alteração de dados de identidade de gênero"
-      message="Esta plataforma é dedicada a mulheres na tecnologia. 
-      Por favor, edite sua identidade de gênero apenas se você realmente se identifica como mulher. 
-      Isso nos ajuda a manter um espaço seguro e coerente com nossa missão."
-      confirmText="Desejo alterar minha identidade de gênero"
-      cancelText="Voltar"
-      onConfirm={() => {
-        setGenderChangeWarning(false)
-        handleSubmit()
-      }}
-      onCancel={() => setGenderChangeWarning(false)}/>}
+        <ConfirmModal 
+          open={genderChangeWarning} 
+          title="Alteração de dados de identidade de gênero"
+          message="Esta plataforma é dedicada a mulheres na tecnologia. 
+          Por favor, edite sua identidade de gênero apenas se você realmente se identifica como mulher. 
+          Isso nos ajuda a manter um espaço seguro e coerente com nossa missão."
+          confirmText="Desejo alterar minha identidade de gênero"
+          cancelText="Voltar"
+          onConfirm={() => {
+            setGenderChangeWarning(false)
+            handleSubmit()
+          }}
+          onCancel={() => setGenderChangeWarning(false)}
+        />
+      }
     </>
   );
 }

@@ -1,17 +1,17 @@
 import { useState } from 'react';
 import { useNavigate } from "react-router-dom";
-import { useAuth } from '../../../../context/AuthContext';
 
 import { Undo2 } from 'lucide-react';
 
+import { useAuth } from '../../../../context/AuthContext';
 import BtnCallToAction from '../../../../components/btn/BtnCallToAction/BtnCallToAction';
 import LabelInput from '../../../../components/form/Label/LabelInput';
 import { validateField } from '../../../../components/form/Label/validationField';
 
 export default function LoginForm( { resetPass, registerPath, enter }){
+
     const navigate = useNavigate();
     const { login } = useAuth();
-
     const [email, setEmail] = useState('');
     const [senha, setSenha] = useState('');
     const [rememberMe, setRememberMe] = useState(false);
@@ -19,7 +19,7 @@ export default function LoginForm( { resetPass, registerPath, enter }){
     const [errorMsg, setErrorMsg] = useState('');
 
     const handleLogin = async () => {
-        if(!validateFields()) return
+        if(!validateFields()) return;
         setErrorMsg('');
         setLoading(true);
         try {
@@ -27,102 +27,103 @@ export default function LoginForm( { resetPass, registerPath, enter }){
             navigate(enter); 
         } catch (err) {
             setErrorMsg(err.message);
-            setTimeout(() => setErrorMsg(null), 4000)
+            setTimeout(() => setErrorMsg(null), 4000);
         } finally {
             setLoading(false);
         }
     };
+
     const validateFields = () => {
-        const hasError = validateField('email', email, true) || validateField('senha', senha, true)
+        const hasError = validateField('email', email, true) || validateField('senha', senha, true);
         if(hasError){
-            setErrorMsg('Preencha os campos obrigatórios e corrija os erros antes de continuar')
-            setTimeout(() => setErrorMsg(null), 4000)
+            setErrorMsg('Preencha os campos obrigatórios e corrija os erros antes de continuar');
+            setTimeout(() => setErrorMsg(null), 4000);
         }
-        return !hasError
+        return !hasError;
     }
 
     return(
-    <form 
-        onSubmit={(e) => {
-            e.preventDefault()
-            handleLogin()
-        }}
-        className="text-white w-full md:w-1/2 min-h-screen flex flex-col justify-between bg-(--purple-primary) mx-4 md:mx-0 p-9 md:rounded-r-[130px]">
+        <form 
+            onSubmit={(e) => {
+                e.preventDefault()
+                handleLogin()
+            }}
+            className="text-white w-full md:w-1/2 min-h-screen flex flex-col justify-between bg-(--purple-primary) mx-4 md:mx-0 p-9 md:rounded-r-[130px]">
 
-        <button className='flex gap-x-3 cursor-pointer transition duration-300  hover:-translate-x-1 will-change-transform' 
-                onClick={() => navigate('/')}>
-            <Undo2/>
-            Voltar
-        </button>
+            <button className='flex gap-x-3 cursor-pointer transition duration-300  hover:-translate-x-1 will-change-transform' 
+                    onClick={() => navigate('/')}>
+                <Undo2/>
+                Voltar
+            </button>
 
-        <div className='flex flex-col text-center py-4'>
-            <p className='text-3xl sm:text-4xl md:text-5xl font-bold'>
-                Faça seu login!
-            </p>
-            <p className='text-sm sm:text-base md:text-lg mt-4'>
-                Bem-vinda de volta. Sua jornada continua aqui.
-            </p>
+            <div className='flex flex-col text-center py-4'>
+                <p className='text-3xl sm:text-4xl md:text-5xl font-bold'>
+                    Faça seu login!
+                </p>
+                <p className='text-sm sm:text-base md:text-lg mt-4'>
+                    Bem-vinda de volta. Sua jornada continua aqui.
+                </p>
 
-            <div className='text-left flex flex-col gap-y-3 mt-6 sm:mt-8 mb-5'>
-                <LabelInput 
-                    label="E-mail" 
-                    theme='red' 
-                    value={email}
-                    required={true}
-                    placeholder='Digite seu email'
-                    validation='email'
-                    onChange={(e) => setEmail(e.target.value)}
-                />
-                <LabelInput 
-                    label="Senha" 
-                    type="senha"
-                    theme='red' 
-                    required={true} 
-                    placeholder='Digite sua senha'
-                    validation='senha'
-                    value={senha}
-                    onChange={(e) => setSenha(e.target.value)}
-                />
-
-                <label className="flex items-center gap-2 text-sm mt-4">
-                    <input
-                        type="checkbox"
-                        checked={rememberMe}
-                        onChange={(e) => setRememberMe(e.target.checked)}
-                        className="accent-white"
+                <div className='text-left flex flex-col gap-y-3 mt-6 sm:mt-8 mb-5'>
+                    <LabelInput 
+                        label="E-mail" 
+                        theme='red' 
+                        value={email}
+                        required={true}
+                        placeholder='Digite seu email'
+                        validation='email'
+                        onChange={(e) => setEmail(e.target.value)}
                     />
-                    Manter-me conectada
-                </label>
+                    <LabelInput 
+                        label="Senha" 
+                        type="senha"
+                        theme='red' 
+                        required={true} 
+                        placeholder='Digite sua senha'
+                        validation='senha'
+                        value={senha}
+                        onChange={(e) => setSenha(e.target.value)}
+                    />
+
+                    <label className="flex items-center gap-2 text-sm mt-4">
+                        <input
+                            type="checkbox"
+                            checked={rememberMe}
+                            onChange={(e) => setRememberMe(e.target.checked)}
+                            className="accent-white"
+                        />
+                        Manter-me conectada
+                    </label>
+                </div>
+
+                {errorMsg && (
+                    <div className="fixed top-1/12 left-1/2 transform -translate-x-1/2 -translate-y-1/2 
+                                    z-50 bg-red-600 text-white px-6 py-3 rounded-lg shadow-lg 
+                                    transition-opacity duration-300">
+                        {errorMsg}
+                    </div>
+                )}
+
+                <div className='flex flex-col sm:gap-y-1 justify-end'>
+                    <button className='w-fit ml-auto transition duration-300 hover:-translate-y-0.75'
+                        onClick={() => navigate(resetPass)}>
+                        Esqueci a senha
+                    </button>
+                    <button className='w-fit ml-auto transition duration-300 hover:-translate-y-0.75'
+                        onClick={() => navigate(registerPath)}>
+                        Não tenho conta ainda
+                    </button>
+                </div>
             </div>
 
-            {errorMsg && (
-            <div className="fixed top-1/12 left-1/2 transform -translate-x-1/2 -translate-y-1/2 
-                            z-50 bg-red-600 text-white px-6 py-3 rounded-lg shadow-lg 
-                            transition-opacity duration-300">
-                {errorMsg}
+            <div className='flex justify-center'>
+                <BtnCallToAction variant="white"
+                    disabled={loading}
+                    type="submit">
+                    {loading ? 'Carregando...' : 'ENTRAR'}
+                </BtnCallToAction>
             </div>
-            )}
 
-            <div className='flex flex-col sm:gap-y-1 justify-end'>
-                <button className='w-fit ml-auto transition duration-300 hover:-translate-y-0.75'
-                    onClick={() => navigate(resetPass)}>
-                    Esqueci a senha
-                </button>
-                <button className='w-fit ml-auto transition duration-300 hover:-translate-y-0.75'
-                    onClick={() => navigate(registerPath)}>
-                    Não tenho conta ainda
-                </button>
-            </div>
-        </div>
-
-        <div className='flex justify-center'>
-            <BtnCallToAction variant="white"
-                disabled={loading}
-                type="submit">
-                {loading ? 'Carregando...' : 'ENTRAR'}
-            </BtnCallToAction>
-        </div>
-
-    </form>
+        </form>
     )
 }
