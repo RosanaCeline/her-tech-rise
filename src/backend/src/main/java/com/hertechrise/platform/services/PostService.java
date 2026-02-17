@@ -66,7 +66,6 @@ public class PostService {
 
         MediaType mediaType = switch (mimeType) {
             case String mt when mt.startsWith("image/")       -> MediaType.IMAGE;
-            case String mt when mt.startsWith("video/")       -> MediaType.VIDEO;
             case String mt when mt.startsWith("application/") -> MediaType.DOCUMENT;
             default -> throw new InvalidFileTypeException("Tipo não suportado: " + mimeType);
         };
@@ -225,13 +224,12 @@ public class PostService {
         List<Media> novasDosArquivos = arquivosNovos.isEmpty() ? List.of() : arquivosNovos.stream()
                 .map(file -> {
                     String mimeType = file.getContentType();
-                    if (mimeType == null || !mimeType.matches("^(image|video|application)/.+$")) {
+                    if (mimeType == null || !mimeType.matches("^(image|application)/.+$")) {
                         throw new IllegalArgumentException("MIME inválido para arquivo: " + mimeType);
                     }
 
                     MediaType mediaType = switch (mimeType) {
                         case String mt when mt.startsWith("image/")       -> MediaType.IMAGE;
-                        case String mt when mt.startsWith("video/")       -> MediaType.VIDEO;
                         case String mt when mt.startsWith("application/") -> MediaType.DOCUMENT;
                         default -> throw new IllegalArgumentException("Tipo não suportado: " + mimeType);
                     };

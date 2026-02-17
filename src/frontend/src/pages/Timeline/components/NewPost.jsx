@@ -1,6 +1,6 @@
 import { useState } from "react";
 import LabelInput from "../../../components/form/Label/LabelInput";
-import { Video, Image, Files} from 'lucide-react'
+import { Image, Files} from 'lucide-react'
 import { getCurrentUser } from "../../../services/authService";
 import PopUp from "../../../components/PopUp";
 import ManagePost from "../../../components/posts/ManagePost";
@@ -30,12 +30,7 @@ export default function NewPost(){
                 </div>
             </div>
             <div className="border-t my-5 border-(--purple-primary)"></div>
-            <div className="flex justify-between text-(--purple-primary) font-semibold text-lg">
-                <button className="flex items-center gap-3 justify-center cursor-pointer transition duration-300 hover:scale-105"
-                onClick={() => setActivePopUp('video')}>
-                    <Video />
-                    <p className="hidden sm:block">Vídeo</p>
-                </button>
+            <div className="flex justify-around text-(--purple-primary) font-semibold text-lg">
                 <button className="flex items-center gap-3 content-center justify-center cursor-pointer transition duration-300 hover:scale-105"
                 onClick={() => setActivePopUp('image')}>
                     <Image />
@@ -51,7 +46,6 @@ export default function NewPost(){
                 <PopUp>
                     {activePopUp === 'post' && <ManagePost user={user} setActivePopUp={setActivePopUp} formData={formData} setFormData={setFormData}/>}
                     {activePopUp === 'image' && <AttachFile type='image' setFormData={setFormData} setActivePopUp={setActivePopUp}/>}
-                    {activePopUp === 'video' && <AttachFile type='video' setFormData={setFormData} setActivePopUp={setActivePopUp}/>}
                     {activePopUp === 'docs' && <AttachFile type='docs' setFormData={setFormData} setActivePopUp={setActivePopUp}/>}
                 </PopUp>
             )}
