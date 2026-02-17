@@ -1,9 +1,11 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+
 import logo from '../../../../assets/logo/LogoSimbol.png';
 import BtnCallToAction from '../../../btn/BtnCallToAction/BtnCallToAction';
 
 export default function PublicHeader() {
+
   const [menuVisible, setMenuVisible] = useState(false);
   const toggleMenu = () => setMenuVisible(!menuVisible);
   const navigate = useNavigate();
@@ -51,6 +53,7 @@ export default function PublicHeader() {
           CADASTRE-SE
         </BtnCallToAction>
       </nav>
+      
     </header>
   );
 }

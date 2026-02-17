@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import { useState } from 'react'
 import { validateField } from './validationField'
 import { EyeOff, Eye } from 'lucide-react'
 
@@ -18,13 +18,13 @@ export default function LabelInput ({   name,
                                         disabled = false
                                     }) {
  
-    const [error, setError] = useState(null)
-    const [showPassword, setShowPassword] = useState(false)
+    const [error, setError] = useState(null);
+    const [showPassword, setShowPassword] = useState(false);
  
     const handleBlur = () => {
-        const validationError = validateField(validation, value, required)
-        setError(validationError)
-    }
+        const validationError = validateField(validation, value, required);
+        setError(validationError);
+    };
  
     const baseInputClasses = `
         w-full min-w-full
@@ -55,110 +55,110 @@ export default function LabelInput ({   name,
 
     return (
         <div className="w-full mt-auto">
-        {(label && type !== 'checkbox')&& (
-            <label htmlFor={name} className={baseLabelClasses}>
-            {label} {required && <span className={`text-${theme}`}>*</span>}
-            </label>
-        )}
+            {(label && type !== 'checkbox')&& (
+                <label htmlFor={name} className={baseLabelClasses}>
+                {label} {required && <span className={`text-${theme}`}>*</span>}
+                </label>
+            )}
 
-        {type === 'checkbox' ? (
-            <label className="inline-flex items-center gap-2 cursor-pointer">
-                <input
+            {type === 'checkbox' ? (
+                <label className="inline-flex items-center gap-2 cursor-pointer">
+                    <input
+                        id={name}
+                        name={name}
+                        type="checkbox"
+                        checked={value}
+                        onChange={onChange}
+                        className=" w-9 h-9
+                            rounded-md
+                            border-2
+                            border-[#55618C]
+                            checked:bg-[#55618C]
+                            checked:border-transparent
+                            transition-all
+                            duration-200
+                            cursor-pointer"
+                        ref={ref}
+                        disabled={disabled}
+                    />
+                    <span className={`text-${theme} pl-4 text-base text-justify`}>{label} {required && <span className={`text-${theme}`}>*</span>}</span>
+                </label>
+            ) : type === 'select' ? (
+                <div className='relative'>
+                    <select
                     id={name}
                     name={name}
-                    type="checkbox"
-                    checked={value}
+                    value={value}
                     onChange={onChange}
-                    className=" w-9 h-9
-                        rounded-md
-                        border-2
-                        border-[#55618C]
-                        checked:bg-[#55618C]
-                        checked:border-transparent
-                        transition-all
-                        duration-200
-                        cursor-pointer"
+                    onBlur={handleBlur}
                     ref={ref}
-                    disabled={disabled}
-                />
-                <span className={`text-${theme} pl-4 text-base text-justify`}>{label} {required && <span className={`text-${theme}`}>*</span>}</span>
-            </label>
-        ) : type === 'select' ? (
-            <div className='relative'>
-                <select
+                    className={`${baseInputClasses} appearance-none pr-10`}
+                    >
+                        <option value="" disabled>
+                            Selecione...
+                        </option>
+                        {options.map((opt) => (
+                            <option key={opt.value} value={opt.value}>
+                            {opt.label}
+                            </option>
+                        ))}
+                    </select>
+                    <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-4 text-gray-500">
+                        <svg className="w-5 h-5" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
+                        <path d="M19 9l-7 7-7-7" strokeLinecap="round" strokeLinejoin="round" />
+                        </svg>
+                    </div>
+                </div>
+            ) : type === 'mensagem' ? (
+                <textarea
                 id={name}
                 name={name}
                 value={value}
                 onChange={onChange}
                 onBlur={handleBlur}
-                ref={ref}
-                className={`${baseInputClasses} appearance-none pr-10`}
-                >
-                    <option value="" disabled>
-                        Selecione...
-                    </option>
-                    {options.map((opt) => (
-                        <option key={opt.value} value={opt.value}>
-                        {opt.label}
-                        </option>
-                    ))}
-                </select>
-                <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-4 text-gray-500">
-                    <svg className="w-5 h-5" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
-                    <path d="M19 9l-7 7-7-7" strokeLinecap="round" strokeLinejoin="round" />
-                    </svg>
-                </div>
-            </div>
-        ) : type === 'mensagem' ? (
-            <textarea
-            id={name}
-            name={name}
-            value={value}
-            onChange={onChange}
-            onBlur={handleBlur}
-            placeholder={placeholder}
-            rows={6}
-            className={`${baseInputClasses} resize-none`}
-            />
-        ) : (
-            <div className="relative">
-                <input
-                    id={name}
-                    name={name}
-                    type={
-                        type === 'senha'
-                            ? showPassword ? 'text' : 'password'
-                            : type === 'email'
-                            ? 'email'
-                            : type === 'date'
-                            ? 'date'
-                            : 'text'
-                    }
-                    value={value}
-                    onChange={onChange}
-                    onClick={onClick}
-                    onBlur={handleBlur}
-                    placeholder={placeholder}
-                    className={`${baseInputClasses} pr-12`}
-                    maxLength={maxLength}
-                    ref={ref}
-                    disabled={disabled}
+                placeholder={placeholder}
+                rows={6}
+                className={`${baseInputClasses} resize-none`}
                 />
+            ) : (
+                <div className="relative">
+                    <input
+                        id={name}
+                        name={name}
+                        type={
+                            type === 'senha'
+                                ? showPassword ? 'text' : 'password'
+                                : type === 'email'
+                                ? 'email'
+                                : type === 'date'
+                                ? 'date'
+                                : 'text'
+                        }
+                        value={value}
+                        onChange={onChange}
+                        onClick={onClick}
+                        onBlur={handleBlur}
+                        placeholder={placeholder}
+                        className={`${baseInputClasses} pr-12`}
+                        maxLength={maxLength}
+                        ref={ref}
+                        disabled={disabled}
+                    />
 
-                {type === 'senha' && (
-                    <button
-                        type="button"
-                        onClick={() => setShowPassword(!showPassword)}
-                        className="absolute inset-y-0 right-3 flex items-center text-gray-500 hover:text-gray-700"
-                    >
-                        {showPassword ? <EyeOff /> : <Eye />}
-                    </button>
-                )}
-            </div>
+                    {type === 'senha' && (
+                        <button
+                            type="button"
+                            onClick={() => setShowPassword(!showPassword)}
+                            className="absolute inset-y-0 right-3 flex items-center text-gray-500 hover:text-gray-700"
+                        >
+                            {showPassword ? <EyeOff /> : <Eye />}
+                        </button>
+                    )}
+                </div>
+            )}
 
-        )}
+            {error && <p className={`mt-2 text-sm text-left text-${theme}`}>{error}</p>}
 
-        {error && <p className={`mt-2 text-sm text-left text-${theme}`}>{error}</p>}
         </div>
     )
 }

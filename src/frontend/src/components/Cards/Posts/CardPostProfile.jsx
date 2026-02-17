@@ -1,23 +1,24 @@
 import { useState, useRef, useEffect } from 'react';
+
 import HeaderPost from './components/HeaderPost';
 import ContentPost from './components/ContentPost';
-import PopUpBlurProfile from '../Profile/PopUpBlurProfile';
-import PopUp from '../../PopUp'
 import ManagePost from '../../posts/ManagePost';
 import AttachFile from '../../posts/AttachFile';
 import InteractionBar from '../../posts/Interactions/InteractionBar';
+import PopUpBlurProfile from '../Profile/PopUpBlurProfile';
+import PopUp from '../../PopUp'
 
 export default function CardPostProfile({ post, photo, name, isPostDetail = true, handle = null, idAuthor = null, isOwner = false, isShare = false, postShare = null, hideInteractions = false,
                                           isPopupView = false, isOpen = false, onPostsUpdated = false, isFollowing = null, onFollowToggle = null, onCardClick }) {
+  
   const [activePopUp, setActivePopUp] = useState("post");
   const [editingPost, setEditingPost] = useState(null);
 
   const formattedDate = new Date(post.createdAt).toLocaleDateString('pt-BR');
+  const containerRef = useRef(null);
+  const [cardWidth, setCardWidth] = useState(0);
   const hasMedia = post.media?.length > 0;
-  const user = {
-      userName: name,
-      profileURL: photo
-  }
+  const user = { userName: name, profileURL: photo }
   const [formData, setFormData] = useState({
     postId: post.id,
     content: post.content,
@@ -36,9 +37,6 @@ export default function CardPostProfile({ post, photo, name, isPostDetail = true
     setActivePopUp("post");
   };
 
-  const containerRef = useRef(null);
-  const [cardWidth, setCardWidth] = useState(0);
-
   useEffect(() => {
     if (!containerRef.current) return;
     const resizeObserver = new ResizeObserver(entries => {
@@ -51,15 +49,13 @@ export default function CardPostProfile({ post, photo, name, isPostDetail = true
   }, []);
 
   return (
-      <div
-        ref={containerRef}
-        onClick={(e) => {
-          e.stopPropagation();
-          onCardClick?.();
-        }}
-        className={`flex flex-col justify-between rounded-xl w-full transition-all duration-300
-                  ${ isPostDetail ? '' : 'border border-(--gray) p-5 hover:bg-slate-50'} 
-                  ${ isPopupView  ? 'w-full' : `mx-auto ${hasMedia ? '' : 'min-h-[20vh] '}` }`}
+      <div ref={containerRef} className={`flex flex-col justify-between rounded-xl w-full transition-all duration-300
+                                        ${ isPostDetail ? '' : 'border border-(--gray) p-5 hover:bg-slate-50'} 
+                                        ${ isPopupView  ? 'w-full' : `mx-auto ${hasMedia ? '' : 'min-h-[20vh] '}` }`}
+            onClick={(e) => {
+              e.stopPropagation();
+              onCardClick?.();
+            }}        
       >
         <HeaderPost
           photo={photo}

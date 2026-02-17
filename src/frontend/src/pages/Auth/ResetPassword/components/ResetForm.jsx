@@ -1,17 +1,19 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+
+import { Undo2 } from 'lucide-react';
+
 import { resetPassword } from '../../../../services/authService';
 import LabelInput from '../../../../components/form/Label/LabelInput';
 import BtnCallToAction from '../../../../components/btn/BtnCallToAction/BtnCallToAction';
-import { Undo2 } from 'lucide-react';
 import { validateField } from '../../../../components/form/Label/validationField';
 
-
 export default function ResetForm() {
+
   const [email, setEmail] = useState('');
   const [feedback, setFeedback] = useState('');
   const [loading, setLoading] = useState(false);
-  const [errorMsg, setErrorMsg] = useState('')
+  const [errorMsg, setErrorMsg] = useState('');
   const navigate = useNavigate();
 
   const handleReset = async () => {
@@ -28,11 +30,10 @@ export default function ResetForm() {
   };
 
   const validateFields = () => {
-      const hasError = validateField('email', email, true)
-      if(hasError)
-          setErrorMsg('Preencha os campos obrigatórios e corrija os erros antes de continuar')
-      else setErrorMsg('')
-      return !hasError
+      const hasError = validateField('email', email, true);
+      if(hasError) setErrorMsg('Preencha os campos obrigatórios e corrija os erros antes de continuar');
+      else setErrorMsg('');
+      return !hasError;
   }
 
   return (

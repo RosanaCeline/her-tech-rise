@@ -1,34 +1,36 @@
-import { X } from 'lucide-react'
 import { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
+
+import { X } from 'lucide-react'
+
 import LabelInput from '../../../components/form/Label/LabelInput';
 import { postApplication } from '../../../services/applicationService'
 import BtnCallToAction from '../../../components/btn/BtnCallToAction/BtnCallToAction';
-import { useNavigate } from 'react-router-dom';
 
 export default function ApplyJob({applyJobModal, setApplyJobModal}){
-    const navigate = useNavigate()
+
+    const navigate = useNavigate();
     const [applyFormData, setApplyFormData] = useState({
         jobPostingId: applyJobModal.id,
         githubLink: '',
         portfolioLink: '',
         resumeFile: ''
-    })
-    const [errorMessage, setErrorMessage] = useState('')
-
+    });
+    const [errorMessage, setErrorMessage] = useState('');
     const handleChange = (field, value) => {
         setApplyFormData(prev => ({ ...prev, [field]: value }));
-    }
+    };
 
     const handleSubmit = async () => {
         if(applyFormData.resumeFile === ''){
             setErrorMessage('Anexe um currículo antes de continuar')
             setTimeout(() => setErrorMessage(null), 4000)
-        }else{
+        } else {
             setErrorMessage('')
-            try{
+            try {
                 await postApplication(applyFormData)
                 navigate("/profissional/vagas/candidaturas")
-            }catch(err){
+            } catch(err) {
                 setErrorMessage(err.message || `Erro ao se candidatar à vaga de emprego`)
                 setTimeout(() => setErrorMessage(null), 4000)
             }
@@ -57,19 +59,20 @@ export default function ApplyJob({applyJobModal, setApplyJobModal}){
                         hover:file:bg-(--purple-action)"
                 />
                 <LabelInput label="Link do GitHub:" placeholder="Insira o link do seu portifólio no GitHub"
-                maxLength="100" value={applyFormData.githubLink} onChange={(e) => handleChange('githubLink', e.target.value)}/>
+                        maxLength="100" value={applyFormData.githubLink} onChange={(e) => handleChange('githubLink', e.target.value)}/>
                 <LabelInput label="Link do portifólio:" placeholder="Insira o link do seu portifólio pessoal"
-                maxLength="2000" value={applyFormData.portfolioLink} onChange={(e) => handleChange('portfolioLink', e.target.value)}/>
+                        maxLength="2000" value={applyFormData.portfolioLink} onChange={(e) => handleChange('portfolioLink', e.target.value)}/>
             </div>
             <div className='mt-5'>
                 <BtnCallToAction onClick={() => handleSubmit()}>ENVIAR</BtnCallToAction>
             </div>
+
             {errorMessage && (
-            <div className="fixed top-1/12 left-1/2 transform -translate-x-1/2 -translate-y-1/2 
-                            z-50 bg-red-600 text-white px-6 py-3 rounded-lg shadow-lg 
-                           transition-opacity duration-300">
-                {errorMessage}
-            </div>
+                <div className="fixed top-1/12 left-1/2 transform -translate-x-1/2 -translate-y-1/2 
+                                z-50 bg-red-600 text-white px-6 py-3 rounded-lg shadow-lg 
+                            transition-opacity duration-300">
+                    {errorMessage}
+                </div>
             )}
         </main>
     )

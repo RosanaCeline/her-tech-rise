@@ -1,9 +1,7 @@
-import React from 'react';
 import { useNavigate } from 'react-router-dom'
 import { Routes, Route } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
-import { getRoutesByRole 
-        , publicRoutes, authRoutes } from './listRoutes';
+import { getRoutesByRole, publicRoutes, authRoutes } from './listRoutes';
 
 import PublicLayout from "../components/layout/PublicLayout/PublicLayout"
 import PrivateLayout from "../components/layout/PrivateLayout/PrivateLayout"

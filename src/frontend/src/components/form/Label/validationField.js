@@ -20,7 +20,7 @@ export function validateField(type, value, required) {
       return /^\(\d{2}\)\s9\d{4}-\d{4}$/.test(trimmed)
         ? null
         : 'Telefone inválido. Use o formato (11) 91234-5678'
-    case 'cpf':
+    case 'cpf': {
       const cleanCPF = trimmed.replace(/[^\d]/g, '');
 
       if (cleanCPF.length !== 11 || /^(\d)\1{10}$/.test(cleanCPF)) {
@@ -45,7 +45,8 @@ export function validateField(type, value, required) {
 
       const digitoValido = cleanCPF[9] == digito1 && cleanCPF[10] == digito2;
       return digitoValido ? null : 'CPF inválido. Verifique os dígitos.';
-    case 'cnpj':
+      }
+    case 'cnpj':{
       const cleanCNPJ = trimmed.replace(/[^\d]/g, '');
 
       if (cleanCNPJ.length !== 14 || /^(\d)\1{13}$/.test(cleanCNPJ)) {
@@ -74,14 +75,11 @@ export function validateField(type, value, required) {
       return digitosInformados === digitosCalculados
     ? null
     : 'CNPJ inválido. Verifique os dígitos.';
+    }
     case 'cep':
       return /^\d{5}-\d{3}$/.test(trimmed)
         ? null
         : 'CEP inválido. Exemplo: 00000-000'
-    case 'email':
-      return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(trimmed)
-        ? null
-        : 'E-mail inválido'
     case 'numero':
       return /^\d+$/.test(trimmed)
         ? null

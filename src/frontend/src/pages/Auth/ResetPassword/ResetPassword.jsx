@@ -1,17 +1,16 @@
-import React from 'react';
+import { Navigate } from "react-router-dom";
+
 import ResetForm from './components/ResetForm'
 import logo from "../../../assets/logo/LogoNamePurple.png";
 import login from "../../../assets/auth/login.png";
 import { useAuth } from "../../../context/AuthContext"; 
-import { Navigate } from "react-router-dom";
 
 export default function ResetPassword () {
-    const { user } = useAuth();
-        
-    if (user) 
-      return <Navigate to="/timeline" replace />;
+  const { user } = useAuth();
+      
+  if (user) return <Navigate to="/timeline" replace />;
     
-    return (
+  return (
     <main className='flex bg-[#F7F7F7]'>
       <ResetForm  />
       <div    className='hidden md:w-1/2 md:flex md:flex-col justify-center p-4'>
@@ -25,4 +24,3 @@ export default function ResetPassword () {
     </main>
   )
 } 
-

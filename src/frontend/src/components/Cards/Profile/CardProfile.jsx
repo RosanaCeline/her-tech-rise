@@ -13,15 +13,12 @@ import { useAuth } from '../../../context/AuthContext';
 import { useNavigate } from 'react-router-dom';
 
 export default function CardProfile({
-  //id,
   photo,
   tipo_usuario,
   name,
   nameuser,
   link,
   copyMyLink,
-  //email,
-  //number,
   city,
   state,
   statisticsComponent,
@@ -31,20 +28,22 @@ export default function CardProfile({
   followedUser,
   onRequestDelete
 }) {
+
   const navigate = useNavigate();
-  const [loading, setLoading] = useState(false)
+  const { user, setUser } = useAuth();
+  const [loading, setLoading] = useState(false);
   const [showOptions, setShowOptions] = useState(false);
   const [modalContent, setModalContent] = useState(null);
   const [showModal, setShowModal] = useState(false);
   const [copied, setCopied] = useState(false);
   const [previewPhoto, setPreviewPhoto] = useState(photo);
   const fileInputRef = useRef();
-  const [updateProfileError, setUpdateProfileError] = useState('')
-
+  const [updateProfileError, setUpdateProfileError] = useState('');
   const [showFollowersModal, setShowFollowersModal] = useState(false);
   const [showFollowingModal, setShowFollowingModal] = useState(false);
   const [followersList, setFollowersList] = useState([]);
   const [followingList, setFollowingList] = useState([]);
+  const userPhoto = previewPhoto || (tipo_usuario === 'company' ? defaultEnterprisePhoto : defaultProfessionalPhoto);
 
   const handleFollowersClick = async () => {
     try {
@@ -64,7 +63,7 @@ export default function CardProfile({
       setShowFollowingModal(true);
     } catch (err) {
       console.error("Erro ao carregar seguindo:", err);
-    }finally{
+    } finally{
       setLoading(false);
     }
   };
@@ -83,15 +82,12 @@ export default function CardProfile({
     }
   };
 
-  const userPhoto = previewPhoto || (tipo_usuario === 'company' ? defaultEnterprisePhoto : defaultProfessionalPhoto);
-  // const userPhoto = previewPhoto || defaultPhoto;
-
   const handleOpenModal = (content) => {
     setModalContent(content);
     setShowModal(true);
   };
 
-  const { user, setUser } = useAuth()
+  
   const handlePhotoChange = async (e) => {
     const file = e.target.files[0];
     if (!file) return;
@@ -130,22 +126,24 @@ export default function CardProfile({
             />
           </div>
           {isCurrentUser &&
-          <>
-          <button
-            type="button"
-            onClick={() => fileInputRef.current.click()}
-            className="absolute bottom-5 right-12 translate-x-1/2 translate-y-1/2 bg-[var(--purple-primary)] hover:bg-[var(--purple-secundary)] text-white p-3 rounded-full shadow-lg flex items-center justify-center focus:outline-none"
-            aria-label="Alterar foto do perfil"
-          >
-            <FaCamera size={20} />
-          </button>
-          <input
-            type="file"
-            accept="image/*"
-            ref={fileInputRef}
-            onChange={handlePhotoChange}
-            className="hidden"
-          /></>}
+            <>
+              <button
+                type="button"
+                onClick={() => fileInputRef.current.click()}
+                className="absolute bottom-5 right-12 translate-x-1/2 translate-y-1/2 bg-[var(--purple-primary)] hover:bg-[var(--purple-secundary)] text-white p-3 rounded-full shadow-lg flex items-center justify-center focus:outline-none"
+                aria-label="Alterar foto do perfil"
+              >
+                <FaCamera size={20} />
+              </button>
+              <input
+                type="file"
+                accept="image/*"
+                ref={fileInputRef}
+                onChange={handlePhotoChange}
+                className="hidden"
+              />
+            </>
+          }
         </div>
 
         <div className='flex flex-col md:flex-row items-center w-full gap-5 z-0'>
@@ -178,8 +176,6 @@ export default function CardProfile({
               </div>
             )}
 
-          {/* {email && <p className="text-[var(--font-gray)] text-s break-all">{email}</p>}
-          {number && <p className="text-[var(--font-gray)] text-s break-all">{number}</p>} */}
             {(city || state) && (
               <p className="text-[var(--font-gray)] text-s break-all">
                 {city ? city : ''}{city && state ? ', ' : ''}{state ? state : ''}
@@ -197,215 +193,211 @@ export default function CardProfile({
               <FaPaperPlane className="text-[var(--font-gray)] text-xl xl:text-3xl" />
               <span className="text-md xl:text-xl font-medium">Compartilhar</span>
             </button>
-          {isCurrentUser
-            ? <>
-            <div className="flex flex-col relative w-full mx-auto justify-center md:justify-start">
-              <button type="button"
-                      onClick={() => setShowOptions(!showOptions)}
-                      className="flex items-center mx-auto gap-3"
-              >
-                <FaSlidersH className="text-[var(--font-gray)] text-xl xl:text-3xl" />
-                <span className="text-md xl:text-xl font-medium">Configurações</span>
-              </button>
-
-              {showOptions && (
-                <div
-                  className={`
-                    absolute mt-2 z-50
-                    bg-white rounded-xl shadow-lg
-                    flex-col gap-2 p-3
-                    right-0
-                    flex md:hidden
-                  `}
-                >
-                  <BtnCallToAction variant="white" onClick={onRequestDelete}>Excluir Perfil</BtnCallToAction>
-                  <BtnCallToAction
-                    variant="purple"
-                    onClick={() => handleOpenModal(<EditMyProfile />)}
+            {isCurrentUser ? 
+              <>
+                <div className="flex flex-col relative w-full mx-auto justify-center md:justify-start">
+                  <button type="button"
+                          onClick={() => setShowOptions(!showOptions)}
+                          className="flex items-center mx-auto gap-3"
                   >
-                    Editar Perfil
-                  </BtnCallToAction>
-                </div>
-              )}
-            </div>
-            <div>
-              <button onClick={handleFollowersClick}
-                      className="text-md xl:text-xl font-medium"
-              >
-                    Seguidores
-              </button>
-              <span className='p-2'>|</span>
-              <button onClick={handleFollowingClick}
-                      className="text-md xl:text-xl font-medium"
-              >
-                    Seguindo
-              </button>
-            </div>
+                    <FaSlidersH className="text-[var(--font-gray)] text-xl xl:text-3xl" />
+                    <span className="text-md xl:text-xl font-medium">Configurações</span>
+                  </button>
 
-            {showOptions && (
-              <div
-                className={`
-                  absolute flex-col gap-2 p-3
-                  bg-white rounded-xl shadow-lg
-                  transition-all duration-300
-                  right-0 md:right-80 top-20 z-40
-                  hidden md:flex
-                `}
-              >
-                <BtnCallToAction variant="white" onClick={onRequestDelete}>Excluir Perfil</BtnCallToAction>
-                <BtnCallToAction
-                  variant="purple"
-                  onClick={() => handleOpenModal(<EditMyProfile />)}
-                >
-                  Editar Perfil
-                </BtnCallToAction>
-              </div>
-            )}
-            <BtnCallToAction
-              variant="purple"
-              onClick={() => handleOpenModal(statisticsComponent)}
-            >
-              VER ESTATÍSTICAS
-            </BtnCallToAction>
-          </>
-          : <div className='flex flex-col mx-auto gap-y-2'>
-              <p className='mx-auto'>{followersCount} seguidor{followersCount > 1 && 'es'}</p>
-              <button onClick={async () => await handleFollow()}
-                      className={`p-4 cursor-pointer mt-3 rounded-2xl 
-                                ${followedUser ? 'bg-(--purple-primary) text-white' : 'bg-(--gray)' 
-                      }`}>
-                  {followedUser ? <p className='flex gap-x-4'><Check />Seguindo</p> 
-                                : <p className='flex gap-x-4'><Plus/>Seguir</p>}
-              </button>
-            </div>
-          }
-          
-          </div>
-        </div>        
-    </article>
-    
-    {copied && (
-      <div className="fixed top-10 left-1/2 -translate-x-1/2 z-[9999] 
-                      bg-green-600 text-white px-6 py-3 rounded-lg shadow-lg 
-                      transition-opacity duration-300">
-        Endereço copiado!
-      </div>
-    )}
-
-    <PopUpBlurProfile
-      isOpen={showModal}
-      onClose={() => setShowModal(false)}
-      content={modalContent}
-    />
-    {updateProfileError && (
-      <div className="fixed top-1/12 left-1/2 transform -translate-x-1/2 -translate-y-1/2 
-                      z-50 bg-red-600 text-white px-6 py-3 rounded-lg shadow-lg 
-                      transition-opacity duration-300">
-          {updateProfileError}
-      </div>
-    )}
-
-    <PopUpBlurProfile
-      isOpen={showFollowersModal}
-      onClose={() => setShowFollowersModal(false)}
-      content={
-        <div className="p-4 max-h-[70vh] overflow-y-auto">
-          <h2 className="text-4xl font-bold text-[var(--purple-secundary)] mb-4">Seguidores</h2>
-          {followersList.length > 0 ? (
-            followersList.map((user) => (
-              <div
-                key={user.id}
-                className="flex align-content-center px-4 border-t pt-4 border-slate-200 mx-auto md:mx-0"
-                onClick={() => goToUserProfile(user.followerId)}
-              >
-                <div className="relative w-full max-w-[85px] h-[85px] flex-shrink-0 my-auto mr-5">
-                  <img
-                    src={user.followerProfilePic || "/default-avatar.png"}
-                    className="h-full w-full object-cover rounded-full"
-                    alt={user.followerName}
-                  />
-                </div>
-                <div className="flex flex-col md:flex-row md:w-full justify-between">
-                  <div className="flex flex-col w-full">
-                    <p className="font-semibold truncate">{user.followerName}</p>
-                    {user.followerName && <p className="truncate">{user.followerHandle}</p>}
-                    <p className="text-sm text-gray-500">
-                      Seguiu em {user.followedAt}
-                    </p>
-                  </div>
-                </div>
-              </div>
-            ))
-          ) : (
-            <p className='italic text-xl text-[var(--text-secondary)] leading-relaxed opacity-70'>
-              Nenhum seguidor encontrado.
-            </p>
-          )}
-        </div>
-      }
-    />
-
-    <PopUpBlurProfile
-      isOpen={showFollowingModal}
-      onClose={() => setShowFollowingModal(false)}
-      content={
-        <div className="p-4 max-h-[70vh] overflow-y-auto">
-          <h2 className="text-4xl font-bold text-[var(--purple-secundary)] mb-4">Seguindo</h2>
-          {followingList.length > 0 ? (
-            followingList.map((user) => (
-              <div
-                key={user.id}
-                className="flex align-content-center px-4 border-t pt-4 border-slate-200 mx-auto md:mx-0"
-                onClick={() => goToUserProfile(user.followingId)}
-              >
-                <div className="relative w-full max-w-[85px] h-[85px] flex-shrink-0 my-auto mr-5">
-                  <img
-                    src={user.followingProfilePic || "/default-avatar.png"}
-                    className="h-full w-full object-cover rounded-full"
-                    alt={user.followingName}
-                  />
-                </div>
-                <div className="flex flex-col md:flex-row md:w-full justify-between">
-                  <div className="flex flex-col w-full">
-                    <p className="font-semibold truncate">{user.followingName}</p>
-                    {user.followingName && <p className="truncate">{user.followingHandle}</p>}
-                    <p className="text-sm text-gray-500">
-                      Seguiu em {user.followedAt}
-                    </p>
-                  </div>
-                  <div className="my-auto">
-                    <BtnCallToAction
-                      variant="purple"
-                      onClick={async () => {
-                        try {
-                          await handleFollow(user.followingId, true);
-                          setFollowingList((prev) =>
-                            prev.filter((u) => u.followingId !== user.followingId) 
-                          );
-                        } catch (err) {
-                          console.error("Erro ao deixar de seguir:", err);
-                        }
-                      }}
+                  {showOptions && (
+                    <div
+                      className={`
+                        absolute mt-2 z-50
+                        bg-white rounded-xl shadow-lg
+                        flex-col gap-2 p-3
+                        right-0
+                        flex md:hidden
+                      `}
                     >
-                      Deixar de seguir
+                      <BtnCallToAction variant="white" onClick={onRequestDelete}>
+                        Excluir Perfil
+                      </BtnCallToAction>
+                      <BtnCallToAction variant="purple" onClick={() => handleOpenModal(<EditMyProfile />)} >
+                        Editar Perfil
+                      </BtnCallToAction>
+                    </div>
+                  )}
+                </div>
+                <div>
+                  <button onClick={handleFollowersClick}
+                          className="text-md xl:text-xl font-medium"
+                  >
+                        Seguidores
+                  </button>
+                  <span className='p-2'>|</span>
+                  <button onClick={handleFollowingClick}
+                          className="text-md xl:text-xl font-medium"
+                  >
+                        Seguindo
+                  </button>
+                </div>
+
+                {showOptions && (
+                  <div
+                    className={`
+                      absolute flex-col gap-2 p-3
+                      bg-white rounded-xl shadow-lg
+                      transition-all duration-300
+                      right-0 md:right-80 top-20 z-40
+                      hidden md:flex
+                    `}
+                  >
+                    <BtnCallToAction variant="white" onClick={onRequestDelete}>
+                      Excluir Perfil
+                    </BtnCallToAction>
+                    <BtnCallToAction variant="purple" onClick={() => handleOpenModal(<EditMyProfile />)} >
+                      Editar Perfil
                     </BtnCallToAction>
                   </div>
-                </div>
+                )}
+                <BtnCallToAction variant="purple" onClick={() => handleOpenModal(statisticsComponent)} >
+                  VER ESTATÍSTICAS
+                </BtnCallToAction>
+              </>
+            : 
+              <div className='flex flex-col mx-auto gap-y-2'>
+                <p className='mx-auto'>{followersCount} seguidor{followersCount > 1 && 'es'}</p>
+                <button onClick={async () => await handleFollow()}
+                        className={`p-4 cursor-pointer mt-3 rounded-2xl ${followedUser ? 'bg-(--purple-primary) text-white' : 'bg-(--gray)' }`}>
+                    {followedUser ? <p className='flex gap-x-4'><Check />Seguindo</p> 
+                                  : <p className='flex gap-x-4'><Plus/>Seguir</p>}
+                </button>
               </div>
-            ))
-          ) : (
-            <p className='italic text-xl text-[var(--text-secondary)] leading-relaxed opacity-70'>
-              Você não está seguindo ninguém.
-            </p>
-          )}
+            }          
+          </div>
+        </div>        
+      </article>
+    
+      {copied && (
+        <div className="fixed top-10 left-1/2 -translate-x-1/2 z-[9999] 
+                        bg-green-600 text-white px-6 py-3 rounded-lg shadow-lg 
+                        transition-opacity duration-300">
+          Endereço copiado!
         </div>
-      }
-    />
-    {loading && (
-      <div className="absolute inset-0 z-50 bg-white/60 flex items-center justify-center">
-        <LoadingSpinner />
-      </div>
-    )}
+      )}
+
+      {updateProfileError && (
+        <div className="fixed top-1/12 left-1/2 transform -translate-x-1/2 -translate-y-1/2 
+                        z-50 bg-red-600 text-white px-6 py-3 rounded-lg shadow-lg 
+                        transition-opacity duration-300">
+            {updateProfileError}
+        </div>
+      )}
+
+      <PopUpBlurProfile
+        isOpen={showModal}
+        onClose={() => setShowModal(false)}
+        content={modalContent}
+      />
+
+      <PopUpBlurProfile
+        isOpen={showFollowersModal}
+        onClose={() => setShowFollowersModal(false)}
+        content={
+          <div className="p-4 max-h-[70vh] overflow-y-auto">
+            <h2 className="text-4xl font-bold text-[var(--purple-secundary)] mb-4">Seguidores</h2>
+            {followersList.length > 0 ? (
+              followersList.map((user) => (
+                <div
+                  key={user.id}
+                  className="flex align-content-center px-4 border-t pt-4 border-slate-200 mx-auto md:mx-0"
+                  onClick={() => goToUserProfile(user.followerId)}
+                >
+                  <div className="relative w-full max-w-[85px] h-[85px] flex-shrink-0 my-auto mr-5">
+                    <img
+                      src={user.followerProfilePic || "/default-avatar.png"}
+                      className="h-full w-full object-cover rounded-full"
+                      alt={user.followerName}
+                    />
+                  </div>
+                  <div className="flex flex-col md:flex-row md:w-full justify-between">
+                    <div className="flex flex-col w-full">
+                      <p className="font-semibold truncate">{user.followerName}</p>
+                      {user.followerName && <p className="truncate">{user.followerHandle}</p>}
+                      <p className="text-sm text-gray-500">
+                        Seguiu em {user.followedAt}
+                      </p>
+                    </div>
+                  </div>
+                </div>
+              ))
+            ) : (
+              <p className='italic text-xl text-[var(--text-secondary)] leading-relaxed opacity-70'>
+                Nenhum seguidor encontrado.
+              </p>
+            )}
+          </div>
+        }
+      />
+
+      <PopUpBlurProfile
+        isOpen={showFollowingModal}
+        onClose={() => setShowFollowingModal(false)}
+        content={
+          <div className="p-4 max-h-[70vh] overflow-y-auto">
+            <h2 className="text-4xl font-bold text-[var(--purple-secundary)] mb-4">Seguindo</h2>
+            {followingList.length > 0 ? (
+              followingList.map((user) => (
+                <div
+                  key={user.id}
+                  className="flex align-content-center px-4 border-t pt-4 border-slate-200 mx-auto md:mx-0"
+                  onClick={() => goToUserProfile(user.followingId)}
+                >
+                  <div className="relative w-full max-w-[85px] h-[85px] flex-shrink-0 my-auto mr-5">
+                    <img
+                      src={user.followingProfilePic || "/default-avatar.png"}
+                      className="h-full w-full object-cover rounded-full"
+                      alt={user.followingName}
+                    />
+                  </div>
+                  <div className="flex flex-col md:flex-row md:w-full justify-between">
+                    <div className="flex flex-col w-full">
+                      <p className="font-semibold truncate">{user.followingName}</p>
+                      {user.followingName && <p className="truncate">{user.followingHandle}</p>}
+                      <p className="text-sm text-gray-500">
+                        Seguiu em {user.followedAt}
+                      </p>
+                    </div>
+                    <div className="my-auto">
+                      <BtnCallToAction
+                        variant="purple"
+                        onClick={async () => {
+                          try {
+                            await handleFollow(user.followingId, true);
+                            setFollowingList((prev) =>
+                              prev.filter((u) => u.followingId !== user.followingId) 
+                            );
+                          } catch (err) {
+                            console.error("Erro ao deixar de seguir:", err);
+                          }
+                        }}
+                      >
+                        Deixar de seguir
+                      </BtnCallToAction>
+                    </div>
+                  </div>
+                </div>
+              ))
+            ) : (
+              <p className='italic text-xl text-[var(--text-secondary)] leading-relaxed opacity-70'>
+                Você não está seguindo ninguém.
+              </p>
+            )}
+          </div>
+        }
+      />
+
+      {loading && (
+        <div className="absolute inset-0 z-50 bg-white/60 flex items-center justify-center">
+          <LoadingSpinner />
+        </div>
+      )}
+
     </>
   )
 }

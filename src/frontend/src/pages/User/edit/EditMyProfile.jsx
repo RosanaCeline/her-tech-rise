@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react"
+import { useState, useEffect } from "react"
 
 import { getCurrentUser } from "../../../services/authService"
 import EditEnterprise from './forms/EditEnterprise'
@@ -6,6 +6,7 @@ import EditProfessional from './forms/EditProfessional'
 import LoadingSpinner from './../../../components/LoadingSpinner/LoadingSpinner'
 
 export default function EditMyProfile() {
+
     const [user, setUser] = useState(null);
     const [tipoUsuario, setTipoUsuario] = useState(null);
 

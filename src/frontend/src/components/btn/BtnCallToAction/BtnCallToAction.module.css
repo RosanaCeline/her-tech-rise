@@ -9,17 +9,17 @@
     border: 2px solid transparent;
 }
 .purple {
-  background-color: var(--purple-action);
-  color: var(--light);
-  border: none;
+    background-color: var(--purple-action);
+    color: var(--light);
+    border: none;
 }
 .purple:hover {
-  background-color: var(--purple-primary);
+    background-color: var(--purple-primary);
 }
 
 .white {
-  background-color: var(--light);
-  color: var(--purple-primary);
+    background-color: var(--light);
+    color: var(--purple-primary);
 }
 .white:hover {
     background-color: var(--purple-primary);
