@@ -47,14 +47,14 @@ export default function ProfessionalJobsListing(){
     if (error) return <main className="pt-34"><p className="text-red-600">{error}</p></main>;
 
     return(
-        <main className='flex flex-col bg-(--gray) pt-34 pb-6'>
+        <main className='flex flex-col bg-[var(--gray)] pt-34 pb-6 min-h-screen'>
             <div className="flex flex-col mb-6 w-5/6 p-6 bg-white mx-auto rounded-xl">
                 <div className="flex flex-col md:flex-row justify-between mb-5 gap-y-2">
-                    <h1 className="text-3xl font-semibold text-[var(--purple-secundary)] pt-2">Confira vagas em destaque</h1>
+                    <h1 className="text-xl md:text-3xl font-semibold text-[var(--purple-secundary)] pt-2">Confira vagas em destaque</h1>
                     <BtnCallToAction onClick={() => navigate('/profissional/vagas/candidaturas')}>MINHAS CANDIDATURAS</BtnCallToAction>
                 </div>
                 {jobs.length > 0
-                ? <div className="max-h-[65vh] bg-(--gray) rounded-2xl flex border border-(--gray)">
+                ? <div className="max-h-[65vh] bg-[var(--gray)] rounded-2xl flex border border-[var(--gray)]">
                     <div className="w-full md:w-2/5 overflow-y-auto">
                         {jobs.map((job) => 
                         <div>
