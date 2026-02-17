@@ -17,9 +17,9 @@ export function validateField(type, value, required) {
         ? null
         : 'Data inválida. Formato esperado: DD/MM/AAAA'
     case 'telefone':
-      return /^\(\d{2}\)9\d{4}-\d{4}$/.test(trimmed)
+      return /^\(\d{2}\)\s9\d{4}-\d{4}$/.test(trimmed)
         ? null
-        : 'Telefone inválido. Use o formato (11)91234-5678'
+        : 'Telefone inválido. Use o formato (11) 91234-5678'
     case 'cpf':
       const cleanCPF = trimmed.replace(/[^\d]/g, '');
 

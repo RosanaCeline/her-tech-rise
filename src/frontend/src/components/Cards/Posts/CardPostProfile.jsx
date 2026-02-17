@@ -116,7 +116,6 @@ export default function CardPostProfile({ post, photo, name, isPostDetail = true
                   />
                 )}
                 {activePopUp === 'image' && <AttachFile type="image" setFormData={setFormData} setActivePopUp={setActivePopUp} />}
-                {activePopUp === 'video' && <AttachFile type="video" setFormData={setFormData} setActivePopUp={setActivePopUp} />}
                 {activePopUp === 'docs' && <AttachFile type="docs" setFormData={setFormData} setActivePopUp={setActivePopUp} />}
               </PopUp>
             }

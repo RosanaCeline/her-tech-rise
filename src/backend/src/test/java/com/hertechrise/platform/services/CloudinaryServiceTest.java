@@ -122,20 +122,6 @@ class CloudinaryServiceTest {
         assertThrows(MediaFileTooLargeException.class, () -> cloudinaryService.uploadFile(bigFile));
     }
 
-    @DisplayName("Deve lança MediaFileTooLargeException para tamanho de vídeo maior que 100MB")
-    @Test
-    void uploadFile_tooLargeVideo() {
-        byte[] bigVideo = new byte[101 * 1024 * 1024]; // 101MB
-        MultipartFile bigFile = new MockMultipartFile(
-                "file",
-                "video.mp4",
-                "video/mp4",
-                bigVideo
-        );
-
-        assertThrows(MediaFileTooLargeException.class, () -> cloudinaryService.uploadFile(bigFile));
-    }
-
     @DisplayName("Deve lançar InvalidMediaTypeException para foto de perfil inválida")
     @Test
     void uploadProfilePicture_invalidType() {
