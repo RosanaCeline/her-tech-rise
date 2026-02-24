@@ -63,7 +63,7 @@ public class CloudinaryService {
     }
 
 
-    public String uploadProfilePicture(MultipartFile file, Long userId) {
+    public String uploadProfilePicture(MultipartFile file, String handle) {
         String mimeType = file.getContentType();
         long size = file.getSize();
 
@@ -76,12 +76,15 @@ public class CloudinaryService {
         }
 
         try {
+            String sanitizedHandle = handle.replace("@", "");
+            String publicId = "profile_" + sanitizedHandle;
+
             Map<?, ?> uploadResult = cloudinary.uploader().upload(
                     file.getBytes(),
                     Map.of(
                             "folder", "profile_pics",
-                            "public_id", "user_" + userId,
-                            "overwrite", false,
+                            "public_id", publicId,
+                            "overwrite", true,
                             "resource_type", "image"
                     )
             );
@@ -123,7 +126,7 @@ public class CloudinaryService {
             Map<?, ?> uploadResult = cloudinary.uploader().upload(
                     file.getBytes(),
                     Map.of(
-                            "folder", "posts",
+                            "folder", "resumeFiles",
                             "resource_type", "auto",
                             "overwrite", false,
                             "public_id", publicId

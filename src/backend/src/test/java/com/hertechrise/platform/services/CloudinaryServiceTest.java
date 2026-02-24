@@ -79,7 +79,7 @@ class CloudinaryServiceTest {
                 inputStream
         );
 
-        String url = cloudinaryService.uploadProfilePicture(multipartFile, 4L);
+        String url = cloudinaryService.uploadProfilePicture(multipartFile, "amora");
         assertNotNull(url);
         assertFalse(url.isEmpty());
 
@@ -133,7 +133,7 @@ class CloudinaryServiceTest {
         );
 
         assertThrows(InvalidMediaTypeException.class, () ->
-                cloudinaryService.uploadProfilePicture(file, 5L)
+                cloudinaryService.uploadProfilePicture(file, "tanjerina")
         );
     }
     @DisplayName("Deve lança InvalidMediaTypeException para arquivo com mimeType nulo")

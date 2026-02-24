@@ -60,7 +60,7 @@ public class UserService {
         }
 
         try {
-            String secureUrl = cloudinaryService.uploadProfilePicture(file, loggedUser.getId());
+            String secureUrl = cloudinaryService.uploadProfilePicture(file, loggedUser.getHandle());
 
             loggedUser.setProfilePic(secureUrl);
             userRepository.save(loggedUser);
