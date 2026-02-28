@@ -156,6 +156,7 @@ export default function ContentPost({ post, isShare = false, postShare = null, i
         cancelText="Cancelar"
         onCancel={() => setConfirmOpen(false)}
         onConfirm={handleConfirmDownload}
+        onClick={(e) => e.stopPropagation()}
       />
       
   </>

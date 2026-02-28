@@ -48,14 +48,16 @@ export default function ManagePost({user, setActivePopUp, formData, setFormData,
                     };
 
                     await updatePost(formData.postId, formDataUpdated);
+                    window.location.reload()
                 } else {
                     await newPost(formData) 
+                    window.location.reload()
                 }
 
                 if (onSuccess) onSuccess();  
                 setActivePopUp('')
             } catch (err) {
-                setPostErrorMessage(err.response || 'Erro ao salvar')
+                setPostErrorMessage(err.message || 'Erro ao salvar')
                 setTimeout(() => setPostErrorMessage(null), 4000)
             }
         } else {

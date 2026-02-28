@@ -17,6 +17,7 @@ export default function Timeline() {
     const { showError } = useError();
     const [posts, setPosts] = useState([]);
     const [loading, setLoading] = useState(true);
+    const [fetchError, setFetchError] = useState(false); 
     const [hasMore, setHasMore] = useState(true);
     const [loadingMore, setLoadingMore] = useState(false);
     const [page, setPage] = useState(0);
@@ -96,6 +97,8 @@ export default function Timeline() {
                 if (page === 0) setLoading(true);
                 else setLoadingMore(true);
 
+                setFetchError(false);
+
                 const response = await getTimelinePosts(page);
                 let rawPosts = response.content || response;
                 rawPosts = rawPosts.filter((item) => {
@@ -115,6 +118,7 @@ export default function Timeline() {
 
                 setPosts((prev) => (page === 0 ? rawPosts : [...prev, ...rawPosts]));
             } catch (err) {
+                setFetchError(true);
                 showError("Erro ao carregar a timeline. Tente novamente.", err);
             } finally {
                 setLoading(false);
@@ -129,7 +133,8 @@ export default function Timeline() {
             if (
                 window.innerHeight + window.scrollY >= document.body.offsetHeight - 200 &&
                 !loadingMore &&
-                !loading
+                !loading &&
+                !fetchError
             ) {
                 setLoadingMore(true);
                 setPage(prev => prev + 1);
@@ -137,7 +142,7 @@ export default function Timeline() {
         }
         window.addEventListener('scroll', handleScroll);
         return () => window.removeEventListener('scroll', handleScroll);
-    }, [loadingMore, loading]);
+    }, [loadingMore, loading, fetchError]);
 
     const handleToggleFollow = async (userId, isFollowing) => {
         if (!userId) {
@@ -157,14 +162,34 @@ export default function Timeline() {
         }
     }; 
 
-    if (loading) return <LoadingSpinner />;
-    
+    const handleRetry = () => {
+        setFetchError(false);
+        setHasMore(true);
+        setPage(0);
+        setPosts([]);
+    };
+
+    if (loading && page === 0 && !fetchError) return <LoadingSpinner />;    
 
     return (
         <main className="flex flex-col bg-(--gray) flex-1">
             <TimelineCard> <NewPost /> </TimelineCard>
 
-            {posts.length > 0 ? (
+            {fetchError && (
+                <div className="flex flex-col items-center justify-center py-10 gap-3">
+                    <p className="text-gray-500 text-lg">
+                        Não foi possível carregar os posts. 
+                    </p>
+                    <button
+                        onClick={handleRetry}
+                        className="px-5 py-2 bg-(--purple-primary) text-white rounded-lg hover:opacity-90 transition"
+                    >
+                        Tentar novamente
+                    </button>
+                </div>
+            )}
+
+            {!fetchError && posts.length > 0 && (
                 <div className="flex flex-col gap-8 w-full mx-auto mt-6 mb-10">
                     {posts.map((post) => {
                         const data = normalizePost(post);
@@ -176,7 +201,6 @@ export default function Timeline() {
                         return (
                             <div key={`${data.post.id}-${data.post.createdAt}`}
                                 className="w-4/5 lg:w-1/2 mx-auto bg-white p-4 sm:p-8 rounded-xl shadow-md"
-                                onClick={() => openUniquePostPopup(data.post.id)}
                             >
                                 <CardPostProfile
                                     idUserLogged={data.idUserLogged}
@@ -196,7 +220,8 @@ export default function Timeline() {
                         );
                     })}
                 </div>
-            ) : (
+            )}
+            {!fetchError && posts.length === 0 && !loading && (
                 <div className="flex flex-col items-center justify-center flex-1 text-center px-6">
                     <h2 className="text-2xl md:text-4xl font-semibold text-gray-700 mb-3">
                         A timeline começa com você

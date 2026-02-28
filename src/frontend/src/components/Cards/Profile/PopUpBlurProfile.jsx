@@ -4,7 +4,7 @@ export default function PopUpBlurProfile({ isOpen, onClose, content, children = 
   if (!isOpen) return null;
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center">
+    <div className="fixed inset-0 z-50 flex items-center justify-center" onClick={(e) => e.stopPropagation()} >
       {/* Fundo escuro com blur */}
       <div
         className="absolute inset-0 backdrop-blur-lg"
