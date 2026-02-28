@@ -6,17 +6,27 @@ import { getCurrentUser } from "./authService";
 
 const BASE_URL = import.meta.env.VITE_API_URL;
 
+let unauthorizedHandler = () => {
+  localStorage.removeItem('user');
+  sessionStorage.removeItem('user');
+  window.location.replace('/hertechrise/login');
+};
+
 export const requestService = {
+
+  setUnauthorizedHandler(fn) {
+    unauthorizedHandler = fn;
+  },
+
   async apiRequest(endpoint, method = "GET", data = null) {
     const currentUser = getCurrentUser();
     if (!currentUser?.token) {
-      window.location.href = "/login";
+      unauthorizedHandler();
       return;
     }
+
     const token = currentUser.token;
-
     const isFormData = data instanceof FormData;
-
     const config = {
       method,
       headers: {
@@ -35,7 +45,7 @@ export const requestService = {
         if (response.status === 401 || response.status === 403) {
           localStorage.removeItem("user");
           sessionStorage.removeItem("user");
-          window.location.href = "/login";
+          unauthorizedHandler();
           return;
         }
 

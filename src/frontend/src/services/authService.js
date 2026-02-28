@@ -14,11 +14,6 @@ export const login = async (email, senha, remember) => {
   const response = await axios.post(`${API_URL}/login`, { email, password: senha });
   try {
     saveUser(response.data, remember);
-    if (remember) {
-      localStorage.setItem('user', JSON.stringify(response.data));
-    } else {
-      sessionStorage.setItem('user', JSON.stringify(response.data));
-    }
     return response.data;
   } catch (error) {
     throw new Error(error?.response?.data?.message || 'Erro ao realizar login');
@@ -62,7 +57,7 @@ export const register = async (formData) => {
   const response = await axios.post(`${API_URL}${endpoint}`, payload);
 
   if (response.status === 201) {
-    localStorage.setItem('user', JSON.stringify(response.data));
+    saveUser(response.data, false);
     return response.data;
   }
   throw new Error('Erro ao registrar usuário'); 

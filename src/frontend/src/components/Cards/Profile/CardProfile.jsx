@@ -92,14 +92,14 @@ export default function CardProfile({
     const file = e.target.files[0];
     if (!file) return;
 
-    try{
+    try {
       const result = await changeProfilePicture(file)
       const updatedUser = { ...user, profilePicture: result.profilePic };
       setUser(updatedUser);
       localStorage.setItem('user', JSON.stringify(updatedUser));
       
       setPreviewPhoto(result.profilePic)
-    }catch(err){
+    } catch(err){
       setUpdateProfileError(err.response?.data?.message || 'Erro ao atualizar foto de perfil.')
       setTimeout(() => setUpdateProfileError(null), 4000)
     }
