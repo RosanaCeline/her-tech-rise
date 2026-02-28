@@ -8,10 +8,10 @@ import PrivateLayout from "../components/layout/PrivateLayout/PrivateLayout"
 import NotFound from '../pages/NotFound/NotFound'
 
 export default function AppRoutes() {
-  const { user } = useAuth()
+  const { user, logout } = useAuth()
   const navigate = useNavigate();
   const tipoUsuario = user?.role
-  const privateRoutes = getRoutesByRole(tipoUsuario || 'profissional', navigate); 
+  const privateRoutes = getRoutesByRole(tipoUsuario || 'profissional', navigate, logout); 
 
   return (
     <Routes>
@@ -29,8 +29,9 @@ export default function AppRoutes() {
 
       {/* Rotas privadas */}
       <Route element={<PrivateLayout routes={privateRoutes} />}>
-        {privateRoutes.map(({ path, element }) => (
-          <Route key={path} path={path} element={element} />
+        {privateRoutes
+          .map(({ path, element }) => (
+            <Route key={path} path={path} element={element} />
         ))}
       </Route>
 

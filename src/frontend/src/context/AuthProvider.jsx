@@ -1,11 +1,23 @@
 import { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom'
+
 import { login as loginService, logout as logoutService, getCurrentUser } from '../services/authService';
 import { updateProfile as updateProfileService } from '../services/userService';
 import { AuthContext } from './AuthContext';
+import { requestService } from '../services/requestService';
 
 function useAuthProvider() {
   const [user, setUser] = useState(null)
   const [loading, setLoading] = useState(true);
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    requestService.setUnauthorizedHandler(() => {
+      logoutService();
+      setUser(null);
+      navigate('/login', { replace: true });
+    });
+  }, [navigate]);
 
   useEffect(() => {
     const storedUser = getCurrentUser();
@@ -29,13 +41,12 @@ function useAuthProvider() {
   const logout = () => {
     logoutService();
     setUser(null);
+    navigate('/login', { replace: true });
   }
 
   const updateProfile = async (updatedData) => {
     try {
-      // console.log('Dados enviados para atualização:', updatedData); 
       const userUpdated = await updateProfileService(updatedData);
-      // console.log('Dados após atualização:', userUpdated); 
       setUser(userUpdated);
       return userUpdated;
     } 
