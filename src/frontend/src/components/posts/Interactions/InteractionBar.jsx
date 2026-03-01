@@ -15,7 +15,7 @@ import { sendLikePost, getLikesPost,
             sendSharePost, sendLikeShare, getLikesShare, sendCommentShare, getCommentsShare,
         } from "../../../services/interactionsService";
 
-export default function InteractionBar({ idAuthor, post, photo, name }) {
+export default function InteractionBar({ idAuthor, post, photo, name, cardWidth = 600 }) {
 
     const currentUser = getCurrentUser();
     const user = {
@@ -52,6 +52,8 @@ export default function InteractionBar({ idAuthor, post, photo, name }) {
     const [showShareModal, setShareModal] = useState(false);
     const [showDeleteModal, setShowDeleteModal] = useState(false);
     const [showConfirmCancel, setShowConfirmCancel] = useState(false);
+
+    const isCompact = cardWidth < 450;
     
     const sendLike = async () => {
         try {
@@ -272,7 +274,7 @@ export default function InteractionBar({ idAuthor, post, photo, name }) {
                 className="flex-shrink-0 flex items-center justify-center bg-[var(--purple-primary)] text-white rounded-lg hover:opacity-90 transition px-3 py-2"
             >
                 <Send size={16} className="sm:hidden" />
-                <span className="hidden sm:inline text-sm">Enviar</span>
+                {!isCompact && <span className="text-xs">Enviar</span>}
             </button>
         </div>
     );
@@ -283,7 +285,7 @@ export default function InteractionBar({ idAuthor, post, photo, name }) {
                 <button onClick={getListLikes} className="flex items-center gap-1 cursor-pointer hover:opacity-80" >
                     <Heart className="purple-primary" size={15} />
                     <span>{likesCount}</span>
-                    <span className="hidden sm:inline text-xs">curtidas</span>
+                    {!isCompact && <span className="text-xs">curtidas</span>}
                 </button>
 
                 <div className="flex items-center gap-3">
@@ -294,7 +296,7 @@ export default function InteractionBar({ idAuthor, post, photo, name }) {
                             }}>
                         <MessageCircle className="sm:hidden" />
                         <span>{commentsCount}</span>
-                        <span className="hidden sm:inline text-xs">comentários</span>
+                        {!isCompact && <span className="text-xs">comentários</span>}
                     </button>
 
                     {post.type !== "COMPARTILHAMENTO" && (
@@ -303,7 +305,7 @@ export default function InteractionBar({ idAuthor, post, photo, name }) {
                             <button className="flex items-center gap-1 cursor-pointer hover:opacity-80">
                                 <Share className="sm:hidden" />
                                 <span>{shareCount}</span>
-                                <span className="hidden sm:inline text-xs">compartilhamentos</span>
+                                {!isCompact && <span className="text-xs">compartilhamentos</span>}
                             </button>
                         </>
                     )}
@@ -317,10 +319,8 @@ export default function InteractionBar({ idAuthor, post, photo, name }) {
                     <Heart
                         fill={hasLiked ? "var(--purple-primary)" : "transparent"}
                         stroke={hasLiked ? "var(--purple-primary)" : "currentColor"}
-                    />                
-                    <span className="hidden sm:inline">
-                        {hasLiked ? "Curtido" : "Curtir"}
-                    </span>
+                    />
+                    {!isCompact && <span className="text-xs">{hasLiked ? "Curtido" : "Curtir"}</span>}
                 </button>
 
                 <button
@@ -331,9 +331,7 @@ export default function InteractionBar({ idAuthor, post, photo, name }) {
                     className="flex items-center justify-center gap-2 cursor-pointer transition duration-300 hover:scale-105"
                 >
                     <MessageCircle />
-                    <span className="hidden sm:inline">
-                        Comentar
-                    </span>
+                    {!isCompact && <span className="text-xs">Comentar</span>}
                 </button>
                         
                 <button
@@ -353,9 +351,7 @@ export default function InteractionBar({ idAuthor, post, photo, name }) {
                     }`}
                 >
                     <Share />
-                    <span className="hidden sm:inline">
-                        Compartilhar
-                    </span>
+                    {!isCompact && <span className="text-xs">Compartilhar</span>}
                 </button>
             </div>
 
