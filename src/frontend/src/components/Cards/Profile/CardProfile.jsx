@@ -187,7 +187,7 @@ export default function CardProfile({
                 onClick={() => copyToClipboard(copyMyLink)}
               >
                 <FaPaperPlane className="text-xl xl:text-2xl flex-shrink-0" />
-                <span className="text-sm xl:text-base font-medium">Compartilhar</span>
+                <span className="text-sm font-medium">Compartilhar</span>
               </button>
 
               {isCurrentUser ? (
@@ -199,7 +199,7 @@ export default function CardProfile({
                       className="flex items-center gap-2 text-[var(--font-gray)] hover:text-[var(--purple-primary)] transition whitespace-nowrap"
                     >
                       <FaSlidersH className="text-xl xl:text-2xl flex-shrink-0" />
-                      <span className="text-sm xl:text-base font-medium">Configurações</span>
+                      <span className="text-sm font-medium">Configurações</span>
                     </button>
                     {showOptions && (
                       <div className="absolute top-full mt-2 right-0 z-50 bg-white rounded-xl shadow-lg flex flex-col gap-2 p-3 min-w-[160px]">
@@ -215,11 +215,11 @@ export default function CardProfile({
 
                   {/* Seguidores / Seguindo */}
                   <div className="flex items-center gap-1 text-sm xl:text-base font-medium text-[var(--font-gray)] whitespace-nowrap">
-                    <button onClick={handleFollowersClick} className="hover:text-[var(--purple-primary)] transition">
+                    <button onClick={handleFollowersClick} className="hover:text-[var(--purple-primary)] transition text-sm font-medium">
                       Seguidores
                     </button>
                     <span className="px-1">|</span>
-                    <button onClick={handleFollowingClick} className="hover:text-[var(--purple-primary)] transition">
+                    <button onClick={handleFollowingClick} className="hover:text-[var(--purple-primary)] transition text-sm font-medium">
                       Seguindo
                     </button>
                   </div>
