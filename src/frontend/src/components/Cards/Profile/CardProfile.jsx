@@ -8,6 +8,7 @@ import defaultEnterprisePhoto from '../../../assets/profile/FotoPadraoEnterprise
 import BtnCallToAction from '../../btn/BtnCallToAction/BtnCallToAction';
 import PopUpBlurProfile from './PopUpBlurProfile';
 import EditMyProfile from '../../../pages/User/edit/EditMyProfile';
+import LoadingSpinner from "../../LoadingSpinner/LoadingSpinner";
 import { changeProfilePicture, listFollowers, listFollowing } from '../../../services/userService';
 import { useAuth } from '../../../context/AuthContext';
 import { useNavigate } from 'react-router-dom';
@@ -115,184 +116,155 @@ export default function CardProfile({
 
   return (
     <>
-      <article className="relative bg-white drop-shadow-md rounded-xl p-8 flex flex-col lg:flex-row lg:items-center items-center w-full max-w-8xl gap-10 z-0 ">
-        {/* Foto com botão */}
-        <div className="relative w-32 h-32 sm:w-40 sm:h-40 xl:w-55 xl:h-55 flex-shrink-0">
-          <div className="w-full h-full rounded-full border border-[var(--purple-secundary)] overflow-hidden">
-            <img
-              src={userPhoto}
-              alt={`Foto de ${name || 'usuária'}`}
-              className="object-cover w-full h-full rounded-full"
-            />
+      <article className="relative bg-white drop-shadow-md rounded-xl p-6 sm:p-8 w-full max-w-8xl z-0">
+        <div className="flex flex-col sm:flex-row items-center sm:items-start gap-6 w-full min-w-0">
+
+          <div className="relative w-26 h-26 sm:w-32 sm:h-32 xl:w-40 xl:h-40 flex-shrink-0">
+            <div className="w-full h-full rounded-full border border-[var(--purple-secundary)] overflow-hidden">
+              <img
+                src={userPhoto}
+                alt={`Foto de ${name || 'usuária'}`}
+                className="object-cover w-full h-full"
+              />
+            </div>
+            {isCurrentUser && (
+              <>
+                <button
+                  type="button"
+                  onClick={() => fileInputRef.current.click()}
+                  className="absolute bottom-2 right-2 bg-[var(--purple-primary)] hover:bg-[var(--purple-secundary)] text-white p-2.5 rounded-full shadow-lg flex items-center justify-center"
+                  aria-label="Alterar foto do perfil"
+                >
+                  <FaCamera size={16} />
+                </button>
+                <input type="file" accept="image/*" ref={fileInputRef} onChange={handlePhotoChange} className="hidden" />
+              </>
+            )}
           </div>
-          {isCurrentUser &&
-            <>
+
+          <div className="flex flex-col lg:flex-row items-center lg:items-start w-full min-w-0 gap-6">
+            <div className="flex flex-col gap-3 flex-1 min-w-0 text-center sm:text-left">
+              <h2 className="text-2xl xl:text-4xl font-bold text-[var(--purple-primary)] break-words">
+                {name}
+              </h2>
+              {nameuser && (
+                <p className="text-sm xl:text-lg font-semibold text-[var(--purple-secundary)] break-words">
+                  {nameuser}
+                </p>
+              )}
+              {link && (
+                <div className="flex items-center gap-2 text-[var(--font-gray)] text-sm min-w-0">
+                  <button
+                    onClick={() => copyToClipboard(link)}
+                    aria-label="Copiar link"
+                    className="flex-shrink-0 text-[var(--font-gray)] hover:text-[var(--purple-primary)] transition-colors"
+                    type="button"
+                  >
+                    {copied ? <FaCheck /> : <FaPaperclip />}
+                  </button>
+                  <a
+                    href={link}
+                    target="_blank"
+                    rel="noreferrer"
+                    className="text-[var(--font-gray)] text-sm break-all min-w-0"
+                  >
+                    {link}
+                  </a>
+                </div>
+              )}
+
+              {(city || state) && (
+                <p className="text-[var(--font-gray)] text-sm break-words">
+                  {city}{city && state ? ', ' : ''}{state}
+                </p>
+              )}
+            </div>
+
+            <div className="flex flex-row lg:flex-col flex-wrap justify-center lg:justify-start items-center gap-4 flex-shrink-0">
               <button
                 type="button"
-                onClick={() => fileInputRef.current.click()}
-                className="absolute bottom-5 right-12 translate-x-1/2 translate-y-1/2 bg-[var(--purple-primary)] hover:bg-[var(--purple-secundary)] text-white p-3 rounded-full shadow-lg flex items-center justify-center focus:outline-none"
-                aria-label="Alterar foto do perfil"
+                className="flex items-center gap-2 text-[var(--font-gray)] hover:text-[var(--purple-primary)] transition whitespace-nowrap"
+                onClick={() => copyToClipboard(copyMyLink)}
               >
-                <FaCamera size={20} />
+                <FaPaperPlane className="text-xl xl:text-2xl flex-shrink-0" />
+                <span className="text-sm xl:text-base font-medium">Compartilhar</span>
               </button>
-              <input
-                type="file"
-                accept="image/*"
-                ref={fileInputRef}
-                onChange={handlePhotoChange}
-                className="hidden"
-              />
-            </>
-          }
-        </div>
 
-        <div className='flex flex-col md:flex-row items-center w-full gap-5 z-0'>
-          {/* Informações */}
-          <div className="flex flex-col gap-4 flex-1 min-w-[250px] my-auto">
-            <h2 className="text-3xl xl:text-4xl font-bold text-[var(--purple-primary)]">{name}</h2>
-
-            {nameuser && (
-              <p className="text-sm xl:text-lg font-semibold text-[var(--purple-secundary)]">{nameuser}</p>
-            )}
-
-            {link && (
-              <div className="flex items-center gap-2 text-[var(--font-gray)] text-sm">
-                <button
-                  onClick={() => copyToClipboard(link)}
-                  aria-label="Copiar link"
-                  className="text-[var(--font-gray)] hover:text-[var(--purple-primary)] transition-colors"
-                  type="button"
-                >
-                  {copied ? <FaCheck /> : <FaPaperclip />}
-                </button>
-                <a
-                  href={link}
-                  target="_blank"
-                  rel="noreferrer"
-                  className="text-[var(--font-gray)] text-s break-all"
-                >
-                  {link}
-                </a>
-              </div>
-            )}
-
-            {(city || state) && (
-              <p className="text-[var(--font-gray)] text-s break-all">
-                {city ? city : ''}{city && state ? ', ' : ''}{state ? state : ''}
-              </p>
-            )}
-          </div>
-
-          {/* Botões de ações */}
-          <div className="flex flex-col gap-5 w-full my-auto order-last md:order-none items-center text-[var(--font-gray)] hover:text-[var(--purple-primary)] transition">
-            <button
-              type="button"
-              className="flex items-center mx-auto gap-3"
-              onClick={() => copyToClipboard(copyMyLink)}
-            >
-              <FaPaperPlane className="text-[var(--font-gray)] text-xl xl:text-3xl" />
-              <span className="text-md xl:text-xl font-medium">Compartilhar</span>
-            </button>
-            {isCurrentUser ? 
-              <>
-                <div className="flex flex-col relative w-full mx-auto justify-center md:justify-start">
-                  <button type="button"
-                          onClick={() => setShowOptions(!showOptions)}
-                          className="flex items-center mx-auto gap-3"
-                  >
-                    <FaSlidersH className="text-[var(--font-gray)] text-xl xl:text-3xl" />
-                    <span className="text-md xl:text-xl font-medium">Configurações</span>
-                  </button>
-
-                  {showOptions && (
-                    <div
-                      className={`
-                        absolute mt-2 z-50
-                        bg-white rounded-xl shadow-lg
-                        flex-col gap-2 p-3
-                        right-0
-                        flex md:hidden
-                      `}
+              {isCurrentUser ? (
+                <>
+                  <div className="relative flex-shrink-0">
+                    <button
+                      type="button"
+                      onClick={() => setShowOptions(!showOptions)}
+                      className="flex items-center gap-2 text-[var(--font-gray)] hover:text-[var(--purple-primary)] transition whitespace-nowrap"
                     >
-                      <BtnCallToAction variant="white" onClick={onRequestDelete}>
-                        Excluir Perfil
-                      </BtnCallToAction>
-                      <BtnCallToAction variant="purple" onClick={() => handleOpenModal(<EditMyProfile />)} >
-                        Editar Perfil
-                      </BtnCallToAction>
-                    </div>
-                  )}
-                </div>
-                <div>
-                  <button onClick={handleFollowersClick}
-                          className="text-md xl:text-xl font-medium"
-                  >
-                        Seguidores
-                  </button>
-                  <span className='p-2'>|</span>
-                  <button onClick={handleFollowingClick}
-                          className="text-md xl:text-xl font-medium"
-                  >
-                        Seguindo
-                  </button>
-                </div>
-
-                {showOptions && (
-                  <div
-                    className={`
-                      absolute flex-col gap-2 p-3
-                      bg-white rounded-xl shadow-lg
-                      transition-all duration-300
-                      right-0 md:right-80 top-20 z-40
-                      hidden md:flex
-                    `}
-                  >
-                    <BtnCallToAction variant="white" onClick={onRequestDelete}>
-                      Excluir Perfil
-                    </BtnCallToAction>
-                    <BtnCallToAction variant="purple" onClick={() => handleOpenModal(<EditMyProfile />)} >
-                      Editar Perfil
-                    </BtnCallToAction>
+                      <FaSlidersH className="text-xl xl:text-2xl flex-shrink-0" />
+                      <span className="text-sm xl:text-base font-medium">Configurações</span>
+                    </button>
+                    {showOptions && (
+                      <div className="absolute top-full mt-2 right-0 z-50 bg-white rounded-xl shadow-lg flex flex-col gap-2 p-3 min-w-[160px]">
+                        <BtnCallToAction variant="white" onClick={onRequestDelete}>
+                          Excluir Perfil
+                        </BtnCallToAction>
+                        <BtnCallToAction variant="purple" onClick={() => { setShowOptions(false); handleOpenModal(<EditMyProfile />); }}>
+                          Editar Perfil
+                        </BtnCallToAction>
+                      </div>
+                    )}
                   </div>
-                )}
-                <BtnCallToAction variant="purple" onClick={() => handleOpenModal(statisticsComponent)} >
-                  VER ESTATÍSTICAS
-                </BtnCallToAction>
-              </>
-            : 
-              <div className='flex flex-col mx-auto gap-y-2'>
-                <p className='mx-auto'>{followersCount} seguidor{followersCount > 1 && 'es'}</p>
-                <button onClick={async () => await handleFollow()}
-                        className={`p-4 cursor-pointer mt-3 rounded-2xl ${followedUser ? 'bg-(--purple-primary) text-white' : 'bg-(--gray)' }`}>
-                    {followedUser ? <p className='flex gap-x-4'><Check />Seguindo</p> 
-                                  : <p className='flex gap-x-4'><Plus/>Seguir</p>}
-                </button>
-              </div>
-            }          
+
+                  {/* Seguidores / Seguindo */}
+                  <div className="flex items-center gap-1 text-sm xl:text-base font-medium text-[var(--font-gray)] whitespace-nowrap">
+                    <button onClick={handleFollowersClick} className="hover:text-[var(--purple-primary)] transition">
+                      Seguidores
+                    </button>
+                    <span className="px-1">|</span>
+                    <button onClick={handleFollowingClick} className="hover:text-[var(--purple-primary)] transition">
+                      Seguindo
+                    </button>
+                  </div>
+
+                  {/* Ver estatísticas */}
+                  <BtnCallToAction variant="purple" onClick={() => handleOpenModal(statisticsComponent)}>
+                    VER ESTATÍSTICAS
+                  </BtnCallToAction>
+                </>
+              ) : (
+                <div className="flex flex-col items-center gap-3">
+                  <p className="text-sm text-[var(--font-gray)]">
+                    {followersCount} seguidor{followersCount !== 1 && 'es'}
+                  </p>
+                  <button
+                    onClick={async () => await handleFollow()}
+                    className={`px-6 py-3 cursor-pointer rounded-2xl flex items-center gap-3 text-sm font-medium transition
+                      ${followedUser ? 'bg-[var(--purple-primary)] text-white' : 'bg-[var(--gray)] text-[var(--font-gray)]'}`}
+                  >
+                    {followedUser ? <><Check size={16} /> Seguindo</> : <><Plus size={16} /> Seguir</>}
+                  </button>
+                </div>
+              )}
+            </div>
           </div>
-        </div>        
+        </div>
       </article>
-    
+
       {copied && (
-        <div className="fixed top-10 left-1/2 -translate-x-1/2 z-[9999] 
-                        bg-green-600 text-white px-6 py-3 rounded-lg shadow-lg 
-                        transition-opacity duration-300">
+        <div className="fixed top-10 left-1/2 -translate-x-1/2 z-[9999]
+                        bg-green-600 text-white px-6 py-3 rounded-lg shadow-lg transition-opacity duration-300">
           Endereço copiado!
         </div>
       )}
-
       {updateProfileError && (
-        <div className="fixed top-1/12 left-1/2 transform -translate-x-1/2 -translate-y-1/2 
-                        z-50 bg-red-600 text-white px-6 py-3 rounded-lg shadow-lg 
-                        transition-opacity duration-300">
-            {updateProfileError}
+        <div className="fixed top-10 left-1/2 -translate-x-1/2 z-[9999]
+                        bg-red-600 text-white px-6 py-3 rounded-lg shadow-lg transition-opacity duration-300">
+          {updateProfileError}
         </div>
       )}
 
-      <PopUpBlurProfile
-        isOpen={showModal}
-        onClose={() => setShowModal(false)}
-        content={modalContent}
+      <PopUpBlurProfile 
+        isOpen={showModal} 
+        onClose={() => setShowModal(false)} 
+        content={modalContent} 
       />
 
       <PopUpBlurProfile
@@ -300,36 +272,22 @@ export default function CardProfile({
         onClose={() => setShowFollowersModal(false)}
         content={
           <div className="p-4 max-h-[70vh] overflow-y-auto">
-            <h2 className="text-4xl font-bold text-[var(--purple-secundary)] mb-4">Seguidores</h2>
-            {followersList.length > 0 ? (
-              followersList.map((user) => (
-                <div
-                  key={user.id}
-                  className="flex align-content-center px-4 border-t pt-4 border-slate-200 mx-auto md:mx-0"
-                  onClick={() => goToUserProfile(user.followerId)}
-                >
-                  <div className="relative w-full max-w-[85px] h-[85px] flex-shrink-0 my-auto mr-5">
-                    <img
-                      src={user.followerProfilePic || "/default-avatar.png"}
-                      className="h-full w-full object-cover rounded-full"
-                      alt={user.followerName}
-                    />
-                  </div>
-                  <div className="flex flex-col md:flex-row md:w-full justify-between">
-                    <div className="flex flex-col w-full">
-                      <p className="font-semibold truncate">{user.followerName}</p>
-                      {user.followerName && <p className="truncate">{user.followerHandle}</p>}
-                      <p className="text-sm text-gray-500">
-                        Seguiu em {user.followedAt}
-                      </p>
-                    </div>
-                  </div>
+            <h2 className="text-3xl sm:text-4xl font-bold text-[var(--purple-secundary)] mb-4">Seguidores</h2>
+            {followersList.length > 0 ? followersList.map((u) => (
+              <div
+                key={u.id}
+                className="flex items-center gap-4 px-4 border-t pt-4 border-slate-200 cursor-pointer hover:bg-gray-50 transition"
+                onClick={() => goToUserProfile(u.followerId)}
+              >
+                <img src={u.followerProfilePic || "/default-avatar.png"} className="w-14 h-14 object-cover rounded-full flex-shrink-0" alt={u.followerName} />
+                <div className="flex flex-col min-w-0">
+                  <p className="font-semibold truncate">{u.followerName}</p>
+                  {u.followerHandle && <p className="text-sm truncate text-gray-500">{u.followerHandle}</p>}
+                  <p className="text-xs text-gray-400">Seguiu em {u.followedAt}</p>
                 </div>
-              ))
-            ) : (
-              <p className='italic text-xl text-[var(--text-secondary)] leading-relaxed opacity-70'>
-                Nenhum seguidor encontrado.
-              </p>
+              </div>
+            )) : (
+              <p className="italic text-xl text-gray-400">Nenhum seguidor encontrado.</p>
             )}
           </div>
         }
@@ -340,64 +298,50 @@ export default function CardProfile({
         onClose={() => setShowFollowingModal(false)}
         content={
           <div className="p-4 max-h-[70vh] overflow-y-auto">
-            <h2 className="text-4xl font-bold text-[var(--purple-secundary)] mb-4">Seguindo</h2>
-            {followingList.length > 0 ? (
-              followingList.map((user) => (
-                <div
-                  key={user.id}
-                  className="flex align-content-center px-4 border-t pt-4 border-slate-200 mx-auto md:mx-0"
-                  onClick={() => goToUserProfile(user.followingId)}
-                >
-                  <div className="relative w-full max-w-[85px] h-[85px] flex-shrink-0 my-auto mr-5">
-                    <img
-                      src={user.followingProfilePic || "/default-avatar.png"}
-                      className="h-full w-full object-cover rounded-full"
-                      alt={user.followingName}
-                    />
+            <h2 className="text-3xl sm:text-4xl font-bold text-[var(--purple-secundary)] mb-4">Seguindo</h2>
+            {followingList.length > 0 ? followingList.map((u) => (
+              <div key={u.id} className="flex items-center gap-4 px-4 border-t pt-4 border-slate-200">
+                <img
+                  src={u.followingProfilePic || "/default-avatar.png"}
+                  className="w-14 h-14 object-cover rounded-full flex-shrink-0 cursor-pointer"
+                  alt={u.followingName}
+                  onClick={() => goToUserProfile(u.followingId)}
+                />
+                <div className="flex flex-col sm:flex-row sm:justify-between w-full min-w-0 gap-2">
+                  <div className="flex flex-col min-w-0 cursor-pointer" onClick={() => goToUserProfile(u.followingId)}>
+                    <p className="font-semibold truncate">{u.followingName}</p>
+                    {u.followingHandle && <p className="text-sm truncate text-gray-500">{u.followingHandle}</p>}
+                    <p className="text-xs text-gray-400">Seguiu em {u.followedAt}</p>
                   </div>
-                  <div className="flex flex-col md:flex-row md:w-full justify-between">
-                    <div className="flex flex-col w-full">
-                      <p className="font-semibold truncate">{user.followingName}</p>
-                      {user.followingName && <p className="truncate">{user.followingHandle}</p>}
-                      <p className="text-sm text-gray-500">
-                        Seguiu em {user.followedAt}
-                      </p>
-                    </div>
-                    <div className="my-auto">
-                      <BtnCallToAction
-                        variant="purple"
-                        onClick={async () => {
-                          try {
-                            await handleFollow(user.followingId, true);
-                            setFollowingList((prev) =>
-                              prev.filter((u) => u.followingId !== user.followingId) 
-                            );
-                          } catch (err) {
-                            console.error("Erro ao deixar de seguir:", err);
-                          }
-                        }}
-                      >
-                        Deixar de seguir
-                      </BtnCallToAction>
-                    </div>
+                  <div className="flex-shrink-0 self-center">
+                    <BtnCallToAction
+                      variant="purple"
+                      onClick={async () => {
+                        try {
+                          await handleFollow(u.followingId, true);
+                          setFollowingList((prev) => prev.filter((item) => item.followingId !== u.followingId));
+                        } catch (err) {
+                          console.error("Erro ao deixar de seguir:", err);
+                        }
+                      }}
+                    >
+                      Deixar de seguir
+                    </BtnCallToAction>
                   </div>
                 </div>
-              ))
-            ) : (
-              <p className='italic text-xl text-[var(--text-secondary)] leading-relaxed opacity-70'>
-                Você não está seguindo ninguém.
-              </p>
+              </div>
+            )) : (
+              <p className="italic text-xl text-gray-400">Você não está seguindo ninguém.</p>
             )}
           </div>
         }
       />
 
       {loading && (
-        <div className="absolute inset-0 z-50 bg-white/60 flex items-center justify-center">
+        <div className="fixed inset-0 z-50 bg-white/60 flex items-center justify-center">
           <LoadingSpinner />
         </div>
       )}
-
     </>
   )
 }
