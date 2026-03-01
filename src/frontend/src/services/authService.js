@@ -79,6 +79,27 @@ export const logout = () => {
   sessionStorage.removeItem('user');
 }
 
+export const decodeToken = (token) => {
+  try {
+    const base64 = token.split('.')[1].replace(/-/g, '+').replace(/_/g, '/');
+    return JSON.parse(atob(base64));
+  } catch {
+    return null;
+  }
+};
+
+/** quantos minutos faltam para o token expirar (se negativo = já expirou) */
+export const getTokenRemainingMs = (token) => {
+  const payload = decodeToken(token);
+  if (!payload?.exp) return -1;
+  return payload.exp * 1000 - Date.now();
+};
+
+/** diz se o token já expirou ou é inválido */
+export const isTokenExpired = (token) => {
+  return getTokenRemainingMs(token) <= 0;
+};
+
 export const resetPassword = async (email) => {
   const response = await axios.post(`${API_URL}/resetPassword`, { email });
   return response.data;
