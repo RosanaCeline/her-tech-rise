@@ -179,7 +179,7 @@ export default function HeaderPost({ photo, name, post, date, isOpen = false, on
             </button>
 
             {showVisibilityOptions && (
-              <div className="absolute right-0 mt-2 w-56 bg-white border rounded-xl shadow-lg z-20 py-2">
+              <div className="absolute right-0 mt-2 w-44 sm:w-52 md:w-56 bg-white border rounded-xl shadow-lg z-20 py-2">
                 <p
                   className="flex items-center gap-2 px-4 py-2 text-sm hover:bg-gray-100 cursor-pointer"
                   onClick={handleEditClick}

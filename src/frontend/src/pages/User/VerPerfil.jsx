@@ -155,7 +155,7 @@ export default function VerPerfil() {
     
     return (
         <main className="flex flex-col bg-[var(--gray)] pt-10 pb-10 min-h-screen">
-            <div className="w-4/5 xl:w-1/2 mx-auto flex flex-col gap-8">
+            <div className="w-4/5 lg:w-3/5 mx-auto flex flex-col gap-8">
                 <CardProfile
                     isCurrentUser={isCurrentUser}
                     tipo_usuario={user_type}

@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 
 import { Search } from 'lucide-react';
 
@@ -21,6 +21,17 @@ export default function PrivateHeader({ routes }) {
     setSearchMode('overlay');
   };
   const closeSearch = () =>  setSearchMode('none');
+
+  useEffect(() => {
+    const handleResize = () => {
+      if (window.innerWidth >= 1024) {
+        setMenuVisible(false);
+        closeSearch();
+      }
+    };
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
 
   return (
     <>
@@ -66,7 +77,7 @@ export default function PrivateHeader({ routes }) {
           <nav
             className={`${
               menuVisible
-                ? 'flex flex-col gap-4 bg-[var(--purple-primary)] fixed top-25 right-4 px-6 py-6 shadow-xl w-max min-w-[12rem] z-40 rounded-bl-xl'
+                ? 'flex flex-col gap-4 bg-[var(--purple-primary)] fixed top-25 right-0 px-6 py-6 shadow-xl w-max min-w-[12rem] z-40 rounded-bl-xl'
                 : 'hidden'
             } lg:flex lg:items-center lg:gap-6 lg:relative`}
           >
@@ -89,11 +100,8 @@ export default function PrivateHeader({ routes }) {
                           bg-[var(--purple-primary)]/50 backdrop-blur-md
                           py-5 shadow-lg flex justify-center"
               onClick={(e) => e.stopPropagation()}
-              onKeyDownCapture={(e) => {
-                if (e.key === 'Enter') closeSearch();
-              }}
             >
-              <SearchBar autoFocus />
+              <SearchBar autoFocus className="w-4/5 sm:w-3/5" />
             </div>
           </>
         )}

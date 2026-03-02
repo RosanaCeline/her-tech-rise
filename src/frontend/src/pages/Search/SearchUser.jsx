@@ -51,9 +51,9 @@ export default function SearchUser(){
 
 function SearchCard({title, elements, setCurrentList}){
     return(
-        <article className='w-4/5 mx-auto bg-white p-8 rounded-xl shadow-md mb-4'>
-            <p className="text-4xl font-semibold text-(--text-primary) pb-2 border-b-1">{title}</p>
-            <div className="flex flex-col gap-y-4">
+        <article className='w-4/5 lg:w-3/5 mx-auto bg-white p-8 rounded-xl shadow-md mb-4'>
+            <p className="text-2xl md:text-4xl font-semibold text-[var(--text-primary)] pb-2 border-b-1">{title}</p>
+            <div className="text-sm md:text-base flex flex-col gap-y-4 mt-2">
                 {elements.length > 0 
                 ? elements.map((user) => <UserPreview key={user.id} user={user} type={title}/>)
                 : <p>Nenhum usuário foi encontrado</p>}
