@@ -24,6 +24,29 @@ function useAuthProvider() {
     });
   }, [navigate]);
 
+  const login = async (email, senha, remember) => {
+    try {
+      const userData = await loginService(email, senha, remember);
+      setUser(userData);
+      setSessionWarning(false);
+    } catch (err) {
+      throw new Error(err.response?.data?.message || 'Erro ao fazer login');
+    }
+  }
+
+  const logout = () => doLogout(false);
+
+  const updateProfile = async (updatedData) => {
+    try {
+      const userUpdated = await updateProfileService(updatedData);
+      setUser(userUpdated);
+      return userUpdated;
+    } catch (error) {
+      console.error('Erro na atualização de perfil:', error.message);
+      throw new Error(error.message || 'Erro ao atualizar perfil')
+    }
+  }
+
   useEffect(() => {
     requestService.setUnauthorizedHandler(() => doLogout(true));
   }, [doLogout]);
@@ -43,22 +66,6 @@ function useAuthProvider() {
   }, []);
 
   useEffect(() => {
-    requestService.setUnauthorizedHandler(() => {
-      logoutService();
-      setUser(null);
-      navigate('/login', { replace: true });
-    });
-  }, [navigate]);
-
-  useEffect(() => {
-    const storedUser = getCurrentUser();
-    if (storedUser) {
-      setUser(storedUser);
-    }
-    setLoading(false);
-  }, []);
-
-  useEffect(() => {
     if (!user?.token) return;
 
     const remainingMs = getTokenRemainingMs(user.token);
@@ -67,17 +74,14 @@ function useAuthProvider() {
       return;
     }
 
-    // avisa 10 min antes
     const warnIn = remainingMs - WARN_BEFORE_MS;
     let warnTimer = null;
     if (warnIn > 0) {
       warnTimer = setTimeout(() => setSessionWarning(true), warnIn);
     } else {
-      // já está dentro da janela de aviso
       setSessionWarning(true);
     }
 
-    // logout automático quando expirar
     const logoutTimer = setTimeout(() => doLogout(true), remainingMs);
 
     return () => {
@@ -86,37 +90,11 @@ function useAuthProvider() {
     };
   }, [user?.token, doLogout]);
 
-  // guarda token e atualiza user
-  const login = async (email, senha, remember) => {
-    try {
-      const userData = await loginService(email, senha, remember);
-      setUser(userData);
-      setSessionWarning(false);
-    } catch (err) {
-      throw new Error(err.response?.data?.message || 'Erro ao fazer login');
-    }
-  }
-
-  const logout = () => doLogout(false);
-
-  const updateProfile = async (updatedData) => {
-    try {
-      const userUpdated = await updateProfileService(updatedData);
-      setUser(userUpdated);
-      return userUpdated;
-    } 
-    catch (error) {
-        console.error('Erro na atualização de perfil:', error.message);
-        throw new Error(error.message || 'Erro ao atualizar perfil')
-    }
-  }
-
-  return { user, login, logout, updateProfile, setUser, loading, sessionWarning, dismissWarning: () => setSessionWarning(false), };
+  return { user, login, logout, updateProfile, setUser, loading, sessionWarning, dismissWarning: () => setSessionWarning(false) };
 }
 
 export const AuthProvider = ({ children }) => {
   const auth = useAuthProvider();
-
   return (
     <AuthContext.Provider value={auth}>
       {children}
