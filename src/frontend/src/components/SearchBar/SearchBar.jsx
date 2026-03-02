@@ -2,7 +2,7 @@ import { useState, useEffect, useCallback } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { Search } from 'lucide-react';
 
-export default function SearchBar() {
+export default function SearchBar({ className = '', autoFocus = false }) {
 
   const navigate = useNavigate();
   const location = useLocation();
@@ -30,8 +30,9 @@ export default function SearchBar() {
   }, [search, navigate, location.pathname, handleSearch]);
   
   return (
-    <div className="relative w-3/5">
+    <div className={`relative w-3/5 ${className}`}>
       <input
+        autoFocus={autoFocus}
         type="text"
         placeholder="Pesquisar..."
         value={search}

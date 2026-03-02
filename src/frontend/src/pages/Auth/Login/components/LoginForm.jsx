@@ -50,7 +50,7 @@ export default function LoginForm( { resetPass, registerPath, enter }){
             }}
             className="text-white w-full md:w-1/2 min-h-screen flex flex-col justify-between bg-(--purple-primary) mx-4 md:mx-0 p-9 md:rounded-r-[130px]">
 
-            <button className='flex gap-x-3 cursor-pointer transition duration-300  hover:-translate-x-1 will-change-transform' 
+            <button type="button" className='flex gap-x-3 cursor-pointer transition duration-300  hover:-translate-x-1 will-change-transform' 
                     onClick={() => navigate('/')}>
                 <Undo2/>
                 Voltar
