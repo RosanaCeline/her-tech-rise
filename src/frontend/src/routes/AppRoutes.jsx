@@ -6,6 +6,7 @@ import { getRoutesByRole, publicRoutes, authRoutes } from './listRoutes';
 import PublicLayout from "../components/layout/PublicLayout/PublicLayout"
 import PrivateLayout from "../components/layout/PrivateLayout/PrivateLayout"
 import NotFound from '../pages/NotFound/NotFound'
+import { useEffect } from 'react';
 
 export default function AppRoutes() {
   const { user, logout } = useAuth()
@@ -17,21 +18,42 @@ export default function AppRoutes() {
     <Routes>
       {/* Rotas públicas */}
       <Route path="/" element={<PublicLayout />}>
-        {publicRoutes.map(({ path, element }) => (
-          <Route key={path} path={path} element={element} />
+        {publicRoutes.map(({ path, element, title }) => (
+          <Route key={path} path={path} 
+                element={
+                  <RouteWithTitle
+                    title={title}
+                    element={element}
+                  />
+                } 
+          />
         ))}
       </Route>
 
       {/* Rotas de autenticação */}
-      {authRoutes.map(({ path, element }) => (
-        <Route key={path} path={path} element={element} />
+      {authRoutes.map(({ path, element, title }) => (
+        <Route key={path} path={path} 
+              element={
+                <RouteWithTitle
+                  title={title}
+                  element={element}
+                />
+              } 
+        />
       ))}
 
       {/* Rotas privadas */}
       <Route element={<PrivateLayout routes={privateRoutes} />}>
         {privateRoutes
-          .map(({ path, element }) => (
-            <Route key={path} path={path} element={element} />
+          .map(({ path, element, title }) => (
+            <Route key={path} path={path} 
+                  element={
+                    <RouteWithTitle
+                      title={title}
+                      element={element}
+                    />
+                  }
+            />
         ))}
       </Route>
 
@@ -39,4 +61,14 @@ export default function AppRoutes() {
 
     </Routes>
   )
+}
+
+function RouteWithTitle({ element, title }) {
+  useEffect(() => {
+    if (title) {
+      document.title = `${title} | Her Tech Rise`;
+    }
+  }, [title]);
+
+  return element;
 }
