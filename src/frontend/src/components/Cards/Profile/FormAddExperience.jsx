@@ -69,6 +69,7 @@ export default function FormAddExperience({ onClose, onSave }) {
       {/* Título e Empresa */}
       <div className="grid grid-cols-2 gap-4">
         <LabelInput
+          theme='black'
           label="Título"
           name="titulo"
           value={formData.titulo}
@@ -77,6 +78,7 @@ export default function FormAddExperience({ onClose, onSave }) {
           placeholder="Digite o título da sua experiência"
         />
         <LabelInput
+          theme='black'
           label="Empresa"
           name="empresa"
           value={formData.empresa}
@@ -89,6 +91,7 @@ export default function FormAddExperience({ onClose, onSave }) {
       {/* Modalidade, Data Inicial, Data Final */}
       <div className="grid grid-cols-3 gap-4">
         <LabelInput
+          theme='black'
           label="Modalidade"
           name="modalidade"
           value={formData.modalidade}
@@ -97,6 +100,7 @@ export default function FormAddExperience({ onClose, onSave }) {
           placeholder="Ex: Estágio, CLT"
         />
         <LabelInput
+          theme='black'
           label="Data Inicial"
           name="dataInicio"
           value={formData.dataInicio}
@@ -105,6 +109,7 @@ export default function FormAddExperience({ onClose, onSave }) {
           placeholder="dd/mm/aaaa"
         />
         <LabelInput
+          theme='black'
           label="Data Final"
           name="dataFim"
           value={formData.dataFim}
@@ -129,6 +134,7 @@ export default function FormAddExperience({ onClose, onSave }) {
 
       {/* Descrição */}
       <LabelInput
+        theme='black'
         label="Descrição das atividades"
         name="descricao"
         value={formData.descricao}

@@ -224,6 +224,7 @@ export default function EditProfessional() {
 
           <div className="w-full mt-4 grid gap-4 max-w-2xl mx-auto">
             <LabelInput
+              theme='black'
               label="Nome:"
               name="nome"
               value={formData.nome ?? ''}
@@ -234,6 +235,7 @@ export default function EditProfessional() {
             />
 
             <LabelInput
+              theme='black'
               label="CPF:"
               name="cpf"
               value={formData.cpf ?? ''}
@@ -245,6 +247,7 @@ export default function EditProfessional() {
             />
 
             <LabelInput
+              theme='black'
               label="Data de Nascimento:"
               name="data_nascimento"
               value={formData.data_nascimento ?? ''}
@@ -254,7 +257,9 @@ export default function EditProfessional() {
               placeholder="dd/mm/aaaa"
             />
 
-            <LabelInput label="Você se identifica como:" 
+            <LabelInput 
+              theme='black'
+              label="Você se identifica como:" 
               required={true}         type="select"    name='gender'
               options={[
                   {value: 'MULHER', label: 'Mulher'}, 
@@ -264,12 +269,15 @@ export default function EditProfessional() {
                   {value: 'PREFIRO_NAO_INFORMAR', label: 'Prefiro não informar'}]}
               value={formData.gender}    onChange={handleChange}/>
 
-            <LabelInput type="checkbox" value={formData.consentGenderSharing} 
+            <LabelInput 
+              theme='black'
+              type="checkbox" value={formData.consentGenderSharing} 
               name='consentGenderSharing' onChange={handleChange}
               label="Autorizo que meu gênero seja compartilhado com empresas nas candidaturas a vagas, 
               para apoiar ações afirmativas e promover diversidade. "/>
 
             <LabelInput
+              theme='black'
               label="Telefone:"
               name="telefone"
               value={formData.telefone ?? ''}
@@ -281,6 +289,7 @@ export default function EditProfessional() {
             />
 
             <LabelInput
+              theme='black'
               label="Email:"
               name="email"
               value={formData.email ?? ''}
@@ -291,6 +300,7 @@ export default function EditProfessional() {
             />
 
             <LabelInput
+              theme='black'
               label="CEP:"
               name="cep"
               value={formData.cep ?? ''}
@@ -301,6 +311,7 @@ export default function EditProfessional() {
             />
 
             <LabelInput
+              theme='black'
               label="Rua:"
               name="rua"
               ref={ruaInput}
@@ -312,6 +323,7 @@ export default function EditProfessional() {
             />
 
             <LabelInput
+              theme='black'
               label="Bairro:"
               name="bairro"
               ref={bairroInput}
@@ -323,6 +335,7 @@ export default function EditProfessional() {
             />
 
             <LabelInput
+              theme='black'
               label="Cidade:"
               name="cidade"
               ref={cidadeInput}
@@ -334,6 +347,7 @@ export default function EditProfessional() {
             />
 
             <LabelInput
+              theme='black'
               label="Estado:"
               name="estado"
               ref={estadoInput}
@@ -354,6 +368,7 @@ export default function EditProfessional() {
 
           <div className="w-full mt-4 grid gap-4 max-w-2xl mx-auto">
             <LabelInput
+              theme='black'
               label="Tecnologias:"
               name="tecnologias"
               value={formData.tecnologias ?? ''}
@@ -363,6 +378,7 @@ export default function EditProfessional() {
             />
 
             <LabelInput
+              theme='black'
               label="Biografia:"
               name="biografia"
               type="mensagem"
@@ -410,6 +426,7 @@ export default function EditProfessional() {
             </button>
 
             <LabelInput
+              theme='black'
               label="Link externo:"
               name="link"
               value={formData.link ?? ''}

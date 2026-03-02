@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { useNavigate } from "react-router-dom";
 
-import { Edit, Trash2, Eye, Globe, Users, Lock, AlertCircle, PencilIcon, TrashIcon } from 'lucide-react';
+import { Edit, Trash2, Eye, Globe, Users, Lock, AlertCircle, PencilIcon, TrashIcon, CheckCircle } from 'lucide-react';
 
 import { updatePostVisibility, deletePost } from '../../../../services/timelineService';
 import { deleteShare } from '../../../../services/interactionsService';
@@ -18,7 +18,15 @@ export default function HeaderPost({ photo, name, post, date, isOpen = false, on
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [localVisibility, setLocalVisibility] = useState(post.visibility);
   const [error, setError] = useState('');
+  const [successMsg, setSuccessMsg] = useState('');
   const size = 18;
+
+  const clearError = () => setError('');
+
+  const showSuccess = (msg) => {
+    setSuccessMsg(msg);
+    setTimeout(() => setSuccessMsg(''), 3000);
+  };
 
   const toggleVisibilityDropdown = (e) => {
     e.stopPropagation();
@@ -26,12 +34,13 @@ export default function HeaderPost({ photo, name, post, date, isOpen = false, on
   };
 
   const changeVisibility = async (value) => {
+    clearError();
     try {
       await updatePostVisibility(post.id, value);
       setShowVisibilityOptions(false);
       setShowVisibilityDropdown(false);
       setLocalVisibility(value);
-      console.log("Visibilidade do Post alterado com sucesso.");
+      showSuccess(value === 'PRIVADO' ? 'Publicação agora está privada.' : 'Publicação agora está visível para todos.');
     } catch (err) {
       setLocalVisibility(post.visibility);
       console.error('Erro ao alterar visibilidade:', err);
@@ -41,6 +50,7 @@ export default function HeaderPost({ photo, name, post, date, isOpen = false, on
 
   const onDelete = (e) => {
     e.stopPropagation();
+    clearError();
     setShowDeleteModal(true);
   };
 
@@ -52,7 +62,6 @@ export default function HeaderPost({ photo, name, post, date, isOpen = false, on
         await deletePost(postId); 
       }
       setShowDeleteModal(false);
-      console.log("Post excluído com sucesso.");
       if(onPostsUpdated) {
         onPostsUpdated();  
       }
@@ -74,6 +83,7 @@ export default function HeaderPost({ photo, name, post, date, isOpen = false, on
 
   const handleEditClick = (e) => {
     e.stopPropagation();
+    clearError();
     if (!canEditPost()) {
       setError("Você só pode editar publicações feitas nos últimos 7 dias.");
       return;
@@ -85,6 +95,7 @@ export default function HeaderPost({ photo, name, post, date, isOpen = false, on
 
   const handleNavigateProfile = async () => {
     if (isFollowing !== null) {
+      clearError();
       try {
         const res = await getProfileById(idAuthor)
         if (res.role === "PROFESSIONAL" || res.role === "professional") {
@@ -143,6 +154,7 @@ export default function HeaderPost({ photo, name, post, date, isOpen = false, on
           <BtnCallToAction
             onClick={(e) => {
               e.stopPropagation();
+              clearError();
               onFollowToggle?.();
             }}
             variant={isFollowing ? 'white' : 'purple'}
@@ -156,6 +168,7 @@ export default function HeaderPost({ photo, name, post, date, isOpen = false, on
             <button
               onClick={(e) => {
                 e.stopPropagation()
+                clearError();
                 setShowVisibilityOptions(prev => !prev)
                 setShowVisibilityDropdown(false);
               }}
@@ -261,6 +274,11 @@ export default function HeaderPost({ photo, name, post, date, isOpen = false, on
       {error && (
         <div className="text-sm text-red-600 mt-1 flex items-center gap-2">
           <AlertCircle size={16} /> {error}
+        </div>
+      )}
+      {successMsg && (
+        <div className="text-sm text-green-600 mt-1 flex items-center gap-2">
+          <CheckCircle size={16} /> {successMsg}
         </div>
       )}
 

@@ -64,16 +64,16 @@ export default function CompanyJobsListing(){
     if (error) return <main className="pt-34"><p className="text-red-600">{error}</p></main>;
 
     return(
-        <main className='flex flex-col bg-(--gray) pt-34 pb-6'>
+        <main className='flex flex-col bg-(--gray) pt-34 pb-6 min-h-screen'>
             <div className="flex flex-col mb-6 w-5/6 p-6 bg-white mx-auto rounded-xl">
                 <div className="flex justify-between items-center"> 
                     <h2 className="text-3xl font-semibold text-[var(--purple-secundary)]">Minhas vagas publicadas</h2>
                     <BtnCallToAction 
-                    onClick={() => {
-                        setJobFormData(emptyJobFormData)
-                        setManageJobModal('new')
-                    }}>
-                    Nova Vaga
+                        onClick={() => {
+                            setJobFormData(emptyJobFormData)
+                            setManageJobModal('new')
+                        }}>
+                        Nova Vaga
                     </BtnCallToAction>
                 </div>
                 <section className="flex flex-col my-3 gap-y-3">

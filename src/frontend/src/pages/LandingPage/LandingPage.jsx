@@ -1,6 +1,6 @@
 import { services } from './data/services'
 import { faqs } from './data/faqs'
-import { fields } from './data/fields'
+// import { fields } from './data/fields'
 
 import SectionHero from './components/SectionHero'
 import CallToSection from './components/CallToSection'
@@ -41,9 +41,9 @@ export default function LandingPage( {registerPath }) {
         </FadeInSection>
         
       </main>
-      <section className="w-full py-20 px-8 md:px-16 bg-[var(--gray)]">
+      {/* <section className="w-full py-20 px-8 md:px-16 bg-[var(--gray)]">
         <FAQForm fields={fields} />
-      </section>
+      </section> */}
     </>
   )
 }

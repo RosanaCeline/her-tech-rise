@@ -48,14 +48,16 @@ export default function ManagePost({user, setActivePopUp, formData, setFormData,
                     };
 
                     await updatePost(formData.postId, formDataUpdated);
+                    window.location.reload()
                 } else {
                     await newPost(formData) 
+                    window.location.reload()
                 }
 
                 if (onSuccess) onSuccess();  
                 setActivePopUp('')
             } catch (err) {
-                setPostErrorMessage(err.response || 'Erro ao salvar')
+                setPostErrorMessage(err.message || 'Erro ao salvar')
                 setTimeout(() => setPostErrorMessage(null), 4000)
             }
         } else {
@@ -143,7 +145,7 @@ export default function ManagePost({user, setActivePopUp, formData, setFormData,
             </div>
 
             <div className='flex flex-col mt-3'>
-            <LabelInput placeholder="Digite sua publicação" type="mensagem" value={formData.content} required={!formData.media.length}
+            <LabelInput  theme='black' placeholder="Digite sua publicação" type="mensagem" value={formData.content} required={!formData.media.length}
                 onChange={(e) => setFormData(prev => ({ ...prev, content: e.target.value }))}/></div>
 
             {formData.media.some(file => (file.type?.startsWith?.('image/') || file.mediaType === 'IMAGE')) && (

@@ -106,11 +106,11 @@ export default function LoginForm( { resetPass, registerPath, enter }){
 
                 <div className='flex flex-col sm:gap-y-1 justify-end'>
                     <button className='w-fit ml-auto transition duration-300 hover:-translate-y-0.75'
-                        onClick={() => navigate(resetPass)}>
+                        onClick={() => navigate(resetPass)} type="button">
                         Esqueci a senha
                     </button>
                     <button className='w-fit ml-auto transition duration-300 hover:-translate-y-0.75'
-                        onClick={() => navigate(registerPath)}>
+                        onClick={() => navigate(registerPath)} type="button">
                         Não tenho conta ainda
                     </button>
                 </div>

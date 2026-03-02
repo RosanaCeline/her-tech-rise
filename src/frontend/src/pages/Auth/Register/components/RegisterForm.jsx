@@ -2,7 +2,6 @@ import { useState, useCallback } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { Undo2 } from 'lucide-react'
 import { register, verifyCNPJ, verifyCPF } from '../../../../services/authService';
-import { useAuth } from '../../../../context/AuthContext';
 import RegisterStep1 from './RegisterStep1'
 import RegisterStep2 from './RegisterStep2'
 import RegisterStep3 from './RegisterStep3'
@@ -113,7 +112,6 @@ export default function RegisterForm(){
 
         if (fields.includes('cnpj')) {
             const isCNPJValid = await fetchCNPJ()
-            console.log(isCNPJValid)
             if (!isCNPJValid) return
         }
 
@@ -124,7 +122,7 @@ export default function RegisterForm(){
             if (step < 4) {
                 setStep(step + 1);
             } else {
-                handleSubmit(); // envia dados backend e redireciona 
+                handleSubmit(); 
             }
         }
     }
@@ -210,7 +208,6 @@ export default function RegisterForm(){
 
 
 function StepWrapper({ children, goBackTo, validateFields, errorMessage, registerErrorMessage, loading, successModalOpen }) {
-    const { setUser } = useAuth()
     const navigate = useNavigate();
 
     return (
@@ -249,21 +246,17 @@ function StepWrapper({ children, goBackTo, validateFields, errorMessage, registe
                 </div>                
             </div>
             {successModalOpen && (
-            <div className="fixed inset-0 z-50 bg-black/40 backdrop-blur-sm flex items-center justify-center">
-                <div className="bg-white p-8 rounded-2xl shadow-lg text-center max-w-sm">
-                <h2 className="text-2xl font-bold mb-4 text-(--purple-primary)">Cadastro concluído!</h2>
-                <p className="mb-6 text-gray-700">Sua conta foi criada com sucesso.</p>
-                <button 
-                    onClick={() => {
-                        const loggedUser = JSON.parse(localStorage.getItem('user'));
-                        setUser(loggedUser);
-                        navigate('/timeline')
-                    }} 
-                    className="bg-purple-600 text-white px-6 py-2 rounded-xl hover:bg-purple-700 transition">
-                    Continuar
-                </button>
+                <div className="fixed inset-0 z-50 bg-black/40 backdrop-blur-sm flex items-center justify-center">
+                    <div className="bg-white p-8 rounded-2xl shadow-lg text-center max-w-sm">
+                        <h2 className="text-2xl font-bold mb-4 text-(--purple-primary)">Cadastro concluído!</h2>
+                        <p className="mb-6 text-gray-700">Sua conta foi criada com sucesso.</p>
+                        <button 
+                            onClick={() => navigate('/login')}
+                            className="bg-purple-600 text-white px-6 py-2 rounded-xl hover:bg-purple-700 transition">
+                            Continuar
+                        </button>
+                    </div>
                 </div>
-            </div>
             )}
         </div>
     )

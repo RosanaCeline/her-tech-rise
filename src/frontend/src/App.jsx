@@ -1,5 +1,6 @@
 import { ErrorProvider } from "./context/ErrorContext";
 import { BrowserRouter as Router } from 'react-router-dom';
+import { AuthProvider } from './context/AuthProvider';
 import AppRoutes from './routes/AppRoutes';
 
 import { ToastContainer } from 'react-toastify'
@@ -9,7 +10,9 @@ export default function App() {
   return (
     <ErrorProvider>
       <Router basename="/hertechrise">
-        <AppRoutes />
+        <AuthProvider>
+          <AppRoutes />
+        </AuthProvider>
       </Router>
       <ToastContainer position="top-right" autoClose={3000} />
     </ErrorProvider>

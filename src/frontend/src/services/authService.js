@@ -14,11 +14,6 @@ export const login = async (email, senha, remember) => {
   const response = await axios.post(`${API_URL}/login`, { email, password: senha });
   try {
     saveUser(response.data, remember);
-    if (remember) {
-      localStorage.setItem('user', JSON.stringify(response.data));
-    } else {
-      sessionStorage.setItem('user', JSON.stringify(response.data));
-    }
     return response.data;
   } catch (error) {
     throw new Error(error?.response?.data?.message || 'Erro ao realizar login');
@@ -62,7 +57,7 @@ export const register = async (formData) => {
   const response = await axios.post(`${API_URL}${endpoint}`, payload);
 
   if (response.status === 201) {
-    localStorage.setItem('user', JSON.stringify(response.data));
+    saveUser(response.data, false);
     return response.data;
   }
   throw new Error('Erro ao registrar usuário'); 
@@ -83,6 +78,27 @@ export const logout = () => {
   localStorage.removeItem('user');
   sessionStorage.removeItem('user');
 }
+
+export const decodeToken = (token) => {
+  try {
+    const base64 = token.split('.')[1].replace(/-/g, '+').replace(/_/g, '/');
+    return JSON.parse(atob(base64));
+  } catch {
+    return null;
+  }
+};
+
+/** quantos minutos faltam para o token expirar (se negativo = já expirou) */
+export const getTokenRemainingMs = (token) => {
+  const payload = decodeToken(token);
+  if (!payload?.exp) return -1;
+  return payload.exp * 1000 - Date.now();
+};
+
+/** diz se o token já expirou ou é inválido */
+export const isTokenExpired = (token) => {
+  return getTokenRemainingMs(token) <= 0;
+};
 
 export const resetPassword = async (email) => {
   const response = await axios.post(`${API_URL}/resetPassword`, { email });
@@ -105,9 +121,10 @@ export const verifyCNPJ = async (cnpj) => {
 }
 
 export const getGender = () => {
-  const saved = localStorage.getItem('user');
-  const parsed = JSON.parse(saved)
-  return parsed.gender
+  const saved = localStorage.getItem('user') || sessionStorage.getItem('user');
+  if (!saved) return null;
+  const parsed = JSON.parse(saved);
+  return parsed?.gender ?? null;
 }
 
 export const updateGender = (gender, consentGenderSharing) => {

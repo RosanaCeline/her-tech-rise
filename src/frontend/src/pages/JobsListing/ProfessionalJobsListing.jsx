@@ -62,7 +62,7 @@ export default function ProfessionalJobsListing(){
                         <div className="max-h-[65vh] bg-[var(--gray)] rounded-2xl flex border border-[var(--gray)]">
                             <div className="w-full md:w-2/5 overflow-y-auto">
                                 {jobs.map((job) => 
-                                    <div>
+                                    <div key={job.id}>
                                         <JobItem key={job.id} job={job} 
                                             fetchJobDetail={fetchJobDetail} setJobDetail={setJobDetail} isCurrent={currentJobDetail === job.id}
                                             setCurrentJobDetail={setCurrentJobDetail}
