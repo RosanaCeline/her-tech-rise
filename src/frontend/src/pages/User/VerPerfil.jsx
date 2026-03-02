@@ -17,8 +17,6 @@ import ManagePost from '../../components/posts/ManagePost';
 import LoadingSpinner from './../../components/LoadingSpinner/LoadingSpinner'
 import PopUpBlurProfile from '../../components/Cards/Profile/PopUpBlurProfile';
 
-const baseUrl = import.meta.env.VITE_API_URL;
-
 export default function VerPerfil() {
 
     const navigate = useNavigate();
@@ -152,6 +150,8 @@ export default function VerPerfil() {
     if (loading) return ( <LoadingSpinner /> );
     if (error) return <main className="..."><p className="text-red-600">{error}</p></main>;
     if (!user) return <main className="...">Nenhum perfil encontrado.</main>;
+
+    const profileLink = `${window.location.origin}/hertechrise/profile/${user_type}/${user.id}-@${user.nameuser?.replace('@','')}`;
     
     return (
         <main className="flex flex-col bg-[var(--gray)] pt-10 pb-10 min-h-screen">
@@ -167,13 +167,7 @@ export default function VerPerfil() {
                     number={user.telefone}
                     link={user.externalLink}
                     onRequestDelete={() => setDeleteModalOpen(true)}
-                    copyMyLink={
-                        user.externalLink && user.externalLink !== ''
-                        ? user.externalLink
-                        : user.tipo_usuario === 'company'
-                        ? `${baseUrl}/profile/company/${user.id}-@${user.username}`
-                        : `${baseUrl}/profile/professional/${user.id}-@${user.username}`
-                    }
+                    copyMyLink={profileLink}
                     city={user.endereco.cidade}
                     state={user.endereco.estado}
                     followersCount={user.followersCount}

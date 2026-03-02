@@ -282,7 +282,11 @@ export default function InteractionBar({ idAuthor, post, photo, name, cardWidth 
     return (
         <div className="interaction-bar" onClick={(e) => e.stopPropagation()}>
             <div className="flex items-center justify-between text-sm text-(--purple-primary) mt-3">
-                <button onClick={getListLikes} className="flex items-center gap-1 cursor-pointer hover:opacity-80" >
+                <button className="flex items-center gap-1 cursor-pointer hover:opacity-80"
+                        onClick={(e) => { 
+                            e.stopPropagation(); 
+                            getListLikes(); 
+                        }}  >
                     <Heart className="purple-primary" size={15} />
                     <span>{likesCount}</span>
                     {!isCompact && <span className="text-xs">curtidas</span>}

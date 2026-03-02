@@ -19,11 +19,11 @@ export default function SessionWarningBanner() {
     }, [user?.token]);
 
     return (
-        <div className="fixed top-4 left-1/2 -translate-x-1/2 z-50 w-[90%] max-w-md
-                        bg-yellow-50 border border-yellow-300 text-yellow-800
-                        rounded-xl shadow-lg px-5 py-4 flex flex-col gap-3">
+        <div className="flex flex-col fixed top-30 right-5 z-[9999] w-[92%] max-w-sm
+                        bg-red-700 text-white rounded-xl shadow-2xl
+                         px-5 py-4 gap-4 ">            
             <div className="flex items-start gap-3">
-                <AlertTriangle size={20} className="flex-shrink-0 mt-0.5 text-yellow-500" />
+                <AlertTriangle size={20} className="flex-shrink-0 mt-0.5 text-yellow-400" />
                 <p className="text-sm leading-relaxed">
                     <span className="font-semibold">
                         Sua sessão expira em {minutesLeft} {minutesLeft === 1 ? 'minuto' : 'minutos'}.
@@ -31,11 +31,19 @@ export default function SessionWarningBanner() {
                     Faça login novamente para continuar.
                 </p>
             </div>
+
             <div className="flex gap-2 justify-end">
-                <button onClick={dismissWarning} className="text-xs text-yellow-700 hover:underline px-3 py-1" >
+                <button
+                    onClick={dismissWarning}
+                    className="text-xs text-yellow-200 hover:text-white transition px-3 py-1"
+                >
                     Ignorar
                 </button>
-                <button onClick={logout} className="text-xs bg-yellow-500 text-white px-4 py-1.5 rounded-lg hover:bg-yellow-600 transition" >
+
+                <button
+                    onClick={logout}
+                    className="text-xs bg-yellow-500 text-white px-4 py-1.5 rounded-lg hover:bg-yellow-600 transition"
+                >
                     Fazer login agora
                 </button>
             </div>
