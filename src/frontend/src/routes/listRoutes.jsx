@@ -23,10 +23,10 @@ export const publicRoutes = [
 ];
 
 export const authRoutes = [
-    { path: '/login', element: <Login resetPass="/redefinirsenha" registerPath="/cadastro" enter="/timeline"/> },
-    { path: '/cadastro', element: <Register /> },
-    { path: '/redefinirsenha', element: <ResetPassword /> },
-    { path: '/redefinirnovasenha', element: <NewPassword/>},
+    { path: '/login', title: 'Login', element: <Login resetPass="/redefinirsenha" registerPath="/cadastro" enter="/timeline"/>  },
+    { path: '/cadastro', title: 'Cadastro', element: <Register /> },
+    { path: '/redefinirsenha', title: 'Redefinir Senha', element: <ResetPassword /> },
+    { path: '/redefinirnovasenha', title: 'Nova Senha', element: <NewPassword/>},
 ];
 
 export function getRoutesByRole(tipoUsuario, navigate, logout) {
