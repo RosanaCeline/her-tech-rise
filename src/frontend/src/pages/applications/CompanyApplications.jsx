@@ -37,7 +37,7 @@ export default function CompanyApplications(){
     if (error) return <main className="pt-34"><p className="text-red-600">{error}</p></main>;
     
     return(
-        <main className='flex flex-col min-h-[83vh] bg-(--gray) pt-34 pb-6'>
+        <main className='flex flex-col bg-(--gray) pt-34 pb-6 min-h-screen'>
             <div className="flex flex-col mb-6 w-5/6 p-8 bg-white mx-auto rounded-xl">
                 <button className='flex gap-x-3 cursor-pointer transition duration-300  hover:-translate-x-1 will-change-transform' 
                     onClick={() => navigate('/empresa/vagas')}>
@@ -68,7 +68,7 @@ export default function CompanyApplications(){
                 {jobApplications.totalApplications > 0 &&
                     <div className="flex flex-col gap-y-4 mt-3">
                         {jobApplications.applications.map((application) => 
-                            <div className='flex grid grid-cols-10 hover:bg-slate-50 border rounded-xl border-(--gray) p-3'>
+                            <div className='grid grid-cols-10 hover:bg-slate-50 border rounded-xl border-(--gray) p-3'>
                                 <div className="">
                                     <img src={application.applicantProfilePic} className="w-full object-cover rounded-full"/>
                                 </div>

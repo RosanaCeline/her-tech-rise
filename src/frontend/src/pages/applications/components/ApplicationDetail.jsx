@@ -69,7 +69,7 @@ export default function ApplicationDetail({applicationDetail, setApplicationDeta
             </div>
             <div className="mt-4 font-bold flex flex-col gap-y-1.5">
                 <p>
-                    Link do portifólio:{" "}
+                    Link do portfólio:{" "}
                     {data.portfolioLink 
                         ?
                             <a href={data.portfolioLink} target="_blank" rel="noopener noreferrer" className="font-normal text-blue-600 underline break-words max-w-full">

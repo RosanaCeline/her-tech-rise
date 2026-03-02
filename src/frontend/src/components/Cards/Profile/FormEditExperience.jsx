@@ -88,6 +88,7 @@ export default function FormEditExperience({ experience, onClose, onUpdate }) {
 
       <div className="grid grid-cols-2 gap-4">
         <LabelInput
+          theme='black'
           label="Título"
           name="titulo"
           value={formData.titulo}
@@ -96,6 +97,7 @@ export default function FormEditExperience({ experience, onClose, onUpdate }) {
           required
         />
         <LabelInput
+          theme='black'
           label="Empresa"
           name="empresa"
           value={formData.empresa}
@@ -107,6 +109,7 @@ export default function FormEditExperience({ experience, onClose, onUpdate }) {
 
       <div className="grid grid-cols-3 gap-4">
         <LabelInput
+          theme='black'
           label="Modalidade"
           name="modalidade"
           value={formData.modalidade}
@@ -115,6 +118,7 @@ export default function FormEditExperience({ experience, onClose, onUpdate }) {
           required
         />
         <LabelInput
+          theme='black'
           label="Data Inicial"
           name="dataInicio"
           value={formData.dataInicio}
@@ -123,6 +127,7 @@ export default function FormEditExperience({ experience, onClose, onUpdate }) {
           required
         />
         <LabelInput
+          theme='black'
           label="Data Final"
           name="dataFim"
           value={formData.dataFim}
@@ -147,6 +152,7 @@ export default function FormEditExperience({ experience, onClose, onUpdate }) {
       </div>
 
       <LabelInput
+        theme='black'
         label="Descrição das atividades"
         name="descricao"
         value={formData.descricao}
