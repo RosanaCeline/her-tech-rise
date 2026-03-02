@@ -118,7 +118,7 @@ export default function CardPublicationsProfile({ title, posts, onPostsUpdated, 
         </div>
 
         {visiblePosts.length > 0 ? (
-          <div className="grid gap-4 grid-cols-1 lg:grid-cols-2">
+          <div className="grid gap-4 [grid-template-columns:repeat(auto-fit,minmax(320px,1fr))]">
             {visiblePosts.map((item, idx) => {
               const data = buildPostData(item);
               return (
@@ -175,13 +175,13 @@ export default function CardPublicationsProfile({ title, posts, onPostsUpdated, 
                 </select>
               </div>
 
-              <div className="flex flex-col gap-4 max-h-[60vh] overflow-y-auto pr-1">
+              <div className="flex flex-col min-w-0 gap-4 max-h-[80vh] overflow-y-auto pr-1">
                 {filteredPosts.length > 0 ? filteredPosts.map((item, idx) => {
                   const data = buildPostData(item);
                   return (
                     <div
                       key={data.post?.id ?? `post-${idx}`}
-                      className="border border-[var(--gray)] rounded-xl cursor-pointer hover:bg-slate-50 transition p-3 min-w-0 overflow-hidden"
+                      className="border border-[var(--gray)] rounded-xl cursor-pointer hover:bg-slate-50 transition p-3 min-w-0"
                       onClick={() => openUniquePostPopup(getPostId(item))}
                     >
                       <CardPostProfile

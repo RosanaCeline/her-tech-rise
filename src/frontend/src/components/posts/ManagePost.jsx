@@ -112,6 +112,14 @@ export default function ManagePost({user, setActivePopUp, formData, setFormData,
         }));
     };
 
+    const handleSaveClick = () => {
+        if (isEdit && hasChanges()) {
+            setConfirmSaveOpen(true);
+        } else {
+            handleSubmit();
+        }
+    };
+
     return(
         <div className="flex flex-col gap-2">
             <div className="flex justify-between">
@@ -195,9 +203,7 @@ export default function ManagePost({user, setActivePopUp, formData, setFormData,
                         onClick={() => setActivePopUp('docs')}
                     />
                 </div>
-                <BtnCallToAction variant="purple" onClick={() => { if (isEdit && hasChanges()) { setConfirmSaveOpen(true);
-                                                                } else { handleSubmit(); }
-                                                                }} >
+                <BtnCallToAction variant="purple" onClick={handleSaveClick} >
                                 {isEdit ? "Salvar Alterações" : "Publicar"}
                 </BtnCallToAction>
             </div>
