@@ -121,9 +121,10 @@ export const verifyCNPJ = async (cnpj) => {
 }
 
 export const getGender = () => {
-  const saved = localStorage.getItem('user');
-  const parsed = JSON.parse(saved)
-  return parsed.gender
+  const saved = localStorage.getItem('user') || sessionStorage.getItem('user');
+  if (!saved) return null;
+  const parsed = JSON.parse(saved);
+  return parsed?.gender ?? null;
 }
 
 export const updateGender = (gender, consentGenderSharing) => {

@@ -10,18 +10,17 @@ export default function Login ({ resetPass, registerPath, enter }) {
 
   return (
     <main className='flex bg-[#F7F7F7]'>
-
-      {sessionExpired && (
-        <div className="bg-yellow-50 border border-yellow-300 text-yellow-800 
-                        text-sm px-4 py-3 rounded-lg mb-4 text-center">
-          Sua sessão expirou. Faça login novamente para continuar.
-        </div>
-      )}
-
       <LoginForm  resetPass = {resetPass}
                   registerPath = {registerPath}
                   enter = {enter} />
-      <div    className='hidden md:w-1/2 md:flex md:flex-col justify-center p-4'>
+      <div className='hidden md:w-1/2 md:flex md:flex-col justify-center p-4'>
+
+        {sessionExpired && (
+          <div className="text-base bg-red-700 text-white mt-1 flex items-center gap-2 w-1/2 ml-auto p-4 rounded-md m-4">
+            Sua sessão expirou. Faça login novamente para continuar.
+          </div>
+        )}
+
         <img  src={logo} 
               alt="Logo Her Tech Rise" 
               className='w-7/8 mx-auto'/>
