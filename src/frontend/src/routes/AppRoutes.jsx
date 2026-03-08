@@ -1,3 +1,4 @@
+import { useEffect } from 'react';
 import { useNavigate } from 'react-router-dom'
 import { Routes, Route } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
@@ -6,6 +7,13 @@ import { getRoutesByRole, publicRoutes, authRoutes } from './listRoutes';
 import PublicLayout from "../components/layout/PublicLayout/PublicLayout"
 import PrivateLayout from "../components/layout/PrivateLayout/PrivateLayout"
 import NotFound from '../pages/NotFound/NotFound'
+
+function RouteWithTitle({ element, title }) {
+  useEffect(() => {
+    document.title = title ? `${title} | Her Tech Rise` : 'Her Tech Rise';
+  }, [title]);
+  return element;
+}
 
 export default function AppRoutes() {
   const { user, logout } = useAuth()
@@ -17,21 +25,21 @@ export default function AppRoutes() {
     <Routes>
       {/* Rotas públicas */}
       <Route path="/" element={<PublicLayout />}>
-        {publicRoutes.map(({ path, element }) => (
-          <Route key={path} path={path} element={element} />
+        {publicRoutes.map(({ path, element, title }) => (
+          <Route key={path} path={path} element={<RouteWithTitle title={title} element={element} />} />
         ))}
       </Route>
 
       {/* Rotas de autenticação */}
-      {authRoutes.map(({ path, element }) => (
-        <Route key={path} path={path} element={element} />
+      {authRoutes.map(({ path, element, title }) => (
+        <Route key={path} path={path} element={<RouteWithTitle title={title} element={element} />} />
       ))}
 
       {/* Rotas privadas */}
       <Route element={<PrivateLayout routes={privateRoutes} />}>
         {privateRoutes
-          .map(({ path, element }) => (
-            <Route key={path} path={path} element={element} />
+          .map(({ path, element, title }) => (
+            <Route key={path} path={path} element={<RouteWithTitle title={title} element={element} />} />
         ))}
       </Route>
 

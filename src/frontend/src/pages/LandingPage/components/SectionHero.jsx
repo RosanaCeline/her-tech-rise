@@ -1,13 +1,16 @@
-import React from 'react';
 import BtnCallToAction from '../../../components/btn/BtnCallToAction/BtnCallToAction';
 import image from '../../../assets/homepage/sectionhero.png';
+import { useNavigate } from 'react-router-dom';
 
 export default function SectionHero( {registerPath}) {
+
+  const navigate = useNavigate();
+
   return (
-    <>
-      <section className="md:flex h-screen w-fit md:w-full mt-20 md:mt-2">
-        <article className="w-full pt-12 md:w-1/2 flex flex-col justify-center relative px-8 md:px-6">
-          <div className="max-w-3xl">
+    <section className="w-full px-6 md:px-16 bg-[var(--light)] py-16">
+      <div className="max-w-7xl min-h-full mx-auto">
+        <div className={`flex flex-col-reverse md:flex-row items-center`}>
+          <div className="pb-5">
             <h1 className="
               text-5xl       
               xl:text-8xl   
@@ -39,22 +42,23 @@ export default function SectionHero( {registerPath}) {
             <div className="mt-10 md:mt-15 mx-auto justify-center items-center">
               <BtnCallToAction
                 variant="purple"
-                onClick={() => window.location.href = registerPath }
+                onClick={() => navigate(registerPath) }
               >
                 Começar agora
               </BtnCallToAction>
             </div>
           </div>
-        </article>
 
-        <article className="w-full md:w-1/2 md:h-full mt-10 ">
-          <img
-            src={image}
-            alt="Logo Her Tech Rise"
-            className="w-full h-full object-contain"
-          />
-        </article>
-      </section>     
-    </>
+          {/* Imagem */}
+          <div className="w-full md:w-2/4 flex justify-center">
+            <img
+              src={image}
+              alt="Logo Her Tech Rise"
+              className="w-full h-auto object-cover max-w-sm md:max-w-md xl:max-w-lg"
+            />
+          </div>
+        </div>
+      </div>
+    </section>
   );
 }

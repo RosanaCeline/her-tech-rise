@@ -18,7 +18,7 @@ export default function PrivateLayout({ routes }) {
       {sessionWarning && <SessionWarningBanner />}
 
       <PrivateHeader routes={routes} />
-      <main className="flex-1 pt-25 flex flex-col">
+      <main className="flex-1 pt-25 flex flex-col bg-[var(--light)]">
         <Outlet />
       </main>
       <Footer />

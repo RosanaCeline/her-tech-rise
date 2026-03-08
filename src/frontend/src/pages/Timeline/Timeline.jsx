@@ -172,7 +172,7 @@ export default function Timeline() {
     if (loading && page === 0 && !fetchError) return <LoadingSpinner />;    
 
     return (
-        <main className="flex flex-col bg-(--gray) flex-1">
+        <main className="flex flex-col bg-[var(--light)] flex-1">
             <TimelineCard> <NewPost /> </TimelineCard>
 
             {fetchError && (

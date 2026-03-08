@@ -35,7 +35,7 @@ export default function ProfessionalApplications(){
     if (error) return <main className="pt-34"><p className="text-red-600">{error}</p></main>;
 
     return(
-        <main className='flex flex-col bg-(--gray) pt-34 pb-6 min-h-screen'>
+        <main className='flex flex-col bg-[var(--light)] pt-32 pb-6 min-h-full'>
             <div className="flex flex-col mb-6 w-5/6 p-8 bg-white mx-auto rounded-xl">
                 <button className='flex gap-x-3 cursor-pointer transition duration-300  hover:-translate-x-1 will-change-transform' 
                     onClick={() => navigate('/profissional/vagas')}>

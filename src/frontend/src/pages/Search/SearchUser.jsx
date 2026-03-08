@@ -38,7 +38,7 @@ export default function SearchUser(){
     if (error) return <main className="pt-34"><p className="text-red-600">{error}</p></main>;
 
     return(
-        <main className='flex flex-col bg-(--gray) pt-34 pb-6 min-h-screen'>
+        <main className='flex flex-col bg-[var(--light)] pt-32 pb-6 min-h-full'>
             {currentList === 'all'
                 ?   (<>
                         <SearchCard title="Profissionais" elements={profissionais} setCurrentList={setCurrentList}/>

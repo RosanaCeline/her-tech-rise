@@ -154,7 +154,7 @@ export default function VerPerfil() {
     const profileLink = `${window.location.origin}/hertechrise/profile/${user_type}/${user.id}-@${user.nameuser?.replace('@','')}`;
     
     return (
-        <main className="flex flex-col bg-[var(--gray)] pt-10 pb-10 min-h-screen">
+        <main className="flex flex-col bg-[var(--light)] pt-10 pb-10 min-h-full">
             <div className="w-4/5 lg:w-3/5 mx-auto flex flex-col gap-8">
                 <CardProfile
                     isCurrentUser={isCurrentUser}

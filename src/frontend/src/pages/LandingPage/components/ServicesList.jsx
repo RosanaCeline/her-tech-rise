@@ -1,15 +1,19 @@
 import React from 'react';
 import Card from '../../../components/Cards/LandingPage/Card';
 import BtnCallToAction from '../../../components/btn/BtnCallToAction/BtnCallToAction';
+import { useNavigate } from 'react-router-dom';
 
 export default function ServicesList({ services, registerPath }) {
+
+  const navigate = useNavigate();
+
   return (
     <section className="w-full py-20  pt-16 px-7 md:px-16 bg-[var(--light)]">
       <div className="max-w-7xl mx-auto flex items-center justify-between mb-12  gap-2">
         <h2 className="text-4xl font-bold text-[var(--purple-secundary)]">SERVIÇOS</h2>
         <BtnCallToAction
           variant="purple"
-          onClick={() => window.location.href = registerPath}
+          onClick={() => navigate(registerPath)}
         >
           Participar
         </BtnCallToAction>

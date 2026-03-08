@@ -35,14 +35,14 @@ export default function PrivateHeader({ routes }) {
 
   return (
     <>
-        <header className="fixed top-0 left-0 w-full h-25 bg-[var(--purple-primary)] text-white z-50 shadow-md px-6 pr-15 md:px-15 flex items-center justify-start">
+        <header className="fixed top-0 left-0 w-full h-22 bg-[var(--purple-primary)] text-white z-50 shadow-md px-6 pr-15 md:px-15 flex items-center justify-start">
           
           <div className="flex items-center gap-2">
             <img src={logo} alt="Logo Her Tech Rise" className="w-auto max-w-12 md:max-w-20 lg:max-w-30" />
             <span className="text-xl md:text-2xl lg:text-4xl font-semibold whitespace-nowrap">Her Tech Rise</span>
           </div>
 
-          <div className="hidden lg:flex w-2/5 justify-center">
+          <div className="hidden lg:flex flex-1 justify-center">
               <SearchBar />
           </div>
 
@@ -79,7 +79,7 @@ export default function PrivateHeader({ routes }) {
               menuVisible
                 ? 'flex flex-col gap-4 bg-[var(--purple-primary)] fixed top-25 right-0 px-6 py-6 shadow-xl w-max min-w-[12rem] z-40 rounded-bl-xl'
                 : 'hidden'
-            } lg:flex lg:items-center lg:gap-6 lg:relative`}
+            } lg:flex lg:items-center lg:gap-6 lg:relative lg:ml-auto`}
           >
             <NavMenuHeader routes={routes} isHovered={true} isMobile={true} onItemClick={closeMenu} />
 

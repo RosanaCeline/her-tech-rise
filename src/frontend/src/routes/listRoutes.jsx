@@ -23,10 +23,10 @@ export const publicRoutes = [
 ];
 
 export const authRoutes = [
-    { path: '/login', element: <Login resetPass="/redefinirsenha" registerPath="/cadastro" enter="/timeline"/> },
-    { path: '/cadastro', element: <Register /> },
-    { path: '/redefinirsenha', element: <ResetPassword /> },
-    { path: '/redefinirnovasenha', element: <NewPassword/>},
+    { path: '/login', element: <Login resetPass="/redefinirsenha" registerPath="/cadastro" enter="/timeline"/>, title: 'Login' },
+    { path: '/cadastro', element: <Register />, title: 'Cadastro' },
+    { path: '/redefinirsenha', element: <ResetPassword />, title: 'Redefinir Senha' },
+    { path: '/redefinirnovasenha', element: <NewPassword/>, title: 'Nova Senha'},
 ];
 
 export function getRoutesByRole(tipoUsuario, navigate, logout) {
@@ -37,7 +37,7 @@ export function getRoutesByRole(tipoUsuario, navigate, logout) {
 
   if (tipoUsuario === 'COMPANY') 
     return [
-      { path: '/timeline',                      element: <Timeline />,          title: 'Pagina Inicial',          visible: true,           icon: <Home size={iconSize} /> },
+      { path: '/timeline',                      element: <Timeline />,          title: 'Início',                  visible: true,           icon: <Home size={iconSize} /> },
       { path: '/empresa/vagas',                 element: <CompanyJobsListing/>, title: 'Vagas',                   icon: <BriefcaseBusiness size={iconSize} />},
       { path: '/meuperfil',                     element: <VerMeuPerfil />,      title: 'Perfil',                  visible: true,           icon: <User size={iconSize} /> },
       { title: 'Sair',                          visible: true,                  icon: <LogOut size={iconSize} />, action: () => { handleLogout() } },
@@ -47,7 +47,7 @@ export function getRoutesByRole(tipoUsuario, navigate, logout) {
     ];
   else
     return [
-      { path: '/timeline',                      element: <Timeline />,               title: 'Pagina Inicial', visible: true,           icon: <Home size={iconSize} /> },
+      { path: '/timeline',                      element: <Timeline />,               title: 'Início',         visible: true,           icon: <Home size={iconSize} /> },
       { path: '/profissional/vagas',            element: <ProfessionalJobsListing/>, title: 'Vagas',          icon: <BriefcaseBusiness size={iconSize} />},
       { path: '/meuperfil',                     element: <VerMeuPerfil />,           title: 'Perfil',         visible: true,           icon: <User size={iconSize} /> },
       { title: 'Sair',                          visible: true,                       icon: <LogOut size={iconSize} />,                 action: () => { handleLogout() } },

@@ -13,7 +13,7 @@ export default function PublicLayout() {
   return (
     <div className="min-h-screen flex flex-col">
       <PublicHeader />
-      <main className="flex-grow">
+      <main className="flex-grow pt-25 bg-[var(--light)]">
         <Outlet />
       </main>
       <Footer />

@@ -11,7 +11,7 @@ export default function PublicHeader() {
   const navigate = useNavigate();
 
   return (
-    <header className="fixed top-0 left-0 w-full h-25 bg-[var(--purple-primary)] text-white z-50 shadow-md px-10 md:px-15 flex items-center justify-between">
+    <header className="fixed top-0 left-0 w-full h-22 bg-[var(--purple-primary)] text-white z-50 shadow-md px-10 md:px-15 flex items-center justify-between">
        
       <div className="flex items-center gap-2">
         <img src={logo} alt="Logo Her Tech Rise" className="w-auto max-w-12 md:max-w-20 lg:max-w-30" />
