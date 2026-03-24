@@ -11,8 +11,8 @@ export const saveUser = (data, remember) => {
 };
 
 export const login = async (email, senha, remember) => {
-  const response = await axios.post(`${API_URL}/login`, { email, password: senha });
   try {
+    const response = await axios.post(`${API_URL}/login`, { email, password: senha });
     saveUser(response.data, remember);
     return response.data;
   } catch (error) {

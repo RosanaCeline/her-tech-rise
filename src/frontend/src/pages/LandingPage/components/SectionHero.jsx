@@ -7,7 +7,7 @@ export default function SectionHero( {registerPath}) {
   const navigate = useNavigate();
 
   return (
-    <section className="w-full px-6 md:px-16 bg-[var(--light)] py-16">
+    <section className="w-full px-6 md:px-16 bg-[var(--light)] py-16 mb-15">
       <div className="max-w-7xl min-h-full mx-auto">
         <div className={`flex flex-col-reverse md:flex-row items-center`}>
           <div className="pb-5">
