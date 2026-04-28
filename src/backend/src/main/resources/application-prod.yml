@@ -47,4 +47,4 @@ spring:
     baseline-on-migrate: true
 logging:
   level:
-    root: INFO
+    root: WARN
