@@ -1,12 +1,11 @@
 package com.hertechrise.platform.services;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.hertechrise.platform.config.EmailConfig;
 import com.hertechrise.platform.mail.EmailSender;
 import com.hertechrise.platform.mail.EmailTemplateUtil;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
@@ -20,6 +19,9 @@ public class EmailService {
 
     @Autowired
     private EmailConfig emailConfigs;
+
+    @Value("${app.frontend-url}")
+    private String frontendUrl;
 
     String filePath = "src/main/resources/templates/emailTemplate.html";
 
@@ -84,8 +86,8 @@ public class EmailService {
     }
 
     public void sendResetPasswordEmail(String to, String token) {
-        String baseUrl = "http://localhost:5173/redefinirnovasenha";
-        String resetLink = baseUrl + "?token=" + URLEncoder.encode(token, StandardCharsets.UTF_8);
+        String resetLink = frontendUrl + "/redefinirnovasenha?token="
+                + URLEncoder.encode(token, StandardCharsets.UTF_8);
         String subject = "Pedido de Redefinição de Senha - Her Tech Rise";
 
         String emailContent = String.format("""

@@ -1,41 +1,30 @@
 package com.hertechrise.platform.mail;
 
-
 import com.hertechrise.platform.config.EmailConfig;
-import jakarta.mail.MessagingException;
-import jakarta.mail.internet.AddressException;
-import jakarta.mail.internet.InternetAddress;
-import jakarta.mail.internet.MimeMessage;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.mail.javamail.JavaMailSender;
-import org.springframework.mail.javamail.MimeMessageHelper;
+import org.springframework.http.MediaType;
 import org.springframework.stereotype.Component;
+import org.springframework.web.client.HttpClientErrorException;
+import org.springframework.web.client.RestClient;
 
-import java.io.File;
 import java.io.Serializable;
-import java.util.ArrayList;
-import java.util.StringTokenizer;
+import java.util.List;
+import java.util.Map;
 
 @Component
 public class EmailSender implements Serializable {
 
     Logger logger = LoggerFactory.getLogger(EmailSender.class);
 
-    private final JavaMailSender mailSender;
+    private final RestClient restClient = RestClient.create();
+
     private String to;
     private String subject;
     private String body;
-    private ArrayList<InternetAddress> recipients = new ArrayList<>();
-    private File attachment;
-
-    public EmailSender(JavaMailSender mailSender) {
-        this.mailSender = mailSender;
-    }
 
     public EmailSender to(String to) {
         this.to = to;
-        this.recipients = getRecipients(to);
         return this;
     }
 
@@ -49,27 +38,37 @@ public class EmailSender implements Serializable {
         return this;
     }
 
+    // mantido para não quebrar chamadas existentes
     public EmailSender attach(String fileDir) {
-        this.attachment = new File(fileDir);
+        logger.warn("Attachments não suportados na integração Brevo via API");
         return this;
     }
 
     public void send(EmailConfig config) {
-        MimeMessage message = mailSender.createMimeMessage();
+        Map<String, Object> payload = Map.of(
+                "sender", Map.of(
+                        "email", config.getSenderEmail(),
+                        "name", config.getSenderName()
+                ),
+                "to", List.of(Map.of("email", to)),
+                "subject", subject,
+                "htmlContent", body
+        );
+
         try {
-            MimeMessageHelper helper = new MimeMessageHelper(message, true);
-            helper.setFrom(config.getUsername());
-            helper.setTo(recipients.toArray(new InternetAddress[0]));
-            helper.setSubject(subject);
-            helper.setText(body, true);
-            if(attachment != null) {
-                helper.addAttachment(attachment.getName(), attachment);
-            }
-            mailSender.send(message);
-            logger.info("Email sent to " + to + " with the subject " + subject);
+            restClient.post()
+                    .uri("https://api.brevo.com/v3/smtp/email")
+                    .header("api-key", config.getApiKey())
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .body(payload)
+                    .retrieve()
+                    .toBodilessEntity();
+
+            logger.info("Email enviado para {} com o assunto {}", to, subject);
             reset();
-        } catch (MessagingException e) {
-            throw new RuntimeException("Error sending the email", e);
+
+        } catch (HttpClientErrorException e) {
+            throw new RuntimeException("Erro ao enviar email: " + e.getResponseBodyAsString(), e);
         }
     }
 
@@ -77,24 +76,5 @@ public class EmailSender implements Serializable {
         this.to = null;
         this.subject = null;
         this.body = null;
-        this.recipients = null;
-        this.attachment = null;
-    }
-
-    // cria array de emails
-    private ArrayList<InternetAddress> getRecipients(String to) {
-        String toWithoutSpaces = to.replace("\\s", "");
-        StringTokenizer tok = new StringTokenizer(toWithoutSpaces, ";");
-        ArrayList<InternetAddress> recipientsList = new ArrayList<>();
-        while (tok.hasMoreElements()) {
-            try {
-                recipientsList.add(new InternetAddress(tok.nextElement().toString()));
-            } catch (AddressException e) {
-                throw new RuntimeException(e);
-            }
-        }
-
-        return recipientsList;
     }
 }
-
