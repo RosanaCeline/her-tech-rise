@@ -1,15 +1,18 @@
 package com.hertechrise.platform.mail;
 
-import java.nio.file.Files;
-import java.nio.file.Paths;
+import org.springframework.core.io.ClassPathResource;
+
+import java.io.IOException;
+import java.nio.charset.StandardCharsets;
 
 public class EmailTemplateUtil {
 
-    public static String loadTemplate(String filePath, String content) {
+    public static String loadTemplate(String templateName, String content) {
         try {
-            String template = new String(Files.readAllBytes(Paths.get(filePath)));
+            ClassPathResource resource = new ClassPathResource("templates/" + templateName);
+            String template = new String(resource.getInputStream().readAllBytes(), StandardCharsets.UTF_8);
             return template.replace("${content}", content);
-        } catch (Exception e) {
+        } catch (IOException e) {
             throw new RuntimeException("Erro ao carregar template de email", e);
         }
     }

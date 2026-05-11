@@ -23,8 +23,6 @@ public class EmailService {
     @Value("${app.frontend-url}")
     private String frontendUrl;
 
-    String filePath = "src/main/resources/templates/emailTemplate.html";
-
     public void sendRegisterProfessionalEmail(String to) {;
         String subject = "Cadastro realizado - Her Tech Rise";
 
@@ -46,7 +44,7 @@ public class EmailService {
             — Equipe Her Tech Rise
             """);
 
-        String body = EmailTemplateUtil.loadTemplate(filePath, emailContent);
+        String body = EmailTemplateUtil.loadTemplate("emailTemplate.html", emailContent);
 
         emailSender
                 .to(to)
@@ -76,7 +74,7 @@ public class EmailService {
            — Equipe Her Tech Rise
            """);
 
-        String body = EmailTemplateUtil.loadTemplate(filePath, emailContent);
+        String body = EmailTemplateUtil.loadTemplate("emailTemplate.html", emailContent);
 
         emailSender
                 .to(to)
@@ -110,7 +108,7 @@ public class EmailService {
         Obrigado por usar a Her Tech Rise! 💜<br>
         — Equipe Her Tech Rise
         """, resetLink);
-        String body = EmailTemplateUtil.loadTemplate(filePath, emailContent);
+        String body = EmailTemplateUtil.loadTemplate("emailTemplate.html", emailContent);
 
         emailSender
                 .to(to)
