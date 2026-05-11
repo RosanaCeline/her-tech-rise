@@ -1,10 +1,10 @@
 package com.hertechrise.platform.services;
 
 import com.hertechrise.platform.data.dto.response.UserPictureResponseDTO;
-import com.hertechrise.platform.exception.CloudinaryUploadException;
-import com.hertechrise.platform.exception.InvalidFileTypeException;
-import com.hertechrise.platform.exception.UserNotFoundException;
+import com.hertechrise.platform.exception.*;
 import com.hertechrise.platform.model.User;
+import com.hertechrise.platform.repository.CompanyRepository;
+import com.hertechrise.platform.repository.ProfessionalRepository;
 import com.hertechrise.platform.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.Authentication;
@@ -20,6 +20,8 @@ import java.text.Normalizer;
 public class UserService {
 
     private final UserRepository userRepository;
+    private final ProfessionalRepository professionalRepository;
+    private final CompanyRepository companyRepository;
     private final CloudinaryService cloudinaryService;
 
     public String generateUniqueUserHandle(String fullName) {
@@ -89,6 +91,17 @@ public class UserService {
         user.setAccountNonLocked(false);
 
         userRepository.save(user);
+    }
+
+    @Transactional
+    public void deleteMyProfile() {
+        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+        User loggedUser = (User) auth.getPrincipal();
+
+        User user = userRepository.findById(loggedUser.getId())
+                .orElseThrow(UserNotFoundException::new);
+
+        userRepository.delete(user);
     }
 }
 

@@ -49,4 +49,14 @@ public interface UserControllerDocs {
             }
     )
     ResponseEntity<MessageResponseDTO> deactivateMyProfile();
+
+    @Operation(
+            summary = "Deletar minha conta",
+            description = "Exclui a conta do banco de dados.",
+            responses = {
+                    @ApiResponse(responseCode = "204", description = "Conta excluida com sucesso"),
+                    @ApiResponse(responseCode = "401", description = "Usuário não autenticado")
+            }
+    )
+    ResponseEntity<MessageResponseDTO> deleteMyProfile();
 }

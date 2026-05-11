@@ -27,6 +27,14 @@ public class UserController implements UserControllerDocs {
         userService.deactivateMyProfile();
         return ResponseEntity
                 .status(HttpStatus.NO_CONTENT)
+                .body(new MessageResponseDTO("Conta desativada com sucesso."));
+    }
+
+    @DeleteMapping("/delete")
+    public ResponseEntity<MessageResponseDTO> deleteMyProfile() {
+        userService.deleteMyProfile();
+        return ResponseEntity
+                .status(HttpStatus.NO_CONTENT)
                 .body(new MessageResponseDTO("Conta excluída com sucesso."));
     }
 }
