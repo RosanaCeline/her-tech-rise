@@ -183,7 +183,7 @@ export default function CardProfile({
             <div className="flex flex-row lg:flex-col flex-wrap justify-center lg:justify-start items-center gap-4 flex-shrink-0">
               <button
                 type="button"
-                className="flex items-center gap-2 text-[var(--font-gray)] hover:text-[var(--purple-primary)] transition whitespace-nowrap"
+                className="flex items-center gap-2 text-[var(--font-gray)] hover:text-[var(--purple-primary)] transition whitespace-nowrap cursor-pointer"
                 onClick={() => copyToClipboard(copyMyLink)}
               >
                 <FaPaperPlane className="text-xl xl:text-2xl flex-shrink-0" />
@@ -196,7 +196,7 @@ export default function CardProfile({
                     <button
                       type="button"
                       onClick={() => setShowOptions(!showOptions)}
-                      className="flex items-center gap-2 text-[var(--font-gray)] hover:text-[var(--purple-primary)] transition whitespace-nowrap"
+                      className="flex items-center gap-2 text-[var(--font-gray)] hover:text-[var(--purple-primary)] transition whitespace-nowrap cursor-pointer"
                     >
                       <FaSlidersH className="text-xl xl:text-2xl flex-shrink-0" />
                       <span className="text-sm font-medium">Configurações</span>
@@ -215,11 +215,11 @@ export default function CardProfile({
 
                   {/* Seguidores / Seguindo */}
                   <div className="flex items-center gap-1 text-sm xl:text-base font-medium text-[var(--font-gray)] whitespace-nowrap">
-                    <button onClick={handleFollowersClick} className="hover:text-[var(--purple-primary)] transition text-sm font-medium">
+                    <button onClick={handleFollowersClick} className="hover:text-[var(--purple-primary)] transition text-sm font-medium cursor-pointer">
                       Seguidores
                     </button>
                     <span className="px-1">|</span>
-                    <button onClick={handleFollowingClick} className="hover:text-[var(--purple-primary)] transition text-sm font-medium">
+                    <button onClick={handleFollowingClick} className="hover:text-[var(--purple-primary)] transition text-sm font-medium cursor-pointer">
                       Seguindo
                     </button>
                   </div>

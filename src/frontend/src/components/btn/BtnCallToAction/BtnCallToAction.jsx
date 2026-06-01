@@ -4,7 +4,7 @@ export default function BtnCallToAction({ children, variant = "purple", onClick,
 
   const base =
     "inline-flex items-center justify-center " +
-    "rounded-xl font-medium " +
+    "rounded-xl font-medium cursor-pointer " +
     "px-5 py-3 " +
     "text-sm sm:text-base " + 
     "whitespace-nowrap " +
