@@ -30,7 +30,7 @@ function useAuthProvider() {
       setUser(userData);
       setSessionWarning(false);
     } catch (err) {
-      throw new Error(err.response?.data?.message || 'Erro ao fazer login');
+      throw new Error(err.message || 'Erro ao fazer login');
     }
   }
 
