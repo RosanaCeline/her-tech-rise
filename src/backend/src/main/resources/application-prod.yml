@@ -45,3 +45,8 @@ brevo:
   api-key: ${BREVO_API_KEY}
   sender-email: ${BREVO_SENDER_EMAIL}
   sender-name: Her Tech Rise
+springdoc:
+  api-docs:
+    enabled: false
+  swagger-ui:
+    enabled: false
