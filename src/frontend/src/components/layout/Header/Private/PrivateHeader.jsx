@@ -48,7 +48,7 @@ export default function PrivateHeader({ routes }) {
 
           <div className="ml-auto flex items-center gap-3 lg:hidden">
             {/* LUPA */}
-            <button className="text-white m-1" aria-label="Pesquisar" onClick={openOverlaySearch} >
+            <button className="text-white m-1 cursor-pointer" aria-label="Pesquisar" onClick={openOverlaySearch} >
               <Search size={20} />
             </button>
 
@@ -77,7 +77,7 @@ export default function PrivateHeader({ routes }) {
           <nav
             className={`${
               menuVisible
-                ? 'flex flex-col gap-4 bg-[var(--purple-primary)] fixed top-25 right-0 px-6 py-6 shadow-xl w-max min-w-[12rem] z-40 rounded-bl-xl'
+                ? 'flex flex-col gap-4 bg-[var(--purple-primary)] fixed top-22 right-0 px-6 py-6 shadow-xl w-max min-w-[12rem] z-40 rounded-bl-xl'
                 : 'hidden'
             } lg:flex lg:items-center lg:gap-6 lg:relative lg:ml-auto`}
           >
@@ -96,7 +96,7 @@ export default function PrivateHeader({ routes }) {
 
             {/* CAMPO */}
             <div
-              className="fixed top-25 left-0 w-full z-50
+              className="fixed top-22 left-0 w-full z-50
                           bg-[var(--purple-primary)]/50 backdrop-blur-md
                           py-5 shadow-lg flex justify-center"
               onClick={(e) => e.stopPropagation()}

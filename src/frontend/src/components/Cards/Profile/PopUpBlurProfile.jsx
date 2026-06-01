@@ -27,16 +27,18 @@ export default function PopUpBlurProfile({ isOpen, onClose, content, children = 
 
       {/* Conteúdo */}
       <div className="relative bg-white rounded-xl shadow-lg max-w-7xl w-full max-h-[95vh] p-6 z-10 m-5 overflow-hidden flex flex-col">
-        <button
-          type="button"
-          onClick={onClose}
-          className="absolute top-4 right-4 text-[var(--purple-primary)] hover:text-[var(--purple-action)] hover:bg-gray-100 
-                      text-xl sm:text-3xl font-bold flex items-center justify-center w-10 h-10 rounded-md"
-          aria-label="Fechar modal"
-        >
-          <X/>
-        </button>
-        <div className="flex-1 overflow-y-auto overflow-x-hidden p-6 min-w-0">
+        <div className="flex justify-end mb-2 shrink-0">
+          <button
+            type="button"
+            onClick={onClose}
+            className="text-[var(--purple-primary)] hover:text-[var(--purple-action)] hover:bg-gray-100 
+                        text-xl sm:text-3xl font-bold flex items-center justify-end rounded-md cursor-pointer"
+            aria-label="Fechar modal"
+          >
+            <X/>
+          </button>
+        </div>
+        <div className="flex-1 overflow-y-auto overflow-x-hidden px-6 pb-6 min-w-0">
           {content}
           {children}
         </div>

@@ -132,7 +132,7 @@ export default function CardProfile({
                 <button
                   type="button"
                   onClick={() => fileInputRef.current.click()}
-                  className="absolute bottom-2 right-2 bg-[var(--purple-primary)] hover:bg-[var(--purple-secundary)] text-white p-2.5 rounded-full shadow-lg flex items-center justify-center"
+                  className="absolute bottom-2 right-2 bg-[var(--purple-primary)] hover:bg-[var(--purple-secundary)] text-white p-2.5 rounded-full shadow-lg flex items-center justify-center cursor-pointer"
                   aria-label="Alterar foto do perfil"
                 >
                   <FaCamera size={16} />

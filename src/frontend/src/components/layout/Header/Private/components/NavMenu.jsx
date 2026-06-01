@@ -37,7 +37,7 @@ export default function NavMenuHeader({ routes, isHovered = true, isMobile = fal
                 navigate(route.path);
                 if (isMobile) onItemClick?.();
               }}
-              className={`flex flex-col items-center text-white transition duration-300 hover:scale-105 ${
+              className={`flex flex-col items-center text-white transition duration-300 hover:scale-105 cursor-pointer ${
                 isActive ? '!text-violet-200 scale-105 my-2' : ''
               }`}
               type="button"
@@ -55,7 +55,7 @@ export default function NavMenuHeader({ routes, isHovered = true, isMobile = fal
                 route.action();
                 if (isMobile) onItemClick?.();
               }}
-              className="flex flex-col items-center text-white transition duration-300 hover:scale-105"
+              className="flex flex-col items-center text-white transition duration-300 hover:scale-105 cursor-pointer"
               type="button"
             >
               {content}
