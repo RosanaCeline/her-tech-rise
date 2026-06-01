@@ -137,7 +137,7 @@ export default function CardPublicationsProfile({ title, posts, onPostsUpdated, 
                       onClick={() => openUniquePostPopup(getPostId(item))}
                       isShare={data.isShare}
                       postShare={data.postShare}
-                      isPostDetail={false} 
+                      isPostDetail={true}
                     />
                 </div>
               );
