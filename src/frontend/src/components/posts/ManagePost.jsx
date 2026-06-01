@@ -153,7 +153,7 @@ export default function ManagePost({user, setActivePopUp, formData, setFormData,
             </div>
 
             <div className='flex flex-col mt-3'>
-            <LabelInput  theme='black' placeholder="Digite sua publicação" type="mensagem" value={formData.content} required={!formData.media.length}
+            <LabelInput  theme='black' errorTheme="dark" placeholder="Digite sua publicação" type="mensagem" value={formData.content} required={!formData.media.length}
                 onChange={(e) => setFormData(prev => ({ ...prev, content: e.target.value }))}/></div>
 
             {formData.media.some(file => (file.type?.startsWith?.('image/') || file.mediaType === 'IMAGE')) && (

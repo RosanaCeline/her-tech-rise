@@ -197,6 +197,7 @@ export default function EditEnterprise() {
           <div className="w-full mt-4 grid gap-4 max-w-2xl mx-auto">
             <LabelInput
               theme='black'
+              errorTheme="dark"
               name="nome"
               label="Nome da Empresa:"
               value={formData.nome ?? ''}
@@ -208,6 +209,7 @@ export default function EditEnterprise() {
 
             <LabelInput
               theme='black'
+              errorTheme="dark"
               name="cnpj"
               label="CNPJ:"
               value={formData.cnpj ?? ''}
@@ -220,6 +222,7 @@ export default function EditEnterprise() {
 
             <LabelInput
               theme='black'
+              errorTheme="dark"
               name="tipoEmpresa"
               label="Tipo de Empresa:"
               type="select"
@@ -232,6 +235,7 @@ export default function EditEnterprise() {
 
             <LabelInput
               theme='black'
+              errorTheme="dark"
               name="telefone"
               label="Telefone:"
               value={formData.telefone ?? ''}
@@ -244,6 +248,7 @@ export default function EditEnterprise() {
 
             <LabelInput
               theme='black'
+              errorTheme="dark"
               name="email"
               label="Email de Contato:"
               value={formData.email ?? ''}
@@ -255,6 +260,7 @@ export default function EditEnterprise() {
 
             <LabelInput
               theme='black'
+              errorTheme="dark"
               name="cep"
               label="CEP:"
               value={formData.cep ?? ''}
@@ -267,6 +273,7 @@ export default function EditEnterprise() {
 
             <LabelInput
               theme='black'
+              errorTheme="dark"
               name="rua"
               label="Rua:"
               ref={ruaInput}
@@ -279,6 +286,7 @@ export default function EditEnterprise() {
 
             <LabelInput
               theme='black'
+              errorTheme="dark"
               name="bairro"
               label="Bairro:"
               ref={bairroInput}
@@ -291,6 +299,7 @@ export default function EditEnterprise() {
 
             <LabelInput
               theme='black'
+              errorTheme="dark"
               name="cidade"
               label="Cidade:"
               ref={cidadeInput}
@@ -303,6 +312,7 @@ export default function EditEnterprise() {
 
             <LabelInput
               theme='black'
+              errorTheme="dark"
               name="estado"
               label="Estado:"
               ref={estadoInput}
@@ -326,6 +336,7 @@ export default function EditEnterprise() {
           <div className="w-full mt-4 grid gap-4 max-w-2xl mx-auto">
             <LabelInput
               theme='black'
+              errorTheme="dark"
               name="descricao"
               label="Descrição:"
               value={formData.descricao ?? ''}
@@ -336,6 +347,7 @@ export default function EditEnterprise() {
 
             <LabelInput
               theme='black'
+              errorTheme="dark"
               name="sobrenos"
               label="Sobre nós:"
               type="mensagem"
@@ -347,6 +359,7 @@ export default function EditEnterprise() {
 
             <LabelInput
               theme='black'
+              errorTheme="dark"
               name="link"
               label="Link externo:"
               value={formData.link ?? ''}

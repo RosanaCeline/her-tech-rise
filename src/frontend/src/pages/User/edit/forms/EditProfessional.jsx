@@ -40,7 +40,6 @@ export default function EditProfessional() {
   const { user, setUser, load } = useAuth();
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(true);
-  const [originalUser, setOriginalUser] = useState(null);
 
   const [addExperienceOpen, setAddExperienceOpen] = useState(false);
   const [editingExperience, setEditingExperience] = useState(null);
@@ -102,7 +101,6 @@ export default function EditProfessional() {
           experiences: user.experiences || [],
         };
         setFormData(mappedForm)
-        setOriginalUser(mappedForm)
         setOldGenderData(mappedForm.gender)
         setOldConsentData(mappedForm.consentGenderSharing)
       } catch (err) {
@@ -227,6 +225,7 @@ export default function EditProfessional() {
           <div className="w-full mt-4 grid gap-4 max-w-2xl mx-auto">
             <LabelInput
               theme='black'
+              errorTheme="dark"
               label="Nome:"
               name="nome"
               value={formData.nome ?? ''}
@@ -238,6 +237,7 @@ export default function EditProfessional() {
 
             <LabelInput
               theme='black'
+              errorTheme="dark"
               label="CPF:"
               name="cpf"
               value={formData.cpf ?? ''}
@@ -250,6 +250,7 @@ export default function EditProfessional() {
 
             <LabelInput
               theme='black'
+              errorTheme="dark"
               label="Data de Nascimento:"
               name="data_nascimento"
               value={formData.data_nascimento ?? ''}
@@ -261,6 +262,7 @@ export default function EditProfessional() {
 
             <LabelInput 
               theme='black'
+              errorTheme="dark"
               label="Você se identifica como:" 
               required={true}         type="select"    name='gender'
               options={[
@@ -273,6 +275,7 @@ export default function EditProfessional() {
 
             <LabelInput 
               theme='black'
+              errorTheme="dark"
               type="checkbox" value={formData.consentGenderSharing} 
               name='consentGenderSharing' onChange={handleChange}
               label="Autorizo que meu gênero seja compartilhado com empresas nas candidaturas a vagas, 
@@ -280,6 +283,7 @@ export default function EditProfessional() {
 
             <LabelInput
               theme='black'
+              errorTheme="dark"
               label="Telefone:"
               name="telefone"
               value={formData.telefone ?? ''}
@@ -292,6 +296,7 @@ export default function EditProfessional() {
 
             <LabelInput
               theme='black'
+              errorTheme="dark"
               label="Email:"
               name="email"
               value={formData.email ?? ''}
@@ -303,6 +308,7 @@ export default function EditProfessional() {
 
             <LabelInput
               theme='black'
+              errorTheme="dark"
               label="CEP:"
               name="cep"
               value={formData.cep ?? ''}
@@ -314,6 +320,7 @@ export default function EditProfessional() {
 
             <LabelInput
               theme='black'
+              errorTheme="dark"
               label="Rua:"
               name="rua"
               ref={ruaInput}
@@ -326,6 +333,7 @@ export default function EditProfessional() {
 
             <LabelInput
               theme='black'
+              errorTheme="dark"
               label="Bairro:"
               name="bairro"
               ref={bairroInput}
@@ -338,6 +346,7 @@ export default function EditProfessional() {
 
             <LabelInput
               theme='black'
+              errorTheme="dark"
               label="Cidade:"
               name="cidade"
               ref={cidadeInput}
@@ -350,6 +359,7 @@ export default function EditProfessional() {
 
             <LabelInput
               theme='black'
+              errorTheme="dark"
               label="Estado:"
               name="estado"
               ref={estadoInput}
@@ -371,6 +381,7 @@ export default function EditProfessional() {
           <div className="w-full mt-4 grid gap-4 max-w-2xl mx-auto">
             <LabelInput
               theme='black'
+              errorTheme="dark"
               label="Tecnologias:"
               name="tecnologias"
               value={formData.tecnologias ?? ''}
@@ -381,6 +392,7 @@ export default function EditProfessional() {
 
             <LabelInput
               theme='black'
+              errorTheme="dark"
               label="Biografia:"
               name="biografia"
               type="mensagem"
@@ -429,6 +441,7 @@ export default function EditProfessional() {
 
             <LabelInput
               theme='black'
+              errorTheme="dark"
               label="Link externo:"
               name="link"
               value={formData.link ?? ''}

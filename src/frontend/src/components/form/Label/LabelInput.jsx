@@ -15,7 +15,8 @@ export default function LabelInput ({   name,
                                         maxLength = '',
                                         ref = null,
                                         onClick,
-                                        disabled = false
+                                        disabled = false,
+                                        errorTheme = 'light'
                                     }) {
  
     const [error, setError] = useState(null);
@@ -157,7 +158,11 @@ export default function LabelInput ({   name,
                 </div>
             )}
 
-            {error && <p className="mt-2 text-sm text-left text-error">{error}</p>}
+            {error && (
+                <p className={`mt-2 text-sm text-left ${errorTheme === 'dark' ? 'text-error-dark' : 'text-error'}`}>
+                    {error}
+                </p>
+            )}
 
         </div>
     )
