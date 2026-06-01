@@ -2,6 +2,8 @@ app:
   frontend-url: ${FRONTEND_URL}
 server:
   port: 8080
+  error:
+    include-stacktrace: never
 email:
   subject: "Default Subject"
   message: "Default Message"
