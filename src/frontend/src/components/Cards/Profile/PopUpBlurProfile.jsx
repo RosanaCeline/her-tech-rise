@@ -26,7 +26,7 @@ export default function PopUpBlurProfile({ isOpen, onClose, content, children = 
       ></div>
 
       {/* Conteúdo */}
-      <div className="relative bg-white rounded-xl shadow-lg max-w-7xl w-full max-h-[95vh] p-6 z-10 m-5 overflow-hidden">
+      <div className="relative bg-white rounded-xl shadow-lg max-w-7xl w-full max-h-[95vh] p-6 z-10 m-5 overflow-hidden flex flex-col">
         <button
           type="button"
           onClick={onClose}
