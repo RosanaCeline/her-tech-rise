@@ -1,20 +1,19 @@
-import LandingPage from "../pages/LandingPage/LandingPage";
-import Login from '../pages/Auth/Login/Login';
-import Register from '../pages/Auth/Register/Register';
-import ResetPassword from "../pages/Auth/ResetPassword/ResetPassword"
-import NewPassword from "../pages/Auth/ResetPassword/NewPassword"
-
-import Timeline from '../pages/Timeline/Timeline';
-import VerMeuPerfil from '../pages/User/VerMeuPerfil';
-import VerPerfil from '../pages/User/VerPerfil';
-import SearchUser from '../pages/Search/SearchUser';
-// import { logout } from '../services/authService';
-
+import { lazy } from 'react';
 import { Home, User, LogOut, BriefcaseBusiness } from 'lucide-react';
-import ProfessionalJobsListing from "../pages/JobsListing/ProfessionalJobsListing";
-import CompanyJobsListing from "../pages/JobsListing/CompanyJobsListing";
-import ProfessionalApplications from "../pages/applications/ProfessionalApplications";
-import CompanyApplications from "../pages/applications/CompanyApplications";
+
+const LandingPage             = lazy(() => import('../pages/LandingPage/LandingPage'));
+const Login                   = lazy(() => import('../pages/Auth/Login/Login'));
+const Register                = lazy(() => import('../pages/Auth/Register/Register'));
+const ResetPassword           = lazy(() => import('../pages/Auth/ResetPassword/ResetPassword'));
+const NewPassword             = lazy(() => import('../pages/Auth/ResetPassword/NewPassword'));
+const Timeline                = lazy(() => import('../pages/Timeline/Timeline'));
+const VerMeuPerfil            = lazy(() => import('../pages/User/VerMeuPerfil'));
+const VerPerfil               = lazy(() => import('../pages/User/VerPerfil'));
+const SearchUser              = lazy(() => import('../pages/Search/SearchUser'));
+const ProfessionalJobsListing = lazy(() => import('../pages/JobsListing/ProfessionalJobsListing'));
+const CompanyJobsListing      = lazy(() => import('../pages/JobsListing/CompanyJobsListing'));
+const ProfessionalApplications = lazy(() => import('../pages/applications/ProfessionalApplications'));
+const CompanyApplications     = lazy(() => import('../pages/applications/CompanyApplications'));
 
 const iconSize = 20;
 
