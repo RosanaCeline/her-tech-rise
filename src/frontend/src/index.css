@@ -10,6 +10,11 @@ body {
   min-width: 375px;
 }
 
+.text-error {
+  color: white;
+  text-shadow: 0 0 6px rgba(220, 38, 38, 0.9);
+}
+
 :root {
   --font-gray: #5C5C5C;
   --purple-primary: #3F2E75;

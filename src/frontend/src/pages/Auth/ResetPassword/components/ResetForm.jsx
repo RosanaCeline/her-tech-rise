@@ -70,7 +70,7 @@ export default function ResetForm() {
             {loading ? 'Enviando...' : 'ENVIAR'}
           </BtnCallToAction>
         </div>
-        {errorMsg && <p className='text-sm mt-4 mx-auto'>{errorMsg}</p>}
+        {errorMsg && <p className='text-sm mt-4 mx-auto text-error'>{errorMsg}</p>}
       </div>
     </div>
   );

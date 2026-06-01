@@ -157,7 +157,7 @@ export default function LabelInput ({   name,
                 </div>
             )}
 
-            {error && <p className={`mt-2 text-sm text-left text-${theme}`}>{error}</p>}
+            {error && <p className="mt-2 text-sm text-left text-error">{error}</p>}
 
         </div>
     )

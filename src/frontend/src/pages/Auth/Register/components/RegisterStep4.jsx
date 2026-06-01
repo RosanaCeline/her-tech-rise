@@ -51,7 +51,7 @@ export default function RegisterStep1({formData, handleChange }){
                                     handleChange('senha_confirmada', e.target.value)
                                     comparePasswords(formData.senha, e.target.value)
                     }}/>
-                    {erroSenha && <p className="text-sm text-theme-white">As senhas não coincidem.</p>}
+                    {erroSenha && <p className="text-sm text-error">As senhas não coincidem.</p>}
                     <div className='mt-4'>
                         {formData.tipo_usuario === 'profissional' &&
                         <LabelInput type="checkbox" theme='white' value={formData.consentGenderSharing} 

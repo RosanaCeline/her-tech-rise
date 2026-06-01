@@ -85,7 +85,7 @@ export default function NewPasswordForm(){
                             setConfirmaSenha(e.target.value)
                             comparePasswords(senha, e.target.value)
                     }}/>
-                    {erroSenha && <p className="text-sm text-theme-white">As senhas não coincidem.</p>}
+                    {erroSenha && <p className="text-sm text-error">As senhas não coincidem.</p>}
                 </div>
 
                 {feedback && <p className='text-sm mt-4'>{feedback}</p>}
@@ -97,7 +97,7 @@ export default function NewPasswordForm(){
                         {loading ? 'Enviando...' : 'ENVIAR'}
                     </BtnCallToAction>
                 </div>
-                {errorMsg && <p className='text-sm mt-4 mx-auto'>{errorMsg}</p>}
+                {errorMsg && <p className='text-sm mt-4 mx-auto text-error'>{errorMsg}</p>}
             </div>
 
             {successModalOpen && (
