@@ -3,6 +3,8 @@ app:
   frontend-url: ${FRONTEND_DEV_URL}            # variável diferente para o frontend localhost
 server:
   port: 8080
+  error:
+    include-stacktrace: always
 email:
   subject: "Default Subject"
   message: "Default Message"

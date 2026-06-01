@@ -46,25 +46,21 @@ export default function ProfessionalJobsListing(){
         fetchJobs();
     }, [])
 
-    useEffect(() => {
-        document.body.style.overflow = 'hidden';
-        return () => { document.body.style.overflow = ''; };
-    }, []);
 
     if (loading) return ( <LoadingSpinner /> );
     if (error) return <main className="pt-34"><p className="text-red-600">{error}</p></main>;
 
     return(
-        <main className='flex-1 flex flex-col bg-[var(--light)] py-4 overflow-hidden'>
-            <div className="flex flex-col flex-1 min-h-0 w-5/6 p-6 bg-white mx-auto rounded-xl overflow-hidden">
-                <div className="flex flex-col md:flex-row justify-between mb-5 gap-y-2 flex-shrink-0">
+        <main className='flex flex-col bg-[var(--light)] pt-32 pb-6'>
+            <div className="flex flex-col w-5/6 p-6 bg-white mx-auto rounded-xl">
+                <div className="flex flex-col md:flex-row justify-between mb-5 gap-y-2">
                     <h1 className="text-xl md:text-3xl font-semibold text-[var(--purple-secundary)] pt-2">Confira vagas em destaque</h1>
                     <BtnCallToAction onClick={() => navigate('/profissional/vagas/candidaturas')}>MINHAS CANDIDATURAS</BtnCallToAction>
                 </div>
 
                 {jobs.length > 0
                     ?
-                        <div className="flex-1 min-h-0 bg-[var(--gray)] rounded-2xl flex border border-[var(--gray)] overflow-hidden">
+                        <div className="bg-[var(--gray)] rounded-2xl flex border border-[var(--gray)]" style={{minHeight: '60vh', maxHeight: '70vh'}}>
                             <div className="w-full md:w-2/5 overflow-y-auto">
                                 {jobs.map((job) =>
                                     <div key={job.id}>
