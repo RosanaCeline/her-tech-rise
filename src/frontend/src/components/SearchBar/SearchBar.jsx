@@ -43,7 +43,7 @@ export default function SearchBar({ className = '', autoFocus = false }) {
         onKeyDown={(e) => {if(e.key === 'Enter') handleSearch()}}
       />
       <Search
-        className="absolute right-3 top-1/2 transform -translate-y-1/2 text-white"
+        className="absolute right-3 top-1/2 transform -translate-y-1/2 text-white cursor-pointer"
         size={20}
         onClick={() => handleSearch()}
       />
