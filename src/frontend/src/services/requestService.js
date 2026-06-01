@@ -53,7 +53,9 @@ export const requestService = {
 
         try {
           const errorData = await response.json();
-          errorMessage = errorData.message || errorMessage;
+          errorMessage = errorData.message
+            || (typeof errorData === 'object' ? Object.values(errorData)[0] : null)
+            || errorMessage;
         } catch (err) {
           console.error('API request error:', err);
           throw err;

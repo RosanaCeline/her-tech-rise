@@ -161,9 +161,9 @@ export default function CardPublicationsProfile({ title, posts, onPostsUpdated, 
           isOpen={isPopupOpen}
           onClose={() => setIsPopupOpen(false)}
           content={
-            <div className="flex flex-col gap-6 w-full min-w-0">
-              <h1 className="text-2xl md:text-4xl font-bold text-[var(--purple-secundary)] break-words">MINHAS POSTAGENS</h1>
-              <div>
+            <div className="flex flex-col gap-6 w-full min-w-0 h-full min-h-0">
+              <h1 className="text-2xl md:text-4xl font-bold text-[var(--purple-secundary)] break-words flex-shrink-0">MINHAS POSTAGENS</h1>
+              <div className="flex-shrink-0">
                 <select
                   value={filter}
                   onChange={(e) => setFilter(e.target.value)}
@@ -175,7 +175,7 @@ export default function CardPublicationsProfile({ title, posts, onPostsUpdated, 
                 </select>
               </div>
 
-              <div className="flex flex-col min-w-0 gap-4 max-h-[80vh] overflow-y-auto pr-1">
+              <div className="flex flex-col min-w-0 gap-4 flex-1 min-h-0 overflow-y-auto pr-1">
                 {filteredPosts.length > 0 ? filteredPosts.map((item, idx) => {
                   const data = buildPostData(item);
                   return (

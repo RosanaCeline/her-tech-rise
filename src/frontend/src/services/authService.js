@@ -3,12 +3,15 @@ import axios from 'axios';
 const API_URL = `${import.meta.env.VITE_API_URL}/auth`;
 
 export const saveUser = (data, remember) => {
+  const payload = JSON.stringify({ ...data, remember: !!remember });
   if (remember) {
-    localStorage.setItem('user', JSON.stringify(data));
+    localStorage.setItem('user', payload);
   } else {
-    sessionStorage.setItem('user', JSON.stringify(data));
+    sessionStorage.setItem('user', payload);
   }
 };
+
+export const isRemembered = () => !!localStorage.getItem('user');
 
 export const login = async (email, senha, remember) => {
   try {

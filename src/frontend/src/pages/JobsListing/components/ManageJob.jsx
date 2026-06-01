@@ -28,7 +28,7 @@ export default function ManageJob({jobFormData, setJobFormData, setManageJobModa
             setManageJobModal(false);
             fetchMyJobs();
         } catch(err) {
-            setErrorMessage(err.response?.data?.message || `Erro ao ${action === 'new' ? 'cadastrar nova' : 'editar'} vaga de emprego`);
+            setErrorMessage(err.message || `Erro ao ${action === 'new' ? 'cadastrar nova' : 'editar'} vaga de emprego`);
             setTimeout(() => setErrorMessage(null), 4000)
         } finally {
             setLoading(false);

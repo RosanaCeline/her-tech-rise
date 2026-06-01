@@ -1,7 +1,7 @@
 import { useState, useEffect, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom'
 
-import { login as loginService, logout as logoutService, getCurrentUser, isTokenExpired, getTokenRemainingMs } from '../services/authService';
+import { login as loginService, logout as logoutService, getCurrentUser, isTokenExpired, getTokenRemainingMs, isRemembered } from '../services/authService';
 import { updateProfile as updateProfileService } from '../services/userService';
 import { AuthContext } from './AuthContext';
 import { requestService } from '../services/requestService';
@@ -57,7 +57,10 @@ function useAuthProvider() {
       if (isTokenExpired(storedUser.token)) {
         logoutService();
         setLoading(false);
-        navigate('/login', { replace: true, state: { expired: true } });
+        navigate('/login', {
+          replace: true,
+          state: isRemembered() ? undefined : { expired: true },
+        });
         return;
       }
       setUser(storedUser);
@@ -67,6 +70,7 @@ function useAuthProvider() {
 
   useEffect(() => {
     if (!user?.token) return;
+    if (isRemembered()) return;
 
     const remainingMs = getTokenRemainingMs(user.token);
     if (remainingMs <= 0) {
