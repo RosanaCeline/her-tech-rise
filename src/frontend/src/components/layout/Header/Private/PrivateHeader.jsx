@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 
 import { Search } from 'lucide-react';
 
@@ -8,6 +9,7 @@ import NavMenuHeader from './components/NavMenu';
 
 export default function PrivateHeader({ routes }) {
 
+  const navigate = useNavigate();
   const [menuVisible, setMenuVisible] = useState(false);
   const [searchMode, setSearchMode] = useState('none');
 
@@ -41,7 +43,7 @@ export default function PrivateHeader({ routes }) {
     <>
         <header className="fixed top-0 left-0 w-full h-22 bg-[var(--purple-primary)] text-white z-50 shadow-md px-6 pr-15 md:px-15 flex items-center justify-start">
           
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-2 cursor-pointer" onClick={() => navigate('/timeline')}>
             <img src={logo} alt="Logo Her Tech Rise" className="w-auto max-w-12 md:max-w-20 lg:max-w-30" />
             <span className="text-xl md:text-2xl lg:text-4xl font-semibold whitespace-nowrap">Her Tech Rise</span>
           </div>
