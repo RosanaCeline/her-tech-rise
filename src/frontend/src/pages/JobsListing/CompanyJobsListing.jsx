@@ -118,7 +118,7 @@ function CompanyJobDetails({job, setManageJobModal, setJobFormData, handleDeacti
     }
 
     return(
-        <div className={`flex grid grid-cols-10 border rounded-xl hover:bg-slate-50 border-(--gray) p-3 ${!job.isActive ? 'grayscale opacity-60' : ''}`}>
+        <div className={`grid grid-cols-10 border rounded-xl hover:bg-slate-50 border-(--gray) p-3 ${!job.isActive ? 'grayscale opacity-60' : ''}`}>
             <div className="">
                 <img src={job.companyProfilePic} className="w-full object-cover rounded-xl"/>
             </div>
