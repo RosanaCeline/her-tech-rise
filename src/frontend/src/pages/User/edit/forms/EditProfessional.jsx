@@ -148,16 +148,18 @@ export default function EditProfessional() {
     };
 
     let hasError = false;
+    let firstError = '';
     for (const campo in camposObrigatorios) {
       const erro = validateField(camposObrigatorios[campo], formData[campo], true);
       if (erro) {
         hasError = true;
+        firstError = erro;
         break;
       }
     }
 
-    if (hasError) 
-      setError('Preencha os campos obrigatórios e corrija os erros antes de continuar.');
+    if (hasError)
+      setError(`Preencha os campos obrigatórios e corrija os erros antes de continuar. ${firstError}`);
     else
       setError('');
 
@@ -389,7 +391,7 @@ export default function EditProfessional() {
             />
 
             <label className="block text-[#303F3C] font-sm text-base text-left">
-              Experiencias:
+              Experiências:
             </label>
             <div className="flex flex-col gap-4">
               {formData.experiences.length > 0 ? (

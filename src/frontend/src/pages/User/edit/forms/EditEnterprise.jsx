@@ -126,16 +126,18 @@ export default function EditEnterprise() {
     };
 
     let hasError = false;
+    let firstError = '';
     for (const campo in requiredFields) {
       const erro = validateField(requiredFields[campo], formData[campo], true);
       if (erro) {
         hasError = true;
+        firstError = erro;
         break;
       }
     }
 
-    if (hasError) 
-      setError('Preencha os campos obrigatórios e corrija os erros antes de continuar.');
+    if (hasError)
+      setError(`Preencha os campos obrigatórios e corrija os erros antes de continuar. ${firstError}`);
     else
       setError('');
 
