@@ -7,7 +7,7 @@ import BtnCallToAction from '../btn/BtnCallToAction/BtnCallToAction'
 import LabelInput from "../form/Label/LabelInput"
 import ConfirmModal from '../ConfirmModal/ConfirmModal'
 
-export default function ManagePost({user, setActivePopUp, formData, setFormData, isEdit, onSuccess }){
+export default function ManagePost({user, setActivePopUp, formData, setFormData, isEdit, onSuccess, onClose }){
 
     const [originalData] = useState(() => JSON.stringify(formData));
     const [confirmSaveOpen, setConfirmSaveOpen] = useState(false);
@@ -149,7 +149,7 @@ export default function ManagePost({user, setActivePopUp, formData, setFormData,
                         )}
                     </div>
                 </div>
-                <X className="cursor-pointer" onClick={() => (formData.content !== '' || formData.media.length !== 0) ? setCancelModalOpen(true) : setActivePopUp('')}/>
+                <X className="cursor-pointer" onClick={() => (formData.content !== '' || formData.media.length !== 0) ? setCancelModalOpen(true) : (setActivePopUp(''), onClose?.())}/>
             </div>
 
             <div className='flex flex-col mt-3'>
@@ -175,20 +175,25 @@ export default function ManagePost({user, setActivePopUp, formData, setFormData,
             <div>
                 {formData.media
                     .filter(file =>
+                        file.mediaType === 'DOCUMENT' ||
                         file.type === 'application/pdf' ||
                         file.type === 'application/vnd.openxmlformats-officedocument.wordprocessingml.document'
                     )
-                    .map((file, index) => (
-                        <div key={index} className='flex items-center p-4 border border-blue-600 rounded shadow bg-gray-100 mb-2'>
-                            <a href={URL.createObjectURL(file)} target="_blank" rel="noopener noreferrer"
-                            className="flex-grow text-center text-sm text-blue-600 hover:underline truncate">
-                            {file.name}
-                            </a>
-                            <button type='button' onClick={() => handleRemove(file)} className="ml-4">
-                                <X/>
-                            </button>
-                        </div>
-                    ))}
+                    .map((file, index) => {
+                        const href = file.url ?? URL.createObjectURL(file);
+                        const label = file.name ?? file.url?.split('/').pop() ?? `Documento ${index + 1}`;
+                        return (
+                            <div key={index} className='flex items-center p-4 border border-blue-600 rounded shadow bg-gray-100 mb-2'>
+                                <a href={href} target="_blank" rel="noopener noreferrer"
+                                className="flex-grow text-center text-sm text-blue-600 hover:underline truncate">
+                                    {label}
+                                </a>
+                                <button type='button' onClick={() => handleRemove(file)} className="ml-4">
+                                    <X/>
+                                </button>
+                            </div>
+                        );
+                    })}
             </div>
 
             <div className="flex justify-between gap-x-3">
@@ -221,18 +226,15 @@ export default function ManagePost({user, setActivePopUp, formData, setFormData,
             <ConfirmModal
                 open={cancelModalOpen}
                 title="Confirmar cancelamento"
-                message="Tem certeza que deseja cancelar a publicação?"
+                message={isEdit ? "Tem certeza que deseja cancelar a edição desta publicação?" : "Tem certeza que deseja cancelar a publicação?"}
                 cancelText="Não"
                 confirmText="Sim"
                 onCancel={() => setCancelModalOpen(false)}
                 onConfirm={() => {
                     setCancelModalOpen(false);
                     setActivePopUp('');
-                    setFormData({
-                    content: '',
-                    media: [],
-                    visibility: 'PUBLICO'
-                    });
+                    setFormData({ content: '', media: [], visibility: 'PUBLICO' });
+                    onClose?.();
                 }}
             />
 

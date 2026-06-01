@@ -102,11 +102,12 @@ export default function CardPostProfile({ post, photo, name, isPostDetail = true
                     setActivePopUp={setActivePopUp}
                     formData={formData}
                     setFormData={setFormData}
-                    isEdit={true} 
+                    isEdit={true}
                     onSuccess={() => {
                       setEditingPost(null);
                       onPostsUpdated?.();
                     }}
+                    onClose={() => setEditingPost(null)}
                   />
                 )}
                 {activePopUp === 'image' && <AttachFile type="image" setFormData={setFormData} setActivePopUp={setActivePopUp} />}

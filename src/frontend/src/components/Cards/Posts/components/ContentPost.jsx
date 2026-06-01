@@ -98,7 +98,7 @@ export default function ContentPost({ post, isShare = false, postShare = null, i
                       onClick={() => handleDownloadClick(m.url)}
                       className="text-sm font-medium hover:underline ml-4 whitespace-nowrap"
                     >
-                      Baixar
+                      Abrir
                     </button>
                   </div>
                 );
@@ -131,7 +131,7 @@ export default function ContentPost({ post, isShare = false, postShare = null, i
                     download
                     className="text-sm font-medium hover:underline ml-4 whitespace-nowrap"
                   >
-                    Baixar
+                    Abrir
                   </a>
                 </div>
               )}
@@ -152,7 +152,7 @@ export default function ContentPost({ post, isShare = false, postShare = null, i
         open={confirmOpen}
         title="Iniciando download"
         message="Deseja baixar este arquivo agora?"
-        confirmText="Baixar"
+        confirmText="Abrir"
         cancelText="Cancelar"
         onCancel={() => setConfirmOpen(false)}
         onConfirm={handleConfirmDownload}
