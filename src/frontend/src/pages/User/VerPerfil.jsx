@@ -3,7 +3,7 @@ import { useNavigate, useParams } from 'react-router-dom';
 
 import { deactivateAccount, followUser, unfollowUser, verifyFollowUser } from '../../services/userService';
 import { getProfileById, listFollowers, listFollowing  } from '../../services/userService';
-import { getCurrentUser } from '../../services/authService';
+import { getCurrentUser, logout as logoutService } from '../../services/authService';
 
 import SeeStatistics from './statistics/SeeStatistics'
 import CardProfile from '../../components/Cards/Profile/CardProfile';
@@ -46,20 +46,20 @@ export default function VerPerfil() {
         likes: 0
     });
 
-    const fetchStatistics = useCallback(async () => {
+    const fetchStatistics = useCallback(async (userData) => {
         try {
             const followers = await listFollowers();
             const following = await listFollowing();
             setStatistics({
-                profileVisits: user?.statistics?.profilevisits || 0,
+                profileVisits: userData?.statistics?.profilevisits || 0,
                 followers: followers.length || 0,
                 following: following.length || 0,
-                likes: user?.statistics?.likes || 0
+                likes: userData?.statistics?.likes || 0
             });
         } catch (err) {
             console.error("Erro ao buscar estatísticas:", err);
         }
-    }, [user]);
+    }, []);
 
     const fetchProfile = useCallback(async () => {
         try {
@@ -77,7 +77,7 @@ export default function VerPerfil() {
                 cidade: response.city,
                 estado: response.uf,
             },
-            posts: response.posts ?? [], 
+            posts: response.posts ?? [],
             ...(isProfessional && {
                 tecnologias: response.technology,
                 biografia: response.biography,
@@ -90,6 +90,7 @@ export default function VerPerfil() {
             };
 
             setUser(userMapped);
+            return userMapped;
         } catch (err) {
             setError('Erro ao carregar perfil.');
             console.error(err);
@@ -99,7 +100,7 @@ export default function VerPerfil() {
     }, [userId, user_type, isProfessional, isCompany]);
 
     useEffect(() => {
-        fetchProfile().then(() => fetchStatistics());
+        fetchProfile().then((userData) => fetchStatistics(userData));
     }, [fetchProfile, fetchStatistics])
 
     useEffect(() => {
@@ -117,7 +118,8 @@ export default function VerPerfil() {
     const handleDeleteAccount = async () => {
         try {
             await deactivateAccount();
-            navigate('/');
+            logoutService();
+            navigate('/login', { replace: true, state: { accountDeleted: true } });
         } catch (err) {
             console.error("Erro ao deletar conta:", err);
         }

@@ -7,6 +7,7 @@ export default function Login ({ resetPass, registerPath, enter }) {
 
   const location = useLocation();
   const sessionExpired = location.state?.expired;
+  const accountDeleted = location.state?.accountDeleted;
 
   return (
     <main className='flex bg-[#F7F7F7]'>
@@ -18,6 +19,12 @@ export default function Login ({ resetPass, registerPath, enter }) {
         {sessionExpired && (
           <div className="text-base bg-red-700 text-white mt-1 flex items-center gap-2 w-1/2 ml-auto p-4 rounded-md m-4">
             Sua sessão expirou. Faça login novamente para continuar.
+          </div>
+        )}
+
+        {accountDeleted && (
+          <div className="text-base bg-green-700 text-white mt-1 flex items-center gap-2 w-1/2 ml-auto p-4 rounded-md m-4">
+            Sua conta foi excluída com sucesso.
           </div>
         )}
 
