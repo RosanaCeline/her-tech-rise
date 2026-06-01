@@ -20,7 +20,11 @@ export default function PrivateHeader({ routes }) {
     setMenuVisible(false);
     setSearchMode('overlay');
   };
-  const closeSearch = () =>  setSearchMode('none');
+  const closeSearch = () => setSearchMode('none');
+  const toggleSearch = () => {
+    setMenuVisible(false);
+    setSearchMode(prev => prev === 'overlay' ? 'none' : 'overlay');
+  };
 
   useEffect(() => {
     const handleResize = () => {
@@ -48,7 +52,7 @@ export default function PrivateHeader({ routes }) {
 
           <div className="ml-auto flex items-center gap-3 lg:hidden">
             {/* LUPA */}
-            <button className="text-white m-1 cursor-pointer" aria-label="Pesquisar" onClick={openOverlaySearch} >
+            <button className="text-white m-1 cursor-pointer" aria-label="Pesquisar" onClick={toggleSearch} >
               <Search size={20} />
             </button>
 

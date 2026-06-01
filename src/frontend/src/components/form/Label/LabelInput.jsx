@@ -119,7 +119,7 @@ export default function LabelInput ({   name,
                 onBlur={handleBlur}
                 placeholder={placeholder}
                 rows={6}
-                className={`${baseInputClasses} resize-none`}
+                className={`${baseInputClasses} resize-none whitespace-normal`}
                 />
             ) : (
                 <div className="relative">

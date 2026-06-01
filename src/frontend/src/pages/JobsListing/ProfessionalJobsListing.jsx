@@ -128,7 +128,7 @@ function JobDetails({job, setApplyJobModal}){
     }
 
     return(
-        <div className="p-4 bg-white w-full overflow-y-auto">
+        <div className="p-4 bg-white w-full">
             <div className="flex justify-center gap-x-8 border-b-1 border-slate-200 pb-4">
                 <img src={job.companyProfilePic} className="w-1/8 h-1/8 my-auto rounded-full"/>
                 <div className="my-auto"> 
@@ -138,10 +138,10 @@ function JobDetails({job, setApplyJobModal}){
             </div>
             <div className="mt-4 px-4">
                 <p className="font-bold">Sobre a vaga: </p>
-                {job.description}
+                <p className="whitespace-pre-wrap break-words mb-3">{job.description}</p>
 
                 <p className="font-bold">Requisitos:</p>
-                {job.requirements}
+                <p className="whitespace-pre-wrap break-words mb-3">{job.requirements}</p>
 
                 <p className="font-bold">Tipo de contrato: <span className="font-normal">{contractTypes[job.contractType]}</span></p>
 
