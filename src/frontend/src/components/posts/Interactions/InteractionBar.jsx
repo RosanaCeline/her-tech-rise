@@ -15,6 +15,32 @@ import { sendLikePost, getLikesPost,
             sendSharePost, sendLikeShare, getLikesShare, sendCommentShare, getCommentsShare,
         } from "../../../services/interactionsService";
 
+function CommentInput({ value, onChange, onKeyDown, onSend, placeholder, profileURL, isCompact }) {
+    return (
+        <div className="flex items-start gap-2 w-full min-w-0 pt-3">
+            <img
+                src={profileURL}
+                className="w-9 h-9 sm:w-11 sm:h-11 rounded-full object-cover flex-shrink-0"
+            />
+            <div className="flex-1 min-w-0">
+                <LabelInput
+                    placeholder={placeholder}
+                    value={value}
+                    onChange={onChange}
+                    onKeyDown={onKeyDown}
+                />
+            </div>
+            <button
+                onClick={onSend}
+                className="flex-shrink-0 flex items-center justify-center bg-[var(--purple-primary)] text-white rounded-lg hover:opacity-90 transition px-3 py-2"
+            >
+                <Send size={16} className="sm:hidden" />
+                {!isCompact && <span className="text-xs">Enviar</span>}
+            </button>
+        </div>
+    );
+}
+
 export default function InteractionBar({ idAuthor, post, photo, name, cardWidth = 600 }) {
 
     const currentUser = getCurrentUser();
@@ -89,7 +115,7 @@ export default function InteractionBar({ idAuthor, post, photo, name, cardWidth 
         try {
             const payload = { content: contentToSend };
             if (isReply && parentComment) {
-                payload.parentComment = Number(parentComment);
+                payload.parentCommentId = Number(parentComment);
             }
             let createdComment;
             if(post.type === 'POSTAGEM'){
@@ -105,7 +131,7 @@ export default function InteractionBar({ idAuthor, post, photo, name, cardWidth 
                     userName: currentUser.name,
                     userAvatarUrl: currentUser.profilePicture,
                     createdAt: new Date().toISOString(),
-                    parentComment: isReply ? parentComment : null,
+                    parentComment: isReply ? Number(parentComment) : null,
                 },
                 ...prev
             ]);
@@ -177,13 +203,12 @@ export default function InteractionBar({ idAuthor, post, photo, name, cardWidth 
             else if (post.type === "COMPARTILHAMENTO") list = await getCommentsShare(post.id);
             setListComments(list);
 
-            const likedIds = new Set();
-            for (const comment of list) {
-                const likes = await getLikesComment(comment.id);
-                if (likes.some(like => like.userId === currentUser.id)) {
-                    likedIds.add(comment.id);
-                }
-            }
+            const likeResults = await Promise.all(list.map(c => getLikesComment(c.id)));
+            const likedIds = new Set(
+                list
+                    .filter((_, i) => likeResults[i].some(like => like.userId === currentUser.id))
+                    .map(c => c.id)
+            );
             setLikedComments(likedIds);
         } catch (error) {
             console.error("Erro ao buscar comentários:", error);
@@ -255,29 +280,6 @@ export default function InteractionBar({ idAuthor, post, photo, name, cardWidth 
         fetchLikes();
     }, [post?.id, currentUser.id]);
 
-    const CommentInput = ({ value, onChange, onKeyDown, onSend, placeholder }) => (
-        <div className="flex items-start gap-2 w-full min-w-0 pt-3">
-            <img
-                src={user.profileURL}
-                className="w-9 h-9 sm:w-11 sm:h-11 rounded-full object-cover flex-shrink-0"
-            />
-            <div className="flex-1 min-w-0">
-                <LabelInput
-                    placeholder={placeholder}
-                    value={value}
-                    onChange={onChange}
-                    onKeyDown={onKeyDown}
-                />
-            </div>
-            <button
-                onClick={onSend}
-                className="flex-shrink-0 flex items-center justify-center bg-[var(--purple-primary)] text-white rounded-lg hover:opacity-90 transition px-3 py-2"
-            >
-                <Send size={16} className="sm:hidden" />
-                {!isCompact && <span className="text-xs">Enviar</span>}
-            </button>
-        </div>
-    );
 
     return (
         <div className="interaction-bar" onClick={(e) => e.stopPropagation()}>
@@ -367,6 +369,8 @@ export default function InteractionBar({ idAuthor, post, photo, name, cardWidth 
                         onKeyDown={(e) => e.key === "Enter" && sendComment()}
                         onSend={() => { if (!newComment.trim()) return; sendComment(); }}
                         placeholder="Escreva um comentário..."
+                        profileURL={user.profileURL}
+                        isCompact={isCompact}
                     />
 
                     {listComments
@@ -440,19 +444,21 @@ export default function InteractionBar({ idAuthor, post, photo, name, cardWidth 
                                         </div>
 
                                         {replyingToCommentId === comment.id && (
-                                            <div className="ml-2 sm:ml-4 w-full min-w-0 pr-1">
+                                            <div className="ml-2 sm:ml-4 min-w-0 pr-1">
                                                 <CommentInput
                                                     value={replyContent}
                                                     onChange={(e) => setReplyContent(e.target.value)}
                                                     onKeyDown={(e) => e.key === "Enter" && sendComment(true, comment.id)}
                                                     onSend={() => sendComment(true, comment.id)}
                                                     placeholder="Escreva uma resposta..."
+                                                    profileURL={user.profileURL}
+                                                    isCompact={isCompact}
                                                 />
                                             </div>
                                         )}
                                         
                                         {replies.length > 0 && (
-                                        <div className="ml-2 sm:ml-4 flex flex-col gap-3 border-l-2 border-gray-200 pl-3 w-full min-w-0 pt-3">
+                                        <div className="ml-2 sm:ml-4 flex flex-col gap-3 border-l-2 border-gray-200 pl-3 min-w-0 pt-3">
                                             {replies.map((reply) => {
                                                 const isLikedReply = likedComments.has(reply.id);
                                                 return (
