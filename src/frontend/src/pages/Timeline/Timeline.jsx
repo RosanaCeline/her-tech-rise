@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useMemo, useRef } from 'react';
 
 import TimelineCard from './components/TimelineCard';
 import NewPost from './components/NewPost';
@@ -25,12 +25,7 @@ export default function Timeline() {
 
     const [isUniquePostPopup, setIsUniquePostPopup] = useState(false);
     const [selectedPostId, setSelectedPostId] = useState(null);
-    
-    const selectedPost = posts.find((item) => {
-        if (item.type === 'POSTAGEM') return item.post.id === selectedPostId;
-        if (item.type === 'COMPARTILHAMENTO') return item.share.sharedId === selectedPostId;
-        return false;
-    });
+    const scrollThrottleRef = useRef(false);
 
     const openUniquePostPopup = (postId) => {
         setSelectedPostId(postId);
@@ -91,6 +86,10 @@ export default function Timeline() {
         };
     };
 
+    const normalizedPosts = useMemo(() => posts.map(normalizePost), [posts]);
+
+    const selectedPost = normalizedPosts.find((data) => data.post.id === selectedPostId);
+
     useEffect(() => {
         async function fetchTimeline() {
             try {
@@ -130,13 +129,15 @@ export default function Timeline() {
 
     useEffect(() => {
         function handleScroll() {
+            if (scrollThrottleRef.current) return;
             if (
                 window.innerHeight + window.scrollY >= document.body.offsetHeight - 200 &&
                 !loadingMore &&
                 !loading &&
                 !fetchError
             ) {
-                setLoadingMore(true);
+                scrollThrottleRef.current = true;
+                setTimeout(() => { scrollThrottleRef.current = false; }, 300);
                 setPage(prev => prev + 1);
             }
         }
@@ -189,10 +190,9 @@ export default function Timeline() {
                 </div>
             )}
 
-            {!fetchError && posts.length > 0 && (
+            {!fetchError && normalizedPosts.length > 0 && (
                 <div className="flex flex-col gap-8 w-full mx-auto mt-6 mb-10">
-                    {posts.map((post) => {
-                        const data = normalizePost(post);
+                    {normalizedPosts.map((data) => {
                         const isFollowing = data.post.isOwner
                             ? null
                             : followStatusMap.hasOwnProperty.call(followStatusMap, data.idAuthor)
@@ -241,25 +241,20 @@ export default function Timeline() {
                     isOpen={isUniquePostPopup}
                     onClose={closeUniquePostPopup}
                     content={
-                        (() => {
-                            const data = normalizePost(selectedPost);
-                            return (
-                                <CardPostProfile
-                                    idUserLogged={data.idUserLogged}
-                                    post={data.post}
-                                    photo={data.photo}
-                                    name={data.name}
-                                    handle={data.handle}
-                                    idAuthor={data.idAuthor}
-                                    isPopupView={true}
-                                    isOpen={true}
-                                    isOwner={data.idUserLogged === data.idAuthor}
-                                    isFollowing={data.post.isOwner ? false : (data.post.author?.isFollowed ?? false)}
-                                    isShare={data.isShare}
-                                    postShare={data.postShare}
-                                />
-                            );
-                        })()
+                        <CardPostProfile
+                            idUserLogged={selectedPost.idUserLogged}
+                            post={selectedPost.post}
+                            photo={selectedPost.photo}
+                            name={selectedPost.name}
+                            handle={selectedPost.handle}
+                            idAuthor={selectedPost.idAuthor}
+                            isPopupView={true}
+                            isOpen={true}
+                            isOwner={selectedPost.idUserLogged === selectedPost.idAuthor}
+                            isFollowing={selectedPost.post.isOwner ? false : (selectedPost.isFollowed ?? false)}
+                            isShare={selectedPost.isShare}
+                            postShare={selectedPost.postShare}
+                        />
                     }
                 />
             )}
