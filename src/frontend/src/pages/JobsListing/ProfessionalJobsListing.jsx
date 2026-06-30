@@ -51,7 +51,7 @@ export default function ProfessionalJobsListing(){
     if (error) return <main className="pt-34"><p className="text-red-600">{error}</p></main>;
 
     return(
-        <main className='flex flex-col bg-[var(--light)] pt-32 pb-6'>
+        <main className='flex flex-col bg-[var(--light)] pt-10 pb-6'>
             <div className="flex flex-col w-5/6 p-6 bg-white mx-auto rounded-xl">
                 <div className="flex flex-col md:flex-row justify-between mb-5 gap-y-2">
                     <h1 className="text-xl md:text-3xl font-semibold text-[var(--purple-secundary)] pt-2">Confira vagas em destaque</h1>
