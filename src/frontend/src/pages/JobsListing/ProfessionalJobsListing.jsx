@@ -76,7 +76,7 @@ export default function ProfessionalJobsListing(){
                                     </div>
                                 )}
                             </div>
-                            <div className="hidden md:flex w-3/5 overflow-y-auto">
+                            <div className="hidden md:flex w-3/5 overflow-y-auto bg-white">
                                 <JobDetails setApplyJobModal={setApplyJobModal} job={jobDetail}/>
                             </div>
                         </div>
@@ -124,7 +124,7 @@ function JobDetails({job, setApplyJobModal}){
     }
 
     return(
-        <div className="p-4 bg-white w-full">
+        <div className="p-4 w-full">
             <div className="flex justify-center gap-x-8 border-b-1 border-slate-200 pb-4">
                 <img src={job.companyProfilePic} className="w-1/8 h-1/8 my-auto rounded-full"/>
                 <div className="my-auto"> 
