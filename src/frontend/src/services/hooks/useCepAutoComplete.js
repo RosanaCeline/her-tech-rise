@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import axios from "axios";
 
-export function useCepAutoComplete({ cep, handleChange, setFormData, refs = {} }) {
+export function useCepAutoComplete({ cep, handleChange, setFormData }) {
     const [formHasChanged, setFormHasChanged] = useState(false);
 
     const estados = [
@@ -31,8 +31,6 @@ export function useCepAutoComplete({ cep, handleChange, setFormData, refs = {} }
                         setFieldValue('cidade', data.localidade || '');
                         setFieldValue('bairro', data.bairro || '');
                         setFieldValue('estado', data.estado || '');
-
-                        Object.values(refs).forEach(ref => ref?.current && (ref.current.disabled = true));
                     }
                 } catch (error) {
                     console.error("Erro ao buscar CEP:", error);
@@ -40,7 +38,6 @@ export function useCepAutoComplete({ cep, handleChange, setFormData, refs = {} }
             } else if (formHasChanged) {
                 setFormHasChanged(false);
                 ['rua', 'cidade', 'bairro', 'estado'].forEach(campo => setFieldValue(campo, ''));
-                Object.values(refs).forEach(ref => ref?.current && (ref.current.disabled = false));
             }
         }
         fetchCEP();
