@@ -2,13 +2,15 @@ import { useState, useEffect } from 'react'
 import { useNavigate, useParams } from 'react-router-dom';
 
 
-import { Undo2, CircleX, CircleCheck } from 'lucide-react';
+import { Undo2 } from 'lucide-react';
 
 import { applicationsById } from '../../services/applicationService'
 import ApplicationDetail from './components/ApplicationDetail'
 import LoadingSpinner from '../../components/LoadingSpinner/LoadingSpinner'
 import LoadError from '../../components/LoadError/LoadError';
 import { getErrorMessage } from '../../services/errorMessage';
+import JobStatusBadge from '../JobsListing/components/JobStatusBadge';
+import { formatDate } from '../JobsListing/jobLabels';
 
 export default function CompanyApplications(){
 
@@ -56,10 +58,8 @@ export default function CompanyApplications(){
                     <div className="ml-3 my-auto">
                         <p className="font-bold">{jobApplications.jobTitle}</p>
                         <p className="font-medium">{jobApplications.companyName}</p>
-                        <p>Candidatado em {new Date(jobApplications.applicationDeadline).toLocaleDateString('pt-BR')}</p>
-                        {jobApplications.isActive
-                            ? <p className="flex gap-2">Status da vaga: Ativa <CircleCheck size='18' className="my-auto text-green-900"/></p>
-                            : <p className="flex gap-2">Status da vaga: Inativa <CircleX size='18' className="my-auto text-red-900"/></p>}
+                        <p>Data-limite: {formatDate(jobApplications.applicationDeadline)}</p>
+                        <JobStatusBadge isActive={jobApplications.isActive} isExpired={jobApplications.isExpired}/>
                     </div>
                 </div>
 
@@ -70,7 +70,7 @@ export default function CompanyApplications(){
                 {jobApplications.totalApplications > 0 &&
                     <div className="flex flex-col gap-y-4 mt-3">
                         {jobApplications.applications.map((application) => 
-                            <div className='grid grid-cols-10 hover:bg-slate-50 border rounded-xl border-(--gray) p-3'>
+                            <div key={application.applicationId} className='grid grid-cols-10 hover:bg-slate-50 border rounded-xl border-(--gray) p-3'>
                                 <div className="">
                                     <img src={application.applicantProfilePic} className="w-full object-cover rounded-full"/>
                                 </div>
@@ -85,8 +85,11 @@ export default function CompanyApplications(){
                                         <p className="font-bold">Email:  
                                             <span className='font-normal'> {application.applicantEmail}</span>
                                         </p>
-                                        <p className="font-bold">Biografia:  
-                                            <span className='font-normal'> {application.applicantTechnology || 'Não informada'}</span>
+                                        <p className="font-bold">Tecnologias:
+                                            <span className='font-normal'> {application.applicantTechnology || 'Não informadas'}</span>
+                                        </p>
+                                        <p className="font-bold">Candidatura enviada em:
+                                            <span className='font-normal'> {formatDate(application.appliedAt)}</span>
                                         </p>
 
                                         {(application.gender === 'MULHER' || application.gender === 'PESSOA_NAO_BINARIA') &&

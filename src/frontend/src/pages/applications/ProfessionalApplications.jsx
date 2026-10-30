@@ -1,13 +1,15 @@
 import { useEffect, useState } from "react"
 import { useNavigate } from "react-router-dom"
 
-import { Undo2 , CircleCheck, CircleX } from "lucide-react"
+import { Undo2 } from "lucide-react"
 import { myApplications } from "../../services/applicationService"
 import ApplicationDetail from "./components/ApplicationDetail"
 import BtnCallToAction from "../../components/btn/BtnCallToAction/BtnCallToAction"
 import LoadingSpinner from "../../components/LoadingSpinner/LoadingSpinner"
 import LoadError from '../../components/LoadError/LoadError';
 import { getErrorMessage } from '../../services/errorMessage';
+import JobStatusBadge from '../JobsListing/components/JobStatusBadge';
+import { formatDate } from '../JobsListing/jobLabels';
 
 export default function ProfessionalApplications(){
 
@@ -71,10 +73,8 @@ function ApplicationItem({application, setApplicationDetail}){
                 <div className="ml-3">
                     <p className="font-bold">{application.jobTitle}</p>
                     <p className="font-medium">{application.companyName}</p>
-                    <p>Candidatado em {new Date(application.appliedAt).toLocaleDateString('pt-BR')}</p>
-                    {application.isActive
-                        ? <p className="flex gap-2">Status da vaga: Ativa <CircleCheck size='18' className="my-auto text-green-900"/></p>
-                        : <p className="flex gap-2">Status da vaga: Inativa <CircleX size='18' className="my-auto text-red-900"/></p>}
+                    <p>Candidatura enviada em {formatDate(application.appliedAt)}</p>
+                    <JobStatusBadge isActive={application.isActive} isExpired={application.isExpired}/>
                 </div>
             </div>
             <div className="flex justify-center mt-3">

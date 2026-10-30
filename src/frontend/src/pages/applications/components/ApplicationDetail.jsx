@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 
-import { X, File, CircleX, CircleCheck } from 'lucide-react'
+import { X, File } from 'lucide-react'
 
 import { myApplicationDetail, cancelApplication, myCompanyApplicationDetail } from '../../../services/applicationService'
 import PopUp from '../../../components/PopUp'
@@ -9,8 +9,9 @@ import BtnCallToAction from '../../../components/btn/BtnCallToAction/BtnCallToAc
 import ConfirmModal from '../../../components/ConfirmModal/ConfirmModal'
 import LoadingSpinner from '../../../components/LoadingSpinner/LoadingSpinner'
 import { toSafeUrl } from '../../../services/safeUrl'
-import LoadError from '../../../components/LoadError/LoadError';
 import { getErrorMessage } from '../../../services/errorMessage';
+import JobStatusBadge from '../../JobsListing/components/JobStatusBadge';
+import { formatDate } from '../../JobsListing/jobLabels';
 
 export default function ApplicationDetail({applicationDetail, setApplicationDetail, fetchMyApplications, user = 'professional'}){
 
@@ -19,6 +20,8 @@ export default function ApplicationDetail({applicationDetail, setApplicationDeta
     const [cancelModalOpen, setCancelModalOpen] = useState(false);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
+    const [canceling, setCanceling] = useState(false);
+    const [cancelError, setCancelError] = useState('');
 
     const fetchApplicationDetail = async (id) => {
         try {
@@ -37,14 +40,30 @@ export default function ApplicationDetail({applicationDetail, setApplicationDeta
     }, [applicationDetail]);
     
     const handleCancelApplication = async () => {
-        await cancelApplication(applicationDetail)
-        setCancelModalOpen(false)
-        setApplicationDetail('')
-        await fetchMyApplications()
+        setCanceling(true)
+        setCancelError('')
+        try {
+            await cancelApplication(applicationDetail)
+            setCancelModalOpen(false)
+            setApplicationDetail('')
+            await fetchMyApplications()
+        } catch(err) {
+            setCancelModalOpen(false)
+            setCancelError(getErrorMessage(err, 'Sua candidatura não foi cancelada.'))
+        } finally {
+            setCanceling(false)
+        }
     };
 
     if (loading) return ( <LoadingSpinner /> );
-    if (error) return <LoadError message={error} />;
+    if (error) return (
+        <PopUp onClose={() => setApplicationDetail('')} ariaLabel="Detalhes da candidatura">
+            <button type="button" onClick={() => setApplicationDetail('')} aria-label="Fechar" className='ml-auto cursor-pointer'>
+                <X aria-hidden="true"/>
+            </button>
+            <p role="alert" className="my-4 break-words">{error}</p>
+        </PopUp>
+    );
 
     return(
         <PopUp>
@@ -102,30 +121,23 @@ export default function ApplicationDetail({applicationDetail, setApplicationDeta
                     </a>
                 </p>
 
-                <p>Candidatado em: 
-                    <span className="font-normal">{new Date(data.appliedAt).toLocaleDateString('pt-BR')}</span>
+                <p>Candidatura enviada em:{" "}
+                    <span className="font-normal">{formatDate(data.appliedAt)}</span>
                 </p>
 
-                {user === 'professional' &&
-                    <>
-                        {data.isActive
-                            ? 
-                                <p className="flex mx-auto">Status da vaga: 
-                                    <span className="ml-2 flex font-normal gap-2">Ativa <CircleCheck size='18' className="my-auto text-green-900"/></span>
-                                </p>
-                            :   <p className="flex mx-auto">Status da vaga: 
-                                    <span className="ml-2 flex font-normal gap-2">Inativa <CircleX size='18' className="my-auto text-red-900"/></span>
-                                </p>
-                        }                    
-                        {data.isExpired
-                            ? 
-                                <p>Essa vaga não aceita mais candidaturas</p>
-                            : 
-                                <p>Expira em: 
-                                    <span className="font-normal">{new Date(data.applicationDeadline).toLocaleDateString('pt-BR')}</span>
-                                </p>
-                        }
-                    </>
+                <p>Data-limite da vaga:{" "}
+                    <span className="font-normal">{formatDate(data.applicationDeadline)}</span>
+                </p>
+
+                <p className="flex items-center justify-center gap-2">Status da vaga:
+                    <JobStatusBadge isActive={data.isActive} isExpired={data.isExpired}/>
+                </p>
+                {(!data.isActive || data.isExpired) &&
+                    <p className="font-normal text-sm text-gray-600">Esta vaga não recebe mais candidaturas.</p>
+                }
+
+                {cancelError &&
+                    <p role="alert" className="rounded-lg bg-red-50 border border-red-200 text-red-700 text-sm font-normal px-4 py-3 break-words">{cancelError}</p>
                 }
             </div>
 
@@ -138,9 +150,9 @@ export default function ApplicationDetail({applicationDetail, setApplicationDeta
                         {cancelModalOpen && (
                             <ConfirmModal open={cancelModalOpen} title="Confirmar cancelamento"
                                 message="Tem certeza que deseja cancelar candidatura?" 
-                                confirmText="Sim" cancelText="Não"  
+                                confirmText={canceling ? 'Cancelando...' : 'Sim'} cancelText="Não" loading={canceling}
                                 onConfirm={() => handleCancelApplication()}
-                                onCancel={() => setCancelModalOpen(false)}/>
+                                onCancel={() => { if (!canceling) setCancelModalOpen(false); }}/>
                         )}
                     </>
                 :
