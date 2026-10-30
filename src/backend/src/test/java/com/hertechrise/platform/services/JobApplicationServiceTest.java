@@ -16,6 +16,7 @@ import com.hertechrise.platform.model.User;
 import com.hertechrise.platform.repository.JobApplicationRepository;
 import com.hertechrise.platform.repository.ProfessionalRepository;
 import jakarta.persistence.EntityNotFoundException;
+import jakarta.validation.ValidationException;
 import lombok.RequiredArgsConstructor;
 import lombok.SneakyThrows;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -1002,4 +1003,37 @@ class JobApplicationServiceTest extends AbstractIntegrationTest {
 
     }
 
+    @DisplayName("Não permite candidatura em vaga desativada")
+    @Test
+    void applyToDeactivatedJob() {
+        Company company = createTestComapany("HerTechRise", "hertech@email.com", "@hertech");
+
+        JobPosting job = new JobPosting();
+        job.setCompany(company);
+        job.setTitle("Programador Júnior");
+        job.setDescription("Vaga de programador");
+        job.setRequirements("HTML e CSS");
+        job.setLocation("Tianguá");
+        job.setJobModel(JobModel.PRESENCIAL);
+        job.setContractType(JobContractType.CLT);
+        job.setJoblevel(JobLevel.JUNIOR);
+        job.setApplicationDeadline(LocalDate.now().plusWeeks(2));
+        job.setActive(false);
+        jobPostingRepository.save(job);
+
+        Professional professional = createTestProfessioanal("Cláudia ", "claudia@email.com",
+                "Spring Boot", "Biografia teste", "@claudia");
+        UsernamePasswordAuthenticationToken auth =
+                new UsernamePasswordAuthenticationToken(professional.getUser(), null, List.of());
+        SecurityContextHolder.getContext().setAuthentication(auth);
+
+        MultipartFile multipartFile = new MockMultipartFile(
+                "resume", "curriculoTest.pdf", "application/pdf", new byte[]{1});
+        JobApplicationRequestDTO request = new JobApplicationRequestDTO(job.getId(), null, null, multipartFile);
+
+        ValidationException exception = assertThrows(ValidationException.class, () ->
+                jobApplicationService.applyToJob(request));
+        assertEquals("Esta vaga não está mais recebendo candidaturas.", exception.getMessage());
+        assertTrue(jobApplicationRepository.findAll().isEmpty());
+    }
 }

@@ -46,6 +46,10 @@ public class JobApplicationService {
         JobPosting jobPosting = jobPostingRepository.findById(request.jobPostingId())
                 .orElseThrow(() -> new EntityNotFoundException("Vaga não encontrada."));
 
+        if (!jobPosting.isActive() || jobPosting.isExpired()) {
+            throw new ValidationException("Esta vaga não está mais recebendo candidaturas.");
+        }
+
         List<JobApplication> applications = jobApplicationRepository
                 .findAllByJobPostingIdAndProfessionalUserId(jobPosting.getId(), loggedUser.getId());
 
