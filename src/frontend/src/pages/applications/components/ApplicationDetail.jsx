@@ -8,6 +8,7 @@ import PopUp from '../../../components/PopUp'
 import BtnCallToAction from '../../../components/btn/BtnCallToAction/BtnCallToAction'
 import ConfirmModal from '../../../components/ConfirmModal/ConfirmModal'
 import LoadingSpinner from '../../../components/LoadingSpinner/LoadingSpinner'
+import { toSafeUrl } from '../../../services/safeUrl'
 
 export default function ApplicationDetail({applicationDetail, setApplicationDetail, fetchMyApplications, user = 'professional'}){
 
@@ -70,31 +71,31 @@ export default function ApplicationDetail({applicationDetail, setApplicationDeta
             <div className="mt-4 font-bold flex flex-col gap-y-1.5">
                 <p>
                     Link do portfólio:{" "}
-                    {data.portfolioLink 
+                    {toSafeUrl(data.portfolioLink) 
                         ?
-                            <a href={data.portfolioLink} target="_blank" rel="noopener noreferrer" className="font-normal text-blue-600 underline break-words max-w-full">
+                            <a href={toSafeUrl(data.portfolioLink)} target="_blank" rel="noopener noreferrer" className="font-normal text-blue-600 underline break-words max-w-full">
                                 {data.portfolioLink}
                             </a>
                         : 
-                            <span className="font-normal">não informado</span>
+                            <span className="font-normal break-words">{data.portfolioLink || 'não informado'}</span>
                     }
                 </p>
 
                 <p>
                     Link do GitHub:{" "}
-                    {data.githubLink 
+                    {toSafeUrl(data.githubLink) 
                         ?
-                            <a href={data.githubLink} target="_blank" rel="noopener noreferrer" className="font-normal text-blue-600 underline break-words max-w-full">
+                            <a href={toSafeUrl(data.githubLink)} target="_blank" rel="noopener noreferrer" className="font-normal text-blue-600 underline break-words max-w-full">
                                 {data.githubLink}
                             </a>
                         : 
-                            <span className="font-normal">não informado</span>
+                            <span className="font-normal break-words">{data.githubLink || 'não informado'}</span>
                     }
                 </p>
 
                 <p className="flex mx-auto">
                     Currículo:{" "}
-                    <a href={data.resumeUrl} target="_blank" rel="noopener noreferrer" className="ml-3 gap-1 flex font-normal text-blue-600 break-words max-w-full">
+                    <a href={toSafeUrl(data.resumeUrl) ?? undefined} target="_blank" rel="noopener noreferrer" className="ml-3 gap-1 flex font-normal text-blue-600 break-words max-w-full">
                         <File/> Acessar
                     </a>
                 </p>

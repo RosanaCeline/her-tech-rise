@@ -11,6 +11,8 @@ import EditMyProfile from '../../../pages/User/edit/EditMyProfile';
 import LoadingSpinner from "../../LoadingSpinner/LoadingSpinner";
 import { changeProfilePicture, listFollowers, listFollowing } from '../../../services/userService';
 import { useAuth } from '../../../context/AuthContext';
+import { updateStoredUser } from '../../../services/authService';
+import { toSafeUrl } from '../../../services/safeUrl';
 import { useNavigate } from 'react-router-dom';
 
 export default function CardProfile({
@@ -97,7 +99,7 @@ export default function CardProfile({
       const result = await changeProfilePicture(file)
       const updatedUser = { ...user, profilePicture: result.profilePic };
       setUser(updatedUser);
-      localStorage.setItem('user', JSON.stringify(updatedUser));
+      updateStoredUser({ profilePicture: result.profilePic });
       
       setPreviewPhoto(result.profilePic)
     } catch(err){
@@ -162,14 +164,18 @@ export default function CardProfile({
                   >
                     {copied ? <FaCheck /> : <FaPaperclip />}
                   </button>
-                  <a
-                    href={link}
-                    target="_blank"
-                    rel="noreferrer"
-                    className="text-[var(--font-gray)] text-sm break-all min-w-0"
-                  >
-                    {link}
-                  </a>
+                  {toSafeUrl(link) ? (
+                    <a
+                      href={toSafeUrl(link)}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="text-[var(--font-gray)] text-sm break-all min-w-0"
+                    >
+                      {link}
+                    </a>
+                  ) : (
+                    <span className="text-[var(--font-gray)] text-sm break-all min-w-0">{link}</span>
+                  )}
                 </div>
               )}
 
