@@ -22,16 +22,17 @@ export default function LandingPage( {registerPath }) {
 
   return (
     <>
-      <main className="column bg-[var(--light)]">
+      <div className="w-full overflow-x-clip bg-[var(--light)]">
 
-        <FadeInSection>
-          <SectionHero registerPath={registerPath} />
-        </FadeInSection>
+        <SectionHero registerPath={registerPath} />
 
-        <section className="w-fit md:w-full mb-8 py-12 bg-[var(--purple-primary)] text-center shadow-xl/40">
-          <h2 className="text-2xl md:text-3xl text-[var(--light)] px-6 max-w-4xl mx-auto font-semibold">
-            “Não tenha medo de ser ambicioso em relação aos seus objetivos. O trabalho duro nunca para. Seus sonhos também não deveriam parar.” —Mae Jemison.
-          </h2>
+        <section aria-label="Citação inspiradora" className="w-full mb-8 py-12 px-6 bg-[var(--purple-primary)] text-center shadow-xl/40">
+          <figure className="max-w-4xl mx-auto text-[var(--light)]">
+            <blockquote className="text-xl sm:text-2xl md:text-3xl font-semibold">
+              <p>“Não tenha medo de ser ambicioso em relação aos seus objetivos. O trabalho duro nunca para. Seus sonhos também não deveriam parar.”</p>
+            </blockquote>
+            <figcaption className="mt-4 text-base md:text-lg">— Mae Jemison</figcaption>
+          </figure>
         </section>
 
         <FadeInSection>
@@ -49,8 +50,8 @@ export default function LandingPage( {registerPath }) {
         <FadeInSection>
           <FAQSection faqs={faqs} />
         </FadeInSection>
-        
-      </main>
+
+      </div>
       {/* <section className="w-full py-20 px-8 md:px-16 bg-[var(--gray)]">
         <FAQForm fields={fields} />
       </section> */}

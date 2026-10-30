@@ -8,20 +8,15 @@ export default function Card({ icon, title, description }) {
         drop-shadow-md
         rounded-xl
         p-6
-        flex flex-col items-center text-center
-        w-full max-w-sm aspect-[2/1] z-0
-
-        transition-transform duration-300 ease-in-out
-        hover:scale-105
-        hover:text-[var(--text-primary)] 
-        cursor-pointer
+        flex flex-col items-center justify-center text-center
+        w-full max-w-sm min-h-40 h-full
       "
     >
-      <div className="flex items-center gap-3 mb-8">
-        <span className="text-[inherit] text-5xl">{icon}</span>
-        <h3 className="text-[var(--purple-secundary)] text-3xl font-semibold">{title}</h3>
+      <div className="flex flex-wrap items-center justify-center gap-3 mb-4 md:mb-6">
+        <span aria-hidden="true" className="shrink-0">{icon}</span>
+        <h3 className="text-[var(--purple-secundary)] text-2xl md:text-3xl font-semibold break-words">{title}</h3>
       </div>
-      <p className="text-xl">{description}</p>
+      <p className="text-base md:text-lg break-words">{description}</p>
     </article>
   );
 }
