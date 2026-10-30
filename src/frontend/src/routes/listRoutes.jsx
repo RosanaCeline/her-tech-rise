@@ -18,7 +18,7 @@ const CompanyApplications     = lazy(() => import('../pages/applications/Company
 const iconSize = 20;
 
 export const publicRoutes = [
-    { path: '/', element: <LandingPage registerPath="/cadastro" />}
+    { path: '/', element: <LandingPage registerPath="/cadastro" />, title: 'Rede profissional para mulheres na tecnologia' }
 ];
 
 export const authRoutes = [
