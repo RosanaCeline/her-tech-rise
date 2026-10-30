@@ -6,9 +6,9 @@ import com.hertechrise.platform.exception.InvalidFileTypeException;
 import com.hertechrise.platform.exception.MaxMediaLimitExceededException;
 import com.hertechrise.platform.model.*;
 import com.hertechrise.platform.repository.CommunityRepository;
-import com.hertechrise.platform.repository.FollowRelationshipRepository;
 import com.hertechrise.platform.repository.PostRepository;
 import com.hertechrise.platform.repository.PostShareRepository;
+import com.hertechrise.platform.repository.TimelineRepository;
 import jakarta.persistence.EntityNotFoundException;
 import jakarta.persistence.criteria.Predicate;
 import jakarta.validation.ValidationException;
@@ -26,9 +26,10 @@ import java.net.URLConnection;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Comparator;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
-import java.util.stream.Stream;
 
 @Service
 @RequiredArgsConstructor
@@ -37,11 +38,12 @@ public class PostService {
     private final PostRepository postRepository;
     private final PostShareRepository postShareRepository;
     private final CommunityRepository communityRepository;
-    private final FollowRelationshipRepository followRelationshipRepository;
+    private final TimelineRepository timelineRepository;
 
     private final MediaService mediaService;
     private final CloudinaryService cloudinaryService;
     private final PostInteractionService postInteractionService;
+    private final PostFeedAssembler postFeedAssembler;
 
     public PostRequestDTO processPostData(String content, Long idCommunity, PostVisibility visibility, List<MultipartFile> mediaFiles) {
         if ((content == null || content.trim().isEmpty()) && (mediaFiles == null || mediaFiles.isEmpty())) {
@@ -111,13 +113,7 @@ public class PostService {
 
         return new PostResponseDTO(
                 post.getId(),
-                new AuthorResponseDTO(
-                        post.getAuthor().getId(),
-                        post.getAuthor().getName(),
-                        post.getAuthor().getHandle(),
-                        post.getAuthor().getProfilePic(),
-                        false
-                ),
+                AuthorResponseDTO.from(post.getAuthor(), false),
                 post.getContent(),
                 post.getCreatedAt(),
                 post.getCommunity() != null ? post.getCommunity().getId() : null,
@@ -127,9 +123,9 @@ public class PostService {
                 post.getEditedAt(),
                 true,
                 true,
-                postInteractionService.countLikes(post.getId()),
-                postInteractionService.countComments(post.getId()),
-                postInteractionService.countShares(post.getId())
+                0L,
+                0L,
+                0L
         );
     }
 
@@ -263,13 +259,7 @@ public class PostService {
 
         return new PostResponseDTO(
                 saved.getId(),
-                new AuthorResponseDTO(
-                        post.getAuthor().getId(),
-                        post.getAuthor().getName(),
-                        post.getAuthor().getHandle(),
-                        post.getAuthor().getProfilePic(),
-                        false
-                ),
+                AuthorResponseDTO.from(post.getAuthor(), false),
                 saved.getContent(),
                 saved.getCreatedAt(),
                 saved.getCommunity() != null ? saved.getCommunity().getId() : null,
@@ -293,73 +283,26 @@ public class PostService {
         Sort sort = Sort.by(Sort.Direction.fromString(filter.direction()), filter.orderBy());
 
         List<Post> posts = postRepository.findAllByAuthorIdAndDeletedFalse(loggedUser.getId());
-
         List<PostShare> shares = postShareRepository.findAllByUserId(loggedUser.getId());
 
-        List<UnifiedPostResponseDTO> postDTOs = posts.stream().map(post -> {
-            boolean isFollowed = followRelationshipRepository.existsByFollowerAndFollowing(loggedUser, post.getAuthor());
-            return new UnifiedPostResponseDTO(
-                    PostContentType.POSTAGEM,
-                    PostResponseDTO.from(
-                            post,
-                            loggedUser.getId(),
-                            isFollowed,
-                            postInteractionService.countLikes(post.getId()),
-                            postInteractionService.countComments(post.getId()),
-                            postInteractionService.countShares(post.getId())
-                    ),
-                    null,
-                    post.getCreatedAt()
-            );
-        }).toList();
+        List<UnifiedPostResponseDTO> combined = new ArrayList<>(postFeedAssembler.assemble(posts, shares, loggedUser, false));
+        combined.sort(Comparator.comparing(UnifiedPostResponseDTO::createdAt).reversed());
 
-        List<UnifiedPostResponseDTO> shareDTOs = shares.stream().map(share -> {
-            boolean isFollowed = followRelationshipRepository.existsByFollowerAndFollowing(loggedUser, share.getPost().getAuthor());
-            boolean isFollowedSharer = followRelationshipRepository.existsByFollowerAndFollowing(loggedUser, share.getUser());
-            return new UnifiedPostResponseDTO(
-                    PostContentType.COMPARTILHAMENTO,
-                    null,
-                    SharedPostResponseDTO.from(
-                            share,
-                            loggedUser.getId(),
-                            isFollowed,
-                            null,
-                            postInteractionService.countShareLikes(share.getId()),
-                            postInteractionService.countShareComments(share.getId())
-                    ),
-                    share.getCreatedAt()
-            );
-        }).toList();
-
-        List<UnifiedPostResponseDTO> combined = Stream.concat(postDTOs.stream(), shareDTOs.stream())
-                .sorted(Comparator.comparing(UnifiedPostResponseDTO::createdAt).reversed())
-                .toList();
-
-        int start = filter.page() * filter.size();
-        int end = Math.min(start + filter.size(), combined.size());
-        List<UnifiedPostResponseDTO> pageContent = start < end ? combined.subList(start, end) : List.of();
-
-        return new PageImpl<>(pageContent, PageRequest.of(filter.page(), filter.size(), sort), combined.size());
+        return paginate(combined, PageRequest.of(filter.page(), filter.size(), sort));
     }
 
     @Transactional(readOnly = true)
     public Page<UnifiedPostResponseDTO> getUserPosts(Long userId, PostFilterRequestDTO filter) {
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
         User loggedUser = (User) auth.getPrincipal();
-
-        Comparator<UnifiedPostResponseDTO> comparator = Comparator
-                .comparing(UnifiedPostResponseDTO::createdAt);
-
-        if (filter.direction().equalsIgnoreCase("DESC")) {
-            comparator = comparator.reversed();
-        }
+        boolean isOwnProfile = userId.equals(loggedUser.getId());
 
         Specification<Post> spec = (root, query, cb) -> {
             List<Predicate> predicates = new ArrayList<>();
             predicates.add(cb.equal(root.get("author").get("id"), userId));
             predicates.add(cb.isFalse(root.get("deleted")));
 
-            if (!userId.equals(loggedUser.getId())) {
+            if (!isOwnProfile) {
                 predicates.add(cb.equal(root.get("visibility"), PostVisibility.PUBLICO));
             }
 
@@ -368,150 +311,77 @@ public class PostService {
 
         List<Post> posts = postRepository.findAll(spec);
 
-        List<UnifiedPostResponseDTO> postItems = posts.stream().map(post -> {
-            boolean isFollowed = followRelationshipRepository.existsByFollowerAndFollowing(loggedUser, post.getAuthor());
-            return new UnifiedPostResponseDTO(
-                    PostContentType.POSTAGEM,
-                    PostResponseDTO.from(
-                            post,
-                            loggedUser.getId(),
-                            isFollowed,
-                            postInteractionService.countLikes(post.getId()),
-                            postInteractionService.countComments(post.getId()),
-                            postInteractionService.countShares(post.getId())
-                    ),
-                    null,
-                    post.getCreatedAt()
-            );
-        }).toList();
-
         // Compartilhamentos: pegar todos os compartilhamentos do usuário
-        List<PostShare> shares = postShareRepository.findAllSharesByUserId(userId);
-        List<UnifiedPostResponseDTO> shareItems = shares.stream()
+        List<PostShare> shares = postShareRepository.findAllSharesByUserId(userId).stream()
                 .filter(share -> {
                     Post post = share.getPost();
                     if (post.isDeleted()) return false;
-
-                    if (userId.equals(loggedUser.getId())) {
-                        return true;
-                    } else {
-                        return post.getVisibility() == PostVisibility.PUBLICO;
-                    }
+                    return isOwnProfile || post.getVisibility() == PostVisibility.PUBLICO;
                 })
-                .map(share -> {
-                    Post post = share.getPost();
-                    boolean isFollowed = followRelationshipRepository.existsByFollowerAndFollowing(loggedUser, post.getAuthor());
-                    Boolean isFollowedSharer = userId.equals(loggedUser.getId()) ? null :
-                            followRelationshipRepository.existsByFollowerAndFollowing(loggedUser, share.getUser());
-                    return new UnifiedPostResponseDTO(
-                            PostContentType.COMPARTILHAMENTO,
-                            null,
-                            SharedPostResponseDTO.from(
-                                    share,
-                                    loggedUser.getId(),
-                                    isFollowed,
-                                    isFollowedSharer,
-                                    postInteractionService.countShareLikes(share.getId()),
-                                    postInteractionService.countShareComments(share.getId())
-                            ),
-                            share.getCreatedAt()
-                    );
-                }).toList();
+                .toList();
 
-        List<UnifiedPostResponseDTO> allItems = new ArrayList<>();
-        allItems.addAll(postItems);
-        allItems.addAll(shareItems);
-        allItems.sort(comparator);
+        List<UnifiedPostResponseDTO> allItems = new ArrayList<>(postFeedAssembler.assemble(posts, shares, loggedUser, !isOwnProfile));
+        allItems.sort(byCreatedAt(filter.direction()));
 
-        int start = filter.page() * filter.size();
-        int end = Math.min(start + filter.size(), allItems.size());
-
-        List<UnifiedPostResponseDTO> pagedItems = start > allItems.size()
-                ? List.of()
-                : allItems.subList(start, end);
-
-        return new PageImpl<>(pagedItems, PageRequest.of(filter.page(), filter.size()), allItems.size());
+        return paginate(allItems, PageRequest.of(filter.page(), filter.size()));
     }
 
+    /**
+     * Timeline: somente postagens públicas e compartilhamentos de postagens públicas.
+     * A paginação acontece no banco e os dados da página são carregados em lote.
+     */
     @Transactional(readOnly = true)
     public Page<UnifiedPostResponseDTO> getTimelinePosts(PostFilterRequestDTO filter) {
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
         User loggedUser = (User) auth.getPrincipal();
 
-        Comparator<UnifiedPostResponseDTO> comparator = Comparator
-                .comparing(UnifiedPostResponseDTO::createdAt);
+        Pageable pageable = PageRequest.of(filter.page(), filter.size());
+        Page<TimelineRepository.TimelineItemRef> refs = timelineRepository.findPublicItems(
+                pageable, filter.direction().equalsIgnoreCase("ASC"));
 
-        if (filter.direction().equalsIgnoreCase("DESC")) {
-            comparator = comparator.reversed();
+        if (refs.isEmpty()) {
+            return new PageImpl<>(List.of(), pageable, refs.getTotalElements());
         }
 
-        Specification<Post> spec = (root, query, cb) -> {
-            List<Predicate> predicates = new ArrayList<>();
-            predicates.add(cb.isFalse(root.get("deleted")));
-            predicates.add(cb.or(
-                    cb.equal(root.get("visibility"), PostVisibility.PUBLICO),
-                    cb.equal(root.get("author").get("id"), loggedUser.getId())
-            ));
-            return cb.and(predicates.toArray(new Predicate[0]));
-        };
+        List<Long> postIds = idsOf(refs.getContent(), PostContentType.POSTAGEM);
+        List<Long> shareIds = idsOf(refs.getContent(), PostContentType.COMPARTILHAMENTO);
 
-        List<Post> posts = postRepository.findAll(spec);
-        List<UnifiedPostResponseDTO> postItems = posts.stream().map(post -> {
-            boolean isFollowed = followRelationshipRepository.existsByFollowerAndFollowing(loggedUser, post.getAuthor());
-            return new UnifiedPostResponseDTO(
-                    PostContentType.POSTAGEM,
-                    PostResponseDTO.from(
-                            post,
-                            loggedUser.getId(),
-                            isFollowed,
-                            postInteractionService.countLikes(post.getId()),
-                            postInteractionService.countComments(post.getId()),
-                            postInteractionService.countShares(post.getId())
-                    ),
-                    null,
-                    post.getCreatedAt()
-            );
-        }).toList();
+        List<Post> posts = postIds.isEmpty() ? List.of() : postRepository.findAllWithAuthorAndMediaByIdIn(postIds);
+        List<PostShare> shares = shareIds.isEmpty() ? List.of() : postShareRepository.findAllWithUserByIdIn(shareIds);
 
-        List<PostShare> shares = postShareRepository.findSharesForTimeline(loggedUser.getId());
-        List<UnifiedPostResponseDTO> shareItems = shares.stream()
-                .filter(share -> {
-                    Post post = share.getPost();
-                    return !post.isDeleted() &&
-                            (post.getVisibility() == PostVisibility.PUBLICO || post.getAuthor().getId().equals(loggedUser.getId()));
-                })
-                .map(share -> {
-                    Post post = share.getPost();
-                    boolean isFollowed = followRelationshipRepository.existsByFollowerAndFollowing(loggedUser, post.getAuthor());
-                    boolean isFollowedSharer = followRelationshipRepository.existsByFollowerAndFollowing(loggedUser, share.getUser());
-                    return new UnifiedPostResponseDTO(
-                            PostContentType.COMPARTILHAMENTO,
-                            null,
-                            SharedPostResponseDTO.from(
-                                    share,
-                                    loggedUser.getId(),
-                                    isFollowed,
-                                    isFollowedSharer,
-                                    postInteractionService.countShareLikes(share.getId()),
-                                    postInteractionService.countShareComments(share.getId())
-                            ),
-                            share.getCreatedAt()
-                    );
-                }).toList();
+        Map<String, UnifiedPostResponseDTO> itemsByKey = new HashMap<>();
+        for (UnifiedPostResponseDTO item : postFeedAssembler.assemble(posts, shares, loggedUser, true)) {
+            itemsByKey.put(keyOf(item), item);
+        }
 
-        List<UnifiedPostResponseDTO> allItems = new ArrayList<>();
-        allItems.addAll(postItems);
-        allItems.addAll(shareItems);
-        allItems.sort(comparator);
+        // mantém a ordem definida pela consulta paginada
+        List<UnifiedPostResponseDTO> content = refs.getContent().stream()
+                .map(ref -> itemsByKey.get(ref.type() + ":" + ref.id()))
+                .filter(Objects::nonNull)
+                .toList();
 
-        int start = filter.page() * filter.size();
-        int end = Math.min(start + filter.size(), allItems.size());
+        return new PageImpl<>(content, pageable, refs.getTotalElements());
+    }
 
-        List<UnifiedPostResponseDTO> pagedItems = start > allItems.size()
-                ? List.of()
-                : allItems.subList(start, end);
+    private static List<Long> idsOf(List<TimelineRepository.TimelineItemRef> refs, PostContentType type) {
+        return refs.stream().filter(ref -> ref.type() == type).map(TimelineRepository.TimelineItemRef::id).toList();
+    }
 
-        return new PageImpl<>(pagedItems, PageRequest.of(filter.page(), filter.size()), allItems.size());
+    private static String keyOf(UnifiedPostResponseDTO item) {
+        return item.type() == PostContentType.POSTAGEM
+                ? item.type() + ":" + item.post().id()
+                : item.type() + ":" + item.share().sharedId();
+    }
+
+    private static Comparator<UnifiedPostResponseDTO> byCreatedAt(String direction) {
+        Comparator<UnifiedPostResponseDTO> comparator = Comparator.comparing(UnifiedPostResponseDTO::createdAt);
+        return direction.equalsIgnoreCase("DESC") ? comparator.reversed() : comparator;
+    }
+
+    private static Page<UnifiedPostResponseDTO> paginate(List<UnifiedPostResponseDTO> items, Pageable pageable) {
+        int start = (int) Math.min(pageable.getOffset(), items.size());
+        int end = Math.min(start + pageable.getPageSize(), items.size());
+        return new PageImpl<>(items.subList(start, end), pageable, items.size());
     }
 
 }

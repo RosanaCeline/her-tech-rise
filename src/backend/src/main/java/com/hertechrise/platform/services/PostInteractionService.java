@@ -14,7 +14,11 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
+import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 @Service
 @RequiredArgsConstructor
@@ -28,11 +32,8 @@ public class PostInteractionService {
 
     @Transactional
     public void toggleLike(Long postId) {
-        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
-        User user = (User) auth.getPrincipal();
-
-        Post post = postRepository.findById(postId)
-                .orElseThrow(() -> new EntityNotFoundException("Postagem não encontrada"));
+        User user = currentUser();
+        Post post = findVisiblePost(postId, user);
 
         likeRepository.findByUserAndPost(user, post).ifPresentOrElse(
                 likeRepository::delete,
@@ -48,48 +49,32 @@ public class PostInteractionService {
 
     @Transactional
     public PostCommentResponseDTO comment(Long postId, PostCommentRequestDTO dto) {
-        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
-        User user = (User) auth.getPrincipal();
-
-        Post post = postRepository.findById(postId)
-                .orElseThrow(() -> new EntityNotFoundException("Postagem não encontrada"));
+        User user = currentUser();
+        Post post = findVisiblePost(postId, user);
 
         PostComment parentComment = null;
-
-        if(dto.parentCommentId() != null) {
-            parentComment = commentRepository.findById(dto.parentCommentId())
-                    .orElseThrow(() -> new EntityNotFoundException("Comentário pai não encontrado"));
+        if (dto.parentCommentId() != null) {
+            parentComment = findComment(dto.parentCommentId(), "Comentário pai não encontrado");
+            if (parentComment.getPost() == null || !parentComment.getPost().getId().equals(post.getId())) {
+                throw new IllegalArgumentException("O comentário pai não pertence a esta postagem.");
+            }
         }
 
         PostComment comment = new PostComment();
         comment.setUser(user);
         comment.setPost(post);
-        comment.setContent(dto.content());
+        comment.setContent(dto.content().trim());
         comment.setCreatedAt(LocalDateTime.now());
         comment.setParentComment(parentComment);
 
-        comment = commentRepository.save(comment);
-
-        return new PostCommentResponseDTO(
-                comment.getId(),
-                user.getId(),
-                user.getName(),
-                user.getProfilePic(),
-                comment.getContent(),
-                comment.isEdited(),
-                comment.getCreatedAt(),
-                comment.getParentComment() != null ? comment.getParentComment().getId() : null,
-                countCommentLikes(comment.getId())
-        );
+        return PostCommentResponseDTO.from(commentRepository.save(comment), 0L, false);
     }
 
     @Transactional
     public void toggleCommentLike(Long commentId) {
-        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
-        User user = (User) auth.getPrincipal();
-
-        PostComment comment = commentRepository.findById(commentId)
-                .orElseThrow(() -> new EntityNotFoundException("Comentário não encontrado"));
+        User user = currentUser();
+        PostComment comment = findComment(commentId, "Comentário não encontrado");
+        ensureCommentTargetVisible(comment, user);
 
         commentLikeRepository.findByUserAndComment(user, comment).ifPresentOrElse(
                 commentLikeRepository::delete,
@@ -105,16 +90,22 @@ public class PostInteractionService {
 
     @Transactional
     public void share(Long postId, PostShareRequestDTO dto) {
-        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
-        User user = (User) auth.getPrincipal();
+        User user = currentUser();
+        Post post = findVisiblePost(postId, user);
 
-        Post post = postRepository.findById(postId)
-                .orElseThrow(() -> new EntityNotFoundException("Postagem não encontrada"));
+        // compartilhar uma postagem privada exporia o conteúdo para outras pessoas
+        if (post.getVisibility() != PostVisibility.PUBLICO) {
+            throw new IllegalStateException("Apenas postagens públicas podem ser compartilhadas.");
+        }
+
+        String content = dto != null && dto.content() != null && !dto.content().isBlank()
+                ? dto.content().trim()
+                : null;
 
         PostShare share = new PostShare();
         share.setUser(user);
         share.setPost(post);
-        share.setContent(dto.content());
+        share.setContent(content);
         share.setCreatedAt(LocalDateTime.now());
 
         shareRepository.save(share);
@@ -122,11 +113,8 @@ public class PostInteractionService {
 
     @Transactional
     public void toggleShareLike(Long shareId) {
-        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
-        User user = (User) auth.getPrincipal();
-
-        PostShare share = shareRepository.findById(shareId)
-                .orElseThrow(() -> new EntityNotFoundException("Compartilhamento não encontrado"));
+        User user = currentUser();
+        PostShare share = findVisibleShare(shareId, user);
 
         likeRepository.findByUserAndShare(user, share).ifPresentOrElse(
                 likeRepository::delete,
@@ -142,49 +130,40 @@ public class PostInteractionService {
 
     @Transactional
     public PostCommentResponseDTO commentOnShare(Long shareId, PostCommentRequestDTO dto) {
-        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
-        User user = (User) auth.getPrincipal();
-
-        PostShare share = shareRepository.findById(shareId)
-                .orElseThrow(() -> new EntityNotFoundException("Compartilhamento não encontrado"));
+        User user = currentUser();
+        PostShare share = findVisibleShare(shareId, user);
 
         PostComment parentComment = null;
         if (dto.parentCommentId() != null) {
-            parentComment = commentRepository.findById(dto.parentCommentId())
-                    .orElseThrow(() -> new EntityNotFoundException("Comentário pai não encontrado"));
+            parentComment = findComment(dto.parentCommentId(), "Comentário pai não encontrado");
+            if (parentComment.getShare() == null || !parentComment.getShare().getId().equals(share.getId())) {
+                throw new IllegalArgumentException("O comentário pai não pertence a este compartilhamento.");
+            }
         }
 
         PostComment comment = new PostComment();
         comment.setUser(user);
         comment.setShare(share);
-        comment.setContent(dto.content());
+        comment.setContent(dto.content().trim());
         comment.setCreatedAt(LocalDateTime.now());
         comment.setParentComment(parentComment);
 
-        comment = commentRepository.save(comment);
-
-        return new PostCommentResponseDTO(
-                comment.getId(),
-                user.getId(),
-                user.getName(),
-                user.getProfilePic(),
-                comment.getContent(),
-                comment.isEdited(),
-                comment.getCreatedAt(),
-                comment.getParentComment() != null ? comment.getParentComment().getId() : null,
-                countCommentLikes(comment.getId())
-        );
+        return PostCommentResponseDTO.from(commentRepository.save(comment), 0L, false);
     }
 
     @Transactional
     public void deleteComment(Long commentId) {
-        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
-        User user = (User) auth.getPrincipal();
+        User user = currentUser();
+        PostComment comment = findComment(commentId, "Comentário não encontrado");
 
-        PostComment comment = commentRepository.findById(commentId)
-                .orElseThrow(() -> new EntityNotFoundException("Comentário não encontrado"));
+        // pode excluir: quem comentou, o autor da postagem ou o dono do compartilhamento comentado
+        boolean isCommentAuthor = comment.getUser().getId().equals(user.getId());
+        boolean isPostAuthor = comment.getPost() != null
+                && comment.getPost().getAuthor().getId().equals(user.getId());
+        boolean isShareOwner = comment.getShare() != null
+                && comment.getShare().getUser().getId().equals(user.getId());
 
-        if (!comment.getUser().getId().equals(user.getId()) && !comment.getPost().getAuthor().getId().equals(user.getId())) {
+        if (!isCommentAuthor && !isPostAuthor && !isShareOwner) {
             throw new SecurityException("Você não tem permissão para excluir este comentário");
         }
 
@@ -193,8 +172,7 @@ public class PostInteractionService {
 
     @Transactional
     public void deleteShare(Long shareId) {
-        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
-        User user = (User) auth.getPrincipal();
+        User user = currentUser();
 
         PostShare share = shareRepository.findById(shareId)
                 .orElseThrow(() -> new EntityNotFoundException("Compartilhamento não encontrado"));
@@ -208,90 +186,113 @@ public class PostInteractionService {
 
     @Transactional(readOnly = true)
     public List<PostLikeResponseDTO> listLikes(Long postId) {
-        Post post = postRepository.findById(postId)
-                .orElseThrow(() -> new EntityNotFoundException("Postagem não encontrada"));
+        Post post = findVisiblePost(postId, currentUser());
 
-        return likeRepository.findByPost(post).stream()
-                .map(like -> new PostLikeResponseDTO(
-                        like.getId(),
-                        like.getUser().getId(),
-                        like.getUser().getName(),
-                        like.getUser().getProfilePic(),
-                        like.getCreatedAt()
-                ))
+        return likeRepository.findAllWithUserByPostId(post.getId()).stream()
+                .map(like -> PostLikeResponseDTO.from(like.getId(), like.getUser(), like.getCreatedAt()))
                 .toList();
     }
 
     @Transactional(readOnly = true)
     public List<PostLikeResponseDTO> listCommentLikes(Long commentId) {
-        PostComment comment = commentRepository.findById(commentId)
-                .orElseThrow(() -> new EntityNotFoundException("Comentário não encontrado"));
+        PostComment comment = findComment(commentId, "Comentário não encontrado");
+        ensureCommentTargetVisible(comment, currentUser());
 
-        return commentLikeRepository.findByComment(comment).stream()
-                .map(like -> new PostLikeResponseDTO(
-                        like.getId(),
-                        like.getUser().getId(),
-                        like.getUser().getName(),
-                        like.getUser().getProfilePic(),
-                        like.getCreatedAt()
-                ))
+        return commentLikeRepository.findAllWithUserByCommentId(comment.getId()).stream()
+                .map(like -> PostLikeResponseDTO.from(like.getId(), like.getUser(), like.getCreatedAt()))
                 .toList();
     }
 
     @Transactional(readOnly = true)
     public List<PostLikeResponseDTO> listShareLikes(Long shareId) {
-        PostShare share = shareRepository.findById(shareId)
-                .orElseThrow(() -> new EntityNotFoundException("Compartilhamento não encontrado"));
+        PostShare share = findVisibleShare(shareId, currentUser());
 
-        return likeRepository.findByShare(share).stream()
-                .map(like -> new PostLikeResponseDTO(
-                        like.getId(),
-                        like.getUser().getId(),
-                        like.getUser().getName(),
-                        like.getUser().getProfilePic(),
-                        like.getCreatedAt()
-                ))
+        return likeRepository.findAllWithUserByShareId(share.getId()).stream()
+                .map(like -> PostLikeResponseDTO.from(like.getId(), like.getUser(), like.getCreatedAt()))
                 .toList();
     }
 
     @Transactional(readOnly = true)
     public List<PostCommentResponseDTO> listComments(Long postId) {
-        Post post = postRepository.findById(postId)
-                .orElseThrow(() -> new EntityNotFoundException("Postagem não encontrada"));
+        User user = currentUser();
+        Post post = findVisiblePost(postId, user);
 
-        return commentRepository.findByPost(post).stream()
-                .map(comment -> new PostCommentResponseDTO(
-                        comment.getId(),
-                        comment.getUser().getId(),
-                        comment.getUser().getName(),
-                        comment.getUser().getProfilePic(),
-                        comment.getContent(),
-                        comment.isEdited(),
-                        comment.getCreatedAt(),
-                        comment.getParentComment() != null ? comment.getParentComment().getId() : null,
-                        countCommentLikes(comment.getId())
-                ))
-                .toList();
+        return toCommentResponses(commentRepository.findAllWithUserByPostId(post.getId()), user);
     }
 
     @Transactional(readOnly = true)
     public List<PostCommentResponseDTO> listShareComments(Long shareId) {
+        User user = currentUser();
+        PostShare share = findVisibleShare(shareId, user);
+
+        return toCommentResponses(commentRepository.findAllWithUserByShareId(share.getId()), user);
+    }
+
+    private List<PostCommentResponseDTO> toCommentResponses(List<PostComment> comments, User viewer) {
+        if (comments.isEmpty()) {
+            return List.of();
+        }
+
+        List<Long> ids = comments.stream().map(PostComment::getId).toList();
+        Map<Long, Long> likes = new HashMap<>();
+        for (Object[] row : commentLikeRepository.countByCommentIds(ids)) {
+            likes.put((Long) row[0], (Long) row[1]);
+        }
+        Set<Long> liked = new HashSet<>(commentLikeRepository.findCommentIdsLikedByUser(viewer.getId(), ids));
+
+        return comments.stream()
+                .map(comment -> PostCommentResponseDTO.from(
+                        comment,
+                        likes.getOrDefault(comment.getId(), 0L),
+                        liked.contains(comment.getId())))
+                .toList();
+    }
+
+    private User currentUser() {
+        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+        return (User) auth.getPrincipal();
+    }
+
+    /**
+     * Postagem visível para o usuário: não excluída e pública, ou de autoria dele.
+     * Para as demais responde "não encontrada", sem revelar que a postagem existe.
+     */
+    private Post findVisiblePost(Long postId, User user) {
+        Post post = postRepository.findById(postId)
+                .orElseThrow(() -> new EntityNotFoundException("Postagem não encontrada"));
+        if (!isVisible(post, user)) {
+            throw new EntityNotFoundException("Postagem não encontrada");
+        }
+        return post;
+    }
+
+    private PostShare findVisibleShare(Long shareId, User user) {
         PostShare share = shareRepository.findById(shareId)
                 .orElseThrow(() -> new EntityNotFoundException("Compartilhamento não encontrado"));
+        if (!isVisible(share.getPost(), user)) {
+            throw new EntityNotFoundException("Compartilhamento não encontrado");
+        }
+        return share;
+    }
 
-        return commentRepository.findByShare(share).stream()
-                .map(comment -> new PostCommentResponseDTO(
-                        comment.getId(),
-                        comment.getUser().getId(),
-                        comment.getUser().getName(),
-                        comment.getUser().getProfilePic(),
-                        comment.getContent(),
-                        comment.isEdited(),
-                        comment.getCreatedAt(),
-                        comment.getParentComment() != null ? comment.getParentComment().getId() : null,
-                        countCommentLikes(comment.getId())
-                ))
-                .toList();
+    private PostComment findComment(Long commentId, String notFoundMessage) {
+        return commentRepository.findById(commentId)
+                .orElseThrow(() -> new EntityNotFoundException(notFoundMessage));
+    }
+
+    private void ensureCommentTargetVisible(PostComment comment, User user) {
+        Post target = comment.getPost() != null ? comment.getPost() : comment.getShare().getPost();
+        if (!isVisible(target, user)) {
+            throw new EntityNotFoundException("Comentário não encontrado");
+        }
+    }
+
+    private static boolean isVisible(Post post, User user) {
+        if (post == null || post.isDeleted()) {
+            return false;
+        }
+        return post.getVisibility() == PostVisibility.PUBLICO
+                || post.getAuthor().getId().equals(user.getId());
     }
 
     public Long countLikes(Long postId) {

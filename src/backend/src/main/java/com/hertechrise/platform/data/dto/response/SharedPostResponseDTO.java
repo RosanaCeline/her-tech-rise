@@ -28,9 +28,16 @@ public record SharedPostResponseDTO(
         Long countShareLikes,
 
         @Schema(description = "Quantidade de comentários no compartilhamento", example = "16")
-        Long countShareComments
+        Long countShareComments,
+
+        @Schema(description = "Se o usuário logado curtiu o compartilhamento", example = "false")
+        Boolean likedByMe
 ) {
     public static SharedPostResponseDTO from(PostShare share, Long loggedUserId, boolean isFollowedOriginalAuthor, Boolean isFollowedSharer, Long countShareLikes, Long countShareComments) {
+        return from(share, loggedUserId, isFollowedOriginalAuthor, isFollowedSharer, countShareLikes, countShareComments, null);
+    }
+
+    public static SharedPostResponseDTO from(PostShare share, Long loggedUserId, boolean isFollowedOriginalAuthor, Boolean isFollowedSharer, Long countShareLikes, Long countShareComments, Boolean likedByMe) {
         Post original = share.getPost();
 
         PostResponseDTO originalPost = PostResponseDTO.from(
@@ -42,13 +49,7 @@ public record SharedPostResponseDTO(
                 null
         );
 
-        AuthorResponseDTO sharingUser = new AuthorResponseDTO(
-                share.getUser().getId(),
-                share.getUser().getName(),
-                share.getUser().getHandle(),
-                share.getUser().getProfilePic(),
-                isFollowedSharer
-        );
+        AuthorResponseDTO sharingUser = AuthorResponseDTO.from(share.getUser(), isFollowedSharer);
 
         return new SharedPostResponseDTO(
                 share.getId(),
@@ -57,7 +58,8 @@ public record SharedPostResponseDTO(
                 sharingUser,
                 originalPost,
                 countShareLikes,
-                countShareComments
+                countShareComments,
+                likedByMe
         );
     }
 }

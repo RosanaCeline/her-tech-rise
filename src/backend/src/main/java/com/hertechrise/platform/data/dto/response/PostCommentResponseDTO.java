@@ -2,6 +2,9 @@ package com.hertechrise.platform.data.dto.response;
 
 import java.time.LocalDateTime;
 
+import com.hertechrise.platform.model.PostComment;
+import com.hertechrise.platform.model.User;
+import com.hertechrise.platform.model.UserType;
 import io.swagger.v3.oas.annotations.media.Schema;
 
 @Schema(name = "PostCommentResponseDTO", description = "DTO de resposta para comentários em uma postagem")
@@ -32,6 +35,39 @@ public record PostCommentResponseDTO(
         Long parentComment,
 
         @Schema(description = "Quantidade de curtidas no comentário", example = "17")
-        Long countCommentLikes
-) {}
+        Long countCommentLikes,
+
+        @Schema(description = "Handle do autor do comentário", example = "@anasilva")
+        String userHandle,
+
+        @Schema(description = "Tipo do perfil do autor do comentário", example = "PROFESSIONAL")
+        UserType userType,
+
+        @Schema(description = "Se o usuário logado curtiu o comentário", example = "false")
+        Boolean likedByMe
+) {
+    public PostCommentResponseDTO(Long id, Long userId, String userName, String userAvatarUrl, String content,
+                                  boolean edited, LocalDateTime createdAt, Long parentComment, Long countCommentLikes) {
+        this(id, userId, userName, userAvatarUrl, content, edited, createdAt, parentComment, countCommentLikes,
+                null, null, null);
+    }
+
+    public static PostCommentResponseDTO from(PostComment comment, Long countCommentLikes, Boolean likedByMe) {
+        User user = comment.getUser();
+        return new PostCommentResponseDTO(
+                comment.getId(),
+                user.getId(),
+                user.getName(),
+                user.getProfilePic(),
+                comment.getContent(),
+                comment.isEdited(),
+                comment.getCreatedAt(),
+                comment.getParentComment() != null ? comment.getParentComment().getId() : null,
+                countCommentLikes,
+                user.getHandle(),
+                user.getType(),
+                likedByMe
+        );
+    }
+}
 

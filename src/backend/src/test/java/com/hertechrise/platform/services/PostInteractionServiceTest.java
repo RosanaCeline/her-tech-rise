@@ -615,8 +615,116 @@ class PostInteractionServiceTest extends AbstractIntegrationTest {
 
     }
 
+    private void authenticate(User user) {
+        SecurityContextHolder.getContext().setAuthentication(
+                new UsernamePasswordAuthenticationToken(user, null, List.of()));
+    }
 
+    private Post createPost(User author, PostVisibility visibility) {
+        Post post = new Post();
+        post.setAuthor(author);
+        post.setContent("Olá mundo");
+        post.setVisibility(visibility);
+        post.setCreatedAt(LocalDateTime.now());
+        return postRepository.save(post);
+    }
 
+    @DisplayName("Não deve permitir interagir com postagem privada de outra pessoa")
+    @Test
+    void shouldNotInteractWithOthersPrivatePost() {
+        User author = createTestUser("Autora", "autora@email.com", "@autora");
+        User other = createTestUser("Outra", "outra@email.com", "@outra");
+        Post privatePost = createPost(author, PostVisibility.PRIVADO);
+        authenticate(other);
 
+        assertThrows(EntityNotFoundException.class, () -> postInteractionService.toggleLike(privatePost.getId()));
+        assertThrows(EntityNotFoundException.class, () -> postInteractionService.listLikes(privatePost.getId()));
+        assertThrows(EntityNotFoundException.class, () -> postInteractionService.listComments(privatePost.getId()));
+        assertThrows(EntityNotFoundException.class, () -> postInteractionService.comment(
+                privatePost.getId(), new PostCommentRequestDTO("Oi", null)));
+    }
 
+    @DisplayName("Não deve permitir compartilhar postagem privada, nem a própria")
+    @Test
+    void shouldNotSharePrivatePost() {
+        User author = createTestUser("Autora", "autora@email.com", "@autora");
+        Post privatePost = createPost(author, PostVisibility.PRIVADO);
+        authenticate(author);
+
+        assertThrows(IllegalStateException.class, () -> postInteractionService.share(
+                privatePost.getId(), new PostShareRequestDTO(null)));
+        assertEquals(0, shareRepository.count());
+    }
+
+    @DisplayName("Deve compartilhar sem texto, salvando conteúdo nulo")
+    @Test
+    void shareWithoutContent() {
+        User author = createTestUser("Autora", "autora@email.com", "@autora");
+        Post post = createPost(author, PostVisibility.PUBLICO);
+        authenticate(author);
+
+        postInteractionService.share(post.getId(), new PostShareRequestDTO(null));
+
+        assertEquals(1, shareRepository.count());
+        assertNull(shareRepository.findAll().getFirst().getContent());
+    }
+
+    @DisplayName("Não deve aceitar comentário pai de outra postagem")
+    @Test
+    void commentShouldThrowWhenParentBelongsToAnotherPost() {
+        User author = createTestUser("Autora", "autora@email.com", "@autora");
+        Post post = createPost(author, PostVisibility.PUBLICO);
+        Post otherPost = createPost(author, PostVisibility.PUBLICO);
+        authenticate(author);
+
+        PostCommentResponseDTO parent = postInteractionService.comment(
+                otherPost.getId(), new PostCommentRequestDTO("Pai", null));
+
+        assertThrows(IllegalArgumentException.class, () -> postInteractionService.comment(
+                post.getId(), new PostCommentRequestDTO("Resposta", parent.id())));
+    }
+
+    @DisplayName("Dono do compartilhamento pode excluir comentário feito nele")
+    @Test
+    void shareOwnerCanDeleteCommentOnShare() {
+        User author = createTestUser("Autora", "autora@email.com", "@autora");
+        User sharer = createTestUser("Quem compartilha", "sharer@email.com", "@sharer");
+        User commenter = createTestUser("Comentarista", "comenta@email.com", "@comenta");
+        Post post = createPost(author, PostVisibility.PUBLICO);
+
+        authenticate(sharer);
+        postInteractionService.share(post.getId(), new PostShareRequestDTO(null));
+        PostShare share = shareRepository.findAll().getFirst();
+
+        authenticate(commenter);
+        PostCommentResponseDTO comment = postInteractionService.commentOnShare(
+                share.getId(), new PostCommentRequestDTO("Comentário", null));
+
+        authenticate(sharer);
+        postInteractionService.deleteComment(comment.id());
+
+        assertFalse(commentRepository.findById(comment.id()).isPresent());
+    }
+
+    @DisplayName("Lista comentários informando se o usuário logado curtiu")
+    @Test
+    void listCommentsWithLikedByMe() {
+        User author = createTestUser("Autora", "autora@email.com", "@autora");
+        Post post = createPost(author, PostVisibility.PUBLICO);
+        authenticate(author);
+
+        PostCommentResponseDTO comment = postInteractionService.comment(
+                post.getId(), new PostCommentRequestDTO("Comentário", null));
+        postInteractionService.toggleCommentLike(comment.id());
+
+        List<PostCommentResponseDTO> comments = postInteractionService.listComments(post.getId());
+
+        assertEquals(1, comments.size());
+        assertEquals(1L, comments.getFirst().countCommentLikes());
+        assertTrue(comments.getFirst().likedByMe());
+        assertEquals("@autora", comments.getFirst().userHandle());
+
+        // desfaz a curtida para a limpeza do @AfterEach não esbarrar na FK de comment_likes
+        postInteractionService.toggleCommentLike(comment.id());
+    }
 }
