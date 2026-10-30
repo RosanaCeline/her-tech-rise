@@ -22,6 +22,11 @@ public class UserController implements UserControllerDocs {
         return ResponseEntity.ok(userService.updateProfilePicture(file));
     }
 
+    @DeleteMapping("/profile-picture")
+    public ResponseEntity<UserPictureResponseDTO> removeProfilePicture() {
+        return ResponseEntity.ok(userService.removeProfilePicture());
+    }
+
     @DeleteMapping("/deactivate")
     public ResponseEntity<MessageResponseDTO> deactivateMyProfile() {
         userService.deactivateMyProfile();
@@ -37,4 +42,4 @@ public class UserController implements UserControllerDocs {
                 .status(HttpStatus.NO_CONTENT)
                 .body(new MessageResponseDTO("Conta excluída com sucesso."));
     }
-}
+}

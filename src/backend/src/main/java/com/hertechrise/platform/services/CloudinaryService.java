@@ -94,6 +94,16 @@ public class CloudinaryService {
         }
     }
 
+    // remove a foto enviada pela usuária (mesmo public_id usado no upload); a foto padrão nunca é apagada
+    public void deleteProfilePicture(String handle) {
+        String publicId = "profile_pics/profile_" + handle.replace("@", "");
+        try {
+            cloudinary.uploader().destroy(publicId, Map.of("resource_type", "image", "invalidate", true));
+        } catch (Exception e) {
+            // falha aqui não impede a remoção: o perfil já usa a foto padrão e um novo upload sobrescreve o arquivo
+        }
+    }
+
     public String uploadResumeFile(MultipartFile file, String professionalName) {
         String mimeType = file.getContentType();
         long size = file.getSize();

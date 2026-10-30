@@ -41,6 +41,23 @@ public interface UserControllerDocs {
     ResponseEntity<UserPictureResponseDTO> updateProfilePicture(MultipartFile file);
 
     @Operation(
+            summary = "Remover foto de perfil do usuário",
+            description = "Volta a foto de perfil do usuário autenticado para a imagem padrão e apaga a foto enviada.",
+            responses = {
+                    @ApiResponse(
+                            responseCode = "200",
+                            description = "Foto de perfil removida com sucesso",
+                            content = @Content(
+                                    mediaType = "application/json",
+                                    schema = @Schema(implementation = UserPictureResponseDTO.class)
+                            )
+                    ),
+                    @ApiResponse(responseCode = "401", description = "Usuário não autenticado")
+            }
+    )
+    ResponseEntity<UserPictureResponseDTO> removeProfilePicture();
+
+    @Operation(
             summary = "Desativar (soft‑delete) minha conta",
             description = "Marca a conta do(a) profissional como desativada. Após isso, o login deixa de funcionar.",
             responses = {
