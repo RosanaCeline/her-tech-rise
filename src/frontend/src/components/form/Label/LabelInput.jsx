@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useId, useState } from 'react'
 import { validateField } from './validationField'
 import { EyeOff, Eye } from 'lucide-react'
 
@@ -16,10 +16,20 @@ export default function LabelInput ({   name,
                                         ref = null,
                                         onClick,
                                         disabled = false,
-                                        errorTheme = 'light'
+                                        errorTheme = 'light',
+                                        autoComplete,
+                                        inputMode
                                     }) {
  
     const [error, setError] = useState(null);
+    const autoId = useId();
+    const inputId = name || autoId;
+    const errorId = `${inputId}-erro`;
+    const a11yProps = {
+        'aria-invalid': error ? true : undefined,
+        'aria-describedby': error ? errorId : undefined,
+        'aria-required': required || undefined,
+    };
     const [showPassword, setShowPassword] = useState(false);
  
     const handleBlur = () => {
@@ -57,7 +67,7 @@ export default function LabelInput ({   name,
     return (
         <div className="w-full mt-auto">
             {(label && type !== 'checkbox')&& (
-                <label htmlFor={name} className={baseLabelClasses}>
+                <label htmlFor={inputId} className={baseLabelClasses}>
                 {label} {required && <span className={`text-${theme}`}>*</span>}
                 </label>
             )}
@@ -65,7 +75,7 @@ export default function LabelInput ({   name,
             {type === 'checkbox' ? (
                 <label className="inline-flex items-center gap-2 cursor-pointer">
                     <input
-                        id={name}
+                        id={inputId}
                         name={name}
                         type="checkbox"
                         checked={value}
@@ -87,8 +97,10 @@ export default function LabelInput ({   name,
             ) : type === 'select' ? (
                 <div className='relative'>
                     <select
-                    id={name}
+                    id={inputId}
                     name={name}
+                    {...a11yProps}
+                    autoComplete={autoComplete}
                     value={value}
                     onChange={onChange}
                     onBlur={handleBlur}
@@ -112,8 +124,9 @@ export default function LabelInput ({   name,
                 </div>
             ) : type === 'mensagem' ? (
                 <textarea
-                id={name}
+                id={inputId}
                 name={name}
+                {...a11yProps}
                 value={value}
                 onChange={onChange}
                 onBlur={handleBlur}
@@ -124,8 +137,11 @@ export default function LabelInput ({   name,
             ) : (
                 <div className="relative">
                     <input
-                        id={name}
+                        id={inputId}
                         name={name}
+                        {...a11yProps}
+                        autoComplete={autoComplete}
+                        inputMode={inputMode}
                         type={
                             type === 'senha'
                                 ? showPassword ? 'text' : 'password'
@@ -150,16 +166,18 @@ export default function LabelInput ({   name,
                         <button
                             type="button"
                             onClick={() => setShowPassword(!showPassword)}
+                            aria-label={showPassword ? 'Ocultar senha' : 'Mostrar senha'}
+                            aria-pressed={showPassword}
                             className="absolute inset-y-0 right-3 flex items-center text-gray-500 hover:text-gray-700"
                         >
-                            {showPassword ? <EyeOff /> : <Eye />}
+                            {showPassword ? <EyeOff aria-hidden="true" /> : <Eye aria-hidden="true" />}
                         </button>
                     )}
                 </div>
             )}
 
             {error && (
-                <p className={`mt-2 text-sm text-left ${errorTheme === 'dark' ? 'text-error-dark' : 'text-error'}`}>
+                <p id={errorId} className={`mt-2 text-sm text-left ${errorTheme === 'dark' ? 'text-error-dark' : 'text-error'}`}>
                     {error}
                 </p>
             )}
