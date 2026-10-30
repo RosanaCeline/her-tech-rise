@@ -13,7 +13,7 @@ import FeedbackModal from "../../components/ConfirmModal/FeedbackModal"
 import LoadingSpinner from "../../components/LoadingSpinner/LoadingSpinner"
 import LoadError from '../../components/LoadError/LoadError';
 import { getErrorMessage } from '../../services/errorMessage';
-import { CONTRACT_TYPES, JOB_MODELS, JOB_LEVELS, formatDeadline, formatSalaryRange } from "./jobLabels"
+import { CONTRACT_TYPES, JOB_MODELS, JOB_LEVELS, formatDate, formatSalaryRange } from "./jobLabels"
 import defaultEnterprisePhoto from '../../assets/profile/FotoPadraoEnterprise.png';
 
 const TARGET_GENDERS = ['MULHER', 'PESSOA_NAO_BINARIA'];
@@ -205,7 +205,7 @@ function JobDetails({job, error, onRetry, onApply}){
                     <JobInfo label="Salário" icon={Banknote}>{formatSalaryRange(job.salaryMin, job.salaryMax)}</JobInfo>
                     <JobInfo label="Modalidade" icon={House}>{JOB_MODELS[job.jobModel]}</JobInfo>
                     <JobInfo label="Localização" icon={MapPin}>{job.location}</JobInfo>
-                    <JobInfo label="Data-limite" icon={CalendarDays}>{formatDeadline(job.applicationDeadline)}</JobInfo>
+                    <JobInfo label="Data-limite" icon={CalendarDays}>{formatDate(job.applicationDeadline)}</JobInfo>
                 </dl>
             </div>
             <div className="flex justify-center mt-7">

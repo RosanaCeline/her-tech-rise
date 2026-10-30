@@ -17,10 +17,11 @@ export const JOB_LEVELS = {
 
 export const toOptions = (labels) => Object.entries(labels).map(([value, label]) => ({ value, label }));
 
-// a data vem como "2026-11-05", sem fuso: new Date() leria em UTC e mostraria um dia a menos no Brasil
-export function formatDeadline(date) {
+// datas vêm como "2026-11-05" (ou "2026-11-05T14:30:00"), sem fuso: new Date() leria em UTC
+// e mostraria um dia a menos no Brasil, então só remontamos o texto
+export function formatDate(date) {
     if (!date) return '';
-    const [year, month, day] = date.split('-');
+    const [year, month, day] = date.slice(0, 10).split('-');
     return `${day}/${month}/${year}`;
 }
 

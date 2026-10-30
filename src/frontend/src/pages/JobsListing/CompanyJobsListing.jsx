@@ -5,12 +5,13 @@ import { House, MapPin, CalendarDays } from 'lucide-react'
 
 import BtnCallToAction from "../../components/btn/BtnCallToAction/BtnCallToAction"
 import ManageJob from "./components/ManageJob"
+import JobStatusBadge from "./components/JobStatusBadge"
 import { companyJobPostings, companyJobPostingDetail, deactivateJobPosting } from "../../services/jobsService"
 import LoadingSpinner from "../../components/LoadingSpinner/LoadingSpinner"
 import ConfirmModal from '../../components/ConfirmModal/ConfirmModal'
 import LoadError from '../../components/LoadError/LoadError';
 import { getErrorMessage } from '../../services/errorMessage';
-import { CONTRACT_TYPES, JOB_MODELS, formatDeadline, moneyToField } from "./jobLabels"
+import { CONTRACT_TYPES, JOB_MODELS, formatDate, moneyToField } from "./jobLabels"
 import defaultEnterprisePhoto from '../../assets/profile/FotoPadraoEnterprise.png';
 
 const outlineButton = "border border-(--purple-primary) text-(--purple-primary) cursor-pointer rounded-2xl py-2 px-6 " +
@@ -134,15 +135,6 @@ export default function CompanyJobsListing(){
     )
 }
 
-function JobStatus({job}){
-    const status = !job.isActive
-        ? { text: 'Vaga desativada', className: 'bg-gray-200 text-gray-700' }
-        : job.isExpired
-            ? { text: 'Prazo encerrado', className: 'bg-amber-100 text-amber-800' }
-            : { text: 'Vaga ativa', className: 'bg-green-100 text-green-800' };
-    return <span className={`self-start rounded-full px-3 py-1 text-xs font-semibold ${status.className}`}>{status.text}</span>;
-}
-
 function CompanyJobDetails({job, opening, onEdit, onDeactivate}){
     return(
         <article aria-label={job.title}
@@ -153,7 +145,7 @@ function CompanyJobDetails({job, opening, onEdit, onDeactivate}){
                 <div className={`flex-1 min-w-0 ${!job.isActive ? 'text-gray-600' : ''}`}>
                     <div className="flex flex-wrap items-center gap-2 mb-1">
                         <h2 className="font-bold text-base break-words">{job.title}</h2>
-                        <JobStatus job={job}/>
+                        <JobStatusBadge isActive={job.isActive} isExpired={job.isExpired}/>
                     </div>
 
                     <h3 className="font-bold mt-2">Sobre a vaga:</h3>
@@ -177,7 +169,7 @@ function CompanyJobDetails({job, opening, onEdit, onDeactivate}){
                         </div>
                         <div>
                             <dt className="font-bold">Data-limite:</dt>
-                            <dd className="flex items-center gap-1"><CalendarDays size={18} aria-hidden="true"/>{formatDeadline(job.applicationDeadline)}</dd>
+                            <dd className="flex items-center gap-1"><CalendarDays size={18} aria-hidden="true"/>{formatDate(job.applicationDeadline)}</dd>
                         </div>
                     </dl>
                 </div>
