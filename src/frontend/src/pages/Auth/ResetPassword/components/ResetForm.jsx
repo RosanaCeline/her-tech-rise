@@ -1,5 +1,5 @@
-import React, { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useState } from 'react';
+import { Link } from 'react-router-dom';
 
 import { Undo2 } from 'lucide-react';
 
@@ -11,67 +11,105 @@ import { validateField } from '../../../../components/form/Label/validationField
 export default function ResetForm() {
 
   const [email, setEmail] = useState('');
-  const [feedback, setFeedback] = useState('');
+  const [sent, setSent] = useState(false);
   const [loading, setLoading] = useState(false);
   const [errorMsg, setErrorMsg] = useState('');
-  const navigate = useNavigate();
 
   const handleReset = async () => {
-    if(!validateFields()) return
+    if (loading) return;
+    if (!validateFields()) return;
+    setErrorMsg('');
     setLoading(true);
     try {
-      await resetPassword(email);
-      setFeedback('Enviamos um link de redefinição para seu e-mail.');
+      await resetPassword(email.trim());
+      setSent(true);
     } catch (err) {
-      setFeedback(err.response?.data?.message || 'Erro ao tentar redefinir senha.');
+      setErrorMsg(err.message);
     } finally {
       setLoading(false);
     }
   };
 
   const validateFields = () => {
-      const hasError = validateField('email', email, true);
-      if(hasError) setErrorMsg('Preencha os campos obrigatórios e corrija os erros antes de continuar');
-      else setErrorMsg('');
-      return !hasError;
+    const hasError = validateField('email', email, true);
+    if (hasError) setErrorMsg('Informe um e-mail válido para continuar');
+    return !hasError;
   }
 
+  const linkClasses = 'w-fit mx-auto rounded-sm transition duration-300 hover:-translate-y-0.75 hover:underline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white';
+
   return (
-    <div className="text-white w-full md:w-1/2 min-h-screen flex flex-col justify-between bg-(--purple-primary) mx-4 md:mx-0 p-9 md:rounded-r-[130px]">
-      <button className='flex gap-x-3 cursor-pointer transition hover:-translate-x-1'
-              onClick={() => navigate('/')}>
-        <Undo2 />
-        Voltar
-      </button>
+    <form
+      onSubmit={(e) => {
+        e.preventDefault()
+        handleReset()
+      }}
+      noValidate
+      className="text-white w-full md:w-1/2 min-h-screen flex flex-col justify-between gap-6 bg-(--purple-primary) px-6 py-8 sm:p-9 md:rounded-r-[130px]">
 
-      <div className='text-center'>
-        <p className='text-3xl sm:text-4xl md:text-5xl font-bold'>Esqueceu sua senha?</p>
-        <p className='text-sm sm:text-base md:text-lg mt-4'>Informe seu e-mail e enviaremos instruções.</p>
+      <Link to="/login" className='flex w-fit gap-x-3 rounded-sm transition duration-300 hover:-translate-x-1 will-change-transform focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white'>
+        <Undo2 aria-hidden="true"/>
+        Voltar para o login
+      </Link>
 
-        <div className='text-left flex flex-col gap-y-3 mt-6 sm:mt-8 mb-5'>
-          <LabelInput
-            label="E-mail"
-            theme="white"
-            type="email"
-            placeholder='Informe seu email'
-            validation='email'
-            required={true}
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
-          />
+      <div className='flex flex-col text-center py-4 w-full max-w-md mx-auto'>
+        <h1 className='text-3xl sm:text-4xl md:text-5xl font-bold'>Esqueceu sua senha?</h1>
+        <p className='text-sm sm:text-base md:text-lg mt-4'>Informe seu e-mail e enviaremos um link para criar uma nova senha.</p>
+
+        {sent ? (
+          <div role="status" className="mt-8 text-left bg-green-700 text-white p-4 rounded-md">
+            <p className="font-semibold">Pedido recebido!</p>
+            <p className="mt-2">
+              Se houver uma conta com o e-mail <strong className="break-all">{email.trim()}</strong>, você receberá
+              um link para redefinir a senha em alguns minutos. O link vale por 30 minutos.
+            </p>
+            <p className="mt-2 text-sm">Não chegou? Confira a caixa de spam ou tente de novo daqui a alguns minutos.</p>
+          </div>
+        ) : (
+          <div className='text-left flex flex-col gap-y-3 mt-6 sm:mt-8 mb-5'>
+            <LabelInput
+              label="E-mail"
+              name="email"
+              type="email"
+              theme="red"
+              placeholder='Digite seu e-mail'
+              validation='email'
+              autoComplete="email"
+              required={true}
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+            />
+          </div>
+        )}
+
+        <div role="alert" aria-live="assertive">
+          {errorMsg && (
+            <p className="mt-4 text-left bg-red-700 text-white px-4 py-3 rounded-md">
+              {errorMsg}
+            </p>
+          )}
         </div>
 
-        {feedback && <p className='text-sm mt-4'>{feedback}</p>}
+        {sent && (
+          <button type="button"
+                  onClick={() => setSent(false)}
+                  className={`${linkClasses} mt-6 cursor-pointer`}>
+            Usar outro e-mail
+          </button>
+        )}
       </div>
 
-      <div className='flex flex-col'>
-        <div className='flex justify-center'>
-          <BtnCallToAction variant="white" onClick={handleReset} disabled={loading}>
-            {loading ? 'Enviando...' : 'ENVIAR'}
+      <div className='flex justify-center'>
+        {sent ? (
+          <BtnCallToAction variant="white" to="/login">
+            IR PARA O LOGIN
           </BtnCallToAction>
-        </div>
-        {errorMsg && <p className='text-sm mt-4 mx-auto text-error'>{errorMsg}</p>}
+        ) : (
+          <BtnCallToAction variant="white" type="submit" disabled={loading}>
+            {loading ? 'Enviando...' : 'ENVIAR LINK'}
+          </BtnCallToAction>
+        )}
       </div>
-    </div>
+    </form>
   );
 }

@@ -11,15 +11,17 @@ export default function ResetPassword () {
   if (user) return <Navigate to="/timeline" replace />;
     
   return (
-    <main className='flex bg-[#F7F7F7]'>
+    <main className='flex min-h-screen bg-[#F7F7F7]'>
       <ResetForm  />
-      <div    className='hidden md:w-1/2 md:flex md:flex-col justify-center p-4'>
-        <img  src={logo} 
-              alt="Logo Her Tech Rise" 
-              className='w-7/8 mx-auto'/>
-        <img  src={login} 
-              alt="Imagem ilustrativa de login" 
-              className='w-2/3 mx-auto'/>
+      <div className='hidden md:w-1/2 md:flex md:flex-col justify-center gap-6 p-4'>
+        <img  src={logo}
+              alt="Her Tech Rise"
+              width="1366" height="210"
+              className='w-7/8 h-auto mx-auto'/>
+        <img  src={login}
+              alt=""
+              width="2000" height="2000"
+              className='w-2/3 h-auto mx-auto'/>
       </div>
     </main>
   )
