@@ -5,8 +5,9 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.MediaType;
 import org.springframework.stereotype.Component;
-import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.RestClient;
+import org.springframework.web.client.RestClientException;
+import org.springframework.web.client.RestClientResponseException;
 
 import java.io.Serializable;
 import java.util.List;
@@ -15,17 +16,17 @@ import java.util.Map;
 @Component
 public class EmailSender implements Serializable {
 
-    Logger logger = LoggerFactory.getLogger(EmailSender.class);
-
-    private final RestClient restClient = RestClient.create();
+    private static final Logger logger = LoggerFactory.getLogger(EmailSender.class);
+    private static final RestClient restClient = RestClient.create();
 
     private String to;
     private String subject;
     private String body;
 
     public EmailSender to(String to) {
-        this.to = to;
-        return this;
+        EmailSender message = new EmailSender();
+        message.to = to;
+        return message;
     }
 
     public EmailSender withSubject(String subject) {
@@ -45,6 +46,10 @@ public class EmailSender implements Serializable {
     }
 
     public void send(EmailConfig config) {
+        if (to == null || subject == null || body == null) {
+            throw new IllegalStateException("E-mail incompleto: informe destinatário, assunto e mensagem.");
+        }
+
         Map<String, Object> payload = Map.of(
                 "sender", Map.of(
                         "email", config.getSenderEmail(),
@@ -64,17 +69,21 @@ public class EmailSender implements Serializable {
                     .retrieve()
                     .toBodilessEntity();
 
-            logger.info("Email enviado para {} com o assunto {}", to, subject);
-            reset();
+            logger.info("Email enviado para {} com o assunto {}", maskEmail(to), subject);
 
-        } catch (HttpClientErrorException e) {
-            throw new RuntimeException("Erro ao enviar email: " + e.getResponseBodyAsString(), e);
+        } catch (RestClientResponseException e) {
+            logger.error("Brevo recusou o email '{}' para {}: HTTP {} {}", subject, maskEmail(to),
+                    e.getStatusCode().value(), e.getResponseBodyAsString());
+            throw new RuntimeException("Erro ao enviar email", e);
+        } catch (RestClientException e) {
+            logger.error("Falha ao conectar na Brevo para enviar '{}' para {}", subject, maskEmail(to), e);
+            throw new RuntimeException("Erro ao enviar email", e);
         }
     }
 
-    private void reset() {
-        this.to = null;
-        this.subject = null;
-        this.body = null;
+    private static String maskEmail(String email) {
+        int at = email.indexOf('@');
+        if (at <= 2) return "***" + email.substring(Math.max(at, 0));
+        return email.substring(0, 2) + "***" + email.substring(at);
     }
 }
