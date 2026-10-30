@@ -11,7 +11,6 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
 
@@ -39,18 +38,20 @@ public class AuthSecurityFilter extends OncePerRequestFilter {
             throws ServletException, IOException {
 
         var token = this.recoverToken(request);
-        var login = tokenService.validateToken(token, "login-auth-api");
+        var login = tokenService.validateToken(token, TokenService.LOGIN_ISSUER);
 
         if (login != null && SecurityContextHolder.getContext().getAuthentication() == null) {
-            User user = userRepository.findByEmail(login.getEmail())
-                    .orElseThrow(() -> new UsernameNotFoundException("Usuário não encontrado"));
+            userRepository.findByEmail(login.getEmail())
+                    .filter(User::isEnabled)
+                    .filter(user -> tokenService.matchesCurrentPassword(login, user))
+                    .ifPresent(user -> {
+                        List<GrantedAuthority> authorities = user.getRole().getPermissions().stream()
+                                .map(permission -> new SimpleGrantedAuthority(permission.getDescription()))
+                                .collect(Collectors.toList());
 
-            List<GrantedAuthority> authorities = user.getRole().getPermissions().stream()
-                    .map(permission -> new SimpleGrantedAuthority(permission.getDescription()))
-                    .collect(Collectors.toList());
-
-            var authentication = new UsernamePasswordAuthenticationToken(user, null, authorities);
-            SecurityContextHolder.getContext().setAuthentication(authentication);
+                        var authentication = new UsernamePasswordAuthenticationToken(user, null, authorities);
+                        SecurityContextHolder.getContext().setAuthentication(authentication);
+                    });
         }
 
         filterChain.doFilter(request, response);
@@ -60,6 +61,6 @@ public class AuthSecurityFilter extends OncePerRequestFilter {
         var authHeader = request.getHeader("Authorization");
         if(authHeader == null || !authHeader.startsWith("Bearer ")) return null;
 
-        return authHeader.replace("Bearer ", "");
+        return authHeader.substring(7);
     }
 }

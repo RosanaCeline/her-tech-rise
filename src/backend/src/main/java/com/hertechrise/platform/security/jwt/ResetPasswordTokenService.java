@@ -1,6 +1,9 @@
 package com.hertechrise.platform.security.jwt;
 
+import com.hertechrise.platform.exception.InvalidResetTokenException;
+import com.hertechrise.platform.model.User;
 import io.jsonwebtoken.Claims;
+import io.jsonwebtoken.JwtException;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.security.Keys;
 import org.springframework.beans.factory.annotation.Value;
@@ -8,44 +11,55 @@ import org.springframework.stereotype.Service;
 
 import javax.crypto.SecretKey;
 import java.nio.charset.StandardCharsets;
-import java.security.Key;
+import java.time.Duration;
 import java.time.Instant;
-import java.time.LocalDateTime;
-import java.time.ZoneOffset;
 import java.util.Date;
 
 @Service
 public class ResetPasswordTokenService {
 
-    private final Key secretKey;
+    public static final Duration VALIDITY = Duration.ofMinutes(30);
+    private static final String PURPOSE = "password-reset";
+
+    private final SecretKey secretKey;
+    private final String secret;
 
     public ResetPasswordTokenService(@Value("${security.jwt.token.secret-key}") String secret) {
-        byte[] keyBytes = secret.getBytes(StandardCharsets.UTF_8);
-        this.secretKey = Keys.hmacShaKeyFor(keyBytes);
+        this.secret = secret;
+        this.secretKey = Keys.hmacShaKeyFor(secret.getBytes(StandardCharsets.UTF_8));
     }
 
-    public String generateResetToken(String email) {
+    public String generateResetToken(User user) {
+        Instant now = Instant.now();
         return Jwts.builder()
-                .subject(email)
-                .issuedAt(new Date(System.currentTimeMillis()))
-                .expiration(Date.from(generateExpirationDate()))
+                .subject(user.getEmail())
+                .claim("purpose", PURPOSE)
+                .claim("pwd", PasswordFingerprint.of(user.getPassword(), secret))
+                .issuedAt(Date.from(now))
+                .expiration(Date.from(now.plus(VALIDITY)))
                 .signWith(secretKey)
                 .compact();
     }
 
-    private Instant generateExpirationDate() {
-        return LocalDateTime.now()
-                .plusMinutes(30).
-                toInstant(ZoneOffset.of("-03:00"));
-        // Depois verificar como fazer para expirar se ja utilizado
+    public record ResetTokenData(String email, String passwordFingerprint) {}
+
+    public ResetTokenData validateResetToken(String token) {
+        try {
+            Claims claims = Jwts.parser()
+                    .verifyWith(secretKey)
+                    .build()
+                    .parseSignedClaims(token)
+                    .getPayload();
+            if (!PURPOSE.equals(claims.get("purpose", String.class))) {
+                throw new InvalidResetTokenException();
+            }
+            return new ResetTokenData(claims.getSubject(), claims.get("pwd", String.class));
+        } catch (JwtException | IllegalArgumentException e) {
+            throw new InvalidResetTokenException();
+        }
     }
 
-    public String validateResetToken(String token) {
-        Claims claims = Jwts.parser()
-                .verifyWith((SecretKey) secretKey)
-                .build()
-                .parseSignedClaims(token)
-                .getPayload();
-        return claims.getSubject();
+    public boolean matchesCurrentPassword(ResetTokenData data, User user) {
+        return PasswordFingerprint.matches(PasswordFingerprint.of(user.getPassword(), secret), data.passwordFingerprint());
     }
 }

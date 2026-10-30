@@ -279,7 +279,7 @@ class AuthServiceTest extends AbstractIntegrationTest {
 
         userRepository.save(user);
 
-        LoginRequestDTO loginRequestDTO= new LoginRequestDTO("thalyta@test.com","senha1234");
+        LoginRequestDTO loginRequestDTO= new LoginRequestDTO("thalyta@test.com","senha1234", false);
 
         TokenResponseDTO response = authService.login(loginRequestDTO);
 
@@ -292,9 +292,9 @@ class AuthServiceTest extends AbstractIntegrationTest {
 
     }
 
-    @DisplayName("Deve lançar Exception UserNotFoundException para usuário autenticado não encontrado")
+    @DisplayName("Deve lançar InvalidCredentialsException para e-mail não cadastrado")
     @Test
-    void login_ThrowExceptionUserNotFoundException(){
+    void login_ThrowExceptionInvalidCredentialsForUnknownEmail(){
 
         //simular criação
         User user = new User();
@@ -316,13 +316,13 @@ class AuthServiceTest extends AbstractIntegrationTest {
                 .orElseThrow(InvalidUserTypeException::new);
         user.setRole(role);
 
-        LoginRequestDTO loginRequest = new LoginRequestDTO("nulo@email.com", "senha1234");
+        LoginRequestDTO loginRequest = new LoginRequestDTO("nulo@email.com", "senha1234", false);
 
-        UserNotFoundException exception = assertThrows(UserNotFoundException.class, () -> {
+        InvalidCredentialsException exception = assertThrows(InvalidCredentialsException.class, () -> {
             authService.login(loginRequest);
         });
 
-        assertEquals("Usuário autenticado não encontrado.", exception.getMessage());
+        assertEquals("E-mail ou senha incorretos.", exception.getMessage());
     }
 
     @DisplayName("Deve lançar AccountDisabledException para conta de usuário desativada")
@@ -348,7 +348,7 @@ class AuthServiceTest extends AbstractIntegrationTest {
         user.setRole(role);
         userRepository.save(user);
 
-        LoginRequestDTO loginRequest= new LoginRequestDTO("thalyta@test.com","senha1234");
+        LoginRequestDTO loginRequest= new LoginRequestDTO("thalyta@test.com","senha1234", false);
 
         AccountDisabledException exception = assertThrows(AccountDisabledException.class, () -> {
             authService.login(loginRequest);
@@ -357,9 +357,9 @@ class AuthServiceTest extends AbstractIntegrationTest {
         assertEquals("Conta de usuário desativada.", exception.getMessage());
     }
 
-    @DisplayName("Deve lançar InvalidPasswordException para senha incorreta")
+    @DisplayName("Deve lançar InvalidCredentialsException para senha incorreta")
     @Test
-    void login_ThrowExceptionInvalidPasswordException(){
+    void login_ThrowExceptionInvalidCredentialsForWrongPassword(){
         User user = new User();
         user.setName("Thalyta Lima");
         user.setPhoneNumber("8800000002");
@@ -382,13 +382,13 @@ class AuthServiceTest extends AbstractIntegrationTest {
 
         userRepository.save(user);
 
-        LoginRequestDTO loginRequestDTO= new LoginRequestDTO("thalyta@test.com","senhaerrada");
+        LoginRequestDTO loginRequestDTO= new LoginRequestDTO("thalyta@test.com","senhaerrada", false);
 
-        InvalidPasswordException exception = assertThrows(InvalidPasswordException.class, () -> {
+        InvalidCredentialsException exception = assertThrows(InvalidCredentialsException.class, () -> {
             authService.login(loginRequestDTO);
         });
 
-        assertEquals("Senha incorreta.", exception.getMessage());
+        assertEquals("E-mail ou senha incorretos.", exception.getMessage());
 
     }
     @DisplayName("Mudança de senha com sucesso")
@@ -419,9 +419,9 @@ class AuthServiceTest extends AbstractIntegrationTest {
 
         authService.resetPassword(request);
     }
-    @DisplayName("Deve lançar UserNotFoundException para usuário autenticado não encontrado ")
+    @DisplayName("Pedido de redefinição para e-mail não cadastrado não lança erro")
     @Test
-    void resetPassword_ExceptionUserNotFound() {
+    void resetPassword_UnknownEmailDoesNotThrow() {
         User user = new User();
         user.setName("Thalyta Lima");
         user.setPhoneNumber("8800000002");
@@ -446,10 +446,7 @@ class AuthServiceTest extends AbstractIntegrationTest {
 
         ResetPasswordRequestDTO request = new ResetPasswordRequestDTO("test@email.com");
 
-        UserNotFoundException exception = assertThrows(UserNotFoundException.class, () -> {
-            authService.resetPassword(request);
-        });
-        assertEquals("Usuário autenticado não encontrado.", exception.getMessage());
+        assertDoesNotThrow(() -> authService.resetPassword(request));
     }
 
     @DisplayName("Confirmação de mudança de senha com sucesso")
@@ -474,11 +471,21 @@ class AuthServiceTest extends AbstractIntegrationTest {
         user.setRole(role);
 
         userRepository.save(user);
-        String tokenTest = resetTokenService.generateResetToken(user.getEmail());
+        String tokenTest = resetTokenService.generateResetToken(user);
         ConfirmedResetPasswordRequestDTO dto = new ConfirmedResetPasswordRequestDTO(tokenTest, "novaSenhadethalyta");
         authService.confirmResetPassword(dto);
         User newPass = userRepository.findByEmail(user.getEmail()).orElseThrow();
         assertTrue(passwordEncoder.matches("novaSenhadethalyta",newPass.getPassword()));
+
+        ConfirmedResetPasswordRequestDTO reuse = new ConfirmedResetPasswordRequestDTO(tokenTest, "outraSenha123");
+        assertThrows(InvalidResetTokenException.class, () -> authService.confirmResetPassword(reuse));
+    }
+
+    @DisplayName("Link de redefinição inválido é rejeitado")
+    @Test
+    void confirmResetPassword_RejectsInvalidToken(){
+        ConfirmedResetPasswordRequestDTO dto = new ConfirmedResetPasswordRequestDTO("token.invalido.qualquer", "novaSenha123");
+        assertThrows(InvalidResetTokenException.class, () -> authService.confirmResetPassword(dto));
     }
 
 }
