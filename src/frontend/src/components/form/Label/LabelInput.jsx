@@ -22,6 +22,7 @@ export default function LabelInput ({   name,
                                         onKeyDown,
                                         ariaLabel,
                                         error: externalError = null,
+                                        min,
                                         hint = ''
                                     }) {
  
@@ -178,6 +179,7 @@ export default function LabelInput ({   name,
                         placeholder={placeholder}
                         className={`${baseInputClasses} pr-12`}
                         maxLength={maxLength}
+                        min={min}
                         ref={ref}
                         disabled={disabled}
                     />
