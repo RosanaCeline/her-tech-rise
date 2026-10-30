@@ -1,7 +1,7 @@
 import LabelInput from '../../../../components/form/Label/LabelInput';
 import { useState } from 'react';
 
-export default function RegisterStep1({formData, handleChange }){
+export default function RegisterStep4({formData, handleChange }){
     const [erroSenha, setErroSenha] = useState(false)
 
     const comparePasswords = (senha, senhaConfirmada) => {
@@ -10,14 +10,16 @@ export default function RegisterStep1({formData, handleChange }){
 
     return(
         <section>
-                <p className='text-center text-3xl sm:text-4xl mb-2'>
+                <h1 className='text-center text-3xl sm:text-4xl mb-2'>
                     Pronto para começar?
-                </p>
-                <p className='text-center text-lg'>
+                </h1>
+                <p className='text-center text-base sm:text-lg'>
                     Crie sua senha e finalize o cadastro na plataforma.
                 </p>
                 <div className='flex flex-col gap-y-3 mt-4'>
                     <LabelInput label="Email:" 
+                                name='email'
+                                autoComplete='email'
                                 theme='white' 
                                 required={true} 
                                 maxLength='100' 
@@ -28,6 +30,8 @@ export default function RegisterStep1({formData, handleChange }){
                                 onChange={(e) => handleChange('email', e.target.value)}
                     />
                     <LabelInput label="Senha:" 
+                                name='senha'
+                                autoComplete='new-password'
                                 theme='white' 
                                 required={true} 
                                 placeholder='Digite sua senha' 
@@ -41,6 +45,8 @@ export default function RegisterStep1({formData, handleChange }){
                                         comparePasswords(e.target.value, formData.senha_confirmada)
                     }}/>
                     <LabelInput label="Confirmar Senha:" 
+                                name='senha_confirmada'
+                                autoComplete='new-password'
                                 theme='white' 
                                 required={true} 
                                 maxLength='25' 
@@ -51,7 +57,9 @@ export default function RegisterStep1({formData, handleChange }){
                                     handleChange('senha_confirmada', e.target.value)
                                     comparePasswords(formData.senha, e.target.value)
                     }}/>
-                    {erroSenha && <p className="text-sm text-error">As senhas não coincidem.</p>}
+                    <div role="alert">
+                        {erroSenha && <p className="text-sm text-error">As senhas não coincidem.</p>}
+                    </div>
                     <div className='mt-4'>
                         {formData.tipo_usuario === 'profissional' &&
                         <LabelInput type="checkbox" theme='white' value={formData.consentGenderSharing} 
