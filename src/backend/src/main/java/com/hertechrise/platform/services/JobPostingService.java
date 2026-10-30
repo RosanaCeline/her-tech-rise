@@ -12,6 +12,7 @@ import com.hertechrise.platform.repository.CompanyRepository;
 import com.hertechrise.platform.repository.JobApplicationRepository;
 import com.hertechrise.platform.repository.JobPostingRepository;
 import jakarta.persistence.EntityNotFoundException;
+import jakarta.validation.ValidationException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.core.Authentication;
@@ -37,6 +38,8 @@ public class JobPostingService {
 
         Company loggedCompany = companyRepository.findById(loggedUser.getId())
                 .orElseThrow(() -> new EntityNotFoundException("Usuário logado não é uma empresa."));
+
+        validateSalaryRange(request);
 
         JobPosting jobPosting = new JobPosting();
         jobPosting.setTitle(request.title());
@@ -69,6 +72,12 @@ public class JobPostingService {
         if (!jobPosting.getCompany().getUserId().equals(loggedCompany.getUserId())) {
             throw new AccessDeniedException("Esta vaga não pertence à empresa logada.");
         }
+
+        if (!jobPosting.isActive()) {
+            throw new ValidationException("Vagas desativadas não podem ser editadas.");
+        }
+
+        validateSalaryRange(request);
 
         jobPosting.setTitle(request.title());
         jobPosting.setDescription(request.description());
@@ -154,6 +163,13 @@ public class JobPostingService {
         JobPosting job = jobPostingRepository.findByIdAndCompany(postId, loggedCompany)
                 .orElseThrow(() -> new EntityNotFoundException("Vaga não encontrada para sua empresa"));
         return mapEntityToDto(job);
+    }
+
+    private static void validateSalaryRange(JobPostingRequestDTO request) {
+        if (request.salaryMin() != null && request.salaryMax() != null
+                && request.salaryMin().compareTo(request.salaryMax()) > 0) {
+            throw new ValidationException("O salário mínimo não pode ser maior que o salário máximo.");
+        }
     }
 
     private PublicJobPostingResponseDTO mapPublicJobPostingToDto(JobPosting job){

@@ -53,6 +53,11 @@ export const updateProfile = async (data) => {
   return console.log('Update: Sem user no local-storage.')
 };
 
+// volta para a foto padrão; retorna { id, name, profilePic }
+export const removeProfilePicture = async () => {
+  return await requestService.apiRequest(`/users/profile-picture`, 'DELETE');
+}
+
 export const changeProfilePicture = async (photo) => {
   const token = getCurrentUser().token;
   const fd = new FormData()

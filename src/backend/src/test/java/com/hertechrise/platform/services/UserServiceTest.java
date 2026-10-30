@@ -237,6 +237,39 @@ class UserServiceTest extends AbstractIntegrationTest {
 
     }
 
+    @DisplayName("Deve voltar para a foto padrão ao remover a foto de perfil")
+    @Test
+    void removeProfilePicture() {
+        Role role = roleRepository.findByName("COMPANY")
+                .orElseThrow(InvalidUserTypeException::new);
+
+        User user = new User();
+        user.setName("Empresa Foto");
+        user.setEmail("empresafoto@test.com");
+        user.setPhoneNumber("8800000002");
+        user.setCep("62320000");
+        user.setCity("Tianguá");
+        user.setStreet("Rua A");
+        user.setNeighborhood("Centro");
+        user.setPassword("senhasegura123");
+        user.setType(UserType.COMPANY);
+        user.setProfilePic("https://res.cloudinary.com/dl63ih00u/image/upload/v1/profile_pics/profile_empresafoto.png");
+        user.setUf("CE");
+        user.setHandle("@empresafoto");
+        user.setRole(role);
+        userRepository.save(user);
+
+        UsernamePasswordAuthenticationToken auth =
+                new UsernamePasswordAuthenticationToken(user, null, List.of());
+        SecurityContextHolder.getContext().setAuthentication(auth);
+
+        UserPictureResponseDTO response = userService.removeProfilePicture();
+        User updatedUser = userRepository.findById(user.getId()).orElseThrow();
+
+        assertEquals(UserService.DEFAULT_COMPANY_PIC, response.profilePic());
+        assertEquals(UserService.DEFAULT_COMPANY_PIC, updatedUser.getProfilePic());
+    }
+
     @DisplayName("Desativar a própria conta")
     @Test
     void deactivateMyProfileSuccess(){

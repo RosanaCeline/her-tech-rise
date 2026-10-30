@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useId, useState } from 'react'
 import { validateField } from './validationField'
 import { EyeOff, Eye } from 'lucide-react'
 
@@ -16,15 +16,41 @@ export default function LabelInput ({   name,
                                         ref = null,
                                         onClick,
                                         disabled = false,
-                                        errorTheme = 'light'
+                                        errorTheme = 'light',
+                                        autoComplete,
+                                        inputMode,
+                                        onKeyDown,
+                                        ariaLabel,
+                                        error: externalError = null,
+                                        min,
+                                        hint = ''
                                     }) {
  
-    const [error, setError] = useState(null);
+    const [localError, setLocalError] = useState(null);
+    // erro do blur tem prioridade; o externo vem da validação no envio do formulário
+    const error = localError || externalError;
+    const autoId = useId();
+    const inputId = name || autoId;
+    const errorId = `${inputId}-erro`;
+    const hintId = `${inputId}-dica`;
+    const describedBy = [hint && !error && hintId, error && errorId].filter(Boolean).join(' ');
+    const a11yProps = {
+        'aria-invalid': error ? true : undefined,
+        'aria-describedby': describedBy || undefined,
+        'aria-required': required || undefined,
+        'aria-label': !label && ariaLabel ? ariaLabel : undefined,
+    };
     const [showPassword, setShowPassword] = useState(false);
  
     const handleBlur = () => {
         const validationError = validateField(validation, value, required);
-        setError(validationError);
+        setLocalError(validationError);
+    };
+
+    // com erro na tela, revalida a cada digitação para o aviso sumir assim que o valor ficar certo
+    const handleChange = (e) => {
+        if (localError) setLocalError(validateField(validation, e.target.value, required));
+        onChange?.(e);
     };
  
     const baseInputClasses = `
@@ -55,9 +81,9 @@ export default function LabelInput ({   name,
     `
 
     return (
-        <div className="w-full mt-auto">
+        <div className="w-full min-w-0 self-start">
             {(label && type !== 'checkbox')&& (
-                <label htmlFor={name} className={baseLabelClasses}>
+                <label htmlFor={inputId} className={baseLabelClasses}>
                 {label} {required && <span className={`text-${theme}`}>*</span>}
                 </label>
             )}
@@ -65,7 +91,7 @@ export default function LabelInput ({   name,
             {type === 'checkbox' ? (
                 <label className="inline-flex items-center gap-2 cursor-pointer">
                     <input
-                        id={name}
+                        id={inputId}
                         name={name}
                         type="checkbox"
                         checked={value}
@@ -87,10 +113,12 @@ export default function LabelInput ({   name,
             ) : type === 'select' ? (
                 <div className='relative'>
                     <select
-                    id={name}
+                    id={inputId}
                     name={name}
+                    {...a11yProps}
+                    autoComplete={autoComplete}
                     value={value}
-                    onChange={onChange}
+                    onChange={handleChange}
                     onBlur={handleBlur}
                     ref={ref}
                     className={`${baseInputClasses} appearance-none pr-10`}
@@ -112,20 +140,26 @@ export default function LabelInput ({   name,
                 </div>
             ) : type === 'mensagem' ? (
                 <textarea
-                id={name}
+                id={inputId}
                 name={name}
+                {...a11yProps}
                 value={value}
-                onChange={onChange}
+                onChange={handleChange}
+                onKeyDown={onKeyDown}
                 onBlur={handleBlur}
                 placeholder={placeholder}
+                maxLength={maxLength || undefined}
                 rows={6}
                 className={`${baseInputClasses} resize-none whitespace-normal`}
                 />
             ) : (
                 <div className="relative">
                     <input
-                        id={name}
+                        id={inputId}
                         name={name}
+                        {...a11yProps}
+                        autoComplete={autoComplete}
+                        inputMode={inputMode || (type === 'tel' ? 'tel' : undefined)}
                         type={
                             type === 'senha'
                                 ? showPassword ? 'text' : 'password'
@@ -133,15 +167,19 @@ export default function LabelInput ({   name,
                                 ? 'email'
                                 : type === 'date'
                                 ? 'date'
+                                : type === 'tel'
+                                ? 'tel'
                                 : 'text'
                         }
                         value={value}
-                        onChange={onChange}
+                        onChange={handleChange}
                         onClick={onClick}
+                        onKeyDown={onKeyDown}
                         onBlur={handleBlur}
                         placeholder={placeholder}
                         className={`${baseInputClasses} pr-12`}
                         maxLength={maxLength}
+                        min={min}
                         ref={ref}
                         disabled={disabled}
                     />
@@ -150,16 +188,24 @@ export default function LabelInput ({   name,
                         <button
                             type="button"
                             onClick={() => setShowPassword(!showPassword)}
+                            aria-label={showPassword ? 'Ocultar senha' : 'Mostrar senha'}
+                            aria-pressed={showPassword}
                             className="absolute inset-y-0 right-3 flex items-center text-gray-500 hover:text-gray-700"
                         >
-                            {showPassword ? <EyeOff /> : <Eye />}
+                            {showPassword ? <EyeOff aria-hidden="true" /> : <Eye aria-hidden="true" />}
                         </button>
                     )}
                 </div>
             )}
 
+            {hint && !error && (
+                <p id={hintId} className={`mt-2 text-sm text-left text-${theme}`}>
+                    {hint}
+                </p>
+            )}
+
             {error && (
-                <p className={`mt-2 text-sm text-left ${errorTheme === 'dark' ? 'text-error-dark' : 'text-error'}`}>
+                <p id={errorId} className={`mt-2 text-sm text-left ${errorTheme === 'dark' ? 'text-error-dark' : 'text-error'}`}>
                     {error}
                 </p>
             )}

@@ -1,5 +1,7 @@
 package com.hertechrise.platform.data.dto.response;
 
+import com.hertechrise.platform.model.User;
+import com.hertechrise.platform.model.UserType;
 import io.swagger.v3.oas.annotations.media.Schema;
 
 import java.time.LocalDateTime;
@@ -20,6 +22,28 @@ public record PostLikeResponseDTO(
         String userAvatarUrl,
 
         @Schema(description = "Data e hora da curtida", example = "2025-07-14T10:22:00", type = "string", format = "date-time")
-        LocalDateTime createdAt
-) {}
+        LocalDateTime createdAt,
+
+        @Schema(description = "Handle do usuário que curtiu", example = "@mariasouza")
+        String userHandle,
+
+        @Schema(description = "Tipo do perfil do usuário que curtiu", example = "PROFESSIONAL")
+        UserType userType
+) {
+    public PostLikeResponseDTO(Long id, Long userId, String userName, String userAvatarUrl, LocalDateTime createdAt) {
+        this(id, userId, userName, userAvatarUrl, createdAt, null, null);
+    }
+
+    public static PostLikeResponseDTO from(Long likeId, User user, LocalDateTime createdAt) {
+        return new PostLikeResponseDTO(
+                likeId,
+                user.getId(),
+                user.getName(),
+                user.getProfilePic(),
+                createdAt,
+                user.getHandle(),
+                user.getType()
+        );
+    }
+}
 

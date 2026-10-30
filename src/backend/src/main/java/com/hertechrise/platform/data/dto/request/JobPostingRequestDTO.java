@@ -29,10 +29,10 @@ public record JobPostingRequestDTO(
         @NotNull(message = "Modelo da vaga é obrigatório.")
         JobModel jobModel,
 
-        @DecimalMin(value = "0.0", inclusive = false)
+        @DecimalMin(value = "0.0", inclusive = false, message = "Salário mínimo deve ser maior que zero.")
         BigDecimal salaryMin,
 
-        @DecimalMin(value = "0.0", inclusive = false)
+        @DecimalMin(value = "0.0", inclusive = false, message = "Salário máximo deve ser maior que zero.")
         BigDecimal salaryMax,
 
         @NotNull(message = "Tipo de contrato da vaga é obrigatório.")

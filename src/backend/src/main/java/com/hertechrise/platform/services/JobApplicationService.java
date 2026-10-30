@@ -10,6 +10,7 @@ import com.hertechrise.platform.repository.ProfessionalRepository;
 import com.hertechrise.platform.utils.HibernateUtils;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.EntityNotFoundException;
+import jakarta.validation.ValidationException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -18,10 +19,14 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.regex.Pattern;
 
 @Service
 @RequiredArgsConstructor
 public class JobApplicationService {
+
+    private static final Pattern SAFE_LINK =
+            Pattern.compile("^(https?://[^\\s<>\"']+|(?![a-zA-Z][a-zA-Z0-9+.-]*:)[^\\s<>\"']+)$", Pattern.CASE_INSENSITIVE);
 
     private final JobPostingRepository jobPostingRepository;
     private final JobApplicationRepository jobApplicationRepository;
@@ -41,6 +46,10 @@ public class JobApplicationService {
         JobPosting jobPosting = jobPostingRepository.findById(request.jobPostingId())
                 .orElseThrow(() -> new EntityNotFoundException("Vaga não encontrada."));
 
+        if (!jobPosting.isActive() || jobPosting.isExpired()) {
+            throw new ValidationException("Esta vaga não está mais recebendo candidaturas.");
+        }
+
         List<JobApplication> applications = jobApplicationRepository
                 .findAllByJobPostingIdAndProfessionalUserId(jobPosting.getId(), loggedUser.getId());
 
@@ -49,6 +58,9 @@ public class JobApplicationService {
         if (hasActive) {
             throw new AlreadyCandidateException();
         }
+
+        validateLink(request.githubLink(), "Link do GitHub");
+        validateLink(request.portfolioLink(), "Link do portfólio");
 
         String resumeUrl = cloudinaryService.uploadResumeFile(request.resumeFile(), loggedUser.getName()) ;
 
@@ -256,5 +268,13 @@ public class JobApplicationService {
         );
     }
 
+    private static void validateLink(String link, String fieldName) {
+        if (link == null || link.isBlank()) return;
+        if (link.length() > 1000) {
+            throw new ValidationException(fieldName + " deve ter no máximo 1000 caracteres.");
+        }
+        if (!SAFE_LINK.matcher(link.trim()).matches()) {
+            throw new ValidationException(fieldName + " inválido. Use um endereço como https://github.com/seu-usuario");
+        }
+    }
 }
-

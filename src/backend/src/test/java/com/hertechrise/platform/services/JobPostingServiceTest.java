@@ -13,6 +13,7 @@ import com.hertechrise.platform.repository.JobPostingRepository;
 import com.hertechrise.platform.repository.RoleRepository;
 import com.hertechrise.platform.repository.UserRepository;
 import jakarta.persistence.EntityNotFoundException;
+import jakarta.validation.ValidationException;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -882,5 +883,54 @@ class JobPostingServiceTest extends AbstractIntegrationTest {
             jobPostingService.getCompanyById(job.getId());
         });
         assertEquals("Vaga não encontrada para sua empresa", exception.getMessage());
+    }
+
+    @DisplayName("Não cria vaga com salário mínimo maior que o máximo")
+    @Test
+    void createJobPostingWithInvalidSalaryRange(){
+        Company company = createTestComapany("HerTechRise", "hertech@email.com", "@hertech");
+        UsernamePasswordAuthenticationToken auth =
+                new UsernamePasswordAuthenticationToken(company.getUser(), null, List.of());
+        SecurityContextHolder.getContext().setAuthentication(auth);
+
+        JobPostingRequestDTO request = new JobPostingRequestDTO(
+                "Programador Júnior", "Vaga de programador", "HTML e CSS",
+                "Tianguá", JobModel.PRESENCIAL, BigDecimal.valueOf(3000), BigDecimal.valueOf(2500),
+                JobContractType.CLT, JobLevel.JUNIOR, LocalDate.now().plusWeeks(2));
+
+        ValidationException exception = assertThrows(ValidationException.class, () ->
+                jobPostingService.createJobPosting(request));
+        assertEquals("O salário mínimo não pode ser maior que o salário máximo.", exception.getMessage());
+    }
+
+    @DisplayName("Não edita vaga desativada")
+    @Test
+    void updateDeactivatedJobPosting(){
+        Company company = createTestComapany("HerTechRise", "hertech@email.com", "@hertech");
+        UsernamePasswordAuthenticationToken auth =
+                new UsernamePasswordAuthenticationToken(company.getUser(), null, List.of());
+        SecurityContextHolder.getContext().setAuthentication(auth);
+
+        JobPosting job = new JobPosting();
+        job.setCompany(company);
+        job.setTitle("Programador Júnior");
+        job.setDescription("Vaga de programador");
+        job.setRequirements("HTML e CSS");
+        job.setLocation("Tianguá");
+        job.setJobModel(JobModel.PRESENCIAL);
+        job.setContractType(JobContractType.CLT);
+        job.setJoblevel(JobLevel.JUNIOR);
+        job.setApplicationDeadline(LocalDate.now().plusWeeks(2));
+        job.setActive(false);
+        jobPostingRepository.save(job);
+
+        JobPostingRequestDTO request = new JobPostingRequestDTO(
+                "Programador Pleno", "Vaga de programador", "HTML e CSS",
+                "Tianguá", JobModel.PRESENCIAL, null, null,
+                JobContractType.CLT, JobLevel.PLENO, LocalDate.now().plusWeeks(2));
+
+        ValidationException exception = assertThrows(ValidationException.class, () ->
+                jobPostingService.updateJobPosting(job.getId(), request));
+        assertEquals("Vagas desativadas não podem ser editadas.", exception.getMessage());
     }
 }

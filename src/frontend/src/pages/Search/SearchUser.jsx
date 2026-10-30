@@ -6,6 +6,8 @@ import BtnCallToAction from "../../components/btn/BtnCallToAction/BtnCallToActio
 import UserPreview from "./components/UserPreview"
 import DetailedList from "./components/DetailedList"
 import LoadingSpinner from '../../components/LoadingSpinner/LoadingSpinner'
+import LoadError from '../../components/LoadError/LoadError';
+import { getErrorMessage } from '../../services/errorMessage';
 
 export default function SearchUser(){
 
@@ -25,7 +27,7 @@ export default function SearchUser(){
                 setProfissionais(response.professionals)
                 setEmpresas(response.companies)
             } catch(err) {
-                setError('Erro ao carregar detalhes de candidatura.');
+                setError(getErrorMessage(err, 'Não foi possível fazer a busca.'));
                 console.error(err);
             } finally {
                 setLoading(false)
@@ -35,7 +37,7 @@ export default function SearchUser(){
     }, [s]);
 
     if (loading) return ( <LoadingSpinner /> );
-    if (error) return <main className="pt-34"><p className="text-red-600">{error}</p></main>;
+    if (error) return <LoadError message={error} />;
 
     return(
         <main className='flex flex-col bg-[var(--light)] pt-32 pb-6 min-h-full'>

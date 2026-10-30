@@ -1,13 +1,20 @@
 package com.hertechrise.platform.exception.handler;
 
 import com.hertechrise.platform.exception.*;
+import jakarta.persistence.EntityNotFoundException;
+import jakarta.validation.ConstraintViolation;
+import jakarta.validation.ConstraintViolationException;
+import jakarta.validation.ValidationException;
+import org.springframework.core.annotation.AnnotatedElementUtils;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.HttpStatusCode;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
+import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.context.request.WebRequest;
 import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExceptionHandler;
@@ -21,12 +28,14 @@ import java.util.Map;
 @RestController
 public class CustomEntityResponseHandler extends ResponseEntityExceptionHandler {
 
+    private static final String GENERIC_ERROR_MESSAGE = "Erro interno. Tente novamente mais tarde.";
+
     @ExceptionHandler(Exception.class)
     public final ResponseEntity<ExceptionResponse> handleAllException (Exception ex, WebRequest request) {
-
+        logger.error("Erro inesperado em " + request.getDescription(false), ex);
         ExceptionResponse response = new ExceptionResponse(
                 new Date(),
-                ex.getMessage(),
+                GENERIC_ERROR_MESSAGE,
                 request.getDescription(false)
         );
         return new ResponseEntity<>(response, HttpStatus.INTERNAL_SERVER_ERROR);
@@ -116,12 +125,64 @@ public class CustomEntityResponseHandler extends ResponseEntityExceptionHandler 
     }
 
     @ExceptionHandler(RuntimeException.class)
-    public ResponseEntity<?> handleRuntimeExceptionException(Exception ex, WebRequest request) {
+    public ResponseEntity<?> handleRuntimeExceptionException(RuntimeException ex, WebRequest request) {
+        ResponseStatus responseStatus = AnnotatedElementUtils.findMergedAnnotation(ex.getClass(), ResponseStatus.class);
+        if (responseStatus != null) {
+            return buildResponse(ex.getMessage(), responseStatus.code(), request);
+        }
+        return handleAllException(ex, request);
+    }
+
+    @ExceptionHandler(EntityNotFoundException.class)
+    public ResponseEntity<?> handleEntityNotFoundException(Exception ex, WebRequest request) {
+        return buildResponse(ex.getMessage(), HttpStatus.NOT_FOUND, request);
+    }
+
+    @ExceptionHandler({SecurityException.class, AccessDeniedException.class})
+    public ResponseEntity<?> handleForbiddenException(Exception ex, WebRequest request) {
+        return buildResponse(ex.getMessage(), HttpStatus.FORBIDDEN, request);
+    }
+
+    @ExceptionHandler({IllegalArgumentException.class, IllegalStateException.class})
+    public ResponseEntity<?> handleBadRequestException(Exception ex, WebRequest request) {
+        return buildResponse(ex.getMessage(), HttpStatus.BAD_REQUEST, request);
+    }
+
+    @ExceptionHandler(ConstraintViolationException.class)
+    public ResponseEntity<?> handleConstraintViolationException(ConstraintViolationException ex, WebRequest request) {
+        String message = ex.getConstraintViolations().stream()
+                .map(ConstraintViolation::getMessage)
+                .findFirst()
+                .orElse("Dados inválidos.");
+        return buildResponse(message, HttpStatus.BAD_REQUEST, request);
+    }
+
+    @ExceptionHandler(ValidationException.class)
+    public ResponseEntity<?> handleValidationException(Exception ex, WebRequest request) {
+        return buildResponse(ex.getMessage(), HttpStatus.BAD_REQUEST, request);
+    }
+
+    @ExceptionHandler(InvalidCredentialsException.class)
+    public ResponseEntity<?> handleInvalidCredentialsException(Exception ex, WebRequest request) {
+        return buildResponse(ex.getMessage(), HttpStatus.UNAUTHORIZED, request);
+    }
+
+    @ExceptionHandler(InvalidResetTokenException.class)
+    public ResponseEntity<?> handleInvalidResetTokenException(Exception ex, WebRequest request) {
+        return buildResponse(ex.getMessage(), HttpStatus.BAD_REQUEST, request);
+    }
+
+    @ExceptionHandler(TooManyRequestsException.class)
+    public ResponseEntity<?> handleTooManyRequestsException(Exception ex, WebRequest request) {
+        return buildResponse(ex.getMessage(), HttpStatus.TOO_MANY_REQUESTS, request);
+    }
+
+    private ResponseEntity<ExceptionResponse> buildResponse(String message, HttpStatusCode status, WebRequest request) {
         ExceptionResponse response = new ExceptionResponse(
                 new Date(),
-                ex.getMessage(),
+                message,
                 request.getDescription(false));
-        return new ResponseEntity<>(response, HttpStatus.UNAUTHORIZED);
+        return new ResponseEntity<>(response, status);
     }
 
     @Override

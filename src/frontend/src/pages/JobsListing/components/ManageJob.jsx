@@ -1,105 +1,155 @@
-import { useState } from "react";
+import { useId, useState } from "react";
 
 import { X } from 'lucide-react'
 
+import PopUp from "../../../components/PopUp";
 import LabelInput from "../../../components/form/Label/LabelInput";
 import BtnCallToAction from "../../../components/btn/BtnCallToAction/BtnCallToAction";
 import { maskField } from "../../../components/form/Label/maskField";
 import { postJob, editPostJob } from '../../../services/jobsService'
-import { validateField } from "../../../components/form/Label/validationField";
-import LoadingSpinner from '../../../components/LoadingSpinner/LoadingSpinner'
+import { validateForm, focusFirstError, errorSummary } from "../../../components/form/validateForm";
+import { getErrorMessage } from '../../../services/errorMessage';
+import { CONTRACT_TYPES, JOB_MODELS, JOB_LEVELS, toOptions, todayISO } from "../jobLabels";
 
-export default function ManageJob({jobFormData, setJobFormData, setManageJobModal, fetchMyJobs, action = 'new'}){
+const EMPTY_JOB = {
+    title: '',
+    description: '',
+    requirements: '',
+    location: '',
+    jobModel: '',
+    salaryMin: '',
+    salaryMax: '',
+    contractType: '',
+    jobLevel: '',
+    applicationDeadline: ''
+};
 
-    const [errorMessage, setErrorMessage] = useState('');
-    const [loading, setLoading] = useState(false);
+const RULES = {
+    title: { type: '', label: 'Título' },
+    description: { type: '', label: 'Descrição' },
+    requirements: { type: '', label: 'Requisitos' },
+    location: { type: '', label: 'Localização' },
+    jobModel: { type: '', label: 'Modelo de trabalho' },
+    salaryMin: { type: '', label: 'Salário mínimo', required: false },
+    salaryMax: { type: '', label: 'Salário máximo', required: false },
+    contractType: { type: '', label: 'Tipo de contrato' },
+    jobLevel: { type: '', label: 'Nível' },
+    applicationDeadline: { type: '', label: 'Data-limite' },
+};
+
+// salário é opcional: apagar todos os dígitos limpa o campo em vez de mostrar "R$ 0,00"
+const maskMoney = (value) => (Number(value.replace(/\D/g, '')) ? maskField('money', value) : '');
+const parseMoney = (value) => (value ? Number(value.replace(/\D/g, '')) / 100 : null);
+
+export default function ManageJob({initialData = EMPTY_JOB, action = 'new', onClose, onSaved}){
+
+    const [formData, setFormData] = useState(initialData);
+    const [errors, setErrors] = useState({});
+    const [submitError, setSubmitError] = useState('');
+    const [saving, setSaving] = useState(false);
+    const titleId = useId();
+    const today = todayISO();
+
     const handleChange = (field, value) => {
-        setJobFormData(prev => ({ ...prev, [field]: value }));
+        setFormData(prev => ({ ...prev, [field]: value }));
+        setErrors(prev => {
+            if (!prev[field]) return prev;
+            const next = { ...prev };
+            delete next[field];
+            return next;
+        });
     }
-    const handleSubmit = async () => {
+
+    const validate = () => {
+        const found = validateForm(RULES, formData);
+        const min = parseMoney(formData.salaryMin);
+        const max = parseMoney(formData.salaryMax);
+        if (min && max && min > max) found.salaryMax = 'O salário máximo deve ser maior ou igual ao mínimo.';
+        if (formData.applicationDeadline && formData.applicationDeadline < today) {
+            found.applicationDeadline = 'Escolha hoje ou uma data futura.';
+        }
+        return found;
+    }
+
+    const handleSubmit = async (e) => {
+        e.preventDefault();
+        if (saving) return;
+
+        const found = validate();
+        setErrors(found);
+        if (Object.keys(found).length > 0) {
+            focusFirstError(found, Object.keys(RULES));
+            return;
+        }
+
+        setSubmitError('');
+        setSaving(true);
         try {
-            setLoading(true);
             const payload = {
-                ...jobFormData,
-                salaryMin: jobFormData.salaryMin.replace(/\s/g, '').replace('R$', '').replace(/\./g, '').replace(',', '.'),
-                salaryMax: jobFormData.salaryMax.replace(/\s/g, '').replace('R$', '').replace(/\./g, '').replace(',', '.'),
+                ...formData,
+                salaryMin: parseMoney(formData.salaryMin),
+                salaryMax: parseMoney(formData.salaryMax),
             }
             action === 'new' ? await postJob(payload) : await editPostJob(payload);
-            setManageJobModal(false);
-            fetchMyJobs();
+            onSaved();
         } catch(err) {
-            setErrorMessage(err.message || `Erro ao ${action === 'new' ? 'cadastrar nova' : 'editar'} vaga de emprego`);
-            setTimeout(() => setErrorMessage(null), 4000)
-        } finally {
-            setLoading(false);
+            setSubmitError(getErrorMessage(err, action === 'new' ? 'A vaga não foi publicada.' : 'As alterações da vaga não foram salvas.'));
+            setSaving(false);
         }
     }
 
-    const validateFields = () => {
-        const fields = ['title', 'description', 'requirements', 'location', 'jobModel', 'salaryMin',
-            'salaryMax', 'contractType', 'jobLevel', 'applicationDeadline'
-        ]
-        const hasError = fields.some(field => validateField(field, jobFormData[field], true))
-        if(hasError) {
-            setErrorMessage('Preencha os campos obrigatórios e corrija os erros antes de continuar')
-            setTimeout(() => setErrorMessage(null), 4000)
-        } else {
-            setErrorMessage('')
-            handleSubmit(); 
-        }
-    }
+    // durante o envio a janela não fecha, para a pessoa não perder o retorno
+    const close = () => { if (!saving) onClose(); };
 
-    if (loading) return ( <LoadingSpinner /> );
+    const fieldProps = (name) => ({
+        name,
+        theme: 'black',
+        errorTheme: 'dark',
+        value: formData[name] ?? '',
+        error: errors[name],
+        onChange: (e) => handleChange(name, e.target.value),
+    });
+
+    const summary = errorSummary(errors, RULES);
+    const heading = action === 'new' ? 'Cadastre uma nova vaga de emprego' : 'Editar vaga de emprego';
 
     return(
-        <main className='flex flex-col'>
-            <X className='cursor-pointer ml-auto' onClick={() => setManageJobModal('')}/>
-            <p className="mx-auto text-xl font-medium mb-4 px-2">{action === 'new' ? 'Cadastre uma nova' : 'Editar'} vaga de emprego</p>
-            <div className="flex flex-col gap-y-3 max-h-[65vh] px-2 pb-2 overflow-y-auto max-w-2xl">
-                <LabelInput theme='black' errorTheme="dark" label="Titulo da vaga" placeholder="Digite o título da vaga" required={true}
-                        maxLength="100" value={jobFormData.title} onChange={(e) => handleChange('title', e.target.value)}/>
-                <LabelInput theme='black' errorTheme="dark" label="Descrição" placeholder="Digite a descrição da vaga" required={true} type="mensagem"
-                        maxLength="2000" value={jobFormData.description} onChange={(e) => handleChange('description', e.target.value)}/>
-                <LabelInput theme='black' errorTheme="dark" label="Requisitos" placeholder="Digite os requisitos da vaga" required={true} type="mensagem"
-                        maxLength="1000" value={jobFormData.requirements} onChange={(e) => handleChange('requirements', e.target.value)}/>
-                <LabelInput theme='black' errorTheme="dark" label="Localização" placeholder="Digite a localização da vaga" required={true}
-                        maxLength="100" value={jobFormData.location} onChange={(e) => handleChange('location', e.target.value)}/>
-                <LabelInput theme='black' errorTheme="dark" label="Modelo de trabalho:" required={true} type='select' 
-                        options={[{value: 'REMOTO', label: 'Remoto'}, {value: 'HIBRIDO', label: 'Híbrido'}, {value: 'PRESENCIAL', label: 'Presencial'}]}
-                        value={jobFormData.jobModel} onChange={(e) => handleChange('jobModel', e.target.value)}/>
-                <div className='flex columns-2 gap-x-5'>
-                    <LabelInput theme='black' errorTheme="dark" label="Faixa salarial mínima" placeholder="Digite a faixa salarial mínima" required={true}
-                         maxLength="100" value={jobFormData.salaryMin} onChange={(e) => handleChange('salaryMin', maskField('money', e.target.value))}/>
-                    <LabelInput theme='black' errorTheme="dark" label="Faixa salarial máxima" placeholder="Digite a faixa salarial máxima" required={true}
-                            maxLength="100" value={jobFormData.salaryMax} onChange={(e) => handleChange('salaryMax', maskField('money', e.target.value))}/>
+        <PopUp onClose={close} ariaLabel={heading}>
+            <form noValidate onSubmit={handleSubmit} className='flex flex-col' aria-labelledby={titleId}>
+                <button type="button" onClick={close} disabled={saving} aria-label="Fechar"
+                    className='ml-auto p-1 rounded-md cursor-pointer hover:bg-slate-100 disabled:opacity-50 focus-visible:outline-2 focus-visible:outline-[var(--purple-primary)]'>
+                    <X aria-hidden="true"/>
+                </button>
+                <h2 id={titleId} className="mx-auto text-xl font-medium mb-4 px-2">{heading}</h2>
+                <div className="flex flex-col gap-y-3 px-1 pb-2">
+                    <LabelInput {...fieldProps('title')} label="Título da vaga" placeholder="Digite o título da vaga" required maxLength="100"/>
+                    <LabelInput {...fieldProps('description')} label="Descrição" placeholder="Digite a descrição da vaga" required type="mensagem" maxLength="2000"/>
+                    <LabelInput {...fieldProps('requirements')} label="Requisitos" placeholder="Digite os requisitos da vaga" required type="mensagem" maxLength="1000"/>
+                    <LabelInput {...fieldProps('location')} label="Localização" placeholder="Ex.: Fortaleza - CE" required maxLength="100"/>
+                    <LabelInput {...fieldProps('jobModel')} label="Modelo de trabalho:" required type='select' options={toOptions(JOB_MODELS)}/>
+                    <div className='grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-x-5'>
+                        <LabelInput {...fieldProps('salaryMin')} label="Salário mínimo" placeholder="R$ 0,00" inputMode="numeric"
+                            hint="Opcional" maxLength="20" onChange={(e) => handleChange('salaryMin', maskMoney(e.target.value))}/>
+                        <LabelInput {...fieldProps('salaryMax')} label="Salário máximo" placeholder="R$ 0,00" inputMode="numeric"
+                            hint="Opcional" maxLength="20" onChange={(e) => handleChange('salaryMax', maskMoney(e.target.value))}/>
+                    </div>
+                    <LabelInput {...fieldProps('contractType')} label="Tipo de contrato:" required type='select' options={toOptions(CONTRACT_TYPES)}/>
+                    <LabelInput {...fieldProps('jobLevel')} label="Nível:" required type='select' options={toOptions(JOB_LEVELS)}/>
+                    <LabelInput {...fieldProps('applicationDeadline')} label="Data-limite de candidatura" required type='date' min={today}/>
                 </div>
-                <LabelInput theme='black' errorTheme="dark" label="Tipo de contrato:" required={true} type='select' 
-                    options={[
-                        {value: 'CLT',        label: 'CLT'}, 
-                        {value: 'PJ',         label: 'PJ'},
-                        {value: 'APRENDIZ',   label: 'Aprendiz'},
-                        {value: 'ESTAGIO',    label: 'Estágio'},
-                        {value: 'TRAINEE',    label: 'Trainee'},
-                        {value: 'TEMPORARIO', label: 'Temporário'},
-                        {value: 'FREELANCER', label: 'Freelancer'},
-                        {value: 'VOLUNTARIO', label: 'Voluntário'}]}
-                    value={jobFormData.contractType} onChange={(e) => handleChange('contractType', e.target.value)}/>
-                <LabelInput theme='black' errorTheme="dark" label="Nivel:" required={true} type='select' 
-                        options={[{value: 'JUNIOR', label: 'Junior'}, {value: 'PLENO', label: 'Pleno'}, {value: 'SENIOR', label: 'Sênior'}]}
-                        value={jobFormData.jobLevel} onChange={(e) => handleChange('jobLevel', e.target.value)}/>
-                <LabelInput theme='black' errorTheme="dark" label="Data-limite de candidatura" placeholder="Digite a data-limite de candidatura" required={true} type='date'
-                        maxLength="10" value={jobFormData.applicationDeadline} onChange={(e) => handleChange('applicationDeadline', e.target.value)}/>
-            </div>
-            <div>
-                <BtnCallToAction onClick={() => validateFields()}>SALVAR</BtnCallToAction>
-            </div>
-            {errorMessage && (
-                <div className="fixed top-1/12 left-1/2 transform -translate-x-1/2 -translate-y-1/2 
-                                z-50 bg-red-600 text-white px-6 py-3 rounded-lg shadow-lg 
-                            transition-opacity duration-300">
-                    {errorMessage}
+
+                {summary || submitError ? (
+                    <p role="alert" className="mt-3 rounded-lg bg-red-50 border border-red-200 text-red-700 text-sm px-4 py-3 break-words text-left">
+                        {submitError || summary}
+                    </p>
+                ) : null}
+
+                <div className="mt-5">
+                    <BtnCallToAction type="submit" disabled={saving} aria-busy={saving || undefined}>
+                        {saving ? 'SALVANDO...' : 'SALVAR'}
+                    </BtnCallToAction>
                 </div>
-            )}
-        </main>
+            </form>
+        </PopUp>
     )
 }

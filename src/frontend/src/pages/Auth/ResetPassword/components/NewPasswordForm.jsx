@@ -1,9 +1,9 @@
 import { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 
 import { Undo2 } from 'lucide-react';
 
-import { newPassword } from '../../../../services/authService';
+import { isTokenExpired, newPassword } from '../../../../services/authService';
 import LabelInput from '../../../../components/form/Label/LabelInput';
 import BtnCallToAction from '../../../../components/btn/BtnCallToAction/BtnCallToAction';
 import { validateField } from '../../../../components/form/Label/validationField';
@@ -13,26 +13,28 @@ export default function NewPasswordForm(){
 
     const navigate = useNavigate();
     const query = useQueryParams();
-    const [feedback, setFeedback] = useState('');
+    const token = query.get('token');
+    const linkExpired = !!token && isTokenExpired(token);
     const [loading, setLoading] = useState(false);
     const [errorMsg, setErrorMsg] = useState('');
+    const [linkInvalid, setLinkInvalid] = useState(!token || linkExpired);
     const [senha, setSenha] = useState('');
     const [confirmaSenha, setConfirmaSenha] = useState('');
-    const [erroSenha, setErroSenha] = useState(false);    
-    const [successModalOpen, setSuccessModalOpen] = useState(false);;
+    const [successModalOpen, setSuccessModalOpen] = useState(false);
+
+    const senhasDiferentes = confirmaSenha !== '' && confirmaSenha !== senha;
 
     const handleNewPassword = async () => {
-        if(!validateFields()){
-            console.log("Tem erro na senha ou nos campos obrigatórios.");
-            return
-        }
+        if (loading) return;
+        if (!validateFields()) return;
+        setErrorMsg('');
         setLoading(true);
         try {
-            const token = query.get('token');
             await newPassword(token, senha);
             setSuccessModalOpen(true);
         } catch (err) {
-            setFeedback(err.response?.data?.message && 'Erro ao tentar redefinir senha: token inválido ou expirado');
+            setErrorMsg(err.message);
+            if (/link/i.test(err.message)) setLinkInvalid(true);
         } finally {
             setLoading(false);
         }
@@ -40,79 +42,111 @@ export default function NewPasswordForm(){
 
     const validateFields = () => {
         const hasError = validateField('senha', senha, true) || validateField('senha', confirmaSenha, true);
-        if(hasError || erroSenha) setErrorMsg('Preencha os campos obrigatórios e corrija os erros antes de continuar');
-        else setErrorMsg('');
-        return !(hasError || erroSenha);
+        if (hasError) {
+            setErrorMsg('Preencha os campos obrigatórios e corrija os erros antes de continuar');
+            return false;
+        }
+        if (senhasDiferentes) {
+            setErrorMsg('As senhas não coincidem.');
+            return false;
+        }
+        return true;
     }
 
-    const comparePasswords = (senha, senhaConfirmada) => {
-        setErroSenha(senhaConfirmada && (senhaConfirmada !== senha));
-    }
+    const linkClasses = 'w-fit mx-auto rounded-sm transition duration-300 hover:-translate-y-0.75 hover:underline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white';
+
     return (
-        <div className="text-white w-full md:w-1/2 min-h-screen flex flex-col justify-between bg-(--purple-primary) mx-4 md:mx-0 p-9 md:rounded-r-[130px]">
-            <button className='flex gap-x-3 cursor-pointer transition hover:-translate-x-1'
-                onClick={() => navigate('/')}>
-                <Undo2 />
-                Voltar
-            </button>
+        <form
+            onSubmit={(e) => {
+                e.preventDefault()
+                handleNewPassword()
+            }}
+            noValidate
+            className="text-white w-full md:w-1/2 min-h-screen flex flex-col justify-between gap-6 bg-(--purple-primary) px-6 py-8 sm:p-9 md:rounded-r-[130px]">
 
-            <div className='text-center'>
-                <p className='text-3xl sm:text-4xl md:text-5xl font-bold'>Defina sua nova senha</p>
+            <Link to="/login" className='flex w-fit gap-x-3 rounded-sm transition duration-300 hover:-translate-x-1 will-change-transform focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white'>
+                <Undo2 aria-hidden="true"/>
+                Voltar para o login
+            </Link>
+
+            <div className='flex flex-col text-center py-4 w-full max-w-md mx-auto'>
+                <h1 className='text-3xl sm:text-4xl md:text-5xl font-bold'>Defina sua nova senha</h1>
                 <p className='text-sm sm:text-base md:text-lg mt-4'>Digite uma nova senha segura para acessar sua conta.</p>
 
-                <div className='text-left flex flex-col gap-y-3 mt-6 sm:mt-8 mb-5'>
-                    <LabelInput label="Senha:" 
-                        theme='white' 
-                        required={true} 
-                        placeholder='Digite sua senha' 
-                        maxLength='25' 
-                        type='senha'
-                        validation='senha'
-                        value={senha} 
-                        onChange={(e) => {
-                            setSenha(e.target.value)
-                            if(confirmaSenha) 
-                                comparePasswords(e.target.value, confirmaSenha)
-                    }}/>
-                    <LabelInput label="Confirmar Senha:" 
-                        theme='white' 
-                        required={true} 
-                        maxLength='25' 
-                        placeholder='Confirme sua senha' 
-                        type='senha'
-                        value={confirmaSenha} 
-                        onChange={(e) => {
-                            setConfirmaSenha(e.target.value)
-                            comparePasswords(senha, e.target.value)
-                    }}/>
-                    {erroSenha && <p className="text-sm text-error">As senhas não coincidem.</p>}
+                {!token ? (
+                    <p role="alert" className="mt-8 text-left bg-red-700 text-white p-4 rounded-md">
+                        Este link de redefinição está incompleto. Abra o link exatamente como chegou no e-mail ou solicite um novo.
+                    </p>
+                ) : linkExpired ? (
+                    <p role="alert" className="mt-8 text-left bg-red-700 text-white p-4 rounded-md">
+                        Este link de redefinição expirou. Por segurança, ele vale por 30 minutos. Solicite um novo para continuar.
+                    </p>
+                ) : (
+                    <div className='text-left flex flex-col gap-y-3 mt-6 sm:mt-8 mb-5'>
+                        <LabelInput label="Nova senha"
+                            name="nova_senha"
+                            theme='red'
+                            required={true}
+                            placeholder='Digite sua nova senha'
+                            maxLength='70'
+                            type='senha'
+                            validation='senha'
+                            autoComplete="new-password"
+                            value={senha}
+                            onChange={(e) => setSenha(e.target.value)}/>
+                        <LabelInput label="Confirmar nova senha"
+                            name="confirmar_senha"
+                            theme='red'
+                            required={true}
+                            maxLength='70'
+                            placeholder='Confirme sua nova senha'
+                            type='senha'
+                            autoComplete="new-password"
+                            value={confirmaSenha}
+                            onChange={(e) => setConfirmaSenha(e.target.value)}/>
+                        <div role="alert">
+                            {senhasDiferentes && <p className="text-sm text-white bg-red-700 px-3 py-2 rounded-md">As senhas não coincidem.</p>}
+                        </div>
+                    </div>
+                )}
+
+                <div role="alert" aria-live="assertive">
+                    {errorMsg && (
+                        <p className="mb-4 text-left bg-red-700 text-white px-4 py-3 rounded-md">
+                            {errorMsg}
+                        </p>
+                    )}
                 </div>
 
-                {feedback && <p className='text-sm mt-4'>{feedback}</p>}
+                {linkInvalid && (
+                    <Link to="/redefinirsenha" className={`${linkClasses} mt-2`}>
+                        Solicitar um novo link
+                    </Link>
+                )}
             </div>
 
-            <div className='flex flex-col'>
-                <div className='flex justify-center'>
-                    <BtnCallToAction variant="white" onClick={handleNewPassword} disabled={loading}>
-                        {loading ? 'Enviando...' : 'ENVIAR'}
+            <div className='flex justify-center'>
+                {token && !linkExpired && (
+                    <BtnCallToAction variant="white" type="submit" disabled={loading}>
+                        {loading ? 'Salvando...' : 'SALVAR NOVA SENHA'}
                     </BtnCallToAction>
-                </div>
-                {errorMsg && <p className='text-sm mt-4 mx-auto text-error'>{errorMsg}</p>}
+                )}
             </div>
 
             {successModalOpen && (
-                <div className="fixed inset-0 z-50 bg-black/40 backdrop-blur-sm flex items-center justify-center">
-                    <div className="bg-white p-8 rounded-2xl shadow-lg text-center max-w-md">
-                        <h2 className="text-2xl font-bold mb-4 text-(--purple-primary)">Senha alterada com sucesso!</h2>
-                        <p className="mb-6 text-gray-700">Prossiga para a tela de login para continuar</p>
-                        <button 
-                            onClick={() => navigate('/login')} 
-                            className="bg-purple-600 text-white px-6 py-2 rounded-xl hover:bg-purple-700 transition">
-                            Continuar
-                        </button>
+                <div className="fixed inset-0 z-50 bg-black/40 backdrop-blur-sm flex items-center justify-center px-4">
+                    <div role="dialog"
+                         aria-modal="true"
+                         aria-labelledby="new-password-success-title"
+                         className="bg-white p-8 rounded-2xl shadow-lg text-center max-w-md w-full">
+                        <h2 id="new-password-success-title" className="text-2xl font-bold mb-4 text-(--purple-primary)">Senha alterada com sucesso!</h2>
+                        <p className="mb-6 text-gray-700">Por segurança, encerramos as sessões abertas. Entre novamente com a nova senha.</p>
+                        <BtnCallToAction type="button" onClick={() => navigate('/login')}>
+                            IR PARA O LOGIN
+                        </BtnCallToAction>
                     </div>
                 </div>
             )}
-        </div>
+        </form>
     );
 }

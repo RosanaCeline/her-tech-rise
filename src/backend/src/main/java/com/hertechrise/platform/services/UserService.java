@@ -3,6 +3,7 @@ package com.hertechrise.platform.services;
 import com.hertechrise.platform.data.dto.response.UserPictureResponseDTO;
 import com.hertechrise.platform.exception.*;
 import com.hertechrise.platform.model.User;
+import com.hertechrise.platform.model.UserType;
 import com.hertechrise.platform.repository.CompanyRepository;
 import com.hertechrise.platform.repository.ProfessionalRepository;
 import com.hertechrise.platform.repository.UserRepository;
@@ -18,6 +19,9 @@ import java.text.Normalizer;
 @Service
 @RequiredArgsConstructor
 public class UserService {
+
+    public static final String DEFAULT_PROFESSIONAL_PIC = "https://res.cloudinary.com/dl63ih00u/image/upload/v1752625413/default_profile_professional_yij7n0.png";
+    public static final String DEFAULT_COMPANY_PIC = "https://res.cloudinary.com/dl63ih00u/image/upload/v1752625413/default_profile_company_qizndf.png";
 
     private final UserRepository userRepository;
     private final ProfessionalRepository professionalRepository;
@@ -76,6 +80,27 @@ public class UserService {
         } catch (Exception e) {
             throw new CloudinaryUploadException();
         }
+    }
+
+    public static String defaultProfilePicture(UserType type) {
+        return type == UserType.COMPANY ? DEFAULT_COMPANY_PIC : DEFAULT_PROFESSIONAL_PIC;
+    }
+
+    public UserPictureResponseDTO removeProfilePicture() {
+        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+        User loggedUser = (User) auth.getPrincipal();
+
+        // salva primeiro: se a exclusão no Cloudinary falhar, o perfil já aponta para a foto padrão
+        loggedUser.setProfilePic(defaultProfilePicture(loggedUser.getType()));
+        userRepository.save(loggedUser);
+
+        cloudinaryService.deleteProfilePicture(loggedUser.getHandle());
+
+        return new UserPictureResponseDTO(
+                loggedUser.getId(),
+                loggedUser.getName(),
+                loggedUser.getProfilePic()
+        );
     }
 
 

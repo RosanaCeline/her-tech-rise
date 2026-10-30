@@ -13,7 +13,9 @@ import com.hertechrise.platform.exception.MaxMediaLimitExceededException;
 import com.hertechrise.platform.integrationtests.testcontainers.AbstractIntegrationTest;
 import com.hertechrise.platform.model.*;
 import com.hertechrise.platform.repository.MediaRepository;
+import com.hertechrise.platform.repository.PostLikeRepository;
 import com.hertechrise.platform.repository.PostRepository;
+import com.hertechrise.platform.repository.PostShareRepository;
 import com.hertechrise.platform.repository.RoleRepository;
 import com.hertechrise.platform.repository.UserRepository;
 import jakarta.persistence.EntityNotFoundException;
@@ -54,6 +56,10 @@ class PostServiceTest extends AbstractIntegrationTest {
     private RoleRepository roleRepository;
     @Autowired
     private MediaRepository mediaRepository;
+    @Autowired
+    private PostShareRepository postShareRepository;
+    @Autowired
+    private PostLikeRepository postLikeRepository;
 
     private User createTestUser(String name, String email, String handle) {
         User user = new User();
@@ -107,7 +113,7 @@ class PostServiceTest extends AbstractIntegrationTest {
         assertEquals("Olá mundo!", response.content());
         assertEquals(2, response.media().size());
         assertEquals(MediaType.IMAGE, response.media().getFirst().mediaType());
-        assertEquals(MediaType.DOCUMENT, response.media().get(2).mediaType());
+        assertEquals(MediaType.DOCUMENT, response.media().get(1).mediaType());
     }
 
     @DisplayName("Anexa arquivo com MIME não suportado")
@@ -731,5 +737,65 @@ class PostServiceTest extends AbstractIntegrationTest {
                 .anyMatch(post -> post.post().content().equals("Postagem apagada")));
         assertFalse(response.getContent().stream()
                 .anyMatch(post -> post.post().content().equals("Postando a uma hora e privado")));
+    }
+
+    @DisplayName("Timeline pagina no banco, mistura compartilhamentos e ignora conteúdo privado")
+    @Test
+    void getTimelinePostsWithSharesAndPagination() {
+        User author = createTestUser("Thalyta", "thalyta@email.com", "@thalyta");
+        User loggedUser = createTestUser("Teste", "teste@email.com", "@teste");
+        SecurityContextHolder.getContext().setAuthentication(
+                new UsernamePasswordAuthenticationToken(loggedUser, null, List.of()));
+
+        Post publicPost = new Post();
+        publicPost.setAuthor(author);
+        publicPost.setContent("Pública antiga");
+        publicPost.setCreatedAt(LocalDateTime.now().minusHours(3));
+        postRepository.save(publicPost);
+
+        Post privatePost = new Post();
+        privatePost.setAuthor(loggedUser);
+        privatePost.setContent("Privada do usuário logado");
+        privatePost.setVisibility(PostVisibility.PRIVADO);
+        privatePost.setCreatedAt(LocalDateTime.now().minusHours(2));
+        postRepository.save(privatePost);
+
+        PostShare share = new PostShare();
+        share.setPost(publicPost);
+        share.setUser(loggedUser);
+        share.setCreatedAt(LocalDateTime.now().minusHours(1));
+        postShareRepository.save(share);
+
+        Post recentPost = new Post();
+        recentPost.setAuthor(author);
+        recentPost.setContent("Pública recente");
+        recentPost.setCreatedAt(LocalDateTime.now());
+        postRepository.save(recentPost);
+
+        PostLike like = new PostLike();
+        like.setPost(recentPost);
+        like.setUser(loggedUser);
+        like.setCreatedAt(LocalDateTime.now());
+        postLikeRepository.save(like);
+
+        Page<UnifiedPostResponseDTO> firstPage = postService.getTimelinePosts(new PostFilterRequestDTO(0, 2, null, "DESC"));
+
+        assertEquals(3, firstPage.getTotalElements());
+        assertEquals(2, firstPage.getTotalPages());
+        assertFalse(firstPage.isLast());
+        assertEquals("Pública recente", firstPage.getContent().get(0).post().content());
+        assertTrue(firstPage.getContent().get(0).post().likedByMe());
+        assertEquals(1L, firstPage.getContent().get(0).post().countLikes());
+        assertEquals(UserType.PROFESSIONAL, firstPage.getContent().get(0).post().author().type());
+        assertEquals(PostContentType.COMPARTILHAMENTO, firstPage.getContent().get(1).type());
+        assertEquals("Pública antiga", firstPage.getContent().get(1).share().originalPost().content());
+        assertFalse(firstPage.getContent().get(1).share().likedByMe());
+
+        Page<UnifiedPostResponseDTO> secondPage = postService.getTimelinePosts(new PostFilterRequestDTO(1, 2, null, "DESC"));
+
+        assertTrue(secondPage.isLast());
+        assertEquals(1, secondPage.getContent().size());
+        assertEquals("Pública antiga", secondPage.getContent().getFirst().post().content());
+        assertEquals(1L, secondPage.getContent().getFirst().post().countShares());
     }
 }

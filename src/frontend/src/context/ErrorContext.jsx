@@ -7,7 +7,7 @@ export function ErrorProvider({ children }) {
 
   const showError = useCallback((msg) => {
     setErrorMsg(msg);
-    setTimeout(() => setErrorMsg(null), 4000); 
+    setTimeout(() => setErrorMsg(null), 7000); // tempo para ler o que fazer
   }, []);
 
   return (
@@ -15,7 +15,7 @@ export function ErrorProvider({ children }) {
       {children}
 
       {errorMsg && (
-        <div className="fixed top-5 left-1/2 transform -translate-x-1/2 z-50 bg-red-600 text-white px-6 py-3 rounded-lg shadow-lg">
+        <div role="alert" className="fixed top-5 left-1/2 transform -translate-x-1/2 z-[60] max-w-[calc(100%-2rem)] text-center bg-red-600 text-white px-6 py-3 rounded-lg shadow-lg">
           {errorMsg}
         </div>
       )}

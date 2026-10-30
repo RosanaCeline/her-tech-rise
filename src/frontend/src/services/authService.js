@@ -11,15 +11,27 @@ export const saveUser = (data, remember) => {
   }
 };
 
-export const isRemembered = () => !!localStorage.getItem('user');
+export const updateStoredUser = (changes) => {
+  const storage = localStorage.getItem('user') ? localStorage : sessionStorage.getItem('user') ? sessionStorage : null;
+  if (!storage) return null;
+  const current = JSON.parse(storage.getItem('user'));
+  const updated = { ...current, ...(typeof changes === 'function' ? changes(current) : changes) };
+  storage.setItem('user', JSON.stringify(updated));
+  return updated;
+};
 
 export const login = async (email, senha, remember) => {
   try {
-    const response = await axios.post(`${API_URL}/login`, { email, password: senha });
+    const response = await axios.post(`${API_URL}/login`, { email, password: senha, rememberMe: !!remember });
     saveUser(response.data, remember);
     return response.data;
   } catch (error) {
-    throw new Error(error?.response?.data?.message || 'Erro ao realizar login');
+    const status = error?.response?.status;
+    if (!error?.response) throw new Error('Não foi possível conectar ao servidor. Verifique sua internet e tente novamente.');
+    if (status === 403) throw new Error(error.response.data?.message || 'Conta desativada.');
+    if (status === 429) throw new Error(error.response.data?.message || 'Muitas tentativas. Aguarde alguns minutos e tente novamente.');
+    if (status >= 500) throw new Error('Erro no servidor. Tente novamente em instantes.');
+    throw new Error('E-mail ou senha incorretos.');
   }
 }
 
@@ -103,14 +115,30 @@ export const isTokenExpired = (token) => {
   return getTokenRemainingMs(token) <= 0;
 };
 
+const resetErrorMessage = (error, fallback) => {
+  const status = error?.response?.status;
+  if (!error?.response) return 'Não foi possível conectar ao servidor. Verifique sua internet e tente novamente.';
+  if (status === 429) return 'Muitas tentativas. Aguarde alguns minutos e tente novamente.';
+  if (status >= 500) return 'Erro no servidor. Tente novamente em instantes.';
+  return error.response.data?.message || fallback;
+};
+
 export const resetPassword = async (email) => {
-  const response = await axios.post(`${API_URL}/resetPassword`, { email });
-  return response.data;
+  try {
+    const response = await axios.post(`${API_URL}/resetPassword`, { email });
+    return response.data;
+  } catch (error) {
+    throw new Error(resetErrorMessage(error, 'Não foi possível enviar o pedido. Tente novamente.'));
+  }
 }
 
 export const newPassword = async (token, newPassword) => {
-  const response = await axios.post(`${API_URL}/confirmedResetPassword`, {token, newPassword})
-  return response.data
+  try {
+    const response = await axios.post(`${API_URL}/confirmedResetPassword`, {token, newPassword})
+    return response.data
+  } catch (error) {
+    throw new Error(resetErrorMessage(error, 'Link de redefinição inválido ou expirado. Solicite um novo.'));
+  }
 }
 
 export const verifyCPF = async (cpf) => {
@@ -131,13 +159,8 @@ export const getGender = () => {
 }
 
 export const updateGender = (gender, consentGenderSharing) => {
-  const saved = localStorage.getItem('user');
-  if (!saved) return;
-
-  const user = JSON.parse(saved);
-  if (consentGenderSharing === false) user.gender = null
-  else user.gender = gender
-  user.consentGenderSharing = consentGenderSharing
-
-  localStorage.setItem('user', JSON.stringify(user));
+  updateStoredUser({
+    gender: consentGenderSharing === false ? null : gender,
+    consentGenderSharing,
+  });
 }

@@ -9,18 +9,20 @@ import com.hertechrise.platform.repository.RoleRepository;
 import com.hertechrise.platform.repository.UserRepository;
 import com.hertechrise.platform.security.jwt.ResetPasswordTokenService;
 import com.hertechrise.platform.security.jwt.TokenService;
+import com.hertechrise.platform.security.ratelimit.RateLimiter;
 import com.hertechrise.platform.services.event.UserCreatedEvent;
 import com.hertechrise.platform.services.event.UserPasswordResetEvent;
 import org.springframework.transaction.annotation.Transactional;
 import lombok.RequiredArgsConstructor;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.context.ApplicationEventPublisher;
-import org.springframework.security.authentication.AuthenticationManager;
-import org.springframework.security.authentication.BadCredentialsException;
-import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import java.time.Duration;
 import java.util.Optional;
+import java.util.UUID;
 
 @Service
 @RequiredArgsConstructor
@@ -32,10 +34,18 @@ public class AuthService {
     private final CompanyRepository companyRepository;
     private final PasswordEncoder passwordEncoder;
     private final ApplicationEventPublisher eventPublisher;
-    private final AuthenticationManager authenticationManager;
     private final UserService userService;
     private final TokenService tokenService;
     private final ResetPasswordTokenService resetTokenService;
+    private final RateLimiter rateLimiter;
+
+    private static final Logger logger = LoggerFactory.getLogger(AuthService.class);
+    private static final int MAX_LOGIN_FAILURES = 5;
+    private static final Duration LOGIN_FAILURE_WINDOW = Duration.ofMinutes(15);
+    private static final int MAX_RESET_EMAILS = 3;
+    private static final Duration RESET_EMAIL_WINDOW = Duration.ofHours(1);
+
+    private volatile String dummyPasswordHash;
 
     @Transactional
     public TokenResponseDTO registerProfessional(RegisterProfessionalRequestDTO request) {
@@ -62,7 +72,7 @@ public class AuthService {
 
         String generatedUsername = userService.generateUniqueUserHandle(request.name());
         newUser.setHandle(generatedUsername);
-        newUser.setProfilePic("https://res.cloudinary.com/dl63ih00u/image/upload/v1752625413/default_profile_professional_yij7n0.png");
+        newUser.setProfilePic(UserService.DEFAULT_PROFESSIONAL_PIC);
 
         Role role = roleRepository.findByName("PROFESSIONAL")
                 .orElseThrow(InvalidUserTypeException::new);
@@ -82,13 +92,7 @@ public class AuthService {
         professionalRepository.save(professional);
         eventPublisher.publishEvent(new UserCreatedEvent(this, newUser));
 
-        String token = tokenService.generateToken(
-                newUser.getUsername(),
-                newUser.getId(),
-                newUser.getName().split(" ")[0],
-                "login-auth-api",
-                2
-        );
+        String token = tokenService.generateLoginToken(newUser, false);
 
         ProfessionalGender gender;
 
@@ -126,7 +130,7 @@ public class AuthService {
 
         String generatedUsername = userService.generateUniqueUserHandle(request.name());
         newUser.setHandle(generatedUsername);
-        newUser.setProfilePic("https://res.cloudinary.com/dl63ih00u/image/upload/v1752625413/default_profile_company_qizndf.png");
+        newUser.setProfilePic(UserService.DEFAULT_COMPANY_PIC);
 
         Role role = roleRepository.findByName("COMPANY")
                 .orElseThrow(InvalidUserTypeException::new);
@@ -144,13 +148,7 @@ public class AuthService {
         companyRepository.save(company);
         eventPublisher.publishEvent(new UserCreatedEvent(this, newUser));
 
-        String token = tokenService.generateToken(
-                newUser.getUsername(),
-                newUser.getId(),
-                newUser.getName().split(" ")[0],
-                "login-auth-api",
-                2
-        );
+        String token = tokenService.generateLoginToken(newUser, false);
 
         return new TokenResponseDTO(newUser.getName(), newUser.getId(), token, role.getName(), newUser.getProfilePic(), null, null);
     }
@@ -169,73 +167,88 @@ public class AuthService {
     }
 
     public TokenResponseDTO login(LoginRequestDTO request) {
-        User user = this.userRepository.findByEmail(request.email())
-                .orElseThrow(UserNotFoundException::new);
+        String attemptsKey = "login:" + request.email().trim().toLowerCase();
+        if (rateLimiter.isBlocked(attemptsKey, MAX_LOGIN_FAILURES)) {
+            throw new TooManyRequestsException("Muitas tentativas de login. Aguarde 15 minutos ou redefina sua senha.");
+        }
 
+        Optional<User> optionalUser = userRepository.findByEmail(request.email());
+
+        String hash = optionalUser.map(User::getPassword).orElseGet(this::dummyHash);
+        boolean passwordMatches = passwordEncoder.matches(request.password(), hash);
+
+        if (optionalUser.isEmpty() || !passwordMatches) {
+            rateLimiter.tryAcquire(attemptsKey, MAX_LOGIN_FAILURES, LOGIN_FAILURE_WINDOW);
+            throw new InvalidCredentialsException();
+        }
+
+        User user = optionalUser.get();
         if (!user.isEnabled()) {
             throw new AccountDisabledException();
         }
+        rateLimiter.reset(attemptsKey);
 
-        try {
-            authenticationManager.authenticate(
-                    new UsernamePasswordAuthenticationToken(request.email(), request.password())
-            );
+        String token = tokenService.generateLoginToken(user, Boolean.TRUE.equals(request.rememberMe()));
 
-            String token = tokenService.generateToken(
-                    user.getEmail(),
-                    user.getId(),
-                    user.getName().split(" ")[0],
-                    "login-auth-api",
-                    2
-            );
+        ProfessionalGender gender;
+        Boolean consentGenderSharing;
 
-            ProfessionalGender gender;
-            Boolean consentGenderSharing;
-
-            if (user.isProfessional()) {
-                Optional<Professional> optionalProfessional = professionalRepository.findById(user.getId());
-                if (optionalProfessional.isPresent()) {
-                    Professional professional = optionalProfessional.get();
-                    if (Boolean.TRUE.equals(professional.getConsentGenderSharing())) {
-                        gender = professional.getGender();
-                    } else {
-                        gender = null;
-                    }
-                    consentGenderSharing = professional.getConsentGenderSharing();
+        if (user.isProfessional()) {
+            Optional<Professional> optionalProfessional = professionalRepository.findById(user.getId());
+            if (optionalProfessional.isPresent()) {
+                Professional professional = optionalProfessional.get();
+                if (Boolean.TRUE.equals(professional.getConsentGenderSharing())) {
+                    gender = professional.getGender();
                 } else {
                     gender = null;
-                    consentGenderSharing = null;
                 }
+                consentGenderSharing = professional.getConsentGenderSharing();
             } else {
                 gender = null;
                 consentGenderSharing = null;
             }
-
-            return new TokenResponseDTO(user.getName(), user.getId(), token, user.getRole().getName(), user.getProfilePic(), gender, consentGenderSharing);
-
-        } catch (BadCredentialsException e) {
-            throw new InvalidPasswordException();
+        } else {
+            gender = null;
+            consentGenderSharing = null;
         }
+
+        return new TokenResponseDTO(user.getName(), user.getId(), token, user.getRole().getName(), user.getProfilePic(), gender, consentGenderSharing);
     }
 
-    @Transactional
+    @Transactional(readOnly = true)
     public void resetPassword(ResetPasswordRequestDTO body) {
-        User user = userRepository.findByEmail(body.email())
-                .orElseThrow(UserNotFoundException::new);
+        String email = body.email().trim();
+        if (!rateLimiter.tryAcquire("reset:" + email.toLowerCase(), MAX_RESET_EMAILS, RESET_EMAIL_WINDOW)) {
+            logger.warn("Limite de e-mails de redefinição atingido para um endereço");
+            return;
+        }
 
-        String token = resetTokenService.generateResetToken(user.getEmail());
-
-        eventPublisher.publishEvent(new UserPasswordResetEvent(this, user.getEmail(), token));
+        userRepository.findByEmail(email)
+                .filter(User::isEnabled)
+                .ifPresent(user -> {
+                    String token = resetTokenService.generateResetToken(user);
+                    eventPublisher.publishEvent(new UserPasswordResetEvent(this, user.getEmail(), token));
+                });
     }
 
     @Transactional
     public void confirmResetPassword(ConfirmedResetPasswordRequestDTO dto) {
-        String email = resetTokenService.validateResetToken(dto.token());
+        var tokenData = resetTokenService.validateResetToken(dto.token());
 
-        User user = userRepository.findByEmail(email)
-                .orElseThrow(UserNotFoundException::new);
+        User user = userRepository.findByEmail(tokenData.email())
+                .filter(User::isEnabled)
+                .filter(u -> resetTokenService.matchesCurrentPassword(tokenData, u))
+                .orElseThrow(InvalidResetTokenException::new);
 
         user.setPassword(passwordEncoder.encode(dto.newPassword()));
         userRepository.save(user);
+        rateLimiter.reset("login:" + user.getEmail().toLowerCase());
+    }
+
+    private String dummyHash() {
+        if (dummyPasswordHash == null) {
+            dummyPasswordHash = passwordEncoder.encode(UUID.randomUUID().toString());
+        }
+        return dummyPasswordHash;
     }
 }

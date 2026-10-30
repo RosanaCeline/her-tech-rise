@@ -55,9 +55,23 @@ public record PostResponseDTO(
         Long countComments,
 
         @Schema(description = "Quantidade de compartilhamentos da publicação", example = "3")
-        Long countShares
+        Long countShares,
+
+        @Schema(description = "Se o usuário logado curtiu a postagem", example = "true")
+        Boolean likedByMe
 ) {
+        public PostResponseDTO(Long id, AuthorResponseDTO author, String content, LocalDateTime createdAt, Long idCommunity,
+                               List<MediaResponseDTO> media, PostVisibility visibility, boolean edited, LocalDateTime editedAt,
+                               boolean isOwner, boolean canEdit, Long countLikes, Long countComments, Long countShares) {
+                this(id, author, content, createdAt, idCommunity, media, visibility, edited, editedAt, isOwner, canEdit,
+                        countLikes, countComments, countShares, null);
+        }
+
         public static PostResponseDTO from(Post post, Long loggedUserId, boolean isFollowed, Long countLikes, Long countComments, Long countShares) {
+                return from(post, loggedUserId, isFollowed, countLikes, countComments, countShares, null);
+        }
+
+        public static PostResponseDTO from(Post post, Long loggedUserId, boolean isFollowed, Long countLikes, Long countComments, Long countShares, Boolean likedByMe) {
                 boolean isOwner = post.getAuthor().getId().equals(loggedUserId);
 
                 boolean canEdit = isOwner &&
@@ -69,13 +83,7 @@ public record PostResponseDTO(
 
                 return new PostResponseDTO(
                         post.getId(),
-                        new AuthorResponseDTO(
-                                post.getAuthor().getId(),
-                                post.getAuthor().getName(),
-                                post.getAuthor().getHandle(),
-                                post.getAuthor().getProfilePic(),
-                                isFollowed
-                        ),
+                        AuthorResponseDTO.from(post.getAuthor(), isFollowed),
                         post.getContent(),
                         post.getCreatedAt(),
                         post.getCommunity() != null ? post.getCommunity().getId() : null,
@@ -87,7 +95,8 @@ public record PostResponseDTO(
                         canEdit,
                         countLikes,
                         countComments,
-                        countShares
+                        countShares,
+                        likedByMe
                 );
         }
 }

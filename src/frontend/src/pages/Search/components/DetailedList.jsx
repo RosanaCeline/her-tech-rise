@@ -5,6 +5,8 @@ import { ChevronLeft, ChevronRight, Undo2 } from "lucide-react"
 import { searchProfessionals, searchCompanies } from "../../../services/searchService"
 import UserPreview from './UserPreview'
 import LoadingSpinner from '../../../components/LoadingSpinner/LoadingSpinner'
+import LoadError from '../../../components/LoadError/LoadError';
+import { getErrorMessage } from '../../../services/errorMessage';
 
 export default function DetailedList({type, query, setCurrentList}){
 
@@ -24,7 +26,7 @@ export default function DetailedList({type, query, setCurrentList}){
                 setUsersList(response.content)
                 setCountPages(response.totalPages)
             } catch(err) {
-                setError('Erro ao carregar detalhes de candidatura.');
+                setError(getErrorMessage(err, 'Não foi possível carregar os resultados da busca.'));
                 console.error(err);
             } finally {
                 setLoading(false);
@@ -34,7 +36,7 @@ export default function DetailedList({type, query, setCurrentList}){
     }, [currentPage, query])
 
     if (loading) return ( <LoadingSpinner /> );
-    if (error) return <main className="pt-34"><p className="text-red-600">{error}</p></main>;
+    if (error) return <LoadError message={error} />;
 
     return(
         <>

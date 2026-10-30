@@ -84,7 +84,8 @@ public class EmailService {
     }
 
     public void sendResetPasswordEmail(String to, String token) {
-        String resetLink = frontendUrl + "/redefinirnovasenha?token="
+        String baseUrl = frontendUrl.endsWith("/") ? frontendUrl.substring(0, frontendUrl.length() - 1) : frontendUrl;
+        String resetLink = baseUrl + "/redefinirnovasenha?token="
                 + URLEncoder.encode(token, StandardCharsets.UTF_8);
         String subject = "Pedido de Redefinição de Senha - Her Tech Rise";
 
@@ -102,12 +103,14 @@ public class EmailService {
             </tr>
         </table>
         <br>
+        Se o botão não funcionar, copie e cole este endereço no navegador:<br>
+        <a href="%s" target="_blank" style="color: #6c2cbf; word-break: break-all;">%s</a><br><br>
         <strong>Se você não solicitou a redefinição de senha, pode ignorar este e-mail com segurança — sua senha permanecerá a mesma.</strong><br><br>
         Este link de redefinição é válido por <strong>30 minutos</strong>.<br>
         Depois disso, será necessário solicitar uma nova redefinição.<br><br>
         Obrigado por usar a Her Tech Rise! 💜<br>
         — Equipe Her Tech Rise
-        """, resetLink);
+        """, resetLink, resetLink, resetLink);
         String body = EmailTemplateUtil.loadTemplate("emailTemplate.html", emailContent);
 
         emailSender

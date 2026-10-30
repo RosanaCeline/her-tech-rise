@@ -7,6 +7,7 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
+import java.util.Collection;
 import java.util.List;
 
 @Repository
@@ -32,4 +33,10 @@ public interface FollowRelationshipRepository extends JpaRepository<FollowRelati
     """)
     List<Object[]> countFollowersForUsers(@Param("userIds") List<Long> userIds);
 
+    @Query("""
+        SELECT fr.following.id
+        FROM FollowRelationship fr
+        WHERE fr.follower.id = :followerId AND fr.following.id IN :userIds
+    """)
+    List<Long> findFollowedIdsAmong(@Param("followerId") Long followerId, @Param("userIds") Collection<Long> userIds);
 }

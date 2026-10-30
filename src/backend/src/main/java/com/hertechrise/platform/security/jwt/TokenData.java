@@ -9,5 +9,6 @@ public class TokenData {
     private String email;
     private Long id;
     private String name;
+    private String passwordFingerprint;
 
 }

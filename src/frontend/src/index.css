@@ -2,12 +2,12 @@
 
 @font-face {
   font-family: 'Montserrat';
-  src: url('./assets/fonts/Montserrat-VariableFont_wght.ttf') format('woff2');
+  src: url('./assets/fonts/Montserrat-VariableFont_wght.ttf') format('truetype');
+  font-display: swap;
 }
 
 body {
   font-family: 'Montserrat', sans-serif;
-  min-width: 375px;
 }
 
 .text-error {

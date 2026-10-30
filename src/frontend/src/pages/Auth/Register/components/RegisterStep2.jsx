@@ -2,7 +2,7 @@ import LabelInput from '../../../../components/form/Label/LabelInput';
 import { maskField } from '../../../../components/form/Label/maskField';
 import { useEffect } from 'react';
 
-export default function RegisterStep1({formData, handleChange, fetchCPF, fetchCNPJ}){
+export default function RegisterStep2({formData, handleChange, fetchCPF, fetchCNPJ}){
 
     useEffect(() => {
         formData.tipo_usuario === 'profissional' ? fetchCPF() : fetchCNPJ()
@@ -10,14 +10,16 @@ export default function RegisterStep1({formData, handleChange, fetchCPF, fetchCN
 
     return(
         <section>
-                <p className='text-center text-3xl md:text-4xl mb-2'>
+                <h1 className='text-center text-3xl md:text-4xl mb-2'>
                     Agora, nos conte um pouco mais sobre você.
-                </p>
-                <p className='text-center text-lg'>
+                </h1>
+                <p className='text-center text-base sm:text-lg'>
                     Precisamos de algumas informações para criar sua conta.
                 </p>
                 <div className='flex flex-col gap-y-2 mt-4'>
                     <LabelInput label="Nome:" 
+                                name='nome'
+                                autoComplete={formData.tipo_usuario === 'empresa' ? 'organization' : 'name'}
                                 theme='white' 
                                 type='text' 
                                 placeholder='Digite seu nome' 
@@ -27,11 +29,12 @@ export default function RegisterStep1({formData, handleChange, fetchCPF, fetchCN
                                 onChange={(e) => handleChange('nome', e.target.value)}/>
                     {formData.tipo_usuario === 'profissional'
                         ?   <div className='grid grid-cols-1 sm:grid-cols-2 gap-x-5 gap-y-2'>
-                                <LabelInput label="CPF:"              theme='white'             type='number' 
+                                <LabelInput label="CPF:"              theme='white'             name='cpf'
+                                            inputMode='numeric'       autoComplete='off'
                                             required={true}           validation='cpf' 
                                             maxLength='14'            placeholder='Digite seu CPF'
                                             value={formData.cpf}      onChange={(e) => handleChange('cpf', maskField('cpf', e.target.value))}/>
-                                <LabelInput label="Você se identifica como:"                    theme='white' 
+                                <LabelInput label="Você se identifica como:"                    theme='white'             name='gender'
                                             required={true}           type="select"
                                             options={[
                                                 {value: 'MULHER', label: 'Mulher'}, 
@@ -41,25 +44,28 @@ export default function RegisterStep1({formData, handleChange, fetchCPF, fetchCN
                                                 {value: 'PREFIRO_NAO_INFORMAR', label: 'Prefiro não informar'}]}
                                             value={formData.gender}   onChange={(e) => handleChange('gender', e.target.value)}/>
                             </div>
-                        : <LabelInput   label="CNPJ:"           theme='white'                   type='number' 
+                        : <LabelInput   label="CNPJ:"           theme='white'                   name='cnpj'
+                                        inputMode='numeric'     autoComplete='off'
                                         required={true}         validation='cnpj' 
                                         maxLength='18'          placeholder='Digite seu CNPJ'
                                         value={formData.cnpj}   onChange={(e) => handleChange('cnpj', maskField('cnpj', e.target.value))}/>
                     }
                     <div className='grid grid-cols-1 sm:grid-cols-2 gap-x-5 gap-y-2'>
                         {formData.tipo_usuario === 'profissional'
-                            ? <LabelInput   label="Data de Nascimento:"         theme='white'       
+                            ? <LabelInput   label="Data de Nascimento:"         theme='white'       name='data_nascimento'
+                                            inputMode='numeric'                 autoComplete='bday'
                                             required={true}                     validation='data' 
-                                            maxLength='10'                      placeholder='Digite sua data de nascimento'
+                                            maxLength='10'                      placeholder='DD/MM/AAAA'
                                             value={formData.data_nascimento}    onChange={(e) => handleChange('data_nascimento', maskField('data', e.target.value))}/>
-                            : <LabelInput   label="Tipo de Empresa:"            theme='white' 
+                            : <LabelInput   label="Tipo de Empresa:"            theme='white'       name='tipo_empresa'
                                             required={true}                     type='select' 
                                             options={[{value: 'NACIONAL', label: 'Nacional'}, {value: 'INTERNACIONAL', label: 'Internacional'}]}
                                             value={formData.tipo_empresa}          onChange={(e) => handleChange('tipo_empresa', e.target.value)}/>
                         }
-                        <LabelInput         label="Telefone:"                   theme='white'           type='tel' 
+                        <LabelInput         label="Telefone:"                   theme='white'           type='tel'
+                                            name='telefone'                     autoComplete='tel-national'
                                             required={true}                     validation='telefone' 
-                                            maxLength='15'                      placeholder='Digite seu telefone'
+                                            maxLength='20'                      placeholder='Digite seu telefone'
                                             value={formData.telefone}           onChange={(e) => handleChange('telefone', maskField('telefone', e.target.value))}/>
                     </div>
                 </div>

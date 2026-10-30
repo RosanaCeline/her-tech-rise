@@ -35,7 +35,9 @@ export default function AttachFile({type, setFormData, setActivePopUp}){
 
     return(
     <div>
-        <X className="cursor-pointer ml-auto" onClick={() => setActivePopUp('post')}/>
+        <button type="button" aria-label="Voltar para a publicação" className="flex ml-auto cursor-pointer" onClick={() => setActivePopUp('post')}>
+            <X aria-hidden="true"/>
+        </button>
         <div className="mt-3 p-4 border-2 border-dashed rounded-xl border-gray-400 hover:bg-gray-100 transition"
             onDrop={handleDrop} onDragOver={(e) => e.preventDefault()}>
                 <div className="text-center text-gray-600 p-3">
@@ -43,12 +45,12 @@ export default function AttachFile({type, setFormData, setActivePopUp}){
                         type === 'image' 
                     ? 
                         <> 
-                            <Image className='mx-auto w-16 h-16 sm:w-50 sm:h-50'/>
+                            <Image aria-hidden="true" className='mx-auto w-16 h-16 sm:w-50 sm:h-50'/>
                             <p className='mt-4 text-sm sm:text-base max-w-xs sm:max-w-md mx-auto'>Arraste as imagens desejadas no formato JPG ou PNG ou</p>
                         </>
                     : 
                         <>
-                            <Files className='mx-auto w-16 h-16 sm:w-50 sm:h-50'/>
+                            <Files aria-hidden="true" className='mx-auto w-16 h-16 sm:w-50 sm:h-50'/>
                             <p className='mt-4 text-sm sm:text-base max-w-xs sm:max-w-md mx-auto'>Arraste os documentos desejados no formato DOCX ou PDF ou</p>
                         </>}
                     <button
@@ -69,6 +71,7 @@ export default function AttachFile({type, setFormData, setActivePopUp}){
                         ''
                     }
                     multiple
+                    aria-label={type === 'image' ? 'Selecionar imagens' : 'Selecionar documentos'}
                     ref={fileInputRef}
                     onChange={handleFileChange}
                     className="hidden"
