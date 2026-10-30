@@ -8,6 +8,7 @@ import { maskField } from "../../../components/form/Label/maskField";
 import { postJob, editPostJob } from '../../../services/jobsService'
 import { validateField } from "../../../components/form/Label/validationField";
 import LoadingSpinner from '../../../components/LoadingSpinner/LoadingSpinner'
+import { getErrorMessage } from '../../../services/errorMessage';
 
 export default function ManageJob({jobFormData, setJobFormData, setManageJobModal, fetchMyJobs, action = 'new'}){
 
@@ -28,7 +29,7 @@ export default function ManageJob({jobFormData, setJobFormData, setManageJobModa
             setManageJobModal(false);
             fetchMyJobs();
         } catch(err) {
-            setErrorMessage(err.message || `Erro ao ${action === 'new' ? 'cadastrar nova' : 'editar'} vaga de emprego`);
+            setErrorMessage(getErrorMessage(err, action === 'new' ? 'A vaga não foi publicada.' : 'As alterações da vaga não foram salvas.'));
             setTimeout(() => setErrorMessage(null), 4000)
         } finally {
             setLoading(false);

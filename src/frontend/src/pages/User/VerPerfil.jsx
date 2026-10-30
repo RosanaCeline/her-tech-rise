@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 
 import { deactivateAccount, followUser, unfollowUser, verifyFollowUser } from '../../services/userService';
@@ -16,17 +16,20 @@ import AttachFile from '../../components/posts/AttachFile';
 import ManagePost from '../../components/posts/ManagePost';
 import LoadingSpinner from './../../components/LoadingSpinner/LoadingSpinner'
 import PopUpBlurProfile from '../../components/Cards/Profile/PopUpBlurProfile';
+import LoadError from '../../components/LoadError/LoadError';
+import { getErrorMessage } from '../../services/errorMessage';
 
 export default function VerPerfil() {
 
     const navigate = useNavigate();
     const { user_type, user_info } = useParams();
     const userId = (user_info === 'me') ? getCurrentUser().id : user_info.split('-')[0];
-    const isCurrentUser = userId === getCurrentUser().id;
+    const isCurrentUser = String(userId) === String(getCurrentUser().id);
     const [user, setUser] = useState(null);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
     const [deleteModalOpen, setDeleteModalOpen] = useState(false);
+    const followPending = useRef(false);
 
     const isProfessional = user_type === 'professional';
     const isCompany = user_type === 'company';
@@ -35,7 +38,7 @@ export default function VerPerfil() {
     const [postFormData, setPostFormData] = useState({
         content: '',
         media: [],
-        visibility: 'public'
+        visibility: 'PUBLICO'
     });
 
     const [followedUser, setFollowedUser] = useState(false);
@@ -92,7 +95,7 @@ export default function VerPerfil() {
             setUser(userMapped);
             return userMapped;
         } catch (err) {
-            setError('Erro ao carregar perfil.');
+            setError(getErrorMessage(err, 'Não foi possível carregar este perfil.'));
             console.error(err);
         } finally {
             setLoading(false);
@@ -125,9 +128,11 @@ export default function VerPerfil() {
         }
     };
 
+    // sem trocar a página inteira pelo spinner; ignora cliques repetidos enquanto a requisição anda
     const handleFollow = async (id = userId, isFollowing = followedUser) => {
+        if (followPending.current) return;
+        followPending.current = true;
         try {
-            setLoading(true)
             if (id === userId) {
                 if (followedUser) {
                     await unfollowUser(userId);
@@ -146,18 +151,20 @@ export default function VerPerfil() {
             fetchProfile();
         } catch (err) {
             console.log(err);
+        } finally {
+            followPending.current = false;
         }
     };
 
     if (loading) return ( <LoadingSpinner /> );
-    if (error) return <main className="..."><p className="text-red-600">{error}</p></main>;
-    if (!user) return <main className="...">Nenhum perfil encontrado.</main>;
+    if (error) return <LoadError message={error} />;
+    if (!user) return <div className="flex-1 flex items-center justify-center p-8"><p>Nenhum perfil encontrado.</p></div>;
 
     const profileLink = `${window.location.origin}/hertechrise/profile/${user_type}/${user.id}-@${user.nameuser?.replace('@','')}`;
     
     return (
-        <main className="flex flex-col bg-[var(--light)] pt-10 pb-10 min-h-full">
-            <div className="w-4/5 lg:w-3/5 mx-auto flex flex-col gap-8">
+        <div className="flex flex-col bg-[var(--light)] pt-10 pb-10 min-h-full">
+            <div className="w-full px-4 sm:px-0 sm:w-4/5 lg:w-3/5 mx-auto flex flex-col gap-8">
                 <CardProfile
                     isCurrentUser={isCurrentUser}
                     tipo_usuario={user_type}
@@ -169,10 +176,12 @@ export default function VerPerfil() {
                     number={user.telefone}
                     link={user.externalLink}
                     onRequestDelete={() => setDeleteModalOpen(true)}
+                    onProfileUpdated={fetchProfile}
                     copyMyLink={profileLink}
                     city={user.endereco.cidade}
                     state={user.endereco.estado}
                     followersCount={user.followersCount}
+                    followingCount={isCurrentUser ? statistics.following : undefined}
                     handleFollow={handleFollow}
                     followedUser={followedUser}
                     statisticsComponent={
@@ -211,20 +220,14 @@ export default function VerPerfil() {
                 />
 
                 {activePopUp && (
-                    <PopUp>
+                    <PopUp onClose={() => setActivePopUp(null)} ariaLabel="Nova publicação">
                         {activePopUp === 'post' && <ManagePost user={{profileURL: user.profilePic, userName: user.name}} setActivePopUp={setActivePopUp} 
-                        formData={postFormData} setFormData={setPostFormData}/>}
+                        formData={postFormData} setFormData={setPostFormData} onSuccess={() => fetchProfile()}/>}
                         {activePopUp === 'image' && <AttachFile type='image' setFormData={setPostFormData} setActivePopUp={setActivePopUp}/>}
                         {activePopUp === 'docs' && <AttachFile type='docs' setFormData={setPostFormData} setActivePopUp={setActivePopUp}/>}
                     </PopUp>
                 )}
             </div>
-
-            {loading && (
-                <div className="absolute inset-0 z-50 bg-white/60 flex items-center justify-center">
-                <LoadingSpinner />
-                </div>
-            )}
 
             {deleteModalOpen && (
                 <PopUpBlurProfile
@@ -241,6 +244,7 @@ export default function VerPerfil() {
                                 </p>
                                 <div className="flex justify-center gap-6">
                                     <button
+                                        type="button"
                                         onClick={() => setDeleteModalOpen(false)}
                                         className="bg-gray-300 text-gray-800 px-6 py-2 rounded-xl hover:bg-gray-400 transition"
                                     >
@@ -248,6 +252,7 @@ export default function VerPerfil() {
                                     </button>
 
                                     <button
+                                        type="button"
                                         onClick={handleDeleteAccount}
                                         className="bg-purple-600 text-white px-6 py-2 rounded-xl hover:bg-purple-700 transition"
                                     >
@@ -259,6 +264,6 @@ export default function VerPerfil() {
                     }
                 />
             )}
-        </main>
+        </div>
     );
 }

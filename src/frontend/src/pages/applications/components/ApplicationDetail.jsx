@@ -9,6 +9,8 @@ import BtnCallToAction from '../../../components/btn/BtnCallToAction/BtnCallToAc
 import ConfirmModal from '../../../components/ConfirmModal/ConfirmModal'
 import LoadingSpinner from '../../../components/LoadingSpinner/LoadingSpinner'
 import { toSafeUrl } from '../../../services/safeUrl'
+import LoadError from '../../../components/LoadError/LoadError';
+import { getErrorMessage } from '../../../services/errorMessage';
 
 export default function ApplicationDetail({applicationDetail, setApplicationDetail, fetchMyApplications, user = 'professional'}){
 
@@ -23,7 +25,7 @@ export default function ApplicationDetail({applicationDetail, setApplicationDeta
             const response = user === 'professional' ? await myApplicationDetail(id) : await myCompanyApplicationDetail(id)
             setData(response)
         } catch(err){
-            setError('Erro ao carregar detalhes de candidatura.');
+            setError(getErrorMessage(err, 'Não foi possível carregar os detalhes da candidatura.'));
             console.error(err);
         } finally{
             setLoading(false)
@@ -42,7 +44,7 @@ export default function ApplicationDetail({applicationDetail, setApplicationDeta
     };
 
     if (loading) return ( <LoadingSpinner /> );
-    if (error) return <main className="pt-34"><p className="text-red-600">{error}</p></main>;
+    if (error) return <LoadError message={error} />;
 
     return(
         <PopUp>
@@ -148,4 +150,4 @@ export default function ApplicationDetail({applicationDetail, setApplicationDeta
             }
         </PopUp>
     )
-} 
+} 

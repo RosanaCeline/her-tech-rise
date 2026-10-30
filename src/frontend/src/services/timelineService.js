@@ -37,7 +37,10 @@ export const newPost = async (formData) => {
 
       if (!response.ok) {
           const text = await response.text();
-          const error = new Error(text || "Erro desconhecido");
+          // o back-end responde { message }: mostra só a mensagem, nunca o JSON cru
+          let message = text;
+          try { message = JSON.parse(text)?.message ?? text; } catch { /* resposta em texto puro */ }
+          const error = new Error(message || "Erro desconhecido");
         error.status = response.status;
         throw error;
       }
@@ -89,4 +92,4 @@ export const updatePost = async (postId, data) => {
 
 export const getTimelinePosts = async (page = 0, size = 5) => {
   return await requestService.apiRequest(`/post/timeline?page=${page}&size=${size}&orderBy=createdAt&direction=DESC`,'GET');
-}
+}

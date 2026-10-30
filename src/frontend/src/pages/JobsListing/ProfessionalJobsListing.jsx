@@ -10,6 +10,8 @@ import ApplyJob from "./components/ApplyJob"
 import { getGender } from "../../services/authService"
 import ConfirmModal from "../../components/ConfirmModal/ConfirmModal"
 import LoadingSpinner from "../../components/LoadingSpinner/LoadingSpinner"
+import LoadError from '../../components/LoadError/LoadError';
+import { getErrorMessage } from '../../services/errorMessage';
 
 export default function ProfessionalJobsListing(){
 
@@ -31,7 +33,7 @@ export default function ProfessionalJobsListing(){
                 setCurrentJobDetail(detail.id);
             }
         } catch(err) {
-            setError('Erro ao carregar vagas de emprego.');
+            setError(getErrorMessage(err, 'Não foi possível carregar as vagas.'));
             console.error(err);
         } finally {
             setLoading(false);
@@ -48,7 +50,7 @@ export default function ProfessionalJobsListing(){
 
 
     if (loading) return ( <LoadingSpinner /> );
-    if (error) return <main className="pt-34"><p className="text-red-600">{error}</p></main>;
+    if (error) return <LoadError message={error} />;
 
     return(
         <main className='flex flex-col bg-[var(--light)] pt-10 pb-6'>

@@ -1,25 +1,30 @@
-import { useState } from 'react';
-import { useNavigate } from "react-router-dom";
+import { useEffect, useRef, useState } from 'react';
+import { Link } from "react-router-dom";
 
-import { Edit, Trash2, Eye, Globe, Users, Lock, AlertCircle, PencilIcon, TrashIcon, CheckCircle } from 'lucide-react';
+import { Edit, Trash2, Eye, Globe, Users, Lock, AlertCircle, PencilIcon, TrashIcon, MoreHorizontal } from 'lucide-react';
 
 import { updatePostVisibility, deletePost } from '../../../../services/timelineService';
 import { deleteShare } from '../../../../services/interactionsService';
-import { getProfileById } from '../../../../services/userService';
+import { getProfilePath } from '../../../../services/profileLink';
 import ConfirmModal from '../../../ConfirmModal/ConfirmModal';
 import BtnCallToAction from '../../../btn/BtnCallToAction/BtnCallToAction';
+import { getErrorMessage } from '../../../../services/errorMessage';
 
-export default function HeaderPost({ photo, name, post, date, isOpen = false, onPostsUpdated = false, isShare = false,
-                                      isFollowing = null, onFollowToggle = null, handle = null, idAuthor = null, isOwner = false, onEdit = false }) {
-  
-  const navigate = useNavigate();
+export default function HeaderPost({ photo, name, post, date, isOpen = false, onPostsUpdated = false, onDeleted = null, isShare = false,
+                                      isFollowing = null, onFollowToggle = null, handle = null, idAuthor = null, authorType = null, isOwner = false, onEdit = false }) {
+
+  const [showMenu, setShowMenu] = useState(false);
   const [showVisibilityOptions, setShowVisibilityOptions] = useState(false);
-  const [showVisibilityDropdown, setShowVisibilityDropdown] = useState(false);
   const [showDeleteModal, setShowDeleteModal] = useState(false);
+  const [deleting, setDeleting] = useState(false);
   const [localVisibility, setLocalVisibility] = useState(post.visibility);
   const [error, setError] = useState('');
   const [successMsg, setSuccessMsg] = useState('');
+  const menuRef = useRef(null);
   const size = 18;
+
+  const isSharedItem = post.type === "COMPARTILHAMENTO";
+  const profilePath = getProfilePath(idAuthor, handle, authorType);
 
   const clearError = () => setError('');
 
@@ -28,62 +33,83 @@ export default function HeaderPost({ photo, name, post, date, isOpen = false, on
     setTimeout(() => setSuccessMsg(''), 3000);
   };
 
-  const toggleVisibilityDropdown = (e) => {
-    e.stopPropagation();
-    setShowVisibilityOptions(prev => !prev);
-  };
+  // fecha o menu ao clicar fora ou apertar Esc
+  useEffect(() => {
+    if (!showMenu && !showVisibilityOptions) return;
+    const close = () => {
+      setShowMenu(false);
+      setShowVisibilityOptions(false);
+    };
+    const handleClick = (e) => {
+      if (menuRef.current && !menuRef.current.contains(e.target)) close();
+    };
+    const handleKey = (e) => {
+      if (e.key === 'Escape') close();
+    };
+    document.addEventListener('mousedown', handleClick);
+    document.addEventListener('keydown', handleKey);
+    return () => {
+      document.removeEventListener('mousedown', handleClick);
+      document.removeEventListener('keydown', handleKey);
+    };
+  }, [showMenu, showVisibilityOptions]);
 
   const changeVisibility = async (value) => {
     clearError();
     try {
       await updatePostVisibility(post.id, value);
+      setShowMenu(false);
       setShowVisibilityOptions(false);
-      setShowVisibilityDropdown(false);
       setLocalVisibility(value);
       showSuccess(value === 'PRIVADO' ? 'Publicação agora está privada.' : 'Publicação agora está visível para todos.');
     } catch (err) {
       setLocalVisibility(post.visibility);
       console.error('Erro ao alterar visibilidade:', err);
-      setError('Erro ao atualizar a visibilidade. Tente novamente.');
+      setError(getErrorMessage(err, 'A visibilidade não foi alterada.'));
     }
   };
 
   const onDelete = (e) => {
     e.stopPropagation();
     clearError();
+    setShowMenu(false);
     setShowDeleteModal(true);
   };
 
-  const handleConfirmDelete = async (postId) => {
+  const handleConfirmDelete = async () => {
+    if (deleting) return;
+    setDeleting(true);
     try {
-      if (post.type === "COMPARTILHAMENTO") {
-        await deleteShare(postId); 
+      if (isSharedItem) {
+        await deleteShare(post.id);
       } else {
-        await deletePost(postId); 
+        await deletePost(post.id);
       }
       setShowDeleteModal(false);
-      if(onPostsUpdated) {
-        onPostsUpdated();  
-      }
-      window.location.reload();
+      if (onDeleted) onDeleted(post);
+      else if (typeof onPostsUpdated === 'function') onPostsUpdated();
+      else window.location.reload();
     } catch (err) {
         console.error("Erro ao excluir o post:", err);
         setShowDeleteModal(false);
-        setError(err.message || "Erro ao excluir o post. Tente novamente.");
+        setError(getErrorMessage(err, "A publicação não foi excluída."));
+    } finally {
+      setDeleting(false);
     }
   };
 
+  // o back-end informa se ainda pode editar; o cálculo local fica como reserva
   const canEditPost = () => {
-    if (!isOwner) return false;
-    const createdAt = new Date(post.createdAt);
-    const now = new Date();
-    const diffDays = (now - createdAt) / (1000 * 60 * 60 * 24); 
+    if (!isOwner || isSharedItem) return false;
+    if (typeof post.canEdit === 'boolean') return post.canEdit;
+    const diffDays = (new Date() - new Date(post.createdAt)) / (1000 * 60 * 60 * 24);
     return diffDays <= 7;
   };
 
   const handleEditClick = (e) => {
     e.stopPropagation();
     clearError();
+    setShowMenu(false);
     if (!canEditPost()) {
       setError("Você só pode editar publicações feitas nos últimos 7 dias.");
       return;
@@ -93,62 +119,54 @@ export default function HeaderPost({ photo, name, post, date, isOpen = false, on
     }
   };
 
-  const handleNavigateProfile = async () => {
-    if (isFollowing !== null) {
-      clearError();
-      try {
-        const res = await getProfileById(idAuthor)
-        if (res.role === "PROFESSIONAL" || res.role === "professional") {
-          navigate(`/profile/professional/${idAuthor}-${handle}`);
-        } else {
-          navigate(`/profile/company/${idAuthor}-${handle}`);
-        }
-      } catch (err) {
-        console.log('Erro ao buscar profissional.', err)
-      }
-    }
-  };
+  const typeLabel = isSharedItem ? 'compartilhamento' : 'publicação';
+  const menuItemClass = "w-full flex items-center gap-2 px-4 py-2 text-sm text-left hover:bg-gray-100 focus-visible:bg-gray-100 cursor-pointer";
 
   return (
     <div className="relative flex flex-col gap-2 mb-4">
-      <div className="flex justify-between items-start">
-        <div className="flex flex-1 items-start max-w-full overflow-hidden mr-2">
-          <div className="w-[50px] h-[50px] md:w-[70px] md:h-[70px] rounded-full overflow-hidden mr-4">
-            <img src={photo} alt={name} className="w-full h-full object-cover" />
-          </div>
+      <div className="flex justify-between items-start gap-2">
+        <div className="flex flex-1 items-start min-w-0">
+          {profilePath ? (
+            <Link to={profilePath} tabIndex={-1} aria-hidden="true" onClick={(e) => e.stopPropagation()}
+              className="w-[50px] h-[50px] md:w-[70px] md:h-[70px] rounded-full overflow-hidden mr-3 sm:mr-4 flex-shrink-0">
+              <img src={photo} alt="" loading="lazy" className="w-full h-full object-cover" />
+            </Link>
+          ) : (
+            <div className="w-[50px] h-[50px] md:w-[70px] md:h-[70px] rounded-full overflow-hidden mr-3 sm:mr-4 flex-shrink-0">
+              <img src={photo} alt="" loading="lazy" className="w-full h-full object-cover" />
+            </div>
+          )}
 
-          <div className="flex flex-col justify-start max-w-2/3 sm:max-w-1/3 md:min-w-fit">
-            <p className={`font-semibold text-sm sm:text-base truncate ${
-                isFollowing !== null ? "text-[var(--purple-primary)] cursor-pointer hover:underline" : ""
-              }`}
-              onClick={handleNavigateProfile}
-            >
-              {name}
-            </p>
-            <p className="text-xs text-[var(--purple-primary)] capitalize flex items-center gap-y-1">
-              {post.communityId ? (
+          <div className="flex flex-col justify-start min-w-0">
+            {profilePath ? (
+              <Link to={profilePath} onClick={(e) => e.stopPropagation()}
+                className="font-semibold text-sm sm:text-base truncate text-[var(--purple-primary)] hover:underline focus-visible:underline">
+                {name}
+              </Link>
+            ) : (
+              <p className="font-semibold text-sm sm:text-base truncate">{name}</p>
+            )}
+            <p className="text-xs text-[var(--purple-primary)] flex items-center">
+              {(post.communityId ?? post.idCommunity) ? (
               <>
-                <Users size={14} className='mr-2'/> Comunidade
+                <Users size={14} className='mr-2' aria-hidden="true"/> Comunidade
               </>
             ) : localVisibility === 'PRIVADO' ? (
               <>
-                <Lock size={14} className='mr-2'/> Privado
+                <Lock size={14} className='mr-2' aria-hidden="true"/> Privado
               </>
             ) : (
               <>
-                <Globe size={14} className='mr-2'/> Público
+                <Globe size={14} className='mr-2' aria-hidden="true"/> Público
               </>
             )}
             </p>
-            <p className="text-xs text-gray-500">{date}</p>
+            <p className="text-xs text-gray-500">
+              <time dateTime={post.createdAt}>{date}</time>
+              {post.edited && <span className="italic"> · Editado</span>}
+            </p>
           </div>
         </div>
-
-        {onPostsUpdated === true && (
-          <div className="flex justify-end text-xs text-gray-500 italic">
-            Editado
-          </div>
-        )}
 
         {!isShare && !isOwner && isFollowing !== null && onFollowToggle && (
           <BtnCallToAction
@@ -158,141 +176,116 @@ export default function HeaderPost({ photo, name, post, date, isOpen = false, on
               onFollowToggle?.();
             }}
             variant={isFollowing ? 'white' : 'purple'}
+            aria-pressed={isFollowing}
+            aria-label={isFollowing ? `Deixar de seguir ${name}` : `Seguir ${name}`}
           >
             {isFollowing ? 'Seguindo' : 'Seguir'}
           </BtnCallToAction>
         )}
 
         {isOwner && !isOpen && (
-          <div className="relative flex-shrink-0">
+          <div ref={menuRef} className="relative flex-shrink-0">
             <button
+              type="button"
               onClick={(e) => {
                 e.stopPropagation()
                 clearError();
-                setShowVisibilityOptions(prev => !prev)
-                setShowVisibilityDropdown(false);
+                setShowMenu(prev => !prev)
               }}
-              title="Mais opções"
-              className="text-gray-600 hover:text-black text-xl px-2"
+              aria-label={`Mais opções do ${typeLabel}`}
+              aria-haspopup="menu"
+              aria-expanded={showMenu}
+              className="text-gray-600 hover:text-black p-2 rounded-md"
             >
-              ⋯
+              <MoreHorizontal size={20} aria-hidden="true" />
             </button>
 
-            {showVisibilityOptions && (
-              <div className="absolute right-0 mt-2 w-44 sm:w-52 md:w-56 bg-white border rounded-xl shadow-lg z-20 py-2">
-                <p
-                  className="flex items-center gap-2 px-4 py-2 text-sm hover:bg-gray-100 cursor-pointer"
-                  onClick={handleEditClick}
-                >
-                  <PencilIcon size={size} /> Editar postagem
-                </p>
-
-                {post.type !== "COMPARTILHAMENTO" && (
-                  <div className="relative">
-                    <p
-                      className="flex items-center gap-2 px-4 py-2 text-sm hover:bg-gray-100 cursor-pointer"
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        changeVisibility(localVisibility === 'PUBLICO' ? 'PRIVADO' : 'PUBLICO')
-                      }}>
-                      <Eye size={size}/> Alterar visibilidade
-                    </p>
-
-                    {showVisibilityDropdown && (
-                      <div className="absolute left-full top-0 ml-2 w-48 bg-white shadow-xl border rounded-xl z-50 p-2">
-                        {localVisibility === "PRIVADO" && (
-                          <p
-                            className="flex items-center gap-2 text-sm p-2 hover:bg-gray-100 cursor-pointer rounded-lg"
-                            onClick={(e) => {
-                              e.stopPropagation();
-                              changeVisibility('PUBLICO')
-                            }}
-                          >
-                            <Globe size={14} /> Visível para todos
-                          </p>
-                        )}
-                        {localVisibility === "PUBLICO" && (
-                          <p
-                            className="flex items-center gap-2 text-sm p-2 hover:bg-gray-100 cursor-pointer rounded-lg"
-                            onClick={() => changeVisibility('PRIVADO')}
-                          >
-                            <Lock size={14} /> Apenas você pode ver isso
-                          </p>
-                        )}
-                      </div>
-                    )}
-                  </div>
+            {showMenu && (
+              <div role="menu" className="absolute right-0 mt-2 w-48 sm:w-56 bg-white border rounded-xl shadow-lg z-20 py-2"
+                onClick={(e) => e.stopPropagation()}>
+                {!isSharedItem && (
+                  <button type="button" role="menuitem" className={menuItemClass} onClick={handleEditClick}>
+                    <PencilIcon size={size} aria-hidden="true" /> Editar publicação
+                  </button>
                 )}
 
-                <p
-                  className="flex items-center gap-2 px-4 py-2 text-sm text-red-600 hover:bg-gray-100 cursor-pointer"
-                  onClick={onDelete}
-                >
-                  <TrashIcon size={size} className="text-red-600" /> Excluir postagem
-                </p>
+                {!isSharedItem && (
+                  <button type="button" role="menuitem" className={menuItemClass}
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      changeVisibility(localVisibility === 'PUBLICO' ? 'PRIVADO' : 'PUBLICO')
+                    }}>
+                    <Eye size={size} aria-hidden="true"/> {localVisibility === 'PUBLICO' ? 'Tornar privada' : 'Tornar pública'}
+                  </button>
+                )}
+
+                <button type="button" role="menuitem" className={`${menuItemClass} text-red-600`} onClick={onDelete}>
+                  <TrashIcon size={size} className="text-red-600" aria-hidden="true" /> Excluir {typeLabel}
+                </button>
               </div>
             )}
           </div>
         )}
 
         {isOpen && isOwner && (
-          <div className="relative flex items-center gap-3 mr-6">
-            <button onClick={handleEditClick} title="Editar">
-              <Edit size={size} className="cursor-pointer hover:text-gray-700" />
-            </button>
-
-            <button onClick={onDelete} title="Excluir">
-              <Trash2 size={size} className="cursor-pointer hover:text-red-500" />
-            </button>
-
-            <div className="relative mt-1">
-              <button onClick={toggleVisibilityDropdown} title="Alterar visibilidade">
-                <Eye size={size} className="cursor-pointer hover:text-blue-600" />
+          <div ref={menuRef} className="relative flex items-center gap-3 mr-2 sm:mr-6" onClick={(e) => e.stopPropagation()}>
+            {!isSharedItem && (
+              <button type="button" onClick={handleEditClick} aria-label="Editar publicação" className="p-1">
+                <Edit size={size} className="cursor-pointer hover:text-gray-700" aria-hidden="true" />
               </button>
+            )}
 
-              {showVisibilityOptions && (
-                <div className="absolute right-0 mt-2 w-48 bg-white shadow-xl border rounded-xl z-10 p-2">
-                  <p
-                    className="flex items-center gap-2 text-sm p-2 hover:bg-gray-100 cursor-pointer rounded-lg"
-                    onClick={() => changeVisibility('PUBLICO')}
-                  >
-                    <Globe size={14} /> Visível para todos
-                  </p>
-                  <p
-                    className="flex items-center gap-2 text-sm p-2 hover:bg-gray-100 cursor-pointer rounded-lg"
-                    onClick={() => changeVisibility('PRIVADO')}
-                  >
-                    <Lock size={14} /> Apenas você pode ver isso
-                  </p>
-                </div>
-              )}
-            </div>
+            <button type="button" onClick={onDelete} aria-label={`Excluir ${typeLabel}`} className="p-1">
+              <Trash2 size={size} className="cursor-pointer hover:text-red-500" aria-hidden="true" />
+            </button>
+
+            {!isSharedItem && (
+              <div className="relative">
+                <button type="button" onClick={() => setShowVisibilityOptions(prev => !prev)} className="p-1"
+                  aria-label="Alterar visibilidade" aria-haspopup="menu" aria-expanded={showVisibilityOptions}>
+                  <Eye size={size} className="cursor-pointer hover:text-blue-600" aria-hidden="true" />
+                </button>
+
+                {showVisibilityOptions && (
+                  <div role="menu" className="absolute right-0 mt-2 w-52 bg-white shadow-xl border rounded-xl z-10 p-2">
+                    <button type="button" role="menuitemradio" aria-checked={localVisibility === 'PUBLICO'}
+                      className="w-full flex items-center gap-2 text-sm p-2 text-left hover:bg-gray-100 cursor-pointer rounded-lg"
+                      onClick={() => changeVisibility('PUBLICO')}
+                    >
+                      <Globe size={14} aria-hidden="true" /> Visível para todos
+                    </button>
+                    <button type="button" role="menuitemradio" aria-checked={localVisibility === 'PRIVADO'}
+                      className="w-full flex items-center gap-2 text-sm p-2 text-left hover:bg-gray-100 cursor-pointer rounded-lg"
+                      onClick={() => changeVisibility('PRIVADO')}
+                    >
+                      <Lock size={14} aria-hidden="true" /> Apenas você pode ver isso
+                    </button>
+                  </div>
+                )}
+              </div>
+            )}
           </div>
         )}
       </div>
 
       {error && (
-        <div className="text-sm text-red-600 mt-1 flex items-center gap-2">
-          <AlertCircle size={16} /> {error}
+        <div role="alert" className="text-sm text-red-600 mt-1 flex items-center gap-2">
+          <AlertCircle size={16} aria-hidden="true" /> {error}
         </div>
       )}
-      {successMsg && (
-        <div className="text-sm text-green-600 mt-1 flex items-center gap-2">
-          <CheckCircle size={16} /> {successMsg}
-        </div>
-      )}
+      {/* o selo Público/Privado já mostra a mudança; o aviso fica só para leitor de tela */}
+      <p role="status" className="sr-only">{successMsg}</p>
 
-      {showDeleteModal && (
-        <ConfirmModal
-          open={showDeleteModal}
-          title="Confirmar Exclusão"
-          message="Tem certeza que deseja excluir esta publicação?"
-          confirmText="Excluir"
-          cancelText="Cancelar"
-          onConfirm={() => handleConfirmDelete(post.id)}
-          onCancel={() => setShowDeleteModal(false)}
-        />
-      )}
+      <ConfirmModal
+        open={showDeleteModal}
+        title="Confirmar Exclusão"
+        message={`Tem certeza que deseja excluir este ${typeLabel}?`}
+        confirmText={deleting ? "Excluindo..." : "Excluir"}
+        cancelText="Cancelar"
+        loading={deleting}
+        onConfirm={handleConfirmDelete}
+        onCancel={() => setShowDeleteModal(false)}
+      />
     </div>
   );
 }

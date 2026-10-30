@@ -6,6 +6,7 @@ import { X } from 'lucide-react'
 import LabelInput from '../../../components/form/Label/LabelInput';
 import { postApplication } from '../../../services/applicationService'
 import BtnCallToAction from '../../../components/btn/BtnCallToAction/BtnCallToAction';
+import { getErrorMessage } from '../../../services/errorMessage';
 
 export default function ApplyJob({applyJobModal, setApplyJobModal}){
 
@@ -31,7 +32,7 @@ export default function ApplyJob({applyJobModal, setApplyJobModal}){
                 await postApplication(applyFormData)
                 navigate("/profissional/vagas/candidaturas")
             } catch(err) {
-                setErrorMessage(err.message || `Erro ao se candidatar à vaga de emprego`)
+                setErrorMessage(getErrorMessage(err, 'Sua candidatura não foi enviada.'))
                 setTimeout(() => setErrorMessage(null), 4000)
             }
         }

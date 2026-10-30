@@ -10,6 +10,8 @@ import { companyJobPostings, companyJobPostingDetail, deactivateJobPosting } fro
 import { maskField } from "../../components/form/Label/maskField";
 import LoadingSpinner from "../../components/LoadingSpinner/LoadingSpinner"
 import ConfirmModal from '../../components/ConfirmModal/ConfirmModal'
+import LoadError from '../../components/LoadError/LoadError';
+import { getErrorMessage } from '../../services/errorMessage';
 
 export default function CompanyJobsListing(){
 
@@ -37,7 +39,7 @@ export default function CompanyJobsListing(){
             const response = await companyJobPostings();
             setJobs(response);
         } catch(err) {
-            setError('Erro ao carregar vagas de emprego.');
+            setError(getErrorMessage(err, 'Não foi possível carregar suas vagas.'));
             console.error(err);
         } finally {
             setLoading(false);
@@ -55,13 +57,13 @@ export default function CompanyJobsListing(){
             setJobs(prev => prev.map(j => j.id === id ? { ...j, isActive: false } : j));
             fetchMyJobs();
         } catch (err) {
-            setErrorMessage(err.message || 'Erro ao desativar a vaga de emprego');
+            setErrorMessage(getErrorMessage(err, 'A vaga não foi desativada.'));
             setTimeout(() => setErrorMessage(null), 4000);
         }
     };
 
     if (loading) return ( <LoadingSpinner /> );
-    if (error) return <main className="pt-34"><p className="text-red-600">{error}</p></main>;
+    if (error) return <LoadError message={error} />;
 
     return(
         <main className='flex flex-col bg-[var(--light)] pt-10 pb-6 min-h-full'>

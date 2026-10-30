@@ -7,13 +7,13 @@ export default function CardDescriptionsProfile ({ title, content }) {
         <article
         className="bg-white text-[var(--purple-secundary)]
                     drop-shadow-md rounded-xl flex flex-col 
-                    w-full max-w-8xl p-8 z-0        "
+                    w-full max-w-8xl p-5 sm:p-8 z-0 min-w-0"
         >
-        <h2 className="text-2xl md:text-4xl font-semibold text-[var(--purple-secundary)] mb-4">
+        <h2 className="text-2xl md:text-4xl font-semibold text-[var(--purple-secundary)] mb-4 break-words">
             {title}
         </h2>
         {hasContent ? (
-            <p className="text-base md:text-xl text-[var(--text-secondary)] leading-relaxed">
+            <p className="text-base md:text-xl text-[var(--text-secondary)] leading-relaxed break-words whitespace-pre-line">
             {content}
             </p>
         ) : (

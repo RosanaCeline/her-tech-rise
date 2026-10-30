@@ -6,6 +6,7 @@ import { newPost, updatePost } from '../../services/timelineService'
 import BtnCallToAction from '../btn/BtnCallToAction/BtnCallToAction'
 import LabelInput from "../form/Label/LabelInput"
 import ConfirmModal from '../ConfirmModal/ConfirmModal'
+import { getErrorMessage } from '../../services/errorMessage';
 
 export default function ManagePost({user, setActivePopUp, formData, setFormData, isEdit, onSuccess, onClose }){
 
@@ -16,6 +17,7 @@ export default function ManagePost({user, setActivePopUp, formData, setFormData,
     const [errorMessage, setErrorMessage] = useState('');
     const [cancelModalOpen, setCancelModalOpen] = useState(false);
     const [mediaUrls, setMediaUrls] = useState([]);
+    const [submitting, setSubmitting] = useState(false);
 
     const changeVisibility = (visibility) => {
         setFormData(prev => ({ ...prev, visibility: visibility }));
@@ -26,9 +28,12 @@ export default function ManagePost({user, setActivePopUp, formData, setFormData,
     };
 
     const handleSubmit = async () => {
-        if (formData.content !== '' || formData.media.length > 0) {
+        if (submitting) return;
+        if (formData.content.trim() !== '' || formData.media.length > 0) {
             setErrorMessage('');
+            setSubmitting(true);
             try {
+                let response;
                 if (isEdit && formData.postId) {
                     const mediasFormatted = formData.media
                         .filter(media => media.id)
@@ -47,18 +52,25 @@ export default function ManagePost({user, setActivePopUp, formData, setFormData,
                         ...(newFiles.length > 0 && { newFiles }), 
                     };
 
-                    await updatePost(formData.postId, formDataUpdated);
-                    window.location.reload()
+                    response = await updatePost(formData.postId, formDataUpdated);
                 } else {
-                    await newPost(formData) 
-                    window.location.reload()
+                    response = await newPost(formData);
+                    if (!response) return;
                 }
 
-                if (onSuccess) onSuccess();  
-                setActivePopUp('')
+                // quem abriu o formulário atualiza a própria lista; sem callback, recarrega a página como antes
+                if (!onSuccess) {
+                    window.location.reload();
+                    return;
+                }
+                setFormData({ content: '', media: [], visibility: 'PUBLICO' });
+                setActivePopUp('');
+                onSuccess(response?.post ?? null);
             } catch (err) {
-                setPostErrorMessage(err.message || 'Erro ao salvar')
+                setPostErrorMessage(getErrorMessage(err, 'A publicação não foi salva, mas o texto continua aqui.'))
                 setTimeout(() => setPostErrorMessage(null), 4000)
+            } finally {
+                setSubmitting(false);
             }
         } else {
             setErrorMessage("Insira pelo menos um texto ou anexo para publicar.")
@@ -125,35 +137,42 @@ export default function ManagePost({user, setActivePopUp, formData, setFormData,
             <div className="flex justify-between">
                 <div className="flex items-center">
                     <div className="relative w-[40px] h-[40px] sm:w-[60px] sm:h-[60px] flex-shrink-0 mr-4">
-                        <img src={user.profileURL} className="h-full w-full object-cover rounded-full"/>
+                        <img src={user.profileURL} alt="" className="h-full w-full object-cover rounded-full"/>
                     </div>
                     <div className="flex flex-col sm:flex-row">
                         <div className="flex flex-col items-start gap-y-1 justify-start">
                             <p className='text-sm sm:text-base font-medium truncate max-w-[140px] sm:max-w-none'>{user.userName}</p>
-                            <div className="flex text-(--purple-primary) items-center gap-x-1.5 cursor-pointer" 
+                            <button type="button" className="flex text-(--purple-primary) items-center gap-x-1.5 cursor-pointer"
+                                aria-expanded={changeVisibilityPopup}
+                                aria-label={`Visibilidade: ${formData.visibility === 'PUBLICO' ? 'pública' : 'privada'}. Alterar`}
                                 onClick={() => setChangeVisibilityPopup(!changeVisibilityPopup)}>
                                     {formData.visibility === 'PUBLICO' 
-                                    ? (<><Earth className="w-5 h-5"/>Pública</>)
-                                    : (<><Lock className="w-5 h-5"/>Privada</>)}
-                            </div>
+                                    ? (<><Earth className="w-5 h-5" aria-hidden="true"/>Pública</>)
+                                    : (<><Lock className="w-5 h-5" aria-hidden="true"/>Privada</>)}
+                            </button>
                         </div>
                         {changeVisibilityPopup && (
                             <div className="sm:ml-3 flex flex-row sm:flex-col p-1 gap-2 sm:gap-y-1">
-                                <p className="p-2 text-xs bg-slate-100 hover:bg-slate-200 rounded-xl cursor-pointer" 
+                                <button type="button" className="p-2 text-xs bg-slate-100 hover:bg-slate-200 rounded-xl cursor-pointer"
+                                aria-pressed={formData.visibility === 'PUBLICO'}
                                 onClick={() => changeVisibility('PUBLICO')}>
-                                    Visível para todos</p>
-                                <p className="p-2 text-xs bg-slate-100 hover:bg-slate-200 rounded-xl cursor-pointer"
+                                    Visível para todos</button>
+                                <button type="button" className="p-2 text-xs bg-slate-100 hover:bg-slate-200 rounded-xl cursor-pointer"
+                                aria-pressed={formData.visibility === 'PRIVADO'}
                                 onClick={() => changeVisibility('PRIVADO')}>
-                                    Apenas você pode ver isso</p>
+                                    Apenas você pode ver isso</button>
                             </div>
                         )}
                     </div>
                 </div>
-                <X className="cursor-pointer" onClick={() => (formData.content !== '' || formData.media.length !== 0) ? setCancelModalOpen(true) : (setActivePopUp(''), onClose?.())}/>
+                <button type="button" aria-label="Fechar" className="self-start cursor-pointer"
+                    onClick={() => (formData.content !== '' || formData.media.length !== 0) ? setCancelModalOpen(true) : (setActivePopUp(''), onClose?.())}>
+                    <X aria-hidden="true"/>
+                </button>
             </div>
 
             <div className='flex flex-col mt-3'>
-            <LabelInput  theme='black' errorTheme="dark" placeholder="Digite sua publicação" type="mensagem" value={formData.content} required={!formData.media.length}
+            <LabelInput  theme='black' errorTheme="dark" placeholder="Digite sua publicação" ariaLabel="Texto da publicação" type="mensagem" value={formData.content} required={!formData.media.length}
                 onChange={(e) => setFormData(prev => ({ ...prev, content: e.target.value }))}/></div>
 
             {formData.media.some(file => (file.type?.startsWith?.('image/') || file.mediaType === 'IMAGE')) && (
@@ -161,10 +180,10 @@ export default function ManagePost({user, setActivePopUp, formData, setFormData,
                     {mediaUrls.map(({file, url}, index) => {
                         return(
                             <div key={index} className='relative inline-block mr-4 min-w-[8rem]'>
-                                {(file.type?.startsWith?.('image/') || file.mediaType === 'IMAGE') && <img src={url} alt="Preview" className="w-full h-32 object-cover rounded shadow"/>}
-                                <button onClick={() => handleRemove(file)} 
+                                {(file.type?.startsWith?.('image/') || file.mediaType === 'IMAGE') && <img src={url} alt={`Prévia da imagem ${index + 1}`} className="w-full h-32 object-cover rounded shadow"/>}
+                                <button type="button" aria-label={`Remover imagem ${index + 1}`} onClick={() => handleRemove(file)} 
                                 className='absolute top-1 right-1 bg-(--purple-primary) text-white rounded-full w-9 h-9 flex items-center justify-center hover:bg-(--purple-action)'>
-                                    <Trash2 />
+                                    <Trash2 aria-hidden="true"/>
                                 </button>
                             </div>
                         )
@@ -188,8 +207,8 @@ export default function ManagePost({user, setActivePopUp, formData, setFormData,
                                 className="flex-grow text-center text-sm text-blue-600 hover:underline truncate">
                                     {label}
                                 </a>
-                                <button type='button' onClick={() => handleRemove(file)} className="ml-4">
-                                    <X/>
+                                <button type='button' aria-label={`Remover ${label}`} onClick={() => handleRemove(file)} className="ml-4">
+                                    <X aria-hidden="true"/>
                                 </button>
                             </div>
                         );
@@ -199,24 +218,22 @@ export default function ManagePost({user, setActivePopUp, formData, setFormData,
             <div className="flex justify-between gap-x-3">
                 <div className="border border-(--font-gray) p-3 rounded-2xl flex gap-x-4 items-center">
                     <p className='hidden md:flex'>Adicionar à publicação</p>
-                    <Image 
-                        className="transition duration-300 hover:scale-110 cursor-pointer text-(--purple-primary) h-8 w-8"
-                        onClick={() => setActivePopUp('image')}
-                    />
-                    <Files 
-                        className="transition duration-300 hover:scale-110 cursor-pointer text-(--purple-primary) h-6 w-6 sm:h-8 sm:w-8"
-                        onClick={() => setActivePopUp('docs')}
-                    />
+                    <button type="button" aria-label="Adicionar imagem" onClick={() => setActivePopUp('image')}>
+                        <Image aria-hidden="true" className="transition duration-300 hover:scale-110 cursor-pointer text-(--purple-primary) h-8 w-8"/>
+                    </button>
+                    <button type="button" aria-label="Adicionar documento" onClick={() => setActivePopUp('docs')}>
+                        <Files aria-hidden="true" className="transition duration-300 hover:scale-110 cursor-pointer text-(--purple-primary) h-6 w-6 sm:h-8 sm:w-8"/>
+                    </button>
                 </div>
-                <BtnCallToAction variant="purple" onClick={handleSaveClick} >
-                                {isEdit ? "Salvar Alterações" : "Publicar"}
+                <BtnCallToAction variant="purple" onClick={handleSaveClick} disabled={submitting} aria-busy={submitting || undefined}>
+                                {submitting ? (isEdit ? "Salvando..." : "Publicando...") : (isEdit ? "Salvar Alterações" : "Publicar")}
                 </BtnCallToAction>
             </div>
         
-            {errorMessage && <p className='text-center mt-2'>{errorMessage}</p>}
+            {errorMessage && <p role="alert" className='text-center mt-2'>{errorMessage}</p>}
             
             {postErrorMessage && (
-                <div className="fixed top-1/12 left-1/2 transform -translate-x-1/2 -translate-y-1/2 
+                <div role="alert" className="fixed top-1/12 left-1/2 transform -translate-x-1/2 -translate-y-1/2 
                                 z-50 bg-red-600 text-white px-6 py-3 rounded-lg shadow-lg 
                                 transition-opacity duration-300">
                     {postErrorMessage}
@@ -253,4 +270,4 @@ export default function ManagePost({user, setActivePopUp, formData, setFormData,
 
         </div>
     )
-}
+}

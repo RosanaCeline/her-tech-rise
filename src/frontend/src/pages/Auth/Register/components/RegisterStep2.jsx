@@ -65,7 +65,7 @@ export default function RegisterStep2({formData, handleChange, fetchCPF, fetchCN
                         <LabelInput         label="Telefone:"                   theme='white'           type='tel'
                                             name='telefone'                     autoComplete='tel-national'
                                             required={true}                     validation='telefone' 
-                                            maxLength='15'                      placeholder='Digite seu telefone'
+                                            maxLength='20'                      placeholder='Digite seu telefone'
                                             value={formData.telefone}           onChange={(e) => handleChange('telefone', maskField('telefone', e.target.value))}/>
                     </div>
                 </div>

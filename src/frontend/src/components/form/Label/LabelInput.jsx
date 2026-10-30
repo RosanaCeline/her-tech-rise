@@ -18,23 +18,38 @@ export default function LabelInput ({   name,
                                         disabled = false,
                                         errorTheme = 'light',
                                         autoComplete,
-                                        inputMode
+                                        inputMode,
+                                        onKeyDown,
+                                        ariaLabel,
+                                        error: externalError = null,
+                                        hint = ''
                                     }) {
  
-    const [error, setError] = useState(null);
+    const [localError, setLocalError] = useState(null);
+    // erro do blur tem prioridade; o externo vem da validação no envio do formulário
+    const error = localError || externalError;
     const autoId = useId();
     const inputId = name || autoId;
     const errorId = `${inputId}-erro`;
+    const hintId = `${inputId}-dica`;
+    const describedBy = [hint && !error && hintId, error && errorId].filter(Boolean).join(' ');
     const a11yProps = {
         'aria-invalid': error ? true : undefined,
-        'aria-describedby': error ? errorId : undefined,
+        'aria-describedby': describedBy || undefined,
         'aria-required': required || undefined,
+        'aria-label': !label && ariaLabel ? ariaLabel : undefined,
     };
     const [showPassword, setShowPassword] = useState(false);
  
     const handleBlur = () => {
         const validationError = validateField(validation, value, required);
-        setError(validationError);
+        setLocalError(validationError);
+    };
+
+    // com erro na tela, revalida a cada digitação para o aviso sumir assim que o valor ficar certo
+    const handleChange = (e) => {
+        if (localError) setLocalError(validateField(validation, e.target.value, required));
+        onChange?.(e);
     };
  
     const baseInputClasses = `
@@ -65,7 +80,7 @@ export default function LabelInput ({   name,
     `
 
     return (
-        <div className="w-full mt-auto">
+        <div className="w-full min-w-0 self-start">
             {(label && type !== 'checkbox')&& (
                 <label htmlFor={inputId} className={baseLabelClasses}>
                 {label} {required && <span className={`text-${theme}`}>*</span>}
@@ -102,7 +117,7 @@ export default function LabelInput ({   name,
                     {...a11yProps}
                     autoComplete={autoComplete}
                     value={value}
-                    onChange={onChange}
+                    onChange={handleChange}
                     onBlur={handleBlur}
                     ref={ref}
                     className={`${baseInputClasses} appearance-none pr-10`}
@@ -128,9 +143,11 @@ export default function LabelInput ({   name,
                 name={name}
                 {...a11yProps}
                 value={value}
-                onChange={onChange}
+                onChange={handleChange}
+                onKeyDown={onKeyDown}
                 onBlur={handleBlur}
                 placeholder={placeholder}
+                maxLength={maxLength || undefined}
                 rows={6}
                 className={`${baseInputClasses} resize-none whitespace-normal`}
                 />
@@ -141,7 +158,7 @@ export default function LabelInput ({   name,
                         name={name}
                         {...a11yProps}
                         autoComplete={autoComplete}
-                        inputMode={inputMode}
+                        inputMode={inputMode || (type === 'tel' ? 'tel' : undefined)}
                         type={
                             type === 'senha'
                                 ? showPassword ? 'text' : 'password'
@@ -149,11 +166,14 @@ export default function LabelInput ({   name,
                                 ? 'email'
                                 : type === 'date'
                                 ? 'date'
+                                : type === 'tel'
+                                ? 'tel'
                                 : 'text'
                         }
                         value={value}
-                        onChange={onChange}
+                        onChange={handleChange}
                         onClick={onClick}
+                        onKeyDown={onKeyDown}
                         onBlur={handleBlur}
                         placeholder={placeholder}
                         className={`${baseInputClasses} pr-12`}
@@ -174,6 +194,12 @@ export default function LabelInput ({   name,
                         </button>
                     )}
                 </div>
+            )}
+
+            {hint && !error && (
+                <p id={hintId} className={`mt-2 text-sm text-left text-${theme}`}>
+                    {hint}
+                </p>
             )}
 
             {error && (

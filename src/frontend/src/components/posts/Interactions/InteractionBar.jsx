@@ -1,4 +1,5 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef, useId } from "react";
+import { Link } from "react-router-dom";
 import { Heart, MessageCircle, Share, Earth, Trash2, CornerUpLeft, Send } from "lucide-react";
 
 import PopUpBlurProfile from "../../../components/Cards/Profile/PopUpBlurProfile";
@@ -6,136 +7,262 @@ import CardPostProfile from "../../Cards/Posts/CardPostProfile";
 import BtnCallToAction from "../../btn/BtnCallToAction/BtnCallToAction";
 import LabelInput from "../../form/Label/LabelInput";
 import ConfirmModal from "../../ConfirmModal/ConfirmModal";
+import LikesModal from "./LikesModal";
 
 import { useError } from "../../../context/ErrorContext";
 import { getCurrentUser } from "../../../services/authService";
-import { followUser, unfollowUser } from "../../../services/userService";
+import { getProfilePath } from "../../../services/profileLink";
+import { getErrorMessage } from "../../../services/errorMessage";
+import defaultProfessionalPhoto from "../../../assets/profile/FotoPadraoProfissional.png";
 import { sendLikePost, getLikesPost,
-            sendCommentPost, getCommentsPost, sendLikeComment, getLikesComment, deleteCommentsPost, 
+            sendCommentPost, getCommentsPost, sendLikeComment, getLikesComment, deleteCommentsPost,
             sendSharePost, sendLikeShare, getLikesShare, sendCommentShare, getCommentsShare,
         } from "../../../services/interactionsService";
 
-function CommentInput({ value, onChange, onKeyDown, onSend, placeholder, profileURL, isCompact }) {
+const formatDateTime = (value) => new Intl.DateTimeFormat("pt-BR", { dateStyle: "short", timeStyle: "short" }).format(new Date(value));
+
+function CommentInput({ value, onChange, onSend, placeholder, label, profileURL, sending }) {
     return (
         <div className="flex items-start gap-2 w-full min-w-0 pt-3">
             <img
                 src={profileURL}
+                alt=""
                 className="w-9 h-9 sm:w-11 sm:h-11 rounded-full object-cover flex-shrink-0"
             />
             <div className="flex-1 min-w-0">
                 <LabelInput
                     placeholder={placeholder}
+                    ariaLabel={label}
                     value={value}
                     onChange={onChange}
-                    onKeyDown={onKeyDown}
+                    onKeyDown={(e) => {
+                        if (e.key === "Enter" && !e.shiftKey) {
+                            e.preventDefault();
+                            onSend();
+                        }
+                    }}
                 />
             </div>
             <button
+                type="button"
                 onClick={onSend}
-                className="flex-shrink-0 flex items-center justify-center bg-[var(--purple-primary)] text-white rounded-lg hover:opacity-90 transition px-3 py-2"
+                disabled={sending || !value.trim()}
+                aria-label={label}
+                className="flex-shrink-0 flex items-center justify-center bg-[var(--purple-primary)] text-white rounded-lg hover:opacity-90 transition px-3 py-2 disabled:opacity-60 disabled:cursor-not-allowed"
             >
-                <Send size={16} className="sm:hidden" />
-                {!isCompact && <span className="text-xs">Enviar</span>}
+                <Send size={16} className="@md:hidden" aria-hidden="true" />
+                <span className="hidden @md:inline text-xs">{sending ? "Enviando..." : "Enviar"}</span>
             </button>
         </div>
     );
 }
 
-export default function InteractionBar({ idAuthor, post, photo, name, cardWidth = 600 }) {
+function CommentItem({ comment, isReply = false, canDelete, onToggleLike, onShowLikes, onReply, isReplying, onDelete, children }) {
+    const profilePath = getProfilePath(comment.userId, comment.userHandle, comment.userType);
+    const liked = !!comment.likedByMe;
+    const likes = comment.countCommentLikes ?? 0;
+
+    return (
+        <div className="flex gap-3 w-full min-w-0">
+            <img
+                src={comment.userAvatarUrl || defaultProfessionalPhoto}
+                alt=""
+                loading="lazy"
+                className={`${isReply ? "w-8 h-8" : "w-9 h-9"} rounded-full object-cover flex-shrink-0 mt-1`}
+            />
+            <div className="flex flex-col w-full min-w-0">
+                <div className="flex justify-between items-start gap-2">
+                    {profilePath ? (
+                        <Link to={profilePath} className="font-semibold text-sm truncate text-[var(--purple-primary)] hover:underline">{comment.userName}</Link>
+                    ) : (
+                        <p className="font-semibold text-sm truncate">{comment.userName}</p>
+                    )}
+                    <time dateTime={comment.createdAt} className="text-xs text-gray-500 whitespace-nowrap flex-shrink-0">
+                        {formatDateTime(comment.createdAt)}
+                    </time>
+                </div>
+                <p className="mt-1 text-sm text-gray-700 break-words whitespace-pre-wrap">{comment.content}</p>
+
+                <div className="flex items-center gap-4 mt-2 flex-wrap text-xs">
+                    <button
+                        type="button"
+                        onClick={() => onToggleLike(comment)}
+                        aria-pressed={liked}
+                        aria-label={liked ? `Descurtir comentário de ${comment.userName}` : `Curtir comentário de ${comment.userName}`}
+                        className={`flex items-center gap-1 cursor-pointer transition hover:text-purple-600 ${liked ? "text-purple-700" : "text-gray-500"}`}
+                    >
+                        <Heart fill={liked ? "var(--purple-primary)" : "transparent"} stroke="currentColor" size={14} aria-hidden="true" />
+                        <span>{liked ? "Curtido" : "Curtir"}</span>
+                    </button>
+
+                    {likes > 0 && (
+                        <button
+                            type="button"
+                            onClick={() => onShowLikes(comment.id)}
+                            aria-label={`Ver quem curtiu (${likes} ${likes === 1 ? "curtida" : "curtidas"})`}
+                            className="text-gray-500 hover:text-purple-600 hover:underline cursor-pointer"
+                        >
+                            {likes} {likes === 1 ? "curtida" : "curtidas"}
+                        </button>
+                    )}
+
+                    {!isReply && (
+                        <button
+                            type="button"
+                            className="flex items-center gap-1 cursor-pointer text-gray-500 transition hover:text-purple-600"
+                            aria-expanded={isReplying}
+                            onClick={() => onReply(comment.id)}
+                        >
+                            <CornerUpLeft size={14} aria-hidden="true" />
+                            <span>Responder</span>
+                        </button>
+                    )}
+
+                    {canDelete && (
+                        <button
+                            type="button"
+                            className="flex items-center gap-1 text-red-500 hover:text-red-700 cursor-pointer"
+                            aria-label={`Excluir comentário de ${comment.userName}`}
+                            onClick={() => onDelete(comment)}
+                        >
+                            <Trash2 size={14} aria-hidden="true" />
+                            <span>Excluir</span>
+                        </button>
+                    )}
+                </div>
+
+                {children}
+            </div>
+        </div>
+    );
+}
+
+export default function InteractionBar({ idAuthor, post, photo, name, onStatsChange = null }) {
 
     const currentUser = getCurrentUser();
     const user = {
         userName: currentUser.name,
         profileURL: currentUser.profilePicture
     };
-    const [formData, setFormData] = useState({
-        content: "",
-        media: [],
-        visibility: "PUBLICO",
-    });
+    const { showError } = useError();
+    const commentsId = useId();
+    const isPost = post.type === "POSTAGEM";
+    const isShareItem = post.type === "COMPARTILHAMENTO";
 
-    const [hasLiked, setHasLiked] = useState(false);
-    const [likesCount, setLikesCount] = useState(0);
-    const [listLikes, setListLikes] = useState([]);
+    const [hasLiked, setHasLiked] = useState(post.likedByMe ?? false);
+    const [likesCount, setLikesCount] = useState(post.countLike || 0);
+    const [commentsCount, setCommentsCount] = useState(post.countComment || 0);
+    const [shareCount, setShareCount] = useState(post.countShares || 0);
+    const pending = useRef(new Set());
+
     const [showLikesModal, setShowLikesModal] = useState(false);
-    const [listLikesComment, setListLikesComment] = useState([]);
-    const [showLikesCommentModal, setShowLikesCommentModal] = useState(false);
+    const [likesCommentId, setLikesCommentId] = useState(null);
 
-    const [commentsCount, setCommentsCount] = useState(0);
+    const [showComments, setShowComments] = useState(false);
+    const [commentsStatus, setCommentsStatus] = useState("idle");
     const [listComments, setListComments] = useState([]);
-    const [showCommentsInput, setShowCommentsInput] = useState(false);
     const [newComment, setNewComment] = useState("");
     const [commentsToShow, setCommentsToShow] = useState(2);
-    const [likedComments, setLikedComments] = useState(new Set());
-    const [selectedCommentId, setSelectedCommentId] = useState(null);
-
+    const [sendingComment, setSendingComment] = useState(false);
     const [replyingToCommentId, setReplyingToCommentId] = useState(null);
     const [replyContent, setReplyContent] = useState("");
-    const [isFollowingLocal, setIsFollowingLocal] = useState(post?.author?.isFollowed ?? false);
+    const [commentToDelete, setCommentToDelete] = useState(null);
+    const [deletingComment, setDeletingComment] = useState(false);
 
-    const { showError } = useError();
-    const [shareCount, setShareCount] = useState(0);
     const [showShareModal, setShareModal] = useState(false);
-    const [showDeleteModal, setShowDeleteModal] = useState(false);
+    const [shareContent, setShareContent] = useState("");
+    const [sharing, setSharing] = useState(false);
     const [showConfirmCancel, setShowConfirmCancel] = useState(false);
+    const [shareStatus, setShareStatus] = useState("");
 
-    const isCompact = cardWidth < 450;
-    
-    const sendLike = async () => {
+    // acompanha os valores vindos do pai (ex.: o mesmo post aberto no pop-up e no feed)
+    useEffect(() => { if (typeof post.likedByMe === "boolean") setHasLiked(post.likedByMe); }, [post.likedByMe]);
+    useEffect(() => { setLikesCount(post.countLike || 0); }, [post.countLike]);
+    useEffect(() => { setCommentsCount(post.countComment || 0); }, [post.countComment]);
+    useEffect(() => { setShareCount(post.countShares || 0); }, [post.countShares]);
+
+    // quem não envia `likedByMe` (telas antigas) continua descobrindo a curtida pela lista
+    useEffect(() => {
+        if (typeof post.likedByMe === "boolean" || !post?.id) return;
+        let ignore = false;
+        const request = isShareItem ? getLikesShare(post.id) : getLikesPost(post.id);
+        request
+            .then((list) => {
+                if (!ignore && Array.isArray(list)) setHasLiked(list.some((like) => like.userId === currentUser.id));
+            })
+            .catch((error) => console.error("Erro ao buscar curtidas:", error));
+        return () => { ignore = true; };
+    }, [post.id, post.likedByMe, isShareItem, currentUser.id]);
+
+    const runOnce = async (key, action) => {
+        if (pending.current.has(key)) return;
+        pending.current.add(key);
         try {
-            if(post.type === 'POSTAGEM') await sendLikePost(post.id);
-            if(post.type === 'COMPARTILHAMENTO') await sendLikeShare(post.id);
-            const willLike = !hasLiked;
-            setHasLiked(willLike);
-            setLikesCount((prevCount) =>
-                willLike ? prevCount + 1 : Math.max(prevCount - 1, 0)
-            );
-            if(willLike) {
-                setListLikes(prev => [
-                    ...prev,
-                    {
-                        id: currentUser.id,
-                        userName: currentUser.name,
-                        userAvatarUrl: currentUser.profilePicture,
-                        createdAt: new Date().toISOString(),
-                    }
-                ]);
-            } else {
-                setListLikes(prev => prev.filter(user => user.id !== currentUser.id));
-            }
-        } catch (error) {
-            console.error("Erro ao curtir post:", error);
-            showError("Erro ao curtir. Tente novamente.");
+            await action();
+        } finally {
+            pending.current.delete(key);
         }
     };
 
-    const sendComment = async (isReply = false, parentComment = null) => {
-        const contentToSend = isReply ? replyContent.trim() : newComment.trim();
-        if (!contentToSend) return;
+    const sendLike = () => runOnce("like", async () => {
+        const willLike = !hasLiked;
+        const nextCount = Math.max(likesCount + (willLike ? 1 : -1), 0);
+        setHasLiked(willLike);
+        setLikesCount(nextCount);
         try {
-            const payload = { content: contentToSend };
-            if (isReply && parentComment) {
-                payload.parentCommentId = Number(parentComment);
-            }
-            let createdComment;
-            if(post.type === 'POSTAGEM'){
-                createdComment = await sendCommentPost(post.id, payload)
-            } else if(post.type === 'COMPARTILHAMENTO'){
-                createdComment = await sendCommentShare(post.id, payload)
-            }
-            setListComments(prev => [
+            if (isShareItem) await sendLikeShare(post.id);
+            else await sendLikePost(post.id);
+            onStatsChange?.({ likedByMe: willLike, countLike: nextCount });
+        } catch (error) {
+            console.error("Erro ao curtir post:", error);
+            setHasLiked(!willLike);
+            setLikesCount(likesCount);
+            showError(getErrorMessage(error, "Não foi possível curtir a publicação."));
+        }
+    });
+
+    const loadComments = async () => {
+        setCommentsStatus("loading");
+        try {
+            const list = isShareItem ? await getCommentsShare(post.id) : await getCommentsPost(post.id);
+            setListComments(Array.isArray(list) ? list : []);
+            setCommentsStatus("idle");
+        } catch (error) {
+            console.error("Erro ao buscar comentários:", error);
+            setCommentsStatus("error");
+        }
+    };
+
+    const toggleComments = () => {
+        if (!showComments) loadComments();
+        setShowComments((prev) => !prev);
+    };
+
+    const sendComment = (parentCommentId = null) => runOnce("comment", async () => {
+        const isReply = parentCommentId !== null;
+        const contentToSend = (isReply ? replyContent : newComment).trim();
+        if (!contentToSend) return;
+        setSendingComment(true);
+        try {
+            const payload = { content: contentToSend, parentCommentId: isReply ? Number(parentCommentId) : null };
+            const created = isShareItem
+                ? await sendCommentShare(post.id, payload)
+                : await sendCommentPost(post.id, payload);
+
+            setListComments((prev) => [
                 {
-                    id: createdComment.id, 
-                    content: contentToSend,
-                    userId: currentUser.id,
-                    userName: currentUser.name,
-                    userAvatarUrl: currentUser.profilePicture,
-                    createdAt: new Date().toISOString(),
-                    parentComment: isReply ? Number(parentComment) : null,
+                    ...created,
+                    userHandle: created?.userHandle,
+                    userAvatarUrl: created?.userAvatarUrl ?? currentUser.profilePicture,
+                    parentComment: created?.parentComment ?? payload.parentCommentId,
+                    countCommentLikes: 0,
+                    likedByMe: false,
                 },
                 ...prev
             ]);
-            setCommentsCount(prev => prev + 1);
+            const nextCount = commentsCount + 1;
+            setCommentsCount(nextCount);
+            onStatsChange?.({ countComment: nextCount });
             if (isReply) {
                 setReplyContent("");
                 setReplyingToCommentId(null);
@@ -144,175 +271,114 @@ export default function InteractionBar({ idAuthor, post, photo, name, cardWidth 
             }
         } catch (error) {
             console.error("Erro ao enviar comentário:", error);
-            showError("Erro ao enviar comentário. Tente novamente.");
+            showError(getErrorMessage(error, "Seu comentário não foi enviado, mas o texto continua no campo."));
+        } finally {
+            setSendingComment(false);
         }
+    });
+
+    const updateComment = (commentId, changes) => {
+        setListComments((prev) => prev.map((c) => (c.id === commentId ? { ...c, ...changes } : c)));
     };
 
-    const sendLikeToComment = async (commentId) => {
+    const toggleCommentLike = (comment) => runOnce(`comment-like-${comment.id}`, async () => {
+        const liked = !!comment.likedByMe;
+        const count = comment.countCommentLikes ?? 0;
+        updateComment(comment.id, { likedByMe: !liked, countCommentLikes: Math.max(count + (liked ? -1 : 1), 0) });
         try {
-            const alreadyLiked = likedComments.has(commentId);
-            await sendLikeComment(commentId)
-            console.log('Curtindo o comentário ', commentId)
-            setLikedComments(prev => {
-                const newSet = new Set(prev);
-                if (alreadyLiked){
-                    newSet.delete(commentId);
-                    console.log('Descurtindo o comentário ', commentId)
-                }
-                else newSet.add(commentId);
-                return newSet;
-            });
+            await sendLikeComment(comment.id);
         } catch (error) {
             console.error("Erro ao curtir comentário:", error);
-            showError("Erro ao curtir comentário. Tente novamente.");
+            updateComment(comment.id, { likedByMe: liked, countCommentLikes: count });
+            showError(getErrorMessage(error, "Não foi possível curtir o comentário."));
         }
-    };
-
-    const sendShare = async (content) => {
-        if (post.type !== "POSTAGEM") return;
-        try {
-            await sendSharePost(post.id, content);
-            setShareModal(false);
-            setFormData({ content: "", media: [], visibility: "PUBLICO" });
-            setShareCount((prev) => prev + 1);
-        } catch (error) {
-            console.error("Erro ao compartilhar:", error);
-            showError("Erro ao compartilhar. Tente novamente.");
-        }
-    };
-
-    const getListLikes = async (modal = true) => {
-        try {
-            let list = [];
-            if (post.type === "POSTAGEM") list = await getLikesPost(post.id);
-            else if (post.type === "COMPARTILHAMENTO")  list = await getLikesShare(post.id);
-            setListLikes(list);
-            setLikesCount(list.length);
-            if (modal) setShowLikesModal(true);
-            return list;
-        } catch (error) {
-            console.error("Erro ao pegar lista de curtidas:", error);
-            return [];
-        }
-    };
-
-    const getListComments = async () => {
-        try {
-            let list = [];
-            if (post.type === "POSTAGEM") list = await getCommentsPost(post.id);
-            else if (post.type === "COMPARTILHAMENTO") list = await getCommentsShare(post.id);
-            setListComments(list);
-
-            const likeResults = await Promise.all(list.map(c => getLikesComment(c.id)));
-            const likedIds = new Set(
-                list
-                    .filter((_, i) => likeResults[i].some(like => like.userId === currentUser.id))
-                    .map(c => c.id)
-            );
-            setLikedComments(likedIds);
-        } catch (error) {
-            console.error("Erro ao buscar comentários:", error);
-        }
-    };
-
-    const getListLikesComment = async (idComment) => {
-        try {
-            let likes = await getLikesComment(idComment);
-            setListLikesComment(likes);
-            setShowLikesCommentModal(true);
-        } catch (error) {
-            console.error("Erro ao buscar curtidas do comentário:", error);
-        }
-    };
+    });
 
     const handleDeleteComment = async () => {
+        if (!commentToDelete || deletingComment) return;
+        setDeletingComment(true);
         try {
-            await deleteCommentsPost(selectedCommentId);
-            setListComments((prev) => prev.filter((c) => c.id !== selectedCommentId));
-            setCommentsCount((prev) => prev - 1);
-            setShowDeleteModal(false);
-            setSelectedCommentId(null);
+            await deleteCommentsPost(commentToDelete.id);
+            // as respostas são apagadas junto com o comentário no banco
+            const removedIds = new Set([commentToDelete.id]);
+            listComments.forEach((c) => { if (c.parentComment === commentToDelete.id) removedIds.add(c.id); });
+            setListComments((prev) => prev.filter((c) => !removedIds.has(c.id)));
+            const nextCount = Math.max(commentsCount - removedIds.size, 0);
+            setCommentsCount(nextCount);
+            onStatsChange?.({ countComment: nextCount });
+            setCommentToDelete(null);
         } catch (error) {
             console.error("Erro ao excluir comentário:", error);
-            showError("Erro ao excluir comentário. Tente novamente.");
+            setCommentToDelete(null);
+            showError(getErrorMessage(error, "O comentário não foi excluído."));
+        } finally {
+            setDeletingComment(false);
         }
     };
 
-    const handleToggleFollow = async (userId, isFollowing) => {
-        if (!userId) {
-            console.error("ID do perfil é inválido");
-            return;
-        }
+    const closeShareModal = () => {
+        setShareModal(false);
+        setShareContent("");
+    };
+
+    const sendShare = () => runOnce("share", async () => {
+        if (!isPost) return;
+        setSharing(true);
         try {
-            if (isFollowing) {
-                await unfollowUser(userId);
-                setIsFollowingLocal(false);
-            } else {
-                await followUser(userId);
-                setIsFollowingLocal(true);
-            }
-        } catch (err) {
-            showError("Erro ao atualizar o status de seguir.", err);
+            // o texto é opcional: em branco, compartilha só a publicação
+            await sendSharePost(post.id, shareContent.trim() || null);
+            closeShareModal();
+            const nextCount = shareCount + 1;
+            setShareCount(nextCount);
+            onStatsChange?.({ countShares: nextCount });
+            setShareStatus("Publicação compartilhada no seu perfil.");
+            setTimeout(() => setShareStatus(""), 4000);
+        } catch (error) {
+            console.error("Erro ao compartilhar:", error);
+            showError(getErrorMessage(error, "A publicação não foi compartilhada."));
+        } finally {
+            setSharing(false);
         }
-    }; 
+    });
 
-    useEffect(() => {
-        setIsFollowingLocal(post?.author?.isFollowed ?? false);
-    }, [post]);
+    // pode excluir: quem comentou ou o dono da publicação/compartilhamento (mesma regra do back-end)
+    const canDeleteComment = (comment) => comment.userId === currentUser.id || !!post.isOwner;
 
-    useEffect(() => {
-        setLikesCount(post.countLike || 0);
-        setCommentsCount(post.countComment || 0);
-        setShareCount(post.countShares || 0);
-    }, [post]);
-
-    useEffect(() => {
-        if (!post?.id) return;
-        const fetchLikes = async () => {
-            try {
-                const list = await getListLikes(false); 
-                const userLiked = list.some(like => like.userId === currentUser.id);
-                setHasLiked(userLiked);
-            } catch (error) {
-            console.error("Erro ao buscar curtidas:", error);
-            }
-        };
-        fetchLikes();
-    }, [post?.id, currentUser.id]);
-
+    const topLevelComments = listComments.filter((comment) => !comment.parentComment);
+    const likeLabel = `${likesCount} ${likesCount === 1 ? "curtida" : "curtidas"}`;
+    const commentLabel = `${commentsCount} ${commentsCount === 1 ? "comentário" : "comentários"}`;
+    const shareLabel = `${shareCount} ${shareCount === 1 ? "compartilhamento" : "compartilhamentos"}`;
 
     return (
         <div className="interaction-bar" onClick={(e) => e.stopPropagation()}>
             <div className="flex items-center justify-between text-sm text-(--purple-primary) mt-3">
-                <button className="flex items-center gap-1 cursor-pointer hover:opacity-80"
-                        onClick={(e) => { 
-                            e.stopPropagation(); 
-                            getListLikes(); 
-                        }}  >
-                    <Heart className="purple-primary" size={15} />
+                <button type="button" className="flex items-center gap-1 cursor-pointer hover:opacity-80"
+                        onClick={() => setShowLikesModal(true)}
+                        aria-label={`Ver quem curtiu (${likeLabel})`}>
+                    <Heart size={15} aria-hidden="true" />
                     <span>{likesCount}</span>
-                    {!isCompact && <span className="text-xs">curtidas</span>}
+                    <span className="hidden @md:inline text-xs">curtidas</span>
                 </button>
 
                 <div className="flex items-center gap-3">
-                    <button className="flex items-center gap-1 cursor-pointer hover:opacity-80"
-                            onClick={() => {
-                                if (!showCommentsInput) getListComments();
-                                setShowCommentsInput((prev) => !prev);
-                            }}>
-                        <MessageCircle className="sm:hidden" />
+                    <button type="button" className="flex items-center gap-1 cursor-pointer hover:opacity-80"
+                            onClick={toggleComments}
+                            aria-expanded={showComments}
+                            aria-controls={commentsId}
+                            aria-label={`${showComments ? "Ocultar" : "Ver"} comentários (${commentLabel})`}>
+                        <MessageCircle className="@md:hidden" size={18} aria-hidden="true" />
                         <span>{commentsCount}</span>
-                        {!isCompact && <span className="text-xs">comentários</span>}
+                        <span className="hidden @md:inline text-xs">comentários</span>
                     </button>
 
-                    {post.type !== "COMPARTILHAMENTO" && (
+                    {isPost && (
                         <>
-                            <span>|</span>
-                            <button className="flex items-center gap-1 cursor-pointer hover:opacity-80">
-                                <Share className="sm:hidden" />
-                                <span>{shareCount}</span>
-                                {!isCompact && <span className="text-xs">compartilhamentos</span>}
-                            </button>
+                            <span aria-hidden="true">|</span>
+                            <span className="flex items-center gap-1" aria-label={shareLabel}>
+                                <Share className="@md:hidden" size={18} aria-hidden="true" />
+                                <span aria-hidden="true">{shareCount}</span>
+                                <span className="hidden @md:inline text-xs" aria-hidden="true">compartilhamentos</span>
+                            </span>
                         </>
                     )}
                 </div>
@@ -320,296 +386,190 @@ export default function InteractionBar({ idAuthor, post, photo, name, cardWidth 
 
             <hr className="border-t border-gray-300 my-3" />
 
-            <div className="grid grid-cols-3 text-center sm:flex sm:justify-between text-(--purple-primary) border-(--purple-primary) text-sm sm:text-base md:text-lg">
-                <button onClick={sendLike} className="flex items-center justify-center gap-2 cursor-pointer transition duration-300 hover:scale-105" >
+            <div className="grid grid-cols-3 text-center @md:flex @md:justify-between text-(--purple-primary) text-sm sm:text-base md:text-lg">
+                <button type="button" onClick={sendLike} aria-pressed={hasLiked}
+                        aria-label={hasLiked ? "Descurtir publicação" : "Curtir publicação"}
+                        className="flex items-center justify-center gap-2 cursor-pointer transition duration-300 hover:scale-105 py-1" >
                     <Heart
                         fill={hasLiked ? "var(--purple-primary)" : "transparent"}
                         stroke={hasLiked ? "var(--purple-primary)" : "currentColor"}
+                        aria-hidden="true"
                     />
-                    {!isCompact && <span className="text-xs">{hasLiked ? "Curtido" : "Curtir"}</span>}
+                    <span className="hidden @md:inline text-xs">{hasLiked ? "Curtido" : "Curtir"}</span>
                 </button>
 
                 <button
-                    onClick={() => {
-                        if (!showCommentsInput) getListComments();
-                        setShowCommentsInput((prev) => !prev);
-                    }}
-                    className="flex items-center justify-center gap-2 cursor-pointer transition duration-300 hover:scale-105"
+                    type="button"
+                    onClick={toggleComments}
+                    aria-expanded={showComments}
+                    aria-controls={commentsId}
+                    aria-label="Comentar"
+                    className="flex items-center justify-center gap-2 cursor-pointer transition duration-300 hover:scale-105 py-1"
                 >
-                    <MessageCircle />
-                    {!isCompact && <span className="text-xs">Comentar</span>}
+                    <MessageCircle aria-hidden="true" />
+                    <span className="hidden @md:inline text-xs">Comentar</span>
                 </button>
-                        
+
                 <button
-                    onClick={() => {
-                        if (post.type === "POSTAGEM") setShareModal(true);
-                    }}
-                    disabled={post.type !== "POSTAGEM"}
-                    title={
-                        post.type !== "POSTAGEM"
-                        ? "Não é possível compartilhar porque isso já é um compartilhamento."
-                        : "Compartilhar esta postagem"
-                    }
-                    className={`flex items-center gap-2 transition duration-300 ${
-                        post.type !== "POSTAGEM"
-                        ? "opacity-50 cursor-not-allowed"
-                        : "cursor-pointer hover:scale-105"
+                    type="button"
+                    onClick={() => { if (isPost) setShareModal(true); }}
+                    disabled={!isPost}
+                    aria-label={isPost ? "Compartilhar esta publicação" : "Não é possível compartilhar um compartilhamento"}
+                    title={isPost ? "Compartilhar esta publicação" : "Não é possível compartilhar porque isso já é um compartilhamento."}
+                    className={`flex items-center justify-center gap-2 transition duration-300 py-1 ${
+                        isPost ? "cursor-pointer hover:scale-105" : "opacity-50 cursor-not-allowed"
                     }`}
                 >
-                    <Share />
-                    {!isCompact && <span className="text-xs">Compartilhar</span>}
+                    <Share aria-hidden="true" />
+                    <span className="hidden @md:inline text-xs">Compartilhar</span>
                 </button>
             </div>
 
-            {showCommentsInput && (
-                <div className="mt-4 flex flex-col gap-4 w-full min-w-0 overflow-hidden">
+            {shareStatus && (
+                <p role="status" className="mt-2 text-sm text-green-700 text-center">{shareStatus}</p>
+            )}
+
+            {showComments && (
+                <section id={commentsId} aria-label="Comentários" className="mt-4 flex flex-col gap-4 w-full min-w-0 pb-1">
                     <CommentInput
                         value={newComment}
                         onChange={(e) => setNewComment(e.target.value)}
-                        onKeyDown={(e) => e.key === "Enter" && sendComment()}
-                        onSend={() => { if (!newComment.trim()) return; sendComment(); }}
+                        onSend={() => sendComment()}
                         placeholder="Escreva um comentário..."
+                        label="Enviar comentário"
                         profileURL={user.profileURL}
-                        isCompact={isCompact}
+                        sending={sendingComment}
                     />
 
-                    {listComments
-                        .filter((comment) => !comment.parentComment)
+                    {commentsStatus === "loading" && listComments.length === 0 && (
+                        <p role="status" className="text-sm text-gray-500">Carregando comentários...</p>
+                    )}
+                    {commentsStatus === "error" && (
+                        <p role="alert" className="text-sm text-gray-500">
+                            Não foi possível carregar os comentários.{" "}
+                            <button type="button" onClick={loadComments} className="font-semibold text-[var(--purple-primary)] hover:underline">Tentar novamente</button>
+                        </p>
+                    )}
+
+                    {topLevelComments
                         .slice(0, commentsToShow)
                         .map((comment) => {
-                            const isLiked = likedComments.has(comment.id);
                             const replies = listComments.filter((r) => r.parentComment === comment.id);
-
                             return (
                                 <div key={comment.id} className="flex flex-col gap-2 w-full min-w-0 pt-2 border-t border-gray-100">
-                                    <div className="flex gap-3 w-full min-w-0">
-                                    <img
-                                        src={comment.userAvatarUrl || "/default-avatar.png"}
-                                        className="w-9 h-9 rounded-full object-cover flex-shrink-0 mt-1"
-                                    />
-                                    <div className="flex flex-col w-full min-w-0">
-                                        <div className="flex justify-between items-start gap-2">
-                                            <p className="font-semibold text-sm truncate">{comment.userName}</p>
-                                            <p className="text-xs text-gray-400 whitespace-nowrap flex-shrink-0">
-                                                {new Intl.DateTimeFormat("pt-BR", {
-                                                    dateStyle: "short",
-                                                    timeStyle: "short",
-                                                }).format(new Date(comment.createdAt))}
-                                            </p>
-                                        </div>
-                                        <p className="mt-1 text-sm text-gray-700 break-words whitespace-pre-wrap">{comment.content}</p>
-
-                                        <div className="flex items-center gap-4 mt-2 flex-wrap">
-                                            <button
-                                                onClick={() => sendLikeToComment(comment.id)}
-                                                className={`flex items-center gap-1 text-xs cursor-pointer transition hover:text-purple-600 
-                                                            ${isLiked ? "text-purple-600" : "text-gray-400" }`}
-                                                title={isLiked ? "Descurtir comentário" : "Curtir comentário"}
-                                            >
-                                                <Heart
-                                                    fill={isLiked ? "var(--purple-primary)" : "transparent"}
-                                                    stroke="currentColor"
-                                                    size={14}
-                                                />
-                                                <span onClick={(e) => {
-                                                        e.stopPropagation();
-                                                        getListLikesComment(comment.id);
-                                                    }}
-                                                >
-                                                    {isLiked ? "Curtido" : "Curtir"}
-                                                </span>
-                                            </button>
-
-                                            <button
-                                                className="flex items-center gap-1 text-xs cursor-pointer text-gray-400 transition hover:text-purple-600"
-                                                onClick={() => setReplyingToCommentId( replyingToCommentId === comment.id ? null : comment.id ) }
-                                            >
-                                                <CornerUpLeft size={14} />
-                                                <span>Responder</span>
-                                            </button>
-
-                                            {comment.userId === currentUser.id && (
-                                                <button
-                                                    // className="text-red-500 hover:text-red-700 flex items-center"
-                                                    className="flex items-center gap-1 text-xs text-red-400 hover:text-red-600 cursor-pointer"
-                                                    onClick={() => {
-                                                        setSelectedCommentId(comment.id);
-                                                        setShowDeleteModal(true);
-                                                    }}
-                                                    >
-                                                    <Trash2 size={14} />
-                                                    <span className="ml-1 text-sm">Excluir</span>
-                                                </button>
-                                            )}
-                                        </div>
-
+                                    <CommentItem
+                                        comment={comment}
+                                        canDelete={canDeleteComment(comment)}
+                                        onToggleLike={toggleCommentLike}
+                                        onShowLikes={setLikesCommentId}
+                                        onReply={(id) => setReplyingToCommentId(replyingToCommentId === id ? null : id)}
+                                        isReplying={replyingToCommentId === comment.id}
+                                        onDelete={setCommentToDelete}
+                                    >
                                         {replyingToCommentId === comment.id && (
                                             <div className="ml-2 sm:ml-4 min-w-0 pr-1">
                                                 <CommentInput
                                                     value={replyContent}
                                                     onChange={(e) => setReplyContent(e.target.value)}
-                                                    onKeyDown={(e) => e.key === "Enter" && sendComment(true, comment.id)}
-                                                    onSend={() => sendComment(true, comment.id)}
+                                                    onSend={() => sendComment(comment.id)}
                                                     placeholder="Escreva uma resposta..."
+                                                    label={`Responder a ${comment.userName}`}
                                                     profileURL={user.profileURL}
-                                                    isCompact={isCompact}
+                                                    sending={sendingComment}
                                                 />
                                             </div>
                                         )}
-                                        
+
                                         {replies.length > 0 && (
-                                        <div className="ml-2 sm:ml-4 flex flex-col gap-3 border-l-2 border-gray-200 pl-3 min-w-0 pt-3">
-                                            {replies.map((reply) => {
-                                                const isLikedReply = likedComments.has(reply.id);
-                                                return (
-                                                    <div key={reply.id} className="flex gap-3 w-full min-w-0">
-                                                        <img
-                                                            src={reply.userAvatarUrl || "/default-avatar.png"}
-                                                            className="w-8 h-8 rounded-full object-cover flex-shrink-0 mt-1"
-                                                        />
-                                                        <div className="flex flex-col w-full min-w-0">
-                                                            <div className="flex justify-between items-start gap-2">
-                                                                <p className="font-semibold text-sm truncate">{reply.userName}</p>
-                                                                <p className="text-xs text-gray-400 whitespace-nowrap flex-shrink-0">
-                                                                    {new Intl.DateTimeFormat("pt-BR", { dateStyle: "short", timeStyle: "short" }).format(new Date(reply.createdAt))}
-                                                                </p>
-                                                            </div>
-                                                            <p className="mt-1 text-sm text-gray-700 break-words whitespace-pre-wrap">{reply.content}</p>
-
-                                                            <div className="flex items-center gap-4 mt-2 flex-wrap">
-                                                                <button
-                                                                    onClick={() => sendLikeToComment(reply.id)}
-                                                                    className={`flex items-center gap-1 text-xs cursor-pointer transition hover:text-purple-600 ${isLikedReply ? "text-purple-600" : "text-gray-400"}`}
-                                                                >
-                                                                    <Heart fill={isLikedReply ? "var(--purple-primary)" : "transparent"} stroke="currentColor" size={14} />
-                                                                    <span onClick={(e) => { e.stopPropagation(); getListLikesComment(reply.id); }}>
-                                                                        {isLikedReply ? "Curtido" : "Curtir"}
-                                                                    </span>
-                                                                </button>
-
-                                                                {reply.userId === currentUser.id && (
-                                                                    <button
-                                                                        className="flex items-center gap-1 text-xs text-red-400 hover:text-red-600 cursor-pointer"
-                                                                        onClick={() => { setSelectedCommentId(reply.id); setShowDeleteModal(true); }}
-                                                                    >
-                                                                        <Trash2 size={14} />
-                                                                        <span>Excluir</span>
-                                                                    </button>
-                                                                )}
-                                                            </div>
-                                                        </div>
-                                                    </div>
-                                                );
-                                            })}
-                                        </div>
-                                    )}
-                                    
-                                    </div>
+                                            <div className="ml-2 sm:ml-4 flex flex-col gap-3 border-l-2 border-gray-200 pl-3 min-w-0 pt-3">
+                                                {replies.map((reply) => (
+                                                    <CommentItem
+                                                        key={reply.id}
+                                                        comment={reply}
+                                                        isReply={true}
+                                                        canDelete={canDeleteComment(reply)}
+                                                        onToggleLike={toggleCommentLike}
+                                                        onShowLikes={setLikesCommentId}
+                                                        onDelete={setCommentToDelete}
+                                                    />
+                                                ))}
+                                            </div>
+                                        )}
+                                    </CommentItem>
                                 </div>
-                            </div>
-                        );
-                    })}
-                    {listComments.filter(c => !c.parentComment).length > commentsToShow && (
+                            );
+                        })}
+
+                    {topLevelComments.length > commentsToShow && (
                         <button
+                            type="button"
                             onClick={() => setCommentsToShow((prev) => prev + 2)}
                             className="text-sm text-[var(--purple-primary)] hover:underline mt-1 self-start"
                         >
                             Ver mais comentários
                         </button>
                     )}
-                </div>
+                </section>
             )}
 
-            <PopUpBlurProfile
+            <LikesModal
                 isOpen={showLikesModal}
                 onClose={() => setShowLikesModal(false)}
-                content={
-                    <div className="p-4 max-h-[70vh] overflow-y-auto">
-                        <h2 className="text-2xl sm:text-4xl font-bold text-[var(--purple-secundary)] mb-4">Curtidas</h2>
-                        {listLikes.length > 0 ? listLikes.map((u) => (
-                            <div key={u.id} className="flex items-center px-4 border-t pt-4 border-slate-200 gap-4">
-                                <img src={u.userAvatarUrl || "/default-avatar.png"} className="w-14 h-14 object-cover rounded-full flex-shrink-0" alt={u.userName} />
-                                <div className="flex flex-col sm:flex-row sm:justify-between w-full min-w-0 gap-1">
-                                    <p className="font-semibold truncate">{u.userName}</p>
-                                    <p className="text-xs text-gray-500 whitespace-nowrap">Curtiu em {new Intl.DateTimeFormat('pt-BR').format(new Date(u.createdAt))}</p>
-                                </div>
-                            </div>
-                        )) : (
-                            <p className="italic text-xl text-gray-400">Não há nenhuma curtida ainda.</p>
-                        )}
-                    </div>
-                }
+                title="Curtidas"
+                emptyText="Não há nenhuma curtida ainda."
+                loadLikes={() => (isShareItem ? getLikesShare(post.id) : getLikesPost(post.id))}
+            />
+
+            <LikesModal
+                isOpen={likesCommentId !== null}
+                onClose={() => setLikesCommentId(null)}
+                title="Curtidas do comentário"
+                emptyText="Não há nenhuma curtida neste comentário."
+                loadLikes={() => getLikesComment(likesCommentId)}
             />
 
             <PopUpBlurProfile
                 isOpen={showShareModal}
-                onClose={() => setShareModal(false)}
+                onClose={() => (shareContent.trim() ? setShowConfirmCancel(true) : closeShareModal())}
+                ariaLabel="Compartilhar publicação"
                 content={
                     <div className="flex flex-col gap-4">
-                        <div className="flex items-center justify-between">
-                            <div className="flex items-center">
-                                <img src={user.profileURL} className="w-14 h-14 object-cover rounded-full mr-3 flex-shrink-0" />
-                                <div className="flex flex-col">
-                                    <p>{user.userName}</p>
-                                    <div className="flex items-center gap-2 text-(--purple-primary) cursor-pointer text-sm">
-                                        <Earth size={16} /> Pública
-                                    </div>
-                                </div>
+                        <h2 className="sr-only">Compartilhar publicação</h2>
+                        <div className="flex items-center">
+                            <img src={user.profileURL} alt="" className="w-14 h-14 object-cover rounded-full mr-3 flex-shrink-0" />
+                            <div className="flex flex-col">
+                                <p>{user.userName}</p>
+                                <p className="flex items-center gap-2 text-(--purple-primary) text-sm">
+                                    <Earth size={16} aria-hidden="true" /> Pública
+                                </p>
                             </div>
                         </div>
 
                         <LabelInput
-                            placeholder="Digite sua nova publicação"
+                            placeholder="Escreva algo sobre esta publicação (opcional)"
+                            ariaLabel="Texto do compartilhamento (opcional)"
                             type="mensagem"
-                            value={formData.content}
-                                onChange={(e) =>
-                                setFormData((prev) => ({ ...prev, content: e.target.value }))
-                            }
+                            value={shareContent}
+                            onChange={(e) => setShareContent(e.target.value)}
                         />
 
-                        <div className="scale-80 origin-center border border-[var(--purple-primary)] rounded-xl p-3">
-                            <CardPostProfile 
-                                key={post.id}
+                        <div className="border border-[var(--purple-primary)] rounded-xl p-3">
+                            <CardPostProfile
                                 post={post}
                                 photo={photo}
                                 name={name}
                                 idAuthor={idAuthor}
-                                isOwner={post.isOwner}
                                 hideInteractions={true}
-                                isShare={true}
-                                isFollowing={post.isOwner ? false : isFollowingLocal}
-                                onFollowToggle={() => handleToggleFollow(idAuthor)}
+                                isPopupView={true}
                             />
                         </div>
 
                         <div className="flex justify-end gap-3">
-                            <BtnCallToAction variant="white" onClick={() => setShowConfirmCancel(true)}> Cancelar </BtnCallToAction>
-                            <BtnCallToAction variant="purple" onClick={() => {  if (!formData.content.trim()) return; 
-                                                                                sendShare(formData.content);}}>
-                                Compartilhar
+                            <BtnCallToAction variant="white" onClick={() => (shareContent.trim() ? setShowConfirmCancel(true) : closeShareModal())}> Cancelar </BtnCallToAction>
+                            <BtnCallToAction variant="purple" onClick={sendShare} disabled={sharing} aria-busy={sharing || undefined}>
+                                {sharing ? "Compartilhando..." : "Compartilhar"}
                             </BtnCallToAction>
                         </div>
-                    </div>
-                }
-            />
-
-            <PopUpBlurProfile
-                isOpen={showLikesCommentModal}
-                onClose={() => setShowLikesCommentModal(false)}
-                content={
-                    <div className="p-4 max-h-[70vh] overflow-y-auto">
-                        <h2 className="text-2xl sm:text-4xl font-bold text-[var(--purple-secundary)] mb-4">Curtidas do comentário</h2>
-                        {listLikesComment.length > 0 ? listLikesComment.map((u) => (
-                            <div key={u.id} className="flex items-center px-4 border-t pt-4 border-slate-200 gap-4">
-                                <img src={u.userAvatarUrl || "/default-avatar.png"} className="w-14 h-14 object-cover rounded-full flex-shrink-0" alt={u.userName} />
-                                <div className="flex flex-col sm:flex-row sm:justify-between w-full min-w-0 gap-1">
-                                    <p className="font-semibold truncate">{u.userName}</p>
-                                    <p className="text-xs text-gray-500 whitespace-nowrap">Curtiu em {new Intl.DateTimeFormat('pt-BR').format(new Date(u.createdAt))}</p>
-                                </div>
-                            </div>
-                        )) : (
-                            <p className="italic text-xl text-gray-400">Não há nenhuma curtida neste comentário.</p>
-                        )}
                     </div>
                 }
             />
@@ -617,24 +577,24 @@ export default function InteractionBar({ idAuthor, post, photo, name, cardWidth 
             <ConfirmModal
                 open={showConfirmCancel}
                 title="Confirmar Cancelamento"
-                message="Tem certeza que deseja cancelar esta publicação?"
+                message="Tem certeza que deseja descartar este compartilhamento?"
                 confirmText="Sim"
                 cancelText="Não"
                 onConfirm={() => {
                     setShowConfirmCancel(false);
-                    setShareModal(false);
-                    setFormData({ content: "", media: [], visibility: "PUBLICO" });
+                    closeShareModal();
                 }}
                 onCancel={() => setShowConfirmCancel(false)}
             />
 
             <ConfirmModal
-                open={showDeleteModal}
+                open={commentToDelete !== null}
                 title="Excluir comentário"
                 message="Tem certeza de que deseja excluir este comentário? Essa ação não pode ser desfeita."
-                confirmText="Sim"
+                confirmText={deletingComment ? "Excluindo..." : "Sim"}
                 cancelText="Não"
-                onCancel={() => setShowDeleteModal(false)}
+                loading={deletingComment}
+                onCancel={() => setCommentToDelete(null)}
                 onConfirm={handleDeleteComment}
             />
 

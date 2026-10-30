@@ -1,453 +1,311 @@
-import { useState, useEffect, useRef } from "react";
-import { useNavigate } from "react-router-dom";
+import { useState, useEffect, useRef, useCallback } from "react";
 
 import LabelInput from "../../../../components/form/Label/LabelInput";
 import BtnCallToAction from "../../../../components/btn/BtnCallToAction/BtnCallToAction";
-import { validateField } from "../../../../components/form/Label/validationField";
-import { maskField } from "../../../../components/form/Label/maskField";
 import LoadingSpinner from './../../../../components/LoadingSpinner/LoadingSpinner'
+import ConfirmModal from "../../../../components/ConfirmModal/ConfirmModal";
+
+import { normalizeUrl } from "../../../../components/form/Label/validationField";
+import { maskField } from "../../../../components/form/Label/maskField";
+import { validateForm, focusFirstError, errorSummary } from "../../../../components/form/validateForm";
 import { useAuth } from "../../../../context/AuthContext";
 import { getAllProfile, updateProfile } from "../../../../services/userService";
+import { updateStoredUser } from "../../../../services/authService";
 import { useCepAutoComplete } from '../../../../services/hooks/useCepAutoComplete'
+import { getErrorMessage } from '../../../../services/errorMessage';
 
-export default function EditEnterprise() {
+// ordem = ordem visual, para o foco ir ao primeiro erro de cima para baixo
+const RULES = {
+  nome: { type: 'texto', label: 'Nome da empresa' },
+  cnpj: { type: 'cnpj', label: 'CNPJ' },
+  tipoEmpresa: { type: 'select', label: 'Tipo de empresa' },
+  telefone: { type: 'telefone', label: 'Telefone' },
+  email: { type: 'email', label: 'Email de contato' },
+  cep: { type: 'cep', label: 'CEP' },
+  estado: { type: 'select', label: 'Estado' },
+  rua: { type: 'texto', label: 'Rua' },
+  bairro: { type: 'texto', label: 'Bairro' },
+  cidade: { type: 'texto', label: 'Cidade' },
+  descricao: { type: '', label: 'Descrição', required: false },
+  sobrenos: { type: '', label: 'Sobre nós', required: false },
+  link: { type: 'url', label: 'Link externo', required: false },
+};
 
-  const navigate = useNavigate();
+const ADDRESS_FIELDS = ['rua', 'bairro', 'cidade', 'estado'];
+
+const companyTypeOptions = [
+  { value: 'NACIONAL', label: 'Nacional' },
+  { value: 'INTERNACIONAL', label: 'Internacional' },
+];
+
+function mapProfileToForm(profile) {
+  return {
+    id: profile.id,
+    nome: profile.name || '',
+    handle: profile.handle || '',
+    cnpj: profile.cnpj || '',
+    // telefones antigos podem estar sem pontuação: a máscara padroniza
+    telefone: maskField('telefone', profile.phoneNumber || ''),
+    email: profile.email || '',
+    cep: profile.cep || '',
+    rua: profile.street || '',
+    bairro: profile.neighborhood || '',
+    cidade: profile.city || '',
+    estado: profile.uf || '',
+    tipoEmpresa: profile.companyType || '',
+    descricao: profile.description || '',
+    sobrenos: profile.aboutUs || '',
+    link: profile.externalLink || '',
+    photo: profile.profilePic || '',
+    followersCount: profile.followersCount,
+    posts: profile.posts || [],
+  };
+}
+
+export default function EditEnterprise({ onClose, onSaved }) {
+  const [initial, setInitial] = useState(null);
+  const [status, setStatus] = useState('loading'); // loading | ready | error
+
+  const fetchProfile = useCallback(async () => {
+    setStatus('loading');
+    try {
+      const profile = await getAllProfile();
+      if (!profile) throw new Error('Perfil não encontrado');
+      setInitial(mapProfileToForm(profile));
+      setStatus('ready');
+    } catch (err) {
+      console.error("Erro ao carregar dados da empresa:", err);
+      setStatus('error');
+    }
+  }, []);
+
+  useEffect(() => { fetchProfile(); }, [fetchProfile]);
+
+  if (status === 'loading') return <LoadingSpinner />
+
+  // sem os dados atuais não mostramos o formulário: salvar campos vazios apagaria o perfil
+  if (status === 'error') {
+    return (
+      <div role="alert" className="flex flex-col items-center gap-3 py-10 text-center">
+        <p className="text-gray-600">Não foi possível carregar os dados da empresa.</p>
+        <BtnCallToAction onClick={fetchProfile}>TENTAR NOVAMENTE</BtnCallToAction>
+      </div>
+    );
+  }
+
+  return <EnterpriseForm initial={initial} onClose={onClose} onSaved={onSaved} />;
+}
+
+// montado só com os dados carregados: assim o CEP salvo não dispara a busca e não sobrescreve o endereço
+function EnterpriseForm({ initial, onClose, onSaved }) {
   const { setUser } = useAuth();
-  const [formData, setFormData] = useState({
-    nome: '',
-    cnpj: '',
-    telefone: '',
-    email: '',
-    cep: '',
-    rua: '',
-    bairro: '',
-    cidade: '',
-    estado: '',
-    descricao: '',
-    sobrenos: '',
-    link: '',
-    tipoEmpresa: '',
-  });  
-  const [error, setError] = useState('');
-  const [loading, setLoading] = useState(true);
-  const [originalData, setOriginalData] = useState({});
+
+  const [formData, setFormData] = useState(initial);
+  const [errors, setErrors] = useState({});
+  const [submitError, setSubmitError] = useState('');
+  const [saving, setSaving] = useState(false);
+  const initialData = useRef(JSON.stringify(initial));
   const [cancelModalOpen, setCancelModalOpen] = useState(false);
-  const [successModalOpen, setSuccessModalOpen] = useState(false);
-  const [errorModalOpen, setErrorModalOpen] = useState(false);
-  const [errorMessage, setErrorMessage] = useState('');
 
-  const companyTypeOptions = [
-    { value: '', label: 'Selecione o tipo de empresa' },
-    { value: 'NACIONAL', label: 'Nacional' },
-    { value: 'INTERNACIONAL', label: 'Internacional' },
-  ];
+  const { estados, status: cepStatus } = useCepAutoComplete({ cep: formData.cep, setFormData });
+  const stateOptions = estados.map(estado => ({ value: estado, label: estado }));
 
-  const ruaInput = useRef(null)
-  const cidadeInput = useRef(null)
-  const bairroInput = useRef(null)
-  const estadoInput = useRef(null)
-
-  const {estados} = useCepAutoComplete({cep: formData.cep, setFormData, refs: {
-    rua: ruaInput,
-    cidade: cidadeInput,
-    bairro: bairroInput,
-    estado: estadoInput
-  }})
-
-  const options = estados.map(estado => ({ value: estado, label: estado }));
-
+  // endereço preenchido pelo CEP: os avisos desses campos deixam de valer
   useEffect(() => {
-      async function fetchProfile() {
-        try {
-          const user = await getAllProfile();
-  
-          const mappedForm = {
-            nome: user.name || '',
-            cnpj: user.cnpj || '',
-            telefone: user.phoneNumber || '',
-            email: user.email || '',
-            cep: user.cep || '',
-            rua: user.street || '',
-            bairro: user.neighborhood || '',
-            cidade: user.city || '',
-            tipoEmpresa:user.companyType || '',
-            descricao: user.description || '',
-            sobrenos: user.aboutUs || '',
-            link: user.externalLink || '',            
-            handle: user.handle || '',
-            estado: user.uf || '',
-            photo: user.profilePic || '',
-            id: user.id,
-            profilePic: user.profilePic,
-            followersCount: user.followersCount,
-            posts: user.posts || [],
-          };
-          setFormData(mappedForm);
-          setOriginalData(mappedForm);
-        } catch (err) {
-          console.error("Erro ao carregar dados da empresa:", err);
-        } finally {
-          setLoading(false);
-        }
-      }
-      fetchProfile();
-    }, []);
+    if (cepStatus !== 'found') return;
+    setErrors((prev) => {
+      const next = { ...prev };
+      ADDRESS_FIELDS.forEach((field) => delete next[field]);
+      return next;
+    });
+  }, [cepStatus]);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
-    let maskedValue = value;
-    setFormData((prev) => ({ ...prev, [name]: maskedValue ?? '' }));
+    let newValue = value;
+    if (name === 'cnpj') newValue = maskField('cnpj', value);
+    if (name === 'telefone') newValue = maskField('telefone', value);
+    if (name === 'cep') newValue = maskField('cep', value);
 
-    if (name === 'cnpj') maskedValue = maskField('cnpj', value);
-    if (name === 'telefone') maskedValue = maskField('telefone', value);
-    if (name === 'cep') maskedValue = maskField('cep', value);
-
-    setFormData(prev => ({ ...prev, [name]: maskedValue }));
+    setFormData((prev) => ({ ...prev, [name]: newValue }));
+    setErrors((prev) => {
+      if (!prev[name]) return prev;
+      const next = { ...prev };
+      delete next[name];
+      return next;
+    });
+    setSubmitError('');
   };
 
-  const handleCancelClick = (e) => {
-    e.preventDefault(); 
-    setCancelModalOpen(true);
-  };
-
-  const validateAllFields = () => {
-    const requiredFields = {
-      nome: 'texto',
-      cnpj: 'cnpj',
-      telefone: 'telefone',
-      email: 'email',
-      cep: 'cep',
-      rua: 'texto',
-      bairro: 'texto',
-      cidade: 'texto',
-      estado: 'texto',
-      tipoEmpresa: 'texto',
-    };
-
-    let hasError = false;
-    let firstError = '';
-    for (const campo in requiredFields) {
-      const erro = validateField(requiredFields[campo], formData[campo], true);
-      if (erro) {
-        hasError = true;
-        firstError = erro;
-        break;
-      }
-    }
-
-    if (hasError)
-      setError(`Preencha os campos obrigatórios e corrija os erros antes de continuar. ${firstError}`);
-    else
-      setError('');
-
-    return !hasError
+  const handleCancelClick = () => {
+    if (JSON.stringify(formData) !== initialData.current) setCancelModalOpen(true);
+    else onClose?.();
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    if (!validateAllFields()) return;
+    if (saving) return;
 
+    const found = validateForm(RULES, formData);
+    setErrors(found);
+    if (Object.keys(found).length > 0) {
+      focusFirstError(found, Object.keys(RULES));
+      return;
+    }
+
+    setSaving(true);
+    setSubmitError('');
     try {
       const payload = {
         id: formData.id,
-        name: formData.nome?.trim() || null,
-        handle: formData.handle?.trim() || null,   
-        cnpj: formData.cnpj.trim() || null,
-        phoneNumber: formData.telefone?.trim() || null,
-        city: formData.cidade?.trim() || null,
-        uf: formData.estado?.trim() || null,  
-        companyType: formData.tipoEmpresa?.trim() || null,  
+        name: formData.nome.trim(),
+        handle: formData.handle?.trim() || null,
+        cnpj: formData.cnpj.trim(),
+        phoneNumber: formData.telefone.trim(),
+        city: formData.cidade.trim(),
+        uf: formData.estado.trim(),
+        companyType: formData.tipoEmpresa,
         followersCount: formData.followersCount ?? 0,
-        profilePic: formData.photo || null,    
-        email: formData.email?.trim() || null,
-        cep: formData.cep?.trim() || null,
-        neighborhood: formData.bairro?.trim() || null,
-        street: formData.rua?.trim() || null,
+        profilePic: formData.photo || null,
+        email: formData.email.trim(),
+        cep: formData.cep.trim(),
+        neighborhood: formData.bairro.trim(),
+        street: formData.rua.trim(),
         description: formData.descricao.trim() || null,
         aboutUs: formData.sobrenos.trim() || null,
-        externalLink: formData.link?.trim() || null, 
-        posts: formData.posts ?? [],        
+        externalLink: normalizeUrl(formData.link) || null,
+        posts: formData.posts,
       };
 
-      const updatedUser = await updateProfile(payload);
-      setUser(updatedUser);
-      setSuccessModalOpen(true);
+      await updateProfile(payload);
+      updateStoredUser({ name: payload.name });
+      // mescla em vez de substituir: a resposta do perfil não traz token nem role
+      setUser((prev) => (prev ? { ...prev, name: payload.name } : prev));
+      initialData.current = JSON.stringify(formData);
+      onSaved?.();
     } catch (err) {
       console.error(err);
-      setErrorMessage(err.message || "Não foi possível atualizar o perfil.");
-      setErrorModalOpen(true);
+      setSubmitError(getErrorMessage(err, "As alterações não foram salvas."));
+    } finally {
+      setSaving(false);
     }
   };
 
-  if (loading) {
-    <LoadingSpinner />
-  }
+  const fieldProps = (name) => ({
+    theme: 'black',
+    errorTheme: 'dark',
+    name,
+    value: formData[name] ?? '',
+    onChange: handleChange,
+    error: errors[name],
+  });
+
+  // resumo vivo: some sozinho conforme os campos são corrigidos
+  const summary = errorSummary(errors, RULES);
 
   return (
     <>
-      <form onSubmit={handleSubmit} className="flex flex-col gap-8">
+      <form onSubmit={handleSubmit} noValidate className="flex flex-col gap-4 sm:gap-8 min-w-0">
+        <p className="text-sm text-[var(--font-gray)]">Campos com * são obrigatórios.</p>
 
-        <article className="bg-[var(--gray)] p-6 mb-8 w-full max-w-4xl mx-auto rounded-2xl">
-          <h2 className="text-2xl font-bold text-[var(--purple-secundary)] mb-4">INFORMAÇÕES EMPRESARIAIS</h2>
-          <p className="mt-2 text-lg max-w-xl text-[var(--font-gray)]">
+        <article className="bg-[var(--gray)] p-4 sm:p-8 w-full max-w-4xl mx-auto rounded-2xl min-w-0">
+          <h2 className="text-xl sm:text-2xl font-bold text-[var(--purple-secundary)]">INFORMAÇÕES EMPRESARIAIS</h2>
+          <p className="mt-2 text-sm sm:text-lg max-w-xl text-[var(--font-gray)]">
             Mantenha os dados da sua empresa atualizados e fortaleça sua presença na plataforma.
           </p>
 
-          <div className="w-full mt-4 grid gap-4 max-w-2xl mx-auto">
-            <LabelInput
-              theme='black'
-              errorTheme="dark"
-              name="nome"
-              label="Nome da Empresa:"
-              value={formData.nome ?? ''}
-              placeholder={formData.nome ? '' : originalData.nome ? originalData.nome : 'Informe o nome da empresa'}
-              onChange={handleChange}
-              required
-              validation="texto"
-            />
+          <div className="w-full mt-4 grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4 max-w-2xl mx-auto">
+            <div className="sm:col-span-2">
+              <LabelInput {...fieldProps('nome')} label="Nome da empresa:" required validation="texto"
+                autoComplete="organization" maxLength="150" placeholder="Informe o nome da empresa" />
+            </div>
 
-            <LabelInput
-              theme='black'
-              errorTheme="dark"
-              name="cnpj"
-              label="CNPJ:"
-              value={formData.cnpj ?? ''}
-              placeholder={originalData.cnpj ? '' : formData.cnpj ? originalData.cnpj : 'Digite seu CNPJ'}
-              onChange={handleChange}
-              required
-              validation="cnpj"
-              maxLength="18"
-            />
+            <LabelInput {...fieldProps('cnpj')} label="CNPJ:" required validation="cnpj"
+              inputMode="numeric" maxLength="18" placeholder="00.000.000/0000-00" />
 
-            <LabelInput
-              theme='black'
-              errorTheme="dark"
-              name="tipoEmpresa"
-              label="Tipo de Empresa:"
-              type="select"
-              value={formData.tipoEmpresa}
-              onChange={handleChange}
-              required
-              validation="texto"
-              options={companyTypeOptions}
-            />
+            <LabelInput {...fieldProps('tipoEmpresa')} label="Tipo de empresa:" type="select" required
+              validation="select" options={companyTypeOptions} />
 
-            <LabelInput
-              theme='black'
-              errorTheme="dark"
-              name="telefone"
-              label="Telefone:"
-              value={formData.telefone ?? ''}
-              placeholder={originalData.telefone ? '' : formData.telefone ? originalData.telefone : ''}
-              onChange={handleChange}
-              required
-              validation="telefone"
-              maxLength="15"
-            />
+            <LabelInput {...fieldProps('telefone')} label="Telefone:" type="tel" required validation="telefone"
+              autoComplete="tel-national" maxLength="20" placeholder="(99) 99999-9999" />
 
-            <LabelInput
-              theme='black'
-              errorTheme="dark"
-              name="email"
-              label="Email de Contato:"
-              value={formData.email ?? ''}
-              placeholder={originalData.email ? '' : formData.email ? originalData.email : 'Digite seu e-mail'}
-              onChange={handleChange}
-              required
-              validation="email"
-            />
+            <LabelInput {...fieldProps('email')} label="Email de contato:" type="email" required validation="email"
+              autoComplete="email" maxLength="255" placeholder="contato@empresa.com" />
 
-            <LabelInput
-              theme='black'
-              errorTheme="dark"
-              name="cep"
-              label="CEP:"
-              value={formData.cep ?? ''}
-              placeholder={originalData.cep ? '' : formData.cep ? originalData.cep : 'Digite seu CEP'}
-              onChange={handleChange}
-              required
-              validation="cep"
-              maxLength="9"
-            />
+            <LabelInput {...fieldProps('cep')} label="CEP:" required validation="cep"
+              inputMode="numeric" autoComplete="postal-code" maxLength="9" placeholder="00000-000"
+              hint={cepStatus === 'notFound' ? 'CEP não encontrado. Preencha o endereço.'
+                : cepStatus === 'error' ? 'Não foi possível buscar o CEP. Preencha o endereço.' : ''} />
 
-            <LabelInput
-              theme='black'
-              errorTheme="dark"
-              name="rua"
-              label="Rua:"
-              ref={ruaInput}
-              value={formData.rua ?? ''}
-              placeholder={originalData.rua ? '' : formData.rua ? originalData.rua : 'Digite o nome da sua rua'}
-              onChange={handleChange}
-              required
-              validation="texto"
-            />
+            <LabelInput {...fieldProps('estado')} label="Estado:" type="select" options={stateOptions}
+              required validation="select" />
 
-            <LabelInput
-              theme='black'
-              errorTheme="dark"
-              name="bairro"
-              label="Bairro:"
-              ref={bairroInput}
-              value={formData.bairro  ?? ''}
-              placeholder={originalData.bairro ? '' : formData.bairro ? originalData.bairro : 'Digite o nome do seu bairro'}
-              onChange={handleChange}
-              required
-              validation="texto"
-            />
+            <div className="sm:col-span-2">
+              <LabelInput {...fieldProps('rua')} label="Rua:" required validation="texto"
+                autoComplete="address-line1" maxLength="100" placeholder="Nome da rua" />
+            </div>
 
-            <LabelInput
-              theme='black'
-              errorTheme="dark"
-              name="cidade"
-              label="Cidade:"
-              ref={cidadeInput}
-              value={formData.cidade ?? ''}
-              placeholder={originalData.cidade ? '' : formData.cidade ? originalData.cidade : 'Digite o nome da sua cidade'}
-              onChange={handleChange}
-              required
-              validation="texto"
-            />
+            <LabelInput {...fieldProps('bairro')} label="Bairro:" required validation="texto"
+              maxLength="100" placeholder="Bairro" />
 
-            <LabelInput
-              theme='black'
-              errorTheme="dark"
-              name="estado"
-              label="Estado:"
-              ref={estadoInput}
-              value={formData.estado ?? ''}
-              placeholder={originalData.estado ? '' : formData.estado ? originalData.estado: ''}
-              onChange={handleChange}
-              required
-              validation="texto"
-              type="select"
-              options={options}
-            />
+            <LabelInput {...fieldProps('cidade')} label="Cidade:" required validation="texto"
+              autoComplete="address-level2" maxLength="100" placeholder="Cidade" />
           </div>
         </article>
 
-        <article className="bg-[var(--gray)] p-6 w-full max-w-4xl mx-auto rounded-2xl">
-          <h2 className="text-2xl font-bold text-[var(--purple-secundary)] mb-4">PERFIL CORPORATIVO</h2>
-          <p className="mt-2 text-lg max-w-xl text-[var(--font-gray)]">
+        <article className="bg-[var(--gray)] p-4 sm:p-8 w-full max-w-4xl mx-auto rounded-2xl min-w-0">
+          <h2 className="text-xl sm:text-2xl font-bold text-[var(--purple-secundary)]">PERFIL CORPORATIVO</h2>
+          <p className="mt-2 text-sm sm:text-lg max-w-xl text-[var(--font-gray)]">
             Compartilhe a missão da sua empresa e mostre sua cultura organizacional.
           </p>
 
-          <div className="w-full mt-4 grid gap-4 max-w-2xl mx-auto">
-            <LabelInput
-              theme='black'
-              errorTheme="dark"
-              name="descricao"
-              label="Descrição:"
-              value={formData.descricao ?? ''}
-              placeholder={originalData.descricao ? '' : formData.descricao ? originalData.descricao : 'Digite sua área de atuação e etc...'}
-              onChange={handleChange}
-              validation="texto"
-            />
+          <div className="w-full mt-4 grid gap-3 sm:gap-4 max-w-2xl mx-auto min-w-0">
+            <div>
+              <LabelInput {...fieldProps('descricao')} label="Descrição:" maxLength="400"
+                placeholder="Área de atuação, produtos, serviços..." />
+              <p className="mt-1 text-xs text-right text-gray-500">{formData.descricao.length}/400</p>
+            </div>
 
-            <LabelInput
-              theme='black'
-              errorTheme="dark"
-              name="sobrenos"
-              label="Sobre nós:"
-              type="mensagem"
-              value={formData.sobrenos ?? ''}
-              placeholder={originalData.sobrenos ? '' : formData.sobrenos ? originalData.sobrenos : 'Descreva um pouco sobre sua empresa'}
-              onChange={handleChange}
-              validation="texto"
-            />
+            <div>
+              <LabelInput {...fieldProps('sobrenos')} label="Sobre nós:" type="mensagem" maxLength="1000"
+                placeholder="Descreva um pouco sobre sua empresa" />
+              <p className="mt-1 text-xs text-right text-gray-500">{formData.sobrenos.length}/1000</p>
+            </div>
 
-            <LabelInput
-              theme='black'
-              errorTheme="dark"
-              name="link"
-              label="Link externo:"
-              value={formData.link ?? ''}
-              placeholder={originalData.link ? '' : formData.link ? originalData.link : 'https://suaempresa.com'}
-              onChange={handleChange}
-              validation="url"
-            />
+            <LabelInput {...fieldProps('link')} label="Link externo:" validation="url" maxLength="100"
+              autoComplete="url" placeholder="https://suaempresa.com" />
           </div>
         </article>
 
-        <div className="mx-auto mt-4 flex gap-4 justify-center">
-          <BtnCallToAction type="button" variant="white" onClick={handleCancelClick}>
+        {summary || submitError ? (
+          <p role="alert" className="max-w-2xl w-full mx-auto rounded-lg bg-red-50 border border-red-200 text-red-700 text-sm px-4 py-3 break-words">
+            {submitError || summary}
+          </p>
+        ) : null}
+
+        <div className="w-full sm:w-auto sm:mx-auto flex flex-col-reverse sm:flex-row gap-3 sm:gap-4 justify-center">
+          <BtnCallToAction type="button" variant="white" onClick={handleCancelClick} disabled={saving}>
             CANCELAR
           </BtnCallToAction>
-          <BtnCallToAction type="submit" variant="purple">
-            SALVAR
+          <BtnCallToAction type="submit" variant="purple" disabled={saving} aria-busy={saving || undefined}>
+            {saving ? 'SALVANDO...' : 'SALVAR'}
           </BtnCallToAction>
         </div>
       </form>
 
-      {successModalOpen && (
-        <div className="fixed inset-0 z-50 bg-black/40 backdrop-blur-sm flex items-center justify-center">
-          <div className="bg-white p-8 rounded-2xl shadow-lg text-center max-w-sm">
-            <h2 className="text-2xl font-bold mb-4 text-[var(--purple-primary)]">
-              Atualização concluída!
-            </h2>
-            <p className="mb-6 text-gray-700">Sua conta foi atualizada com sucesso.</p>
-            <button
-              onClick={() => {
-                setSuccessModalOpen(false);
-                navigate("/timeline"); 
-              }}
-              className="bg-purple-600 text-white px-6 py-2 rounded-xl hover:bg-purple-700 transition"
-            >
-              Continuar
-            </button>
-          </div>
-        </div>
-      )}
 
-      {errorModalOpen && (
-        <div className="fixed inset-0 z-50 bg-black/40 backdrop-blur-sm flex items-center justify-center">
-          <div className="bg-white p-8 rounded-2xl shadow-lg text-center max-w-sm">
-            <h2 className="text-2xl font-bold mb-4 text-red-600">Erro ao atualizar perfil</h2>
-            <p className="mb-6 text-gray-700">{errorMessage}</p>
-            <button
-              onClick={() => setErrorModalOpen(false)}
-              className="bg-red-600 text-white px-6 py-2 rounded-xl hover:bg-red-700 transition"
-            >
-              Fechar
-            </button>
-          </div>
-        </div>
-      )}
-      {cancelModalOpen && (
-        <div className="fixed inset-0 z-50 bg-black/40 backdrop-blur-sm flex items-center justify-center">
-          <div className="bg-white p-8 rounded-2xl shadow-lg text-center max-w-sm">
-            <h2 className="text-2xl font-bold mb-4 text-[var(--purple-primary)]">
-              Confirmar Cancelamento
-            </h2>
-            <p className="mb-6 text-gray-700">Tem certeza que deseja cancelar? As alterações não serão salvas.</p>
-            <div className="flex justify-center gap-6">
-              <button
-                  onClick={() => setCancelModalOpen(false)}
-                  className="bg-gray-300 text-gray-800 px-6 py-2 rounded-xl hover:bg-gray-400 transition"
-              >
-                Não
-              </button>
-              <button
-                onClick={() => {
-                  setSuccessModalOpen(false);
-                  navigate("/timeline"); 
-                }}
-                className="bg-purple-600 text-white px-6 py-2 rounded-xl hover:bg-purple-700 transition"
-              >
-                Sim
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
-      {error && (
-        <div className="fixed top-1/12 left-1/2 transform -translate-x-1/2 -translate-y-1/2 
-                        z-50 bg-red-600 text-white px-6 py-3 rounded-lg shadow-lg 
-                        transition-opacity duration-300">
-            {error}
-        </div>
-      )}
+      <ConfirmModal
+        open={cancelModalOpen}
+        title="Descartar alterações?"
+        message="Você tem alterações que ainda não foram salvas. Se sair agora, elas serão perdidas."
+        confirmText="Descartar"
+        cancelText="Continuar editando"
+        onConfirm={() => {
+          setCancelModalOpen(false);
+          onClose?.();
+        }}
+        onCancel={() => setCancelModalOpen(false)}
+      />
     </>
   );
 }

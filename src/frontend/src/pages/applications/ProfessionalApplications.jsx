@@ -6,6 +6,8 @@ import { myApplications } from "../../services/applicationService"
 import ApplicationDetail from "./components/ApplicationDetail"
 import BtnCallToAction from "../../components/btn/BtnCallToAction/BtnCallToAction"
 import LoadingSpinner from "../../components/LoadingSpinner/LoadingSpinner"
+import LoadError from '../../components/LoadError/LoadError';
+import { getErrorMessage } from '../../services/errorMessage';
 
 export default function ProfessionalApplications(){
 
@@ -20,7 +22,7 @@ export default function ProfessionalApplications(){
             const response = await myApplications();
             setApplications(response);
         } catch(err) {
-            setError('Erro ao carregar candidaturas.');
+            setError(getErrorMessage(err, 'Não foi possível carregar suas candidaturas.'));
             console.error(err);
         } finally {
             setLoading(false);
@@ -32,7 +34,7 @@ export default function ProfessionalApplications(){
     }, []);
 
     if (loading) return ( <LoadingSpinner /> );
-    if (error) return <main className="pt-34"><p className="text-red-600">{error}</p></main>;
+    if (error) return <LoadError message={error} />;
 
     return(
         <main className='flex flex-col bg-[var(--light)] pt-32 pb-6 min-h-full'>

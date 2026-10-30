@@ -1,6 +1,6 @@
 import { Link } from "react-router-dom";
 
-export default function BtnCallToAction({ children, variant = "purple", onClick, type = "button", to, disabled = false }) {
+export default function BtnCallToAction({ children, variant = "purple", onClick, type = "button", to, disabled = false, ...ariaProps }) {
 
   const base =
     "inline-flex items-center justify-center " +
@@ -33,7 +33,7 @@ export default function BtnCallToAction({ children, variant = "purple", onClick,
 
   if (to) {
     return (
-      <Link to={to} className={`${base} ${variants[variant]}`} onClick={onClick}>
+      <Link to={to} className={`${base} ${variants[variant]}`} onClick={onClick} {...ariaProps}>
         {children}
       </Link>
     );
@@ -45,6 +45,7 @@ export default function BtnCallToAction({ children, variant = "purple", onClick,
       onClick={onClick}
       type={type}
       disabled={disabled}
+      {...ariaProps}
     >
       {children}
     </button>

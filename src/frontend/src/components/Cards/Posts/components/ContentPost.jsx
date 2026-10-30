@@ -1,164 +1,88 @@
 import { useState } from 'react';
-import { Files } from 'lucide-react';
 
 import BtnCallToAction from '../../../btn/BtnCallToAction/BtnCallToAction';
 import CardPostProfile from '../CardPostProfile';
-import ConfirmModal from '../../../ConfirmModal/ConfirmModal';
+import ImageGallery from './media/ImageGallery';
+import DocumentPreview from './media/DocumentPreview';
+import { toSafeUrl } from '../../../../services/safeUrl';
 
-export default function ContentPost({ post, isShare = false, postShare = null, isOpen, onExpand, cardWidth }) {
-  
-  const isCompact = cardWidth < 600;
-  const media = post.media ?? [];
-  const firstMedia = media[0];
-  const hasMultipleMedia = media.length > 1;
+const LONG_TEXT_CHARS = 280;
+const LONG_TEXT_LINES = 5;
+const MAX_PREVIEW_IMAGES = 3;
 
-  const [confirmOpen, setConfirmOpen] = useState(false);
-  const [downloadUrl, setDownloadUrl] = useState(null);
+export default function ContentPost({ post, authorName = '', isShare = false, postShare = null, isOpen, onExpand }) {
 
-  const handleDownloadClick = (url) => {
-    setDownloadUrl(url);
-    setConfirmOpen(true);
-  };
+  const media = (post.media ?? []).filter((m) => toSafeUrl(m.url));
+  const images = media.filter((m) => m.mediaType === 'IMAGE');
+  const documents = media.filter((m) => m.mediaType === 'DOCUMENT');
+  // fechado: até 3 fotos + 1 documento; o resto fica para o "ver mais"
+  const visibleDocuments = isOpen ? documents : documents.slice(0, 1);
+  const hiddenCount = isOpen ? 0
+    : media.length - Math.min(images.length, MAX_PREVIEW_IMAGES) - visibleDocuments.length;
 
-  const handleConfirmDownload = () => {
-    if (!downloadUrl) return;
+  const content = post.content ?? '';
+  const isLongText = content.length > LONG_TEXT_CHARS || content.split('\n').length > LONG_TEXT_LINES;
+  const [expanded, setExpanded] = useState(false);
+  const showFullText = isOpen || expanded || !isLongText;
 
-    const link = document.createElement('a');
-    link.href = downloadUrl;
-    link.download = '';
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
-
-    setConfirmOpen(false);
-    setDownloadUrl(null);
-  };
+  const imageAlt = (index) => `Imagem ${index + 1} da publicação${authorName ? ` de ${authorName}` : ''}`;
 
   return (
-    <>
-      <div className="flex flex-col gap-2 overflow-auto h-fit p-1">
-        <p className={`min-h-fit ${!isOpen && 'max-h-[100px]'} overflow-y-auto text-sm text-gray-700 break-words`}>{post.content}</p>
+    <div className="flex flex-col gap-2 h-fit p-1 min-w-0">
+      {content && (
+        <div>
+          <p className={`text-sm text-gray-700 break-words whitespace-pre-wrap ${showFullText ? '' : 'line-clamp-5'}`}>{content}</p>
+          {isLongText && !isOpen && (
+            <button
+              type="button"
+              onClick={(e) => { e.stopPropagation(); setExpanded((prev) => !prev); }}
+              aria-expanded={expanded}
+              className="mt-1 text-sm font-semibold text-[var(--purple-primary)] hover:underline"
+            >
+              {expanded ? 'Ver menos' : 'Ver mais'}
+            </button>
+          )}
+        </div>
+      )}
 
-        {isShare && postShare && (
-          <>
-            {isCompact ? (
-              <div className="mt-2 p-2 border border-gray-300 rounded-lg bg-gray-50">
-                <p className="text-xs text-gray-500"> 📌 Compartilhando um post de{" "}
-                  <span className="font-semibold">{postShare?.author?.name}</span>
-                </p>
-              </div>
-            ) : (
-              <div className="mt-2 p-3 border border-gray-300 rounded-lg bg-gray-50">
-                <p className="text-xs text-gray-500 mb-2"> 📌 Compartilhando um post de{" "}
-                  <span className="font-semibold">{postShare?.author?.name}</span>.
-                </p>
+      {isShare && postShare && (
+        <div className="mt-2 p-3 border border-gray-300 rounded-lg bg-gray-50 min-w-0">
+          <p className="text-xs text-gray-500 mb-2">
+            <span aria-hidden="true">📌 </span>Compartilhando um post de{" "}
+            <span className="font-semibold">{postShare?.author?.name}</span>
+          </p>
 
-                <CardPostProfile
-                  photo={postShare?.author.profilePic}
-                  name={postShare?.author.name}
-                  handle={postShare?.author.handle}
-                  idAuthor={postShare?.author.id}
-                  post={postShare}
-                  isShare={false}
-                  hideInteractions={true}
-                  isOwner={false}
-                  isPopupView={true}
-                />
-              </div>
-            )}
-          </>
-        )}
-        {isOpen ? (
-          <div className="grid grid-cols-2 sm:grid-cols-3 gap-2 px-2">
-            {media.map((m, i) => {
-              if (m.mediaType === 'IMAGE')
-                return (
-                  <img
-                    key={i}
-                    src={m.url}
-                    alt={`Imagem ${i + 1}`}
-                    className="w-full h-full my-auto object-cover rounded-md cursor-pointer hover:opacity-90 transition"
-                  />
-                );
+          <CardPostProfile
+            photo={postShare?.author?.profilePic}
+            name={postShare?.author?.name}
+            handle={postShare?.author?.handle}
+            idAuthor={postShare?.author?.id}
+            authorType={postShare?.author?.type}
+            post={postShare}
+            isShare={false}
+            hideInteractions={true}
+            isOwner={false}
+            isPopupView={true}
+            isOpen={isOpen}
+            onCardClick={onExpand}
+          />
+        </div>
+      )}
 
-              if (m.mediaType === 'DOCUMENT')
-                return (
-                  <div
-                    key={i}
-                    className="col-span-2 sm:col-span-3 flex items-center justify-between border border-[var(--purple-secunday)] rounded-md p-3 shadow-sm text-[var(--purple-primary)]"
-                  >
-                    <div className="flex items-center gap-3 overflow-hidden">
-                      <Files size={20} />
-                      <span className="text-xs break-all max-w-[200px]">
-                        {m.url.split('/').pop()}
-                      </span>
-                    </div>
-                    <button
-                      type="button"
-                      onClick={() => handleDownloadClick(m.url)}
-                      className="text-sm font-medium hover:underline ml-4 whitespace-nowrap"
-                    >
-                      Abrir
-                    </button>
-                  </div>
-                );
+      {images.length > 0 && <ImageGallery images={images} isOpen={isOpen} altFor={imageAlt} />}
 
-              return null;
-            })}
-          </div>
-        ) : (
+      {visibleDocuments.map((m, i) => <DocumentPreview key={m.id ?? i} url={m.url} />)}
 
-          firstMedia && (
-            <div className="relative flex flex-col justify-center items-center">
-              {firstMedia.mediaType === 'IMAGE' && (
-                <img
-                  src={firstMedia.url}
-                  alt="Imagem do post"
-                  className="w-full max-h-90 object-contain rounded-md"
-                />
-              )}
-
-              {firstMedia.mediaType === 'DOCUMENT' && (
-                <div className="flex items-center justify-between w-full border border-[var(--purple-secunday)] rounded-md p-3 shadow-sm text-[var(--purple-primary)]">
-                  <div className="flex items-center gap-3 overflow-hidden">
-                    <Files size={20} />
-                    <span className="text-xs break-all max-w-[200px]">
-                      {firstMedia.url.split('/').pop()}
-                    </span>
-                  </div>
-                  <a
-                    href={firstMedia.url}
-                    download
-                    className="text-sm font-medium hover:underline ml-4 whitespace-nowrap"
-                  >
-                    Abrir
-                  </a>
-                </div>
-              )}
-
-              {hasMultipleMedia && (
-                <div className="m-3">
-                  <BtnCallToAction onClick={onExpand}>
-                          VER MAIS
-                  </BtnCallToAction>
-                  </div>
-              )}
-            </div>
-          )
-        )}
-      </div>
-
-      <ConfirmModal
-        open={confirmOpen}
-        title="Iniciando download"
-        message="Deseja baixar este arquivo agora?"
-        confirmText="Abrir"
-        cancelText="Cancelar"
-        onCancel={() => setConfirmOpen(false)}
-        onConfirm={handleConfirmDownload}
-        onClick={(e) => e.stopPropagation()}
-      />
-      
-  </>
+      {hiddenCount > 0 && onExpand && (
+        <div className="flex justify-center m-3">
+          <BtnCallToAction
+            onClick={(e) => { e.stopPropagation(); onExpand(); }}
+            aria-label={`Ver todos os ${media.length} anexos da publicação`}
+          >
+            VER MAIS ({media.length})
+          </BtnCallToAction>
+        </div>
+      )}
+    </div>
   );
 }

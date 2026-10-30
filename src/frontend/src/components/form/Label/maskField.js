@@ -1,8 +1,13 @@
 
 export function maskField(type, value) {
-    value = value.replace(/\D/g, ''); 
+    const raw = value ?? '';
+    value = raw.replace(/\D/g, ''); 
   switch (type) {
     case 'telefone':
+        // colado com +55/0055 ou com 0 de operadora: fica só DDD + número
+        if (/^\s*(\+|00)\s*55/.test(raw)) value = value.replace(/^(00)?55/, '');
+        value = value.replace(/^0+/, '').slice(0, 11);
+        if (!value) return '';
         if (value.length <= 2) {
             return `(${value}`;
         }

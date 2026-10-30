@@ -1,7 +1,7 @@
 export default function TimelineCard({children}){
     return (
-        <div className="w-4/5 lg:w-3/5 mx-auto bg-white p-4 sm:p-8 rounded-xl shadow-md mt-8 mb-4 sm:mt-12 sm:mb-6">
+        <section aria-label="Criar publicação" className="w-full bg-white p-4 sm:p-8 rounded-xl shadow-md">
             {children}
-        </div>
+        </section>
     )
 }

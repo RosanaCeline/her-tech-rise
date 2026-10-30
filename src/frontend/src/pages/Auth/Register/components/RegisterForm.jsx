@@ -7,6 +7,17 @@ import RegisterStep2 from './RegisterStep2'
 import RegisterStep3 from './RegisterStep3'
 import RegisterStep4 from './RegisterStep4'
 import { validateField } from '../../../../components/form/Label/validationField'
+import { focusFirstError } from '../../../../components/form/validateForm'
+
+// nomes amigáveis para dizer exatamente qual campo corrigir
+const FIELD_LABELS = {
+    tipo_usuario: 'Tipo de perfil', nome: 'Nome', cpf: 'CPF', cnpj: 'CNPJ', gender: 'Você se identifica como',
+    data_nascimento: 'Data de nascimento', tipo_empresa: 'Tipo de empresa', telefone: 'Telefone',
+    cep: 'CEP', rua: 'Rua', bairro: 'Bairro', cidade: 'Cidade', estado: 'Estado',
+    email: 'Email', senha: 'Senha', senha_confirmada: 'Confirmar senha',
+}
+// campos cujo nome não coincide com o tipo de validação
+const FIELD_TYPES = { data_nascimento: 'data' }
 import BtnCallToAction from '../../../../components/btn/BtnCallToAction/BtnCallToAction'
 
 
@@ -105,10 +116,16 @@ export default function RegisterForm(){
 
     const validateFields = async (fields, message = 'Preencha os campos obrigatórios e corrija os erros antes de continuar') => {
         if (loading) return
-        const hasError = fields.some(field => validateField(field, formData[field], true))
+        const errorOf = (field) => validateField(FIELD_TYPES[field] ?? field, formData[field], true)
+        const invalidField = fields.find(errorOf)
 
-        if (hasError) {
-            setErrorMessage(message)
+        if (invalidField) {
+            const fieldError = errorOf(invalidField)
+            // tipo de perfil é escolhido em cards, a mensagem genérica já explica
+            setErrorMessage(invalidField === 'tipo_usuario'
+                ? message
+                : `${FIELD_LABELS[invalidField] ?? invalidField}: ${fieldError}`)
+            focusFirstError({ [invalidField]: fieldError })
             return
         }
 
@@ -270,7 +287,7 @@ function StepWrapper({ children, step, goBackTo, validateFields, errorMessage, r
             </section>
 
             <div role="alert" aria-live="assertive" className="w-full max-w-2xl mx-auto">
-                {errorMessage && <p className='text-center bg-red-700 rounded-md px-4 py-3'>{errorMessage}</p>}
+                {errorMessage && <p role='alert' className='text-center bg-red-700 rounded-md px-4 py-3 break-words'>{errorMessage}</p>}
                 {registerErrorMessage && <p className='text-center bg-red-700 rounded-md px-4 py-3 mt-2'>{registerErrorMessage}</p>}
             </div>
 

@@ -7,6 +7,8 @@ import { Undo2, CircleX, CircleCheck } from 'lucide-react';
 import { applicationsById } from '../../services/applicationService'
 import ApplicationDetail from './components/ApplicationDetail'
 import LoadingSpinner from '../../components/LoadingSpinner/LoadingSpinner'
+import LoadError from '../../components/LoadError/LoadError';
+import { getErrorMessage } from '../../services/errorMessage';
 
 export default function CompanyApplications(){
 
@@ -22,7 +24,7 @@ export default function CompanyApplications(){
             const response = await applicationsById(id)
             setJobApplications(response)
         } catch (err) {
-            setError('Erro ao carregar detalhes de candidatura.');
+            setError(getErrorMessage(err, 'Não foi possível carregar as candidaturas desta vaga.'));
             console.error(err);
         } finally {
             setLoading(false);
@@ -34,7 +36,7 @@ export default function CompanyApplications(){
     }, []);
 
     if (loading) return ( <LoadingSpinner /> );
-    if (error) return <main className="pt-34"><p className="text-red-600">{error}</p></main>;
+    if (error) return <LoadError message={error} />;
     
     return(
         <main className='flex flex-col bg-[var(--light)] pt-34 pb-6 min-h-full'>
