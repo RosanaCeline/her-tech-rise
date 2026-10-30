@@ -10,30 +10,21 @@ export default function Login ({ resetPass, registerPath, enter }) {
   const accountDeleted = location.state?.accountDeleted;
 
   return (
-    <main className='flex bg-[#F7F7F7]'>
+    <main className='flex min-h-screen bg-[#F7F7F7]'>
       <LoginForm  resetPass = {resetPass}
                   registerPath = {registerPath}
-                  enter = {enter} />
-      <div className='hidden md:w-1/2 md:flex md:flex-col justify-center p-4'>
-
-        {sessionExpired && (
-          <div className="text-base bg-red-700 text-white mt-1 flex items-center gap-2 w-1/2 ml-auto p-4 rounded-md m-4">
-            Sua sessão expirou. Faça login novamente para continuar.
-          </div>
-        )}
-
-        {accountDeleted && (
-          <div className="text-base bg-green-700 text-white mt-1 flex items-center gap-2 w-1/2 ml-auto p-4 rounded-md m-4">
-            Sua conta foi excluída com sucesso.
-          </div>
-        )}
-
-        <img  src={logo} 
-              alt="Logo Her Tech Rise" 
-              className='w-7/8 mx-auto'/>
-        <img  src={login} 
-              alt="Imagem ilustrativa de login" 
-              className='w-2/3 mx-auto'/>
+                  enter = {enter}
+                  sessionExpired = {sessionExpired}
+                  accountDeleted = {accountDeleted} />
+      <div className='hidden md:w-1/2 md:flex md:flex-col justify-center gap-6 p-4'>
+        <img  src={logo}
+              alt="Her Tech Rise"
+              width="1366" height="210"
+              className='w-7/8 h-auto mx-auto'/>
+        <img  src={login}
+              alt=""
+              width="2000" height="2000"
+              className='w-2/3 h-auto mx-auto'/>
       </div>
     </main>
   )
